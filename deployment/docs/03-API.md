@@ -14,20 +14,40 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## 📡 Available Endpoints
+## 📡 Available Endpoints (22 total)
 
+### Authentication
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| `POST` | `/setup-auth` | First-time authentication |
+| `POST` | `/de-auth` | Logout (clear credentials) |
+| `POST` | `/re-auth` | Re-authenticate / switch account |
+| `POST` | `/cleanup-data` | Clean all data (requires confirm) |
+
+### Queries
 | Method | Endpoint | Description |
 |---------|----------|-------------|
 | `GET` | `/health` | Server health check |
 | `POST` | `/ask` | Ask a question to NotebookLM |
-| `POST` | `/setup-auth` | Configure authentication |
+
+### Notebooks
+| Method | Endpoint | Description |
+|---------|----------|-------------|
 | `GET` | `/notebooks` | List all notebooks |
-| `POST` | `/notebooks` | Add a notebook (with validation) |
+| `POST` | `/notebooks` | Add a notebook manually |
 | `POST` | `/notebooks/auto-discover` | Auto-generate notebook metadata |
-| `GET` | `/notebooks/:id` | Notebook details |
+| `GET` | `/notebooks/search` | Search notebooks by query |
+| `GET` | `/notebooks/stats` | Get library statistics |
+| `GET` | `/notebooks/:id` | Get notebook details |
+| `PUT` | `/notebooks/:id` | Update notebook metadata |
 | `DELETE` | `/notebooks/:id` | Delete a notebook |
-| `PUT` | `/notebooks/:id/activate` | Activate a notebook (default) |
+| `PUT` | `/notebooks/:id/activate` | Activate a notebook (set as default) |
+
+### Sessions
+| Method | Endpoint | Description |
+|---------|----------|-------------|
 | `GET` | `/sessions` | List active sessions |
+| `POST` | `/sessions/:id/reset` | Reset session history |
 | `DELETE` | `/sessions/:id` | Close a session |
 
 ---
@@ -571,6 +591,273 @@ curl -X DELETE http://localhost:3000/sessions/9a580eee
   "error": "Session not found: 9a580eee"
 }
 ```
+
+---
+
+## 12. De-authenticate (Logout)
+
+### `POST /de-auth`
+
+Logout by clearing all authentication data. Preserves notebook library.
+
+**Request:**
+```bash
+curl -X POST http://localhost:3000/de-auth
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "status": "de-authenticated",
+    "message": "Successfully logged out. Use setup_auth or re_auth to authenticate again.",
+    "authenticated": false
+  }
+}
+```
+
+**Use cases:**
+- Security logout before shutting down
+- Clearing credentials without re-authenticating
+- Removing access temporarily
+
+---
+
+## 13. Re-authenticate
+
+### `POST /re-auth`
+
+Switch to a different Google account or re-authenticate after logout.
+
+**Request:**
+```bash
+curl -X POST http://localhost:3000/re-auth \
+  -H "Content-Type: application/json" \
+  -d '{
+    "show_browser": true
+  }'
+```
+
+**Body Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|--------|-------------|
+| `show_browser` | boolean | ❌ No | Show browser window (default: true) |
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "status": "authenticated",
+    "message": "Successfully re-authenticated",
+    "authenticated": true,
+    "duration_seconds": 45.2
+  }
+}
+```
+
+**Use cases:**
+- Switching Google accounts
+- Recovery from rate limits (50 queries/day on free accounts)
+- Fresh authentication after errors
+
+---
+
+## 14. Cleanup Data
+
+### `POST /cleanup-data`
+
+Deep cleanup of all NotebookLM MCP data files across 8 categories.
+
+**⚠️ CRITICAL:** Close ALL Chrome/Chromium instances BEFORE running this!
+
+**Request:**
+```bash
+# Preview first (confirm=false)
+curl -X POST http://localhost:3000/cleanup-data \
+  -H "Content-Type: application/json" \
+  -d '{
+    "confirm": false,
+    "preserve_library": true
+  }'
+
+# Execute cleanup (confirm=true)
+curl -X POST http://localhost:3000/cleanup-data \
+  -H "Content-Type: application/json" \
+  -d '{
+    "confirm": true,
+    "preserve_library": true
+  }'
+```
+
+**Body Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|--------|-------------|
+| `confirm` | boolean | ✅ Yes | Must be true to execute (false for preview) |
+| `preserve_library` | boolean | ❌ No | Keep library.json file (default: false) |
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Cleanup completed successfully",
+    "files_deleted": 47,
+    "space_freed_mb": 156.8,
+    "library_preserved": true
+  }
+}
+```
+
+---
+
+## 15. Update Notebook
+
+### `PUT /notebooks/:id`
+
+Update notebook metadata (name, description, topics, etc.).
+
+**Request:**
+```bash
+curl -X PUT http://localhost:3000/notebooks/n8n-workflows \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "n8n Advanced Workflows",
+    "description": "Advanced n8n workflow patterns and best practices",
+    "topics": ["n8n", "automation", "workflows", "advanced"]
+  }'
+```
+
+**Body Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|--------|-------------|
+| `name` | string | ❌ No | New notebook name |
+| `description` | string | ❌ No | New description |
+| `topics` | string[] | ❌ No | New topics array |
+| `use_cases` | string[] | ❌ No | New use cases array |
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "notebook": {
+      "id": "n8n-workflows",
+      "name": "n8n Advanced Workflows",
+      "description": "Advanced n8n workflow patterns and best practices",
+      "topics": ["n8n", "automation", "workflows", "advanced"],
+      "last_modified": "2025-01-24T12:00:00.000Z"
+    }
+  }
+}
+```
+
+---
+
+## 16. Search Notebooks
+
+### `GET /notebooks/search?query=keyword`
+
+Search notebooks by keyword in name, description, or topics.
+
+**Request:**
+```bash
+curl "http://localhost:3000/notebooks/search?query=automation"
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|--------|-------------|
+| `query` | string | ✅ Yes | Search keyword |
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "notebooks": [
+      {
+        "id": "n8n-workflows",
+        "name": "n8n Advanced Workflows",
+        "description": "Advanced n8n workflow patterns",
+        "topics": ["n8n", "automation", "workflows"],
+        "score": 0.95
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 17. Get Library Stats
+
+### `GET /notebooks/stats`
+
+Get statistics about the notebook library.
+
+**Request:**
+```bash
+curl http://localhost:3000/notebooks/stats
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "total_notebooks": 5,
+    "active_notebook_id": "n8n-workflows",
+    "total_queries": 127,
+    "most_used_notebook": {
+      "id": "n8n-workflows",
+      "name": "n8n Advanced Workflows",
+      "use_count": 45
+    },
+    "recently_added": [
+      {
+        "id": "llm-dev",
+        "name": "LLM Development",
+        "added_at": "2025-01-24T10:00:00.000Z"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 18. Reset Session
+
+### `POST /sessions/:id/reset`
+
+Reset a session's chat history while keeping the same session ID.
+
+**Request:**
+```bash
+curl -X POST http://localhost:3000/sessions/9a580eee/reset
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Session reset successfully",
+    "session_id": "9a580eee",
+    "previous_message_count": 12
+  }
+}
+```
+
+**Use cases:**
+- Clean slate for new task without losing session context
+- Starting fresh conversation in same notebook
 
 ---
 

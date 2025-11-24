@@ -478,6 +478,10 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case "de_auth":
+            result = await this.toolHandlers.handleDeAuth();
+            break;
+
           case "re_auth":
             result = await this.toolHandlers.handleReAuth(
               args as { show_browser?: boolean },

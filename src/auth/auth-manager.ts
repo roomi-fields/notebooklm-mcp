@@ -919,10 +919,19 @@ export class AuthManager {
     const shouldShowBrowser = overrideHeadless !== undefined ? overrideHeadless : true;
 
     try {
-      // CRITICAL: Clear ALL old auth data FIRST (for account switching)
-      log.info("🔄 Preparing for new account authentication...");
-      await sendProgress?.("Clearing old authentication data...", 1, 10);
-      await this.clearAllAuthData();
+      // Check if already authenticated
+      const statePath = await this.getValidStatePath();
+      const isAuthenticated = statePath !== null;
+
+      if (isAuthenticated) {
+        log.info("✅ Already authenticated, skipping setup");
+        log.info("   Use 're_auth' tool to switch accounts or re-authenticate");
+        await sendProgress?.("Already authenticated!", 10, 10);
+        return true;
+      }
+
+      log.info("🔄 Preparing for first-time authentication...");
+      await sendProgress?.("Preparing browser...", 1, 10);
 
       log.info("🚀 Launching persistent browser for interactive setup...");
       log.info(`  📍 Profile: ${CONFIG.chromeProfileDir}`);

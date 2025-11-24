@@ -95,6 +95,54 @@ app.post('/setup-auth', async (req: Request, res: Response) => {
   }
 });
 
+// De-authenticate (logout)
+app.post('/de-auth', async (_req: Request, res: Response) => {
+  try {
+    const result = await toolHandlers.handleDeAuth();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+// Re-authenticate
+app.post('/re-auth', async (req: Request, res: Response) => {
+  try {
+    const { show_browser } = req.body;
+
+    const result = await toolHandlers.handleReAuth(
+      { show_browser },
+      async (message, progress, total) => {
+        log.info(`Progress: ${message} (${progress}/${total})`);
+      }
+    );
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+// Cleanup data
+app.post('/cleanup-data', async (req: Request, res: Response) => {
+  try {
+    const { confirm, preserve_library } = req.body;
+    const result = await toolHandlers.handleCleanupData({ confirm, preserve_library });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
 // List notebooks
 app.get('/notebooks', async (_req: Request, res: Response) => {
   try {
@@ -146,10 +194,55 @@ app.get('/notebooks/:id', async (req: Request, res: Response) => {
   }
 });
 
+// Update notebook
+app.put('/notebooks/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await toolHandlers.handleUpdateNotebook({
+      id: req.params.id,
+      ...req.body
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
 // Delete notebook
 app.delete('/notebooks/:id', async (req: Request, res: Response) => {
   try {
     const result = await toolHandlers.handleRemoveNotebook({ id: req.params.id });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+// Search notebooks
+app.get('/notebooks/search', async (req: Request, res: Response) => {
+  try {
+    const { query } = req.query;
+    const result = await toolHandlers.handleSearchNotebooks({
+      query: query as string
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+// Get library stats
+app.get('/notebooks/stats', async (_req: Request, res: Response) => {
+  try {
+    const result = await toolHandlers.handleGetLibraryStats();
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -270,12 +363,25 @@ app.delete('/sessions/:id', async (req: Request, res: Response) => {
   }
 });
 
+// Reset session
+app.post('/sessions/:id/reset', async (req: Request, res: Response) => {
+  try {
+    const result = await toolHandlers.handleResetSession({ session_id: req.params.id });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
 // Start server
 const PORT = Number(process.env.HTTP_PORT) || 3000;
 const HOST = process.env.HTTP_HOST || '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
-  log.success(`🌐 NotebookLM MCP HTTP Server v1.3.0`);
+  log.success(`🌐 NotebookLM MCP HTTP Server v1.3.1`);
   log.success(`   Listening on ${HOST}:${PORT}`);
   log.info('');
   log.info('📊 Quick Links:');
@@ -283,14 +389,30 @@ app.listen(PORT, HOST, () => {
   log.info(`   API endpoint: http://localhost:${PORT}/ask`);
   log.info('');
   log.info('📖 Available Endpoints:');
+  log.info('   Authentication:');
+  log.info('   POST   /setup-auth             First-time authentication');
+  log.info('   POST   /de-auth                Logout (clear credentials)');
+  log.info('   POST   /re-auth                Re-authenticate / switch account');
+  log.info('   POST   /cleanup-data           Clean all data (requires confirm)');
+  log.info('');
+  log.info('   Queries:');
   log.info('   POST   /ask                    Ask a question to NotebookLM');
   log.info('   GET    /health                 Server health check');
+  log.info('');
+  log.info('   Notebooks:');
   log.info('   GET    /notebooks              List all notebooks');
   log.info('   POST   /notebooks              Add a new notebook');
+  log.info('   POST   /notebooks/auto-discover Auto-discover notebook metadata');
+  log.info('   GET    /notebooks/search       Search notebooks by query');
+  log.info('   GET    /notebooks/stats        Get library statistics');
   log.info('   GET    /notebooks/:id          Get notebook details');
+  log.info('   PUT    /notebooks/:id          Update notebook metadata');
   log.info('   DELETE /notebooks/:id          Delete a notebook');
   log.info('   PUT    /notebooks/:id/activate Activate a notebook (set as default)');
+  log.info('');
+  log.info('   Sessions:');
   log.info('   GET    /sessions               List active sessions');
+  log.info('   POST   /sessions/:id/reset     Reset session history');
   log.info('   DELETE /sessions/:id           Close a session');
   log.info('');
   log.info('💡 Configuration:');

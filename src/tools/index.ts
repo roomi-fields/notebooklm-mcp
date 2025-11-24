@@ -615,6 +615,7 @@ User: "Yes" → call remove_notebook`,
         "Returns immediately after opening the browser. You have up to 10 minutes to complete the login. " +
         "Use 'get_health' tool afterwards to verify authentication was saved successfully. " +
         "Use this for first-time authentication or when auto-login credentials are not available. " +
+        "IMPORTANT: If already authenticated, this tool will skip re-authentication. " +
         "For switching accounts or rate-limit workarounds, use 're_auth' tool instead.\n\n" +
         "TROUBLESHOOTING for persistent auth issues:\n" +
         "If setup_auth fails or you encounter browser/session issues:\n" +
@@ -651,6 +652,25 @@ User: "Yes" → call remove_notebook`,
             },
           },
         },
+      },
+    },
+    {
+      name: "de_auth",
+      description:
+        "De-authenticate (logout) - Clears all authentication data for security. " +
+        "Use this when:\n" +
+        "- User wants to log out for security reasons\n" +
+        "- Removing credentials before shutting down\n" +
+        "- Clearing auth without immediately re-authenticating\n\n" +
+        "This will:\n" +
+        "1. Close all active browser sessions\n" +
+        "2. Delete all saved authentication data (cookies, Chrome profile)\n" +
+        "3. Preserve notebook library and other data\n\n" +
+        "IMPORTANT: After de_auth, the server will need re-authentication via setup_auth or re_auth before making queries.\n\n" +
+        "Use 'get_health' to verify de-authentication was successful (authenticated: false).",
+      inputSchema: {
+        type: "object",
+        properties: {},
       },
     },
     {
@@ -1251,12 +1271,63 @@ export class ToolHandlers {
   }
 
   /**
+   * Handle de_auth tool
+   *
+   * De-authenticates (logout) by clearing all authentication data.
+   * This preserves the notebook library but removes all credentials.
+   *
+   * Steps:
+   * 1. Closes all active browser sessions
+   * 2. Deletes all saved authentication data (cookies, Chrome profile)
+   *
+   * Use for security logout or clearing credentials without re-authenticating.
+   */
+  async handleDeAuth(): Promise<
+    ToolResult<{
+      status: string;
+      message: string;
+      authenticated: boolean;
+    }>
+  > {
+    log.info(`🔧 [TOOL] de_auth called`);
+
+    try {
+      // 1. Close all active sessions
+      log.info("  🛑 Closing all sessions...");
+      await this.sessionManager.closeAllSessions();
+      log.success("  ✅ All sessions closed");
+
+      // 2. Clear all auth data
+      log.info("  🗑️  Clearing all authentication data...");
+      await this.authManager.clearAllAuthData();
+      log.success("  ✅ Authentication data cleared");
+
+      log.success(`✅ [TOOL] de_auth completed - Successfully logged out`);
+      return {
+        success: true,
+        data: {
+          status: "de-authenticated",
+          message: "Successfully logged out. Use setup_auth or re_auth to authenticate again.",
+          authenticated: false,
+        },
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] de_auth failed: ${errorMessage}`);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+
+  /**
    * Handle re_auth tool
    *
    * Performs a complete re-authentication:
-   * 1. Closes all active browser sessions
-   * 2. Deletes all saved authentication data (cookies, Chrome profile)
-   * 3. Opens browser for fresh Google login
+   * 1. De-authenticates (calls de_auth internally)
+   * 2. Opens browser for fresh Google login
    *
    * Use for switching Google accounts or recovering from rate limits.
    */
@@ -1290,19 +1361,16 @@ export class ToolHandlers {
     Object.assign(CONFIG, effectiveConfig);
 
     try {
-      // 1. Close all active sessions
-      await sendProgress?.("Closing all active sessions...", 1, 12);
-      log.info("  🛑 Closing all sessions...");
-      await this.sessionManager.closeAllSessions();
-      log.success("  ✅ All sessions closed");
+      // 1. De-authenticate first (logout)
+      await sendProgress?.("De-authenticating...", 1, 12);
+      log.info("  🔓 De-authenticating (logout)...");
+      const deAuthResult = await this.handleDeAuth();
+      if (!deAuthResult.success) {
+        throw new Error(`De-authentication failed: ${deAuthResult.error}`);
+      }
+      log.success("  ✅ De-authentication complete");
 
-      // 2. Clear all auth data
-      await sendProgress?.("Clearing authentication data...", 2, 12);
-      log.info("  🗑️  Clearing all auth data...");
-      await this.authManager.clearAllAuthData();
-      log.success("  ✅ Auth data cleared");
-
-      // 3. Perform fresh setup
+      // 2. Perform fresh setup
       await sendProgress?.("Starting fresh authentication...", 3, 12);
       log.info("  🌐 Starting fresh authentication setup...");
       const success = await this.authManager.performSetup(sendProgress);
