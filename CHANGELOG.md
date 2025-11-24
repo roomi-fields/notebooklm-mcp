@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.2] - 2025-01-24
+
+### Added
+
+**Authentication Management:**
+- New MCP tool `de_auth` for secure logout (clears all credentials without re-authenticating)
+- Separation of concerns: `de_auth` (logout only), `re_auth` (logout + re-authenticate), `setup_auth` (first-time)
+- HTTP API endpoints for complete authentication lifecycle:
+  - `POST /de-auth` - Logout and clear credentials
+  - `POST /re-auth` - Re-authenticate with different account
+  - `POST /cleanup-data` - Clean all data (requires confirmation)
+
+**HTTP API Feature Parity:**
+- Added 7 missing endpoints to achieve 100% parity with MCP stdio tools
+- Authentication: `/de-auth`, `/re-auth`, `/cleanup-data`
+- Notebooks: `PUT /notebooks/:id`, `/notebooks/search`, `/notebooks/stats`
+- Sessions: `POST /sessions/:id/reset`
+- All 22 endpoints now available via both HTTP REST API and MCP stdio
+
+**Documentation:**
+- Complete API reference updated with all 22 endpoints in `deployment/docs/03-API.md`
+- Added curl examples and request/response schemas for all new endpoints
+- Categorized endpoints by type (Authentication, Queries, Notebooks, Sessions)
+
+### Fixed
+
+**Authentication Preservation:**
+- Critical fix: `setup_auth` no longer erases existing authentication
+- Added check for existing auth before clearing credentials
+- Users can now switch between HTTP and MCP stdio modes without re-authenticating
+- Preserves user experience when switching interfaces
+
+**Code Quality:**
+- Refactored `re_auth` to use `de_auth` internally (DRY principle)
+- Improved separation of concerns in authentication flow
+- Better error handling in HTTP wrapper
+
+### Changed
+
+**Version Synchronization:**
+- Updated all version references across codebase to 1.3.2
+- Synchronized versions in package.json, src/index.ts, src/http-wrapper.ts, README.md
+- Consistent versioning across all documentation files
+
+---
+
 ## [1.3.1] - 2025-01-24
 
 ### Added

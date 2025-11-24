@@ -1,6 +1,6 @@
 # Chrome Profile Limitation
 
-## 🚨 Current Limitation (v1.3.0)
+## 🚨 Current Limitation (v1.3.2)
 
 **The HTTP server and MCP stdio modes cannot run simultaneously** due to Chrome profile locking.
 

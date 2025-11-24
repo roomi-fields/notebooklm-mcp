@@ -20,7 +20,7 @@
 
 ---
 
-> **⚠️ Current Limitation (v1.3.0):** HTTP and MCP stdio modes cannot run simultaneously due to Chrome profile locking. Choose one mode at a time, or see [Chrome Profile Limitation](./docs/CHROME_PROFILE_LIMITATION.md) for details. This will be fixed in v1.4.0 with automatic profile separation.
+> **⚠️ Current Limitation (v1.3.2):** HTTP and MCP stdio modes cannot run simultaneously due to Chrome profile locking. Choose one mode at a time, or see [Chrome Profile Limitation](./docs/CHROME_PROFILE_LIMITATION.md) for details. This will be fixed in v1.4.0 with automatic profile separation.
 
 ---
 
@@ -641,7 +641,7 @@ That said, if you run into problems or have questions, feel free to open an issu
 
 ## Roadmap
 
-### ✅ Implemented in v1.3.0
+### ✅ Implemented in v1.3.2
 
 **🤖 Auto-Discovery: Autonomous Resource Discovery**
 - ✅ Automatically generate notebook name, description, and tags via NotebookLM
