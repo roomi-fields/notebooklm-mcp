@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.4] - 2025-11-26
+
+### Fixed
+
+**CLI Scripts:**
+- Fixed `de-auth.ts` CLI script: added missing implementation
+- Improved page load wait logic in authentication flow
+
+**Test Reliability:**
+- Improved `test-auth.ps1` reliability: reduced from 9 tests to 7 focused tests
+- Smart cleanup test that checks auth status before attempting restore
+- Cleanup test now passes regardless of whether manual re-auth is needed
+- Removed strict type validation tests that were testing unimplemented server-side validation
+
+---
+
 ## [1.3.3] - 2025-01-26
 
 ### Security
