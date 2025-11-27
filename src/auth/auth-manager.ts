@@ -12,33 +12,33 @@
  * Based on the Python implementation from auth.py
  */
 
-import type { BrowserContext, Page, ElementHandle } from "patchright";
-import fs from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
-import { CONFIG, NOTEBOOKLM_AUTH_URL } from "../config.js";
-import { log } from "../utils/logger.js";
+import type { BrowserContext, Page, ElementHandle } from 'patchright';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+import { CONFIG, NOTEBOOKLM_AUTH_URL } from '../config.js';
+import { log } from '../utils/logger.js';
 import {
   humanType,
   randomDelay,
   realisticClick,
   randomMouseMovement,
-} from "../utils/stealth-utils.js";
-import type { ProgressCallback } from "../types.js";
+} from '../utils/stealth-utils.js';
+import type { ProgressCallback } from '../types.js';
 
 /**
  * Critical cookie names for Google authentication
  */
 const CRITICAL_COOKIE_NAMES = [
-  "SID",
-  "HSID",
-  "SSID", // Google session
-  "APISID",
-  "SAPISID", // API auth
-  "OSID",
-  "__Secure-OSID", // NotebookLM-specific
-  "__Secure-1PSID",
-  "__Secure-3PSID", // Secure variants
+  'SID',
+  'HSID',
+  'SSID', // Google session
+  'APISID',
+  'SAPISID', // API auth
+  'OSID',
+  '__Secure-OSID', // NotebookLM-specific
+  '__Secure-1PSID',
+  '__Secure-3PSID', // Secure variants
 ];
 
 export class AuthManager {
@@ -46,8 +46,8 @@ export class AuthManager {
   private sessionFilePath: string;
 
   constructor() {
-    this.stateFilePath = path.join(CONFIG.browserStateDir, "state.json");
-    this.sessionFilePath = path.join(CONFIG.browserStateDir, "session.json");
+    this.stateFilePath = path.join(CONFIG.browserStateDir, 'state.json');
+    this.sessionFilePath = path.join(CONFIG.browserStateDir, 'session.json');
   }
 
   // ============================================================================
@@ -81,7 +81,7 @@ export class AuthManager {
           });
 
           await fs.writeFile(this.sessionFilePath, sessionStorageData, {
-            encoding: "utf-8",
+            encoding: 'utf-8',
           });
 
           const entries = Object.keys(JSON.parse(sessionStorageData)).length;
@@ -90,7 +90,7 @@ export class AuthManager {
           log.warning(`⚠️  State saved, but sessionStorage failed: ${error}`);
         }
       } else {
-        log.success("✅ Browser state saved");
+        log.success('✅ Browser state saved');
       }
 
       return true;
@@ -133,8 +133,8 @@ export class AuthManager {
     }
 
     if (await this.isStateExpired()) {
-      log.warning("⚠️  Saved state is expired (>24h old)");
-      log.info("💡 Run setup_auth tool to re-authenticate");
+      log.warning('⚠️  Saved state is expired (>24h old)');
+      log.info('💡 Run setup_auth tool to re-authenticate');
       return null;
     }
 
@@ -146,7 +146,7 @@ export class AuthManager {
    */
   async loadSessionStorage(): Promise<Record<string, string> | null> {
     try {
-      const data = await fs.readFile(this.sessionFilePath, { encoding: "utf-8" });
+      const data = await fs.readFile(this.sessionFilePath, { encoding: 'utf-8' });
       const sessionData = JSON.parse(data);
       log.success(`✅ Loaded sessionStorage (${Object.keys(sessionData).length} entries)`);
       return sessionData;
@@ -167,16 +167,14 @@ export class AuthManager {
     try {
       const cookies = await context.cookies();
       if (cookies.length === 0) {
-        log.warning("⚠️  No cookies found in state");
+        log.warning('⚠️  No cookies found in state');
         return false;
       }
 
       // Check for Google auth cookies
-      const googleCookies = cookies.filter((c) =>
-        c.domain.includes("google.com")
-      );
+      const googleCookies = cookies.filter((c) => c.domain.includes('google.com'));
       if (googleCookies.length === 0) {
-        log.warning("⚠️  No Google cookies found");
+        log.warning('⚠️  No Google cookies found');
         return false;
       }
 
@@ -191,7 +189,7 @@ export class AuthManager {
         }
       }
 
-      log.success("✅ State validation passed");
+      log.success('✅ State validation passed');
       return true;
     } catch (error) {
       log.warning(`⚠️  State validation failed: ${error}`);
@@ -206,17 +204,15 @@ export class AuthManager {
     try {
       const cookies = await context.cookies();
       if (cookies.length === 0) {
-        log.warning("⚠️  No cookies found");
+        log.warning('⚠️  No cookies found');
         return false;
       }
 
       // Find critical cookies
-      const criticalCookies = cookies.filter((c) =>
-        CRITICAL_COOKIE_NAMES.includes(c.name)
-      );
+      const criticalCookies = cookies.filter((c) => CRITICAL_COOKIE_NAMES.includes(c.name));
 
       if (criticalCookies.length === 0) {
-        log.warning("⚠️  No critical auth cookies found");
+        log.warning('⚠️  No critical auth cookies found');
         return false;
       }
 
@@ -239,7 +235,7 @@ export class AuthManager {
       }
 
       if (expiredCookies.length > 0) {
-        log.warning(`⚠️  Expired cookies: ${expiredCookies.join(", ")}`);
+        log.warning(`⚠️  Expired cookies: ${expiredCookies.join(', ')}`);
         return false;
       }
 
@@ -284,22 +280,22 @@ export class AuthManager {
    */
   async performLogin(page: Page, sendProgress?: ProgressCallback): Promise<boolean> {
     try {
-      log.info("🌐 Opening Google login page...");
-      log.warning("📝 Please login to your Google account");
-      log.warning("⏳ Browser will close automatically once you reach NotebookLM");
-      log.info("");
+      log.info('🌐 Opening Google login page...');
+      log.warning('📝 Please login to your Google account');
+      log.warning('⏳ Browser will close automatically once you reach NotebookLM');
+      log.info('');
 
       // Progress: Navigating
-      await sendProgress?.("Navigating to Google login...", 3, 10);
+      await sendProgress?.('Navigating to Google login...', 3, 10);
 
       // Navigate to Google login (redirects to NotebookLM after auth)
       await page.goto(NOTEBOOKLM_AUTH_URL, { timeout: 60000 });
 
       // Progress: Waiting for login
-      await sendProgress?.("Waiting for manual login (up to 10 minutes)...", 4, 10);
+      await sendProgress?.('Waiting for manual login (up to 10 minutes)...', 4, 10);
 
       // Wait for user to complete login
-      log.warning("⏳ Waiting for login (up to 10 minutes)...");
+      log.warning('⏳ Waiting for login (up to 10 minutes)...');
 
       const checkIntervalMs = 1000; // Check every 1 second
       const maxAttempts = 600; // 10 minutes total
@@ -322,9 +318,9 @@ export class AuthManager {
           }
 
           // ✅ SIMPLE: Check if we're on NotebookLM (any path!)
-          if (currentUrl.startsWith("https://notebooklm.google.com/")) {
-            await sendProgress?.("Login successful! NotebookLM detected!", 9, 10);
-            log.success("✅ Login successful! NotebookLM URL detected.");
+          if (currentUrl.startsWith('https://notebooklm.google.com/')) {
+            await sendProgress?.('Login successful! NotebookLM detected!', 9, 10);
+            log.success('✅ Login successful! NotebookLM URL detected.');
             log.success(`✅ Current URL: ${currentUrl}`);
 
             // ✅ CRITICAL: Wait for page to fully load before saving cookies
@@ -332,26 +328,26 @@ export class AuthManager {
             // 1. Complete the OAuth redirect
             // 2. Generate session cookies (__Secure-OSID, etc.)
             // 3. Load the application and establish session
-            log.info("⏳ Waiting for NotebookLM to fully load (10 seconds)...");
-            await sendProgress?.("Waiting for page to fully load...", 9, 10);
+            log.info('⏳ Waiting for NotebookLM to fully load (10 seconds)...');
+            await sendProgress?.('Waiting for page to fully load...', 9, 10);
 
             // Wait for network to be idle (no more requests for 500ms)
             try {
-              await page.waitForLoadState("networkidle", { timeout: 15000 });
-              log.success("✅ Page network is idle");
+              await page.waitForLoadState('networkidle', { timeout: 15000 });
+              log.success('✅ Page network is idle');
             } catch {
-              log.warning("⚠️  Network idle timeout - continuing anyway");
+              log.warning('⚠️  Network idle timeout - continuing anyway');
             }
 
             // Additional buffer to ensure all cookies are set
             await page.waitForTimeout(5000);
-            log.success("✅ Page fully loaded, cookies should be set");
+            log.success('✅ Page fully loaded, cookies should be set');
 
             return true;
           }
 
           // Still on accounts.google.com - log periodically
-          if (currentUrl.includes("accounts.google.com") && attempt % 30 === 0 && attempt > 0) {
+          if (currentUrl.includes('accounts.google.com') && attempt % 30 === 0 && attempt > 0) {
             log.warning(`⏳ Still waiting... (${elapsedSeconds}s elapsed)`);
           }
 
@@ -364,13 +360,13 @@ export class AuthManager {
 
       // Timeout reached - final check
       const currentUrl = page.url();
-      if (currentUrl.startsWith("https://notebooklm.google.com/")) {
-        await sendProgress?.("Login successful (detected on timeout check)!", 9, 10);
-        log.success("✅ Login successful (detected on timeout check)");
+      if (currentUrl.startsWith('https://notebooklm.google.com/')) {
+        await sendProgress?.('Login successful (detected on timeout check)!', 9, 10);
+        log.success('✅ Login successful (detected on timeout check)');
         return true;
       }
 
-      log.error("❌ Login verification failed - timeout reached");
+      log.error('❌ Login verification failed - timeout reached');
       log.warning(`Current URL: ${currentUrl}`);
       return false;
     } catch (error) {
@@ -397,20 +393,20 @@ export class AuthManager {
 
     // Log browser visibility
     if (!CONFIG.headless) {
-      log.info("  👁️  Browser is VISIBLE for debugging");
+      log.info('  👁️  Browser is VISIBLE for debugging');
     } else {
-      log.info("  🙈 Browser is HEADLESS (invisible)");
+      log.info('  🙈 Browser is HEADLESS (invisible)');
     }
 
     log.info(`  🌐 Navigating to Google login...`);
 
     try {
       await page.goto(NOTEBOOKLM_AUTH_URL, {
-        waitUntil: "domcontentloaded",
+        waitUntil: 'domcontentloaded',
         timeout: CONFIG.browserTimeout,
       });
       log.success(`  ✅ Page loaded: ${page.url().slice(0, 80)}...`);
-    } catch (error) {
+    } catch {
       log.warning(`  ⚠️  Page load timeout (continuing anyway)`);
     }
 
@@ -418,40 +414,40 @@ export class AuthManager {
     log.info(`  ⏰ Auto-login timeout: ${CONFIG.autoLoginTimeoutMs / 1000}s`);
 
     // Already on NotebookLM?
-    log.info("  🔍 Checking if already authenticated...");
+    log.info('  🔍 Checking if already authenticated...');
     if (await this.waitForNotebook(page, CONFIG.autoLoginTimeoutMs)) {
-      log.success("✅ Already authenticated");
+      log.success('✅ Already authenticated');
       await this.saveBrowserState(context, page);
       return true;
     }
 
-    log.warning("  ❌ Not authenticated yet, proceeding with login...");
+    log.warning('  ❌ Not authenticated yet, proceeding with login...');
 
     // Handle possible account chooser
-    log.info("  🔍 Checking for account chooser...");
+    log.info('  🔍 Checking for account chooser...');
     if (await this.handleAccountChooser(page, email)) {
-      log.success("  ✅ Account selected from chooser");
+      log.success('  ✅ Account selected from chooser');
       if (await this.waitForNotebook(page, CONFIG.autoLoginTimeoutMs)) {
-        log.success("✅ Automatic login successful");
+        log.success('✅ Automatic login successful');
         await this.saveBrowserState(context, page);
         return true;
       }
     }
 
     // Email step
-    log.info("  📧 Entering email address...");
+    log.info('  📧 Entering email address...');
     if (!(await this.fillIdentifier(page, email))) {
       if (await this.waitForNotebook(page, CONFIG.autoLoginTimeoutMs)) {
-        log.success("✅ Automatic login successful");
+        log.success('✅ Automatic login successful');
         await this.saveBrowserState(context, page);
         return true;
       }
-      log.warning("⚠️  Email input not detected");
+      log.warning('⚠️  Email input not detected');
     }
 
     // Password step (wait until visible)
     let waitAttempts = 0;
-    log.warning("  ⏳ Waiting for password page to load...");
+    log.warning('  ⏳ Waiting for password page to load...');
 
     while (Date.now() < deadline && !(await this.fillPassword(page, password))) {
       waitAttempts++;
@@ -466,31 +462,28 @@ export class AuthManager {
         log.info(`  📍 Current URL: ${page.url().slice(0, 100)}`);
       }
 
-      if (page.url().includes("challenge")) {
-        log.warning("⚠️  Additional verification required (Google challenge page).");
+      if (page.url().includes('challenge')) {
+        log.warning('⚠️  Additional verification required (Google challenge page).');
         return false;
       }
       await page.waitForTimeout(500);
     }
 
     // Wait for Google redirect after login
-    log.info("  🔄 Waiting for Google redirect to NotebookLM...");
+    log.info('  🔄 Waiting for Google redirect to NotebookLM...');
 
     if (await this.waitForRedirectAfterLogin(page, deadline)) {
-      log.success("✅ Automatic login successful");
+      log.success('✅ Automatic login successful');
       await this.saveBrowserState(context, page);
       return true;
     }
 
     // Login failed - diagnose
-    log.error("❌ Automatic login timed out");
+    log.error('❌ Automatic login timed out');
 
     // Take screenshot for debugging
     try {
-      const screenshotPath = path.join(
-        CONFIG.dataDir,
-        `login_failed_${Date.now()}.png`
-      );
+      const screenshotPath = path.join(CONFIG.dataDir, `login_failed_${Date.now()}.png`);
       await page.screenshot({ path: screenshotPath });
       log.info(`  📸 Screenshot saved: ${screenshotPath}`);
     } catch (error) {
@@ -499,26 +492,24 @@ export class AuthManager {
 
     // Diagnose specific failure reason
     const currentUrl = page.url();
-    log.warning("  🔍 Diagnosing failure...");
+    log.warning('  🔍 Diagnosing failure...');
 
-    if (currentUrl.includes("accounts.google.com")) {
-      if (currentUrl.includes("/signin/identifier")) {
-        log.error("  ❌ Still on email page - email input might have failed");
-        log.info("  💡 Check if email is correct in .env");
-      } else if (currentUrl.includes("/challenge")) {
-        log.error(
-          "  ❌ Google requires additional verification (2FA, CAPTCHA, suspicious login)"
-        );
-        log.info("  💡 Try logging in manually first: use setup_auth tool");
-      } else if (currentUrl.includes("/pwd") || currentUrl.includes("/password")) {
-        log.error("  ❌ Still on password page - password input might have failed");
-        log.info("  💡 Check if password is correct in .env");
+    if (currentUrl.includes('accounts.google.com')) {
+      if (currentUrl.includes('/signin/identifier')) {
+        log.error('  ❌ Still on email page - email input might have failed');
+        log.info('  💡 Check if email is correct in .env');
+      } else if (currentUrl.includes('/challenge')) {
+        log.error('  ❌ Google requires additional verification (2FA, CAPTCHA, suspicious login)');
+        log.info('  💡 Try logging in manually first: use setup_auth tool');
+      } else if (currentUrl.includes('/pwd') || currentUrl.includes('/password')) {
+        log.error('  ❌ Still on password page - password input might have failed');
+        log.info('  💡 Check if password is correct in .env');
       } else {
         log.error(`  ❌ Stuck on Google accounts page: ${currentUrl.slice(0, 80)}...`);
       }
-    } else if (currentUrl.includes("notebooklm.google.com")) {
+    } else if (currentUrl.includes('notebooklm.google.com')) {
       log.warning("  ⚠️  Reached NotebookLM but couldn't detect successful login");
-      log.info("  💡 This might be a timing issue - try again");
+      log.info('  💡 This might be a timing issue - try again');
     } else {
       log.error(`  ❌ Unexpected page: ${currentUrl.slice(0, 80)}...`);
     }
@@ -536,19 +527,16 @@ export class AuthManager {
    * Just checks if URL changes to notebooklm.google.com - no complex UI element searching!
    * Matches the simplified approach used in performLogin().
    */
-  private async waitForRedirectAfterLogin(
-    page: Page,
-    deadline: number
-  ): Promise<boolean> {
-    log.info("    ⏳ Waiting for redirect to NotebookLM...");
+  private async waitForRedirectAfterLogin(page: Page, deadline: number): Promise<boolean> {
+    log.info('    ⏳ Waiting for redirect to NotebookLM...');
 
     while (Date.now() < deadline) {
       try {
         const currentUrl = page.url();
 
         // Simple check: Are we on NotebookLM?
-        if (currentUrl.startsWith("https://notebooklm.google.com/")) {
-          log.success("    ✅ NotebookLM URL detected!");
+        if (currentUrl.startsWith('https://notebooklm.google.com/')) {
+          log.success('    ✅ NotebookLM URL detected!');
           // Short wait to ensure page is loaded
           await page.waitForTimeout(2000);
           return true;
@@ -560,7 +548,7 @@ export class AuthManager {
       await page.waitForTimeout(500);
     }
 
-    log.error("    ❌ Redirect timeout - NotebookLM URL not reached");
+    log.error('    ❌ Redirect timeout - NotebookLM URL not reached');
     return false;
   }
 
@@ -578,8 +566,8 @@ export class AuthManager {
         const currentUrl = page.url();
 
         // Simple check: Are we on NotebookLM?
-        if (currentUrl.startsWith("https://notebooklm.google.com/")) {
-          log.success("  ✅ NotebookLM URL detected");
+        if (currentUrl.startsWith('https://notebooklm.google.com/')) {
+          log.success('  ✅ NotebookLM URL detected');
           return true;
         }
       } catch {
@@ -597,11 +585,11 @@ export class AuthManager {
    */
   private async handleAccountChooser(page: Page, email: string): Promise<boolean> {
     try {
-      const chooser = await page.$$("div[data-identifier], li[data-identifier]");
+      const chooser = await page.$$('div[data-identifier], li[data-identifier]');
 
       if (chooser.length > 0) {
         for (const item of chooser) {
-          const identifier = (await item.getAttribute("data-identifier"))?.toLowerCase() || "";
+          const identifier = (await item.getAttribute('data-identifier'))?.toLowerCase() || '';
           if (identifier === email.toLowerCase()) {
             await item.click();
             await randomDelay(150, 320);
@@ -612,9 +600,9 @@ export class AuthManager {
 
         // Click "Use another account"
         await this.clickText(page, [
-          "Use another account",
-          "Weiteres Konto hinzufügen",
-          "Anderes Konto verwenden",
+          'Use another account',
+          'Weiteres Konto hinzufügen',
+          'Anderes Konto verwenden',
         ]);
         await randomDelay(150, 320);
         return false;
@@ -630,10 +618,10 @@ export class AuthManager {
    * Fill email identifier field with human-like typing
    */
   private async fillIdentifier(page: Page, email: string): Promise<boolean> {
-    log.info("    📧 Looking for email field...");
+    log.info('    📧 Looking for email field...');
 
     const emailSelectors = [
-      "input#identifierId",
+      'input#identifierId',
       "input[name='identifier']",
       "input[type='email']",
     ];
@@ -644,7 +632,7 @@ export class AuthManager {
     for (const selector of emailSelectors) {
       try {
         const candidate = await page.waitForSelector(selector, {
-          state: "attached",
+          state: 'attached',
           timeout: 3000,
         });
         if (!candidate) continue;
@@ -667,7 +655,7 @@ export class AuthManager {
     }
 
     if (!emailField || !emailSelector) {
-      log.warning("    ℹ️  No visible email field found (likely pre-filled)");
+      log.warning('    ℹ️  No visible email field found (likely pre-filled)');
       log.info(`    📍 Current URL: ${page.url().slice(0, 100)}`);
       return false;
     }
@@ -693,7 +681,7 @@ export class AuthManager {
       try {
         await emailField.focus();
       } catch {
-        log.error("    ❌ Failed to focus email field");
+        log.error('    ❌ Failed to focus email field');
         return false;
       }
     }
@@ -701,14 +689,16 @@ export class AuthManager {
     // ✅ FASTER: Programmer typing speed (90-120 WPM from config)
     log.info(`    ⌨️  Typing email: ${this.maskEmail(email)}`);
     try {
-      const wpm = CONFIG.typingWpmMin + Math.floor(Math.random() * (CONFIG.typingWpmMax - CONFIG.typingWpmMin + 1));
+      const wpm =
+        CONFIG.typingWpmMin +
+        Math.floor(Math.random() * (CONFIG.typingWpmMax - CONFIG.typingWpmMin + 1));
       await humanType(page, emailSelector, email, { wpm, withTypos: false });
-      log.success("    ✅ Email typed successfully");
+      log.success('    ✅ Email typed successfully');
     } catch (error) {
       log.error(`    ❌ Typing failed: ${error}`);
       try {
         await page.fill(emailSelector, email);
-        log.success("    ✅ Filled email using fallback");
+        log.success('    ✅ Filled email using fallback');
       } catch {
         return false;
       }
@@ -718,12 +708,12 @@ export class AuthManager {
     await randomDelay(400, 1200);
 
     // Click Next button
-    log.info("    🔘 Looking for Next button...");
+    log.info('    🔘 Looking for Next button...');
 
     const nextSelectors = [
       "button:has-text('Next')",
       "button:has-text('Weiter')",
-      "#identifierNext",
+      '#identifierNext',
     ];
 
     let nextClicked = false;
@@ -742,13 +732,13 @@ export class AuthManager {
     }
 
     if (!nextClicked) {
-      log.warning("    ⚠️  Button not found, pressing Enter");
-      await emailField.press("Enter");
+      log.warning('    ⚠️  Button not found, pressing Enter');
+      await emailField.press('Enter');
     }
 
     // Variable delay
     await randomDelay(800, 1500);
-    log.success("    ✅ Email step complete");
+    log.success('    ✅ Email step complete');
     return true;
   }
 
@@ -756,7 +746,7 @@ export class AuthManager {
    * Fill password field with human-like typing
    */
   private async fillPassword(page: Page, password: string): Promise<boolean> {
-    log.info("    🔐 Looking for password field...");
+    log.info('    🔐 Looking for password field...');
 
     const passwordSelectors = ["input[name='Passwd']", "input[type='password']"];
 
@@ -800,13 +790,15 @@ export class AuthManager {
     }
 
     // ✅ FASTER: Programmer typing speed (90-120 WPM from config)
-    log.info("    ⌨️  Typing password...");
+    log.info('    ⌨️  Typing password...');
     try {
-      const wpm = CONFIG.typingWpmMin + Math.floor(Math.random() * (CONFIG.typingWpmMax - CONFIG.typingWpmMin + 1));
+      const wpm =
+        CONFIG.typingWpmMin +
+        Math.floor(Math.random() * (CONFIG.typingWpmMax - CONFIG.typingWpmMin + 1));
       if (passwordSelector) {
         await humanType(page, passwordSelector, password, { wpm, withTypos: false });
       }
-      log.success("    ✅ Password typed successfully");
+      log.success('    ✅ Password typed successfully');
     } catch (error) {
       log.error(`    ❌ Typing failed: ${error}`);
       return false;
@@ -816,12 +808,12 @@ export class AuthManager {
     await randomDelay(300, 1000);
 
     // Click Next button
-    log.info("    🔘 Looking for Next button...");
+    log.info('    🔘 Looking for Next button...');
 
     const pwdNextSelectors = [
       "button:has-text('Next')",
       "button:has-text('Weiter')",
-      "#passwordNext",
+      '#passwordNext',
     ];
 
     let pwdNextClicked = false;
@@ -840,13 +832,13 @@ export class AuthManager {
     }
 
     if (!pwdNextClicked) {
-      log.warning("    ⚠️  Button not found, pressing Enter");
-      await passwordField.press("Enter");
+      log.warning('    ⚠️  Button not found, pressing Enter');
+      await passwordField.press('Enter');
     }
 
     // Variable delay
     await randomDelay(800, 1500);
-    log.success("    ✅ Password step complete");
+    log.success('    ✅ Password step complete');
     return true;
   }
 
@@ -874,14 +866,14 @@ export class AuthManager {
    * Mask email for logging
    */
   private maskEmail(email: string): string {
-    if (!email.includes("@")) {
-      return "***";
+    if (!email.includes('@')) {
+      return '***';
     }
-    const [name, domain] = email.split("@");
+    const [name, domain] = email.split('@');
     if (name.length <= 2) {
-      return `${"*".repeat(name.length)}@${domain}`;
+      return `${'*'.repeat(name.length)}@${domain}`;
     }
-    return `${name[0]}${"*".repeat(name.length - 2)}${name[name.length - 1]}@${domain}`;
+    return `${name[0]}${'*'.repeat(name.length - 2)}${name[name.length - 1]}@${domain}`;
   }
 
   // ============================================================================
@@ -894,7 +886,7 @@ export class AuthManager {
   async loadAuthState(context: BrowserContext, statePath: string): Promise<boolean> {
     try {
       // Read state.json
-      const stateData = await fs.readFile(statePath, { encoding: "utf-8" });
+      const stateData = await fs.readFile(statePath, { encoding: 'utf-8' });
       const state = JSON.parse(stateData);
 
       // Add cookies to context
@@ -929,8 +921,11 @@ export class AuthManager {
    * @param overrideHeadless Optional override for headless mode (true = visible, false = headless)
    *                         If not provided, defaults to true (visible) for setup
    */
-  async performSetup(sendProgress?: ProgressCallback, overrideHeadless?: boolean): Promise<boolean> {
-    const { chromium } = await import("patchright");
+  async performSetup(
+    sendProgress?: ProgressCallback,
+    overrideHeadless?: boolean
+  ): Promise<boolean> {
+    const { chromium } = await import('patchright');
 
     // Determine headless mode: override or default to true (visible for setup)
     // overrideHeadless contains show_browser value (true = show, false = hide)
@@ -942,37 +937,34 @@ export class AuthManager {
       const isAuthenticated = statePath !== null;
 
       if (isAuthenticated) {
-        log.info("✅ Already authenticated, skipping setup");
+        log.info('✅ Already authenticated, skipping setup');
         log.info("   Use 're_auth' tool to switch accounts or re-authenticate");
-        await sendProgress?.("Already authenticated!", 10, 10);
+        await sendProgress?.('Already authenticated!', 10, 10);
         return true;
       }
 
-      log.info("🔄 Preparing for first-time authentication...");
-      await sendProgress?.("Preparing browser...", 1, 10);
+      log.info('🔄 Preparing for first-time authentication...');
+      await sendProgress?.('Preparing browser...', 1, 10);
 
-      log.info("🚀 Launching persistent browser for interactive setup...");
+      log.info('🚀 Launching persistent browser for interactive setup...');
       log.info(`  📍 Profile: ${CONFIG.chromeProfileDir}`);
-      await sendProgress?.("Launching persistent browser...", 2, 10);
+      await sendProgress?.('Launching persistent browser...', 2, 10);
 
       // ✅ CRITICAL FIX: Use launchPersistentContext (same as runtime!)
       // This ensures session cookies persist correctly
-      const context = await chromium.launchPersistentContext(
-        CONFIG.chromeProfileDir,
-        {
-          headless: !shouldShowBrowser, // Use override or default to visible for setup
-          channel: "chrome" as const,
-          viewport: CONFIG.viewport,
-          locale: "en-US",
-          timezoneId: "Europe/Berlin",
-          args: [
-            "--disable-blink-features=AutomationControlled",
-            "--disable-dev-shm-usage",
-            "--no-first-run",
-            "--no-default-browser-check",
-          ],
-        }
-      );
+      const context = await chromium.launchPersistentContext(CONFIG.chromeProfileDir, {
+        headless: !shouldShowBrowser, // Use override or default to visible for setup
+        channel: 'chrome' as const,
+        viewport: CONFIG.viewport,
+        locale: 'en-US',
+        timezoneId: 'Europe/Berlin',
+        args: [
+          '--disable-blink-features=AutomationControlled',
+          '--disable-dev-shm-usage',
+          '--no-first-run',
+          '--no-default-browser-check',
+        ],
+      });
 
       // Get or create a page
       const pages = context.pages();
@@ -984,19 +976,19 @@ export class AuthManager {
       if (loginSuccess) {
         // ✅ Save browser state to state.json (for validation & backup)
         // Chrome ALSO saves everything to the persistent profile automatically!
-        await sendProgress?.("Saving authentication state...", 9, 10);
+        await sendProgress?.('Saving authentication state...', 9, 10);
         await this.saveBrowserState(context, page);
 
         // ✅ CRITICAL FIX: Wait for Chrome to flush profile to disk
         // Windows needs time to write persistent data (cookies, cache, session storage, etc.)
         // Without this delay, chrome_profile/ folder remains empty!
-        log.info("⏳ Waiting for Chrome to finalize profile writes (5 seconds)...");
-        await page.waitForTimeout(5000);  // 5 seconds buffer for Windows filesystem
+        log.info('⏳ Waiting for Chrome to finalize profile writes (5 seconds)...');
+        await page.waitForTimeout(5000); // 5 seconds buffer for Windows filesystem
 
-        log.success("✅ Setup complete - authentication saved to:");
+        log.success('✅ Setup complete - authentication saved to:');
         log.success(`  📄 State file: ${this.stateFilePath}`);
         log.success(`  📁 Chrome profile: ${CONFIG.chromeProfileDir}`);
-        log.info("💡 Session cookies will now persist across restarts!");
+        log.info('💡 Session cookies will now persist across restarts!');
       }
 
       // Close persistent context
@@ -1024,7 +1016,7 @@ export class AuthManager {
    * Use this BEFORE authenticating a new account!
    */
   async clearAllAuthData(): Promise<void> {
-    log.warning("🗑️  Clearing ALL authentication data for account switch...");
+    log.warning('🗑️  Clearing ALL authentication data for account switch...');
 
     let deletedCount = 0;
 
@@ -1032,7 +1024,7 @@ export class AuthManager {
     try {
       const files = await fs.readdir(CONFIG.browserStateDir);
       for (const file of files) {
-        if (file.endsWith(".json")) {
+        if (file.endsWith('.json')) {
           await fs.unlink(path.join(CONFIG.browserStateDir, file));
           log.info(`  ✅ Deleted: ${file}`);
           deletedCount++;
@@ -1056,7 +1048,7 @@ export class AuthManager {
     }
 
     if (deletedCount === 0) {
-      log.info("  ℹ️  No old auth data found (already clean)");
+      log.info('  ℹ️  No old auth data found (already clean)');
     } else {
       log.success(`✅ All auth data cleared (${deletedCount} items) - ready for new account!`);
     }
@@ -1079,7 +1071,7 @@ export class AuthManager {
         // File doesn't exist
       }
 
-      log.success("✅ Authentication state cleared");
+      log.success('✅ Authentication state cleared');
       return true;
     } catch (error) {
       log.error(`❌ Failed to clear state: ${error}`);
@@ -1092,7 +1084,7 @@ export class AuthManager {
    */
   async hardResetState(): Promise<boolean> {
     try {
-      log.warning("🧹 Performing HARD RESET of all authentication state...");
+      log.warning('🧹 Performing HARD RESET of all authentication state...');
 
       let deletedCount = 0;
 
@@ -1127,7 +1119,7 @@ export class AuthManager {
       }
 
       if (deletedCount === 0) {
-        log.info("  ℹ️  No state to delete (already clean)");
+        log.info('  ℹ️  No state to delete (already clean)');
       } else {
         log.success(`✅ Hard reset complete: ${deletedCount} items deleted`);
       }

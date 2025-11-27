@@ -17,14 +17,14 @@
  * Platform support: Linux, Windows, macOS
  */
 
-import fs from "fs/promises";
-import path from "path";
-import { globby } from "globby";
-import envPaths from "env-paths";
-import os from "os";
-import { log } from "./logger.js";
+import fs from 'fs/promises';
+import path from 'path';
+import { globby } from 'globby';
+import envPaths from 'env-paths';
+import os from 'os';
+import { log } from './logger.js';
 
-export type CleanupMode = "legacy" | "all" | "deep";
+export type CleanupMode = 'legacy' | 'all' | 'deep';
 
 export interface CleanupResult {
   success: boolean;
@@ -62,9 +62,9 @@ export class CleanupManager {
     // IMPORTANT: envPaths() has a default suffix 'nodejs', so we must explicitly disable it!
 
     // Legacy paths with -nodejs suffix (using default suffix behavior)
-    this.legacyPaths = envPaths("notebooklm-mcp");  // This becomes notebooklm-mcp-nodejs by default
+    this.legacyPaths = envPaths('notebooklm-mcp'); // This becomes notebooklm-mcp-nodejs by default
     // Current paths without suffix (disable the default suffix with empty string)
-    this.currentPaths = envPaths("notebooklm-mcp", {suffix: ""});
+    this.currentPaths = envPaths('notebooklm-mcp', { suffix: '' });
     // Platform-agnostic paths
     this.homeDir = os.homedir();
     this.tempDir = os.tmpdir();
@@ -78,7 +78,7 @@ export class CleanupManager {
    * Get NPM cache directory (platform-specific)
    */
   private getNpmCachePath(): string {
-    return path.join(this.homeDir, ".npm");
+    return path.join(this.homeDir, '.npm');
   }
 
   /**
@@ -87,14 +87,14 @@ export class CleanupManager {
   private getClaudeCliCachePath(): string {
     const platform = process.platform;
 
-    if (platform === "win32") {
-      const localAppData = process.env.LOCALAPPDATA || path.join(this.homeDir, "AppData", "Local");
-      return path.join(localAppData, "claude-cli-nodejs");
-    } else if (platform === "darwin") {
-      return path.join(this.homeDir, "Library", "Caches", "claude-cli-nodejs");
+    if (platform === 'win32') {
+      const localAppData = process.env.LOCALAPPDATA || path.join(this.homeDir, 'AppData', 'Local');
+      return path.join(localAppData, 'claude-cli-nodejs');
+    } else if (platform === 'darwin') {
+      return path.join(this.homeDir, 'Library', 'Caches', 'claude-cli-nodejs');
     } else {
       // Linux and others
-      return path.join(this.homeDir, ".cache", "claude-cli-nodejs");
+      return path.join(this.homeDir, '.cache', 'claude-cli-nodejs');
     }
   }
 
@@ -104,14 +104,14 @@ export class CleanupManager {
   private getClaudeProjectsPath(): string {
     const platform = process.platform;
 
-    if (platform === "win32") {
-      const appData = process.env.APPDATA || path.join(this.homeDir, "AppData", "Roaming");
-      return path.join(appData, ".claude", "projects");
-    } else if (platform === "darwin") {
-      return path.join(this.homeDir, "Library", "Application Support", "claude", "projects");
+    if (platform === 'win32') {
+      const appData = process.env.APPDATA || path.join(this.homeDir, 'AppData', 'Roaming');
+      return path.join(appData, '.claude', 'projects');
+    } else if (platform === 'darwin') {
+      return path.join(this.homeDir, 'Library', 'Application Support', 'claude', 'projects');
     } else {
       // Linux and others
-      return path.join(this.homeDir, ".claude", "projects");
+      return path.join(this.homeDir, '.claude', 'projects');
     }
   }
 
@@ -122,22 +122,19 @@ export class CleanupManager {
     const platform = process.platform;
     const paths: string[] = [];
 
-    if (platform === "win32") {
-      const appData = process.env.APPDATA || path.join(this.homeDir, "AppData", "Roaming");
+    if (platform === 'win32') {
+      const appData = process.env.APPDATA || path.join(this.homeDir, 'AppData', 'Roaming');
+      paths.push(path.join(appData, 'Cursor', 'logs'), path.join(appData, 'Code', 'logs'));
+    } else if (platform === 'darwin') {
       paths.push(
-        path.join(appData, "Cursor", "logs"),
-        path.join(appData, "Code", "logs")
-      );
-    } else if (platform === "darwin") {
-      paths.push(
-        path.join(this.homeDir, "Library", "Application Support", "Cursor", "logs"),
-        path.join(this.homeDir, "Library", "Application Support", "Code", "logs")
+        path.join(this.homeDir, 'Library', 'Application Support', 'Cursor', 'logs'),
+        path.join(this.homeDir, 'Library', 'Application Support', 'Code', 'logs')
       );
     } else {
       // Linux
       paths.push(
-        path.join(this.homeDir, ".config", "Cursor", "logs"),
-        path.join(this.homeDir, ".config", "Code", "logs")
+        path.join(this.homeDir, '.config', 'Cursor', 'logs'),
+        path.join(this.homeDir, '.config', 'Code', 'logs')
       );
     }
 
@@ -150,10 +147,10 @@ export class CleanupManager {
   private getTrashPath(): string | null {
     const platform = process.platform;
 
-    if (platform === "darwin") {
-      return path.join(this.homeDir, ".Trash");
-    } else if (platform === "linux") {
-      return path.join(this.homeDir, ".local", "share", "Trash");
+    if (platform === 'darwin') {
+      return path.join(this.homeDir, '.Trash');
+    } else if (platform === 'linux') {
+      return path.join(this.homeDir, '.local', 'share', 'Trash');
     } else {
       // Windows Recycle Bin is complex, skip for now
       return null;
@@ -168,39 +165,39 @@ export class CleanupManager {
     const paths: string[] = [];
     const platform = process.platform;
 
-    if (platform === "linux") {
+    if (platform === 'linux') {
       // Linux-specific paths
       paths.push(
-        path.join(this.homeDir, ".config", "notebooklm-mcp"),
-        path.join(this.homeDir, ".config", "notebooklm-mcp-nodejs"),
-        path.join(this.homeDir, ".local", "share", "notebooklm-mcp"),
-        path.join(this.homeDir, ".local", "share", "notebooklm-mcp-nodejs"),
-        path.join(this.homeDir, ".cache", "notebooklm-mcp"),
-        path.join(this.homeDir, ".cache", "notebooklm-mcp-nodejs"),
-        path.join(this.homeDir, ".local", "state", "notebooklm-mcp"),
-        path.join(this.homeDir, ".local", "state", "notebooklm-mcp-nodejs")
+        path.join(this.homeDir, '.config', 'notebooklm-mcp'),
+        path.join(this.homeDir, '.config', 'notebooklm-mcp-nodejs'),
+        path.join(this.homeDir, '.local', 'share', 'notebooklm-mcp'),
+        path.join(this.homeDir, '.local', 'share', 'notebooklm-mcp-nodejs'),
+        path.join(this.homeDir, '.cache', 'notebooklm-mcp'),
+        path.join(this.homeDir, '.cache', 'notebooklm-mcp-nodejs'),
+        path.join(this.homeDir, '.local', 'state', 'notebooklm-mcp'),
+        path.join(this.homeDir, '.local', 'state', 'notebooklm-mcp-nodejs')
       );
-    } else if (platform === "darwin") {
+    } else if (platform === 'darwin') {
       // macOS-specific paths
       paths.push(
-        path.join(this.homeDir, "Library", "Application Support", "notebooklm-mcp"),
-        path.join(this.homeDir, "Library", "Application Support", "notebooklm-mcp-nodejs"),
-        path.join(this.homeDir, "Library", "Preferences", "notebooklm-mcp"),
-        path.join(this.homeDir, "Library", "Preferences", "notebooklm-mcp-nodejs"),
-        path.join(this.homeDir, "Library", "Caches", "notebooklm-mcp"),
-        path.join(this.homeDir, "Library", "Caches", "notebooklm-mcp-nodejs"),
-        path.join(this.homeDir, "Library", "Logs", "notebooklm-mcp"),
-        path.join(this.homeDir, "Library", "Logs", "notebooklm-mcp-nodejs")
+        path.join(this.homeDir, 'Library', 'Application Support', 'notebooklm-mcp'),
+        path.join(this.homeDir, 'Library', 'Application Support', 'notebooklm-mcp-nodejs'),
+        path.join(this.homeDir, 'Library', 'Preferences', 'notebooklm-mcp'),
+        path.join(this.homeDir, 'Library', 'Preferences', 'notebooklm-mcp-nodejs'),
+        path.join(this.homeDir, 'Library', 'Caches', 'notebooklm-mcp'),
+        path.join(this.homeDir, 'Library', 'Caches', 'notebooklm-mcp-nodejs'),
+        path.join(this.homeDir, 'Library', 'Logs', 'notebooklm-mcp'),
+        path.join(this.homeDir, 'Library', 'Logs', 'notebooklm-mcp-nodejs')
       );
-    } else if (platform === "win32") {
+    } else if (platform === 'win32') {
       // Windows-specific paths
-      const localAppData = process.env.LOCALAPPDATA || path.join(this.homeDir, "AppData", "Local");
-      const appData = process.env.APPDATA || path.join(this.homeDir, "AppData", "Roaming");
+      const localAppData = process.env.LOCALAPPDATA || path.join(this.homeDir, 'AppData', 'Local');
+      const appData = process.env.APPDATA || path.join(this.homeDir, 'AppData', 'Roaming');
       paths.push(
-        path.join(localAppData, "notebooklm-mcp"),
-        path.join(localAppData, "notebooklm-mcp-nodejs"),
-        path.join(appData, "notebooklm-mcp"),
-        path.join(appData, "notebooklm-mcp-nodejs")
+        path.join(localAppData, 'notebooklm-mcp'),
+        path.join(localAppData, 'notebooklm-mcp-nodejs'),
+        path.join(appData, 'notebooklm-mcp'),
+        path.join(appData, 'notebooklm-mcp-nodejs')
       );
     }
 
@@ -219,14 +216,14 @@ export class CleanupManager {
 
     try {
       const npmCachePath = this.getNpmCachePath();
-      const npxPath = path.join(npmCachePath, "_npx");
+      const npxPath = path.join(npmCachePath, '_npx');
 
       if (!(await this.pathExists(npxPath))) {
         return found;
       }
 
       // Search for notebooklm-mcp in npx cache
-      const pattern = path.join(npxPath, "*/node_modules/notebooklm-mcp");
+      const pattern = path.join(npxPath, '*/node_modules/notebooklm-mcp');
       const matches = await globby(pattern, { onlyDirectories: true, absolute: true });
       found.push(...matches);
     } catch (error) {
@@ -251,8 +248,8 @@ export class CleanupManager {
 
       // Search for notebooklm MCP logs
       const patterns = [
-        path.join(claudeCliPath, "*/mcp-logs-notebooklm"),
-        path.join(claudeCliPath, "*notebooklm-mcp*"),
+        path.join(claudeCliPath, '*/mcp-logs-notebooklm'),
+        path.join(claudeCliPath, '*notebooklm-mcp*'),
       ];
 
       for (const pattern of patterns) {
@@ -280,7 +277,7 @@ export class CleanupManager {
       }
 
       // Search for notebooklm-mcp projects
-      const pattern = path.join(projectsPath, "*notebooklm-mcp*");
+      const pattern = path.join(projectsPath, '*notebooklm-mcp*');
       const matches = await globby(pattern, { onlyDirectories: true, absolute: true });
       found.push(...matches);
     } catch (error) {
@@ -298,7 +295,7 @@ export class CleanupManager {
 
     try {
       // Search for notebooklm backup directories in temp
-      const pattern = path.join(this.tempDir, "notebooklm-backup-*");
+      const pattern = path.join(this.tempDir, 'notebooklm-backup-*');
       const matches = await globby(pattern, { onlyDirectories: true, absolute: true });
       found.push(...matches);
     } catch (error) {
@@ -323,7 +320,7 @@ export class CleanupManager {
         }
 
         // Search for MCP notebooklm logs
-        const pattern = path.join(editorPath, "**/exthost/**/*notebooklm*.log");
+        const pattern = path.join(editorPath, '**/exthost/**/*notebooklm*.log');
         const matches = await globby(pattern, { onlyFiles: true, absolute: true });
         found.push(...matches);
       }
@@ -347,9 +344,7 @@ export class CleanupManager {
       }
 
       // Search for notebooklm files in trash
-      const patterns = [
-        path.join(trashPath, "**/*notebooklm*"),
-      ];
+      const patterns = [path.join(trashPath, '**/*notebooklm*')];
 
       for (const pattern of patterns) {
         const matches = await globby(pattern, { absolute: true });
@@ -382,7 +377,7 @@ export class CleanupManager {
     let totalSizeBytes = 0;
 
     // Category 1: Legacy Paths (notebooklm-mcp-nodejs & manual legacy paths)
-    if (mode === "legacy" || mode === "all" || mode === "deep") {
+    if (mode === 'legacy' || mode === 'all' || mode === 'deep') {
       const legacyPaths: string[] = [];
       let legacyBytes = 0;
 
@@ -408,7 +403,7 @@ export class CleanupManager {
       // and any paths that envPaths might miss
       const manualLegacyPaths = this.getManualLegacyPaths();
       for (const dir of manualLegacyPaths) {
-        if (await this.pathExists(dir) && !allPaths.has(dir)) {
+        if ((await this.pathExists(dir)) && !allPaths.has(dir)) {
           const size = await this.getDirectorySize(dir);
           legacyPaths.push(dir);
           legacyBytes += size;
@@ -418,8 +413,8 @@ export class CleanupManager {
 
       if (legacyPaths.length > 0) {
         categories.push({
-          name: "Legacy Installation (notebooklm-mcp-nodejs)",
-          description: "Old installation data with -nodejs suffix and legacy config files",
+          name: 'Legacy Installation (notebooklm-mcp-nodejs)',
+          description: 'Old installation data with -nodejs suffix and legacy config files',
           paths: legacyPaths,
           totalBytes: legacyBytes,
           optional: false,
@@ -429,7 +424,7 @@ export class CleanupManager {
     }
 
     // Category 2: Current Installation
-    if (mode === "all" || mode === "deep") {
+    if (mode === 'all' || mode === 'deep') {
       const currentPaths: string[] = [];
       let currentBytes = 0;
 
@@ -443,9 +438,9 @@ export class CleanupManager {
             this.currentPaths.log,
             this.currentPaths.temp,
             // Only delete subdirectories, not the parent
-            path.join(this.currentPaths.data, "browser_state"),
-            path.join(this.currentPaths.data, "chrome_profile"),
-            path.join(this.currentPaths.data, "chrome_profile_instances"),
+            path.join(this.currentPaths.data, 'browser_state'),
+            path.join(this.currentPaths.data, 'chrome_profile'),
+            path.join(this.currentPaths.data, 'chrome_profile_instances'),
           ]
         : [
             // Delete everything including data directory
@@ -455,13 +450,13 @@ export class CleanupManager {
             this.currentPaths.log,
             this.currentPaths.temp,
             // Specific subdirectories (only if parent doesn't exist)
-            path.join(this.currentPaths.data, "browser_state"),
-            path.join(this.currentPaths.data, "chrome_profile"),
-            path.join(this.currentPaths.data, "chrome_profile_instances"),
+            path.join(this.currentPaths.data, 'browser_state'),
+            path.join(this.currentPaths.data, 'chrome_profile'),
+            path.join(this.currentPaths.data, 'chrome_profile_instances'),
           ];
 
       for (const dir of currentDirs) {
-        if (await this.pathExists(dir) && !allPaths.has(dir)) {
+        if ((await this.pathExists(dir)) && !allPaths.has(dir)) {
           const size = await this.getDirectorySize(dir);
           currentPaths.push(dir);
           currentBytes += size;
@@ -471,11 +466,11 @@ export class CleanupManager {
 
       if (currentPaths.length > 0) {
         const description = preserveLibrary
-          ? "Active installation data and browser profiles (library.json will be preserved)"
-          : "Active installation data and browser profiles";
+          ? 'Active installation data and browser profiles (library.json will be preserved)'
+          : 'Active installation data and browser profiles';
 
         categories.push({
-          name: "Current Installation (notebooklm-mcp)",
+          name: 'Current Installation (notebooklm-mcp)',
           description,
           paths: currentPaths,
           totalBytes: currentBytes,
@@ -486,7 +481,7 @@ export class CleanupManager {
     }
 
     // Category 3: NPM Cache
-    if (mode === "all" || mode === "deep") {
+    if (mode === 'all' || mode === 'deep') {
       const npmPaths = await this.findNpmCache();
       if (npmPaths.length > 0) {
         let npmBytes = 0;
@@ -499,8 +494,8 @@ export class CleanupManager {
 
         if (npmBytes > 0) {
           categories.push({
-            name: "NPM/NPX Cache",
-            description: "NPX cached installations of notebooklm-mcp",
+            name: 'NPM/NPX Cache',
+            description: 'NPX cached installations of notebooklm-mcp',
             paths: npmPaths,
             totalBytes: npmBytes,
             optional: false,
@@ -511,7 +506,7 @@ export class CleanupManager {
     }
 
     // Category 4: Claude CLI Logs
-    if (mode === "all" || mode === "deep") {
+    if (mode === 'all' || mode === 'deep') {
       const claudeCliPaths = await this.findClaudeCliLogs();
       if (claudeCliPaths.length > 0) {
         let claudeCliBytes = 0;
@@ -524,8 +519,8 @@ export class CleanupManager {
 
         if (claudeCliBytes > 0) {
           categories.push({
-            name: "Claude CLI MCP Logs",
-            description: "MCP server logs from Claude CLI",
+            name: 'Claude CLI MCP Logs',
+            description: 'MCP server logs from Claude CLI',
             paths: claudeCliPaths,
             totalBytes: claudeCliBytes,
             optional: false,
@@ -536,7 +531,7 @@ export class CleanupManager {
     }
 
     // Category 5: Temporary Backups
-    if (mode === "all" || mode === "deep") {
+    if (mode === 'all' || mode === 'deep') {
       const backupPaths = await this.findTemporaryBackups();
       if (backupPaths.length > 0) {
         let backupBytes = 0;
@@ -549,8 +544,8 @@ export class CleanupManager {
 
         if (backupBytes > 0) {
           categories.push({
-            name: "Temporary Backups",
-            description: "Temporary backup directories in system temp",
+            name: 'Temporary Backups',
+            description: 'Temporary backup directories in system temp',
             paths: backupPaths,
             totalBytes: backupBytes,
             optional: false,
@@ -561,7 +556,7 @@ export class CleanupManager {
     }
 
     // Category 6: Claude Projects (deep mode only)
-    if (mode === "deep") {
+    if (mode === 'deep') {
       const projectPaths = await this.findClaudeProjects();
       if (projectPaths.length > 0) {
         let projectBytes = 0;
@@ -574,8 +569,8 @@ export class CleanupManager {
 
         if (projectBytes > 0) {
           categories.push({
-            name: "Claude Projects Cache",
-            description: "Project-specific cache in Claude config",
+            name: 'Claude Projects Cache',
+            description: 'Project-specific cache in Claude config',
             paths: projectPaths,
             totalBytes: projectBytes,
             optional: true,
@@ -586,7 +581,7 @@ export class CleanupManager {
     }
 
     // Category 7: Editor Logs (deep mode only)
-    if (mode === "deep") {
+    if (mode === 'deep') {
       const editorPaths = await this.findEditorLogs();
       if (editorPaths.length > 0) {
         let editorBytes = 0;
@@ -599,8 +594,8 @@ export class CleanupManager {
 
         if (editorBytes > 0) {
           categories.push({
-            name: "Editor Logs (Cursor/VSCode)",
-            description: "MCP logs from code editors",
+            name: 'Editor Logs (Cursor/VSCode)',
+            description: 'MCP logs from code editors',
             paths: editorPaths,
             totalBytes: editorBytes,
             optional: true,
@@ -611,7 +606,7 @@ export class CleanupManager {
     }
 
     // Category 8: Trash Files (deep mode only)
-    if (mode === "deep") {
+    if (mode === 'deep') {
       const trashPaths = await this.findTrashFiles();
       if (trashPaths.length > 0) {
         let trashBytes = 0;
@@ -624,8 +619,8 @@ export class CleanupManager {
 
         if (trashBytes > 0) {
           categories.push({
-            name: "Trash Files",
-            description: "Deleted notebooklm files in system trash",
+            name: 'Trash Files',
+            description: 'Deleted notebooklm files in system trash',
             paths: trashPaths,
             totalBytes: trashBytes,
             optional: true,
@@ -661,7 +656,9 @@ export class CleanupManager {
 
     // Delete by category
     for (const category of categories) {
-      log.info(`\n📦 ${category.name} (${category.paths.length} items, ${this.formatBytes(category.totalBytes)})`);
+      log.info(
+        `\n📦 ${category.name} (${category.paths.length} items, ${this.formatBytes(category.totalBytes)})`
+      );
 
       if (category.optional) {
         log.warning(`  ⚠️  Optional category - ${category.description}`);
@@ -696,7 +693,9 @@ export class CleanupManager {
     const success = failedPaths.length === 0;
 
     if (success) {
-      log.success(`\n✅ Cleanup complete! Deleted ${deletedPaths.length} items (${this.formatBytes(totalSizeBytes)})`);
+      log.success(
+        `\n✅ Cleanup complete! Deleted ${deletedPaths.length} items (${this.formatBytes(totalSizeBytes)})`
+      );
     } else {
       log.warning(`\n⚠️  Cleanup completed with ${failedPaths.length} errors`);
       log.success(`  Deleted: ${deletedPaths.length} items`);
@@ -775,11 +774,11 @@ export class CleanupManager {
    * Format bytes to human-readable string
    */
   formatBytes(bytes: number): string {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   /**
@@ -794,17 +793,17 @@ export class CleanupManager {
     claudeProjectsPath: string;
   } {
     const platform = process.platform;
-    let platformName = "Unknown";
+    let platformName = 'Unknown';
 
     switch (platform) {
-      case "win32":
-        platformName = "Windows";
+      case 'win32':
+        platformName = 'Windows';
         break;
-      case "darwin":
-        platformName = "macOS";
+      case 'darwin':
+        platformName = 'macOS';
         break;
-      case "linux":
-        platformName = "Linux";
+      case 'linux':
+        platformName = 'Linux';
         break;
     }
 

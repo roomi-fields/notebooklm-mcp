@@ -6,12 +6,12 @@
 
 ## 📋 Available Scripts
 
-| Script | Description | Duration |
-|--------|-------------|-------|
-| `setup-auth.ps1` | Google authentication configuration | 2-3 min |
-| `test-server.ps1` | Quick validation tests (3 basic tests) | ~30 sec |
-| `test-api.ps1` | Complete tests of all endpoints (success cases) | 5-10 min |
-| `test-errors.ps1` | Error case tests | 2-5 min |
+| Script            | Description                                     | Duration |
+| ----------------- | ----------------------------------------------- | -------- |
+| `setup-auth.ps1`  | Google authentication configuration             | 2-3 min  |
+| `test-server.ps1` | Quick validation tests (3 basic tests)          | ~30 sec  |
+| `test-api.ps1`    | Complete tests of all endpoints (success cases) | 5-10 min |
+| `test-errors.ps1` | Error case tests                                | 2-5 min  |
 
 ---
 
@@ -137,12 +137,14 @@ Test 3: Ask Question (authentication + notebook required)
 ### Use cases
 
 **Quick check after installation:**
+
 ```powershell
 npm run start:http
 .\deployment\scripts\test-server.ps1
 ```
 
 **CI/CD - Quick health check:**
+
 ```yaml
 - name: Quick Health Check
   run: |
@@ -322,6 +324,7 @@ Success rate: 100%
 ### Skipped tests
 
 Some tests may be skipped if conditions are not met:
+
 - **Test 3** (no notebook): skipped if you have configured notebooks
 - **Test 7** (duplicate): skipped if no notebook exists
 
@@ -384,6 +387,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/notebooks" `
 **Cause:** The server is not started
 
 **Solution:**
+
 ```powershell
 # Check that the server is running
 Get-Process node
@@ -405,6 +409,7 @@ npm run start:http
 ### Skipped tests in test-errors.ps1
 
 **Normal** depending on your configuration:
+
 - "No notebook" test skipped if you have notebooks
 - "Duplicate" test skipped if you don't have notebooks
 
@@ -413,6 +418,7 @@ npm run start:http
 **Error:** `EADDRINUSE: address already in use`
 
 **Solution:**
+
 ```powershell
 # Change the port
 $env:HTTP_PORT="8080"
@@ -428,10 +434,10 @@ npm run start:http
 
 The scripts return standard exit codes:
 
-| Code | Meaning |
-|------|---------|
-| `0` | All tests passed |
-| `1` | At least one test failed |
+| Code | Meaning                  |
+| ---- | ------------------------ |
+| `0`  | All tests passed         |
+| `1`  | At least one test failed |
 
 **Usage in CI/CD:**
 
@@ -480,6 +486,7 @@ git commit -m "your message"
 ### Production
 
 **DO NOT run these tests in production**:
+
 - Tests create/delete notebooks
 - Tests create/close sessions
 - Tests ask questions to NotebookLM
@@ -547,6 +554,7 @@ $result = Invoke-RestMethod `
 ## 📖 Complete Documentation
 
 For more information, see:
+
 - [01-INSTALL.md](../docs/01-INSTALL.md) - Installation guide
 - [03-API.md](../docs/03-API.md) - Complete API reference
 - [05-TROUBLESHOOTING.md](../docs/05-TROUBLESHOOTING.md) - Troubleshooting

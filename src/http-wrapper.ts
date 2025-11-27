@@ -41,7 +41,7 @@ app.get('/health', async (_req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -54,7 +54,7 @@ app.post('/ask', async (req: Request, res: Response) => {
     if (!question) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required field: question'
+        error: 'Missing required field: question',
       });
     }
 
@@ -69,7 +69,7 @@ app.post('/ask', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -90,7 +90,7 @@ app.post('/setup-auth', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -103,7 +103,7 @@ app.post('/de-auth', async (_req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -124,7 +124,7 @@ app.post('/re-auth', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -138,7 +138,7 @@ app.post('/cleanup-data', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -151,7 +151,7 @@ app.get('/notebooks', async (_req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -164,19 +164,25 @@ app.post('/notebooks', async (req: Request, res: Response) => {
     if (!url || !name || !description || !topics) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: url, name, description, topics'
+        error: 'Missing required fields: url, name, description, topics',
       });
     }
 
     const result = await toolHandlers.handleAddNotebook({
-      url, name, description, topics, content_types, use_cases, tags
+      url,
+      name,
+      description,
+      topics,
+      content_types,
+      use_cases,
+      tags,
     });
 
     res.json(result);
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -189,7 +195,7 @@ app.get('/notebooks/:id', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -199,13 +205,13 @@ app.put('/notebooks/:id', async (req: Request, res: Response) => {
   try {
     const result = await toolHandlers.handleUpdateNotebook({
       id: req.params.id,
-      ...req.body
+      ...req.body,
     });
     res.json(result);
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -218,7 +224,7 @@ app.delete('/notebooks/:id', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -228,13 +234,13 @@ app.get('/notebooks/search', async (req: Request, res: Response) => {
   try {
     const { query } = req.query;
     const result = await toolHandlers.handleSearchNotebooks({
-      query: query as string
+      query: query as string,
     });
     res.json(result);
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -247,7 +253,7 @@ app.get('/notebooks/stats', async (_req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -261,7 +267,7 @@ app.post('/notebooks/auto-discover', async (req: Request, res: Response) => {
     if (!url) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required field: url'
+        error: 'Missing required field: url',
       });
     }
 
@@ -269,7 +275,7 @@ app.post('/notebooks/auto-discover', async (req: Request, res: Response) => {
     if (!url.includes('notebooklm.google.com')) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid URL: must be a NotebookLM URL (notebooklm.google.com)'
+        error: 'Invalid URL: must be a NotebookLM URL (notebooklm.google.com)',
       });
     }
 
@@ -282,7 +288,7 @@ app.post('/notebooks/auto-discover', async (req: Request, res: Response) => {
     } catch (error) {
       return res.status(500).json({
         success: false,
-        error: `Failed to discover metadata: ${error instanceof Error ? error.message : String(error)}`
+        error: `Failed to discover metadata: ${error instanceof Error ? error.message : String(error)}`,
       });
     }
 
@@ -297,7 +303,7 @@ app.post('/notebooks/auto-discover', async (req: Request, res: Response) => {
       topics: metadata.tags, // tags → topics
       content_types: ['documentation'],
       use_cases: metadata.tags.slice(0, 3), // Use first 3 tags as use cases
-      auto_generated: true
+      auto_generated: true,
     };
 
     // Add notebook to library
@@ -307,19 +313,19 @@ app.post('/notebooks/auto-discover', async (req: Request, res: Response) => {
     } catch (error) {
       return res.status(500).json({
         success: false,
-        error: `Failed to add notebook to library: ${error instanceof Error ? error.message : String(error)}`
+        error: `Failed to add notebook to library: ${error instanceof Error ? error.message : String(error)}`,
       });
     }
 
     // Return success with created notebook
     res.json({
       success: true,
-      notebook
+      notebook,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -332,7 +338,7 @@ app.put('/notebooks/:id/activate', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -345,7 +351,7 @@ app.get('/sessions', async (_req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -358,7 +364,7 @@ app.delete('/sessions/:id', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -371,7 +377,7 @@ app.post('/sessions/:id/reset', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -381,7 +387,7 @@ const PORT = Number(process.env.HTTP_PORT) || 3000;
 const HOST = process.env.HTTP_HOST || '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
-  log.success(`🌐 NotebookLM MCP HTTP Server v1.3.4`);
+  log.success(`🌐 NotebookLM MCP HTTP Server v1.3.5`);
   log.success(`   Listening on ${HOST}:${PORT}`);
   log.info('');
   log.info('📊 Quick Links:');
@@ -416,7 +422,9 @@ app.listen(PORT, HOST, () => {
   log.info('   DELETE /sessions/:id           Close a session');
   log.info('');
   log.info('💡 Configuration:');
-  log.info(`   Host: ${HOST} ${HOST === '0.0.0.0' ? '(accessible from network)' : '(localhost only)'}`);
+  log.info(
+    `   Host: ${HOST} ${HOST === '0.0.0.0' ? '(accessible from network)' : '(localhost only)'}`
+  );
   log.info(`   Port: ${PORT}`);
   log.info('');
   log.dim('📖 Documentation: ./deployment/docs/');

@@ -10,8 +10,8 @@
  * Based on the Python implementation from page_utils.py
  */
 
-import type { Page } from "patchright";
-import { log } from "./logger.js";
+import type { Page } from 'patchright';
+import { log } from './logger.js';
 
 // ============================================================================
 // Constants
@@ -22,7 +22,7 @@ import { log } from "./logger.js";
  * Ordered by priority (most specific first)
  */
 const RESPONSE_SELECTORS = [
-  ".to-user-container .message-text-content",
+  '.to-user-container .message-text-content',
   "[data-message-author='bot']",
   "[data-message-author='assistant']",
   "[data-message-role='assistant']",
@@ -41,16 +41,16 @@ const RESPONSE_SELECTORS = [
  * Text snippets that indicate a placeholder/loading state
  */
 const PLACEHOLDER_SNIPPETS = [
-  "antwort wird erstellt",
-  "answer wird erstellt",
-  "answer is being created",
-  "answer is being generated",
-  "creating answer",
-  "generating answer",
-  "wird erstellt",
-  "getting the context",  // NotebookLM initial loading message
-  "loading",
-  "please wait",
+  'antwort wird erstellt',
+  'answer wird erstellt',
+  'answer is being created',
+  'answer is being generated',
+  'creating answer',
+  'generating answer',
+  'wird erstellt',
+  'getting the context', // NotebookLM initial loading message
+  'loading',
+  'please wait',
 ];
 
 // ============================================================================
@@ -96,14 +96,14 @@ export async function snapshotLatestResponse(page: Page): Promise<string | null>
  */
 export async function snapshotAllResponses(page: Page): Promise<string[]> {
   const allTexts: string[] = [];
-  const primarySelector = ".to-user-container";
+  const primarySelector = '.to-user-container';
 
   try {
     const containers = await page.$$(primarySelector);
     if (containers.length > 0) {
       for (const container of containers) {
         try {
-          const textElement = await container.$(".message-text-content");
+          const textElement = await container.$('.message-text-content');
           if (textElement) {
             const text = await textElement.innerText();
             if (text && text.trim()) {
@@ -180,7 +180,7 @@ export async function waitForLatestAnswer(
   } = {}
 ): Promise<string | null> {
   const {
-    question = "",
+    question = '',
     timeoutMs = 120000,
     pollIntervalMs = 1000,
     ignoreTexts = [],
@@ -193,15 +193,13 @@ export async function waitForLatestAnswer(
   // Track ALL known texts as HASHES (memory efficient!)
   const knownHashes = new Set<number>();
   for (const text of ignoreTexts) {
-    if (typeof text === "string" && text.trim()) {
+    if (typeof text === 'string' && text.trim()) {
       knownHashes.add(hashString(text.trim()));
     }
   }
 
   if (debug) {
-    log.debug(
-      `🔍 [DEBUG] Waiting for NEW answer. Ignoring ${knownHashes.size} known responses`
-    );
+    log.debug(`🔍 [DEBUG] Waiting for NEW answer. Ignoring ${knownHashes.size} known responses`);
   }
 
   let pollCount = 0;
@@ -213,12 +211,7 @@ export async function waitForLatestAnswer(
     pollCount++;
 
     // Extract latest NEW text
-    const candidate = await extractLatestText(
-      page,
-      knownHashes,
-      debug,
-      pollCount
-    );
+    const candidate = await extractLatestText(page, knownHashes, debug, pollCount);
 
     if (candidate) {
       const normalized = candidate.trim();
@@ -228,7 +221,9 @@ export async function waitForLatestAnswer(
         // Check if it's a placeholder
         if (isPlaceholder(lower)) {
           if (debug) {
-            log.debug(`🔍 [DEBUG] Found placeholder: "${normalized.substring(0, 50)}..." - continuing...`);
+            log.debug(
+              `🔍 [DEBUG] Found placeholder: "${normalized.substring(0, 50)}..." - continuing...`
+            );
           }
           await page.waitForTimeout(250);
           continue;
@@ -236,13 +231,15 @@ export async function waitForLatestAnswer(
 
         // DEBUG: Log the candidate text to see what we're getting
         if (debug && normalized !== lastCandidate) {
-          log.debug(`🔍 [DEBUG] New candidate text (${normalized.length} chars): "${normalized.substring(0, 100)}..."`);
+          log.debug(
+            `🔍 [DEBUG] New candidate text (${normalized.length} chars): "${normalized.substring(0, 100)}..."`
+          );
         }
 
         // Check if it's the question echo
         if (lower === sanitizedQuestion) {
           if (debug) {
-            log.debug("🔍 [DEBUG] Found question echo, ignoring");
+            log.debug('🔍 [DEBUG] Found question echo, ignoring');
           }
           knownHashes.add(hashString(normalized)); // Mark as seen
           await page.waitForTimeout(pollIntervalMs);
@@ -307,7 +304,7 @@ async function extractLatestText(
   pollCount: number
 ): Promise<string | null> {
   // Try the primary selector first (most specific for NotebookLM)
-  const primarySelector = ".to-user-container";
+  const primarySelector = '.to-user-container';
   try {
     const containers = await page.$$(primarySelector);
     const totalContainers = containers.length;
@@ -325,9 +322,7 @@ async function extractLatestText(
     if (containers.length > 0) {
       // Only log every 5th poll to reduce noise
       if (debug && pollCount % 5 === 0) {
-        log.dim(
-          `🔍 [EXTRACT] Scanning ${totalContainers} containers (${knownHashes.size} known)`
-        );
+        log.dim(`🔍 [EXTRACT] Scanning ${totalContainers} containers (${knownHashes.size} known)`);
       }
 
       let skipped = 0;
@@ -337,7 +332,7 @@ async function extractLatestText(
       for (let idx = 0; idx < containers.length; idx++) {
         const container = containers[idx];
         try {
-          const textElement = await container.$(".message-text-content");
+          const textElement = await container.$('.message-text-content');
           if (textElement) {
             const text = await textElement.innerText();
             if (text && text.trim()) {
@@ -362,14 +357,12 @@ async function extractLatestText(
 
       // Only log summary if debug enabled
       if (debug && pollCount % 5 === 0) {
-        log.dim(
-          `⏭️ [EXTRACT] No NEW text (skipped ${skipped} known, ${empty} empty)`
-        );
+        log.dim(`⏭️ [EXTRACT] No NEW text (skipped ${skipped} known, ${empty} empty)`);
       }
       return null; // Don't fall through to fallback!
     } else {
       if (debug) {
-        log.warning("⚠️ [EXTRACT] No containers found");
+        log.warning('⚠️ [EXTRACT] No containers found');
       }
     }
   } catch (error) {
@@ -378,7 +371,7 @@ async function extractLatestText(
 
   // Fallback: Try other selectors (only if primary selector failed/found nothing)
   if (debug) {
-    log.dim("🔄 [EXTRACT] Trying fallback selectors...");
+    log.dim('🔄 [EXTRACT] Trying fallback selectors...');
   }
 
   for (const selector of RESPONSE_SELECTORS) {
@@ -394,7 +387,7 @@ async function extractLatestText(
           try {
             const closest = await element.evaluateHandle((el) => {
               return el.closest(
-                "[data-message-author], [data-message-role], [data-author], " +
+                '[data-message-author], [data-message-role], [data-author], ' +
                   "[data-testid*='assistant'], [data-automation-id*='response'], article, section"
               );
             });
@@ -432,9 +425,9 @@ async function extractLatestText(
         // @ts-expect-error - window available in browser context
         const style = window.getComputedStyle(el as HTMLElement);
         if (
-          style.visibility === "hidden" ||
-          style.display === "none" ||
-          parseFloat(style.opacity || "1") === 0
+          style.visibility === 'hidden' ||
+          style.display === 'none' ||
+          parseFloat(style.opacity || '1') === 0
         ) {
           return false;
         }
@@ -442,9 +435,9 @@ async function extractLatestText(
       };
 
       const selectors = [
-        "[data-message-author]",
-        "[data-message-role]",
-        "[data-author]",
+        '[data-message-author]',
+        '[data-message-role]',
+        '[data-author]',
         "[data-renderer*='assistant']",
         "[data-testid*='assistant']",
         "[data-automation-id*='response']",
@@ -459,7 +452,7 @@ async function extractLatestText(
           unique.add(el);
 
           // @ts-expect-error - DOM types available in browser context
-          const text = (el as HTMLElement).innerText || (el as HTMLElement).textContent || "";
+          const text = (el as HTMLElement).innerText || (el as HTMLElement).textContent || '';
           if (!text.trim()) continue;
 
           candidates.push(text.trim());
@@ -473,7 +466,7 @@ async function extractLatestText(
       return null;
     });
 
-    if (typeof fallbackText === "string" && fallbackText.trim()) {
+    if (typeof fallbackText === 'string' && fallbackText.trim()) {
       return fallbackText.trim();
     }
   } catch {

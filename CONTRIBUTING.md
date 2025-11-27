@@ -9,6 +9,7 @@ Thank you for your interest in contributing to NotebookLM MCP HTTP Server!
 ### 1. Report a Bug
 
 Before creating an issue:
+
 - Check if the bug hasn't already been reported
 - Consult the [troubleshooting guide](./deployment/docs/05-TROUBLESHOOTING.md)
 
@@ -16,27 +17,34 @@ Before creating an issue:
 
 ```markdown
 ## Environment
+
 - OS: Windows 10/11 (Linux/macOS = experimental support)
 - Node.js version: (node --version)
 - npm version: (npm --version)
 
 ## Description
+
 [Clear description of the problem]
 
 ## Steps to Reproduce
+
 1. Start the server with: ...
 2. Call the endpoint: ...
 3. Observe the error: ...
 
 ## Expected Behavior
+
 [What should happen]
 
 ## Actual Behavior
+
 [What actually happens]
 
 ## Logs
 ```
+
 [Relevant server logs]
+
 ```
 
 ## Resolution Attempts
@@ -53,6 +61,7 @@ Before creating an issue:
 4. Wait for feedback before implementing
 
 **Examples of good proposals:**
+
 - "Add support for X authentication type"
 - "Improve performance of Y"
 - "Add endpoint for Z"
@@ -104,17 +113,20 @@ chore: update dependencies
 #### Code Standards
 
 **TypeScript:**
+
 - Use strict types (`strict: true`)
 - No `any` unless absolutely necessary
 - Comment complex functions
 
 **Style:**
+
 - Indentation: 2 spaces
 - Quotes: single `'`
 - Semicolons: yes
 - Follow existing project style
 
 **Logs:**
+
 ```typescript
 import { log } from './utils/logger.js';
 
@@ -176,6 +188,7 @@ curl -X POST http://localhost:3000/ask \
 - Translate to other languages
 
 **Documentation files:**
+
 - `README.md` - Complete overview (merged MCP + HTTP)
 - `deployment/QUICK-START.md` - Quick guide
 - `deployment/docs/*.md` - Detailed guides (01-06)
@@ -242,12 +255,14 @@ notebooklm-mcp/
 **Be respectful and constructive:**
 
 ✅ Accepted:
+
 - Questions, even basic ones
 - Constructive criticism
 - Improvement suggestions
 - Requests for clarification
 
 ❌ Not accepted:
+
 - Offensive comments
 - Spam or self-promotion
 - Unrelated requests

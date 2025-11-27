@@ -12,20 +12,20 @@
  * Based on the Python implementation from tools/*.py
  */
 
-import { SessionManager } from "../session/session-manager.js";
-import { AuthManager } from "../auth/auth-manager.js";
-import { NotebookLibrary } from "../library/notebook-library.js";
-import type { AddNotebookInput, UpdateNotebookInput, NotebookEntry, LibraryStats } from "../library/types.js";
-import { CONFIG, applyBrowserOptions, type BrowserOptions } from "../config.js";
-import { log } from "../utils/logger.js";
+import { SessionManager } from '../session/session-manager.js';
+import { AuthManager } from '../auth/auth-manager.js';
+import { NotebookLibrary } from '../library/notebook-library.js';
 import type {
-  AskQuestionResult,
-  ToolResult,
-  Tool,
-  ProgressCallback,
-} from "../types.js";
-import { RateLimitError } from "../errors.js";
-import { CleanupManager } from "../utils/cleanup-manager.js";
+  AddNotebookInput,
+  UpdateNotebookInput,
+  NotebookEntry,
+  LibraryStats,
+} from '../library/types.js';
+import { CONFIG, applyBrowserOptions, type BrowserOptions } from '../config.js';
+import { log } from '../utils/logger.js';
+import type { AskQuestionResult, ToolResult, Tool, ProgressCallback } from '../types.js';
+import { RateLimitError } from '../errors.js';
+import { CleanupManager } from '../utils/cleanup-manager.js';
 
 /**
  * Build dynamic tool description for ask_question based on active notebook or library
@@ -34,8 +34,8 @@ function buildAskQuestionDescription(library: NotebookLibrary): string {
   const active = library.getActiveNotebook();
 
   if (active) {
-    const topics = active.topics.join(", ");
-    const useCases = active.use_cases.map((uc) => `  - ${uc}`).join("\n");
+    const topics = active.topics.join(', ');
+    const useCases = active.use_cases.map((uc) => `  - ${uc}`).join('\n');
 
     return `# Conversational Research Partner (NotebookLM • Gemini 2.5 • Session RAG)
 
@@ -140,117 +140,116 @@ Tip: Tell the user you can manage NotebookLM library and ask which notebook to u
 export function buildToolDefinitions(library: NotebookLibrary): Tool[] {
   return [
     {
-      name: "ask_question",
+      name: 'ask_question',
       description: buildAskQuestionDescription(library),
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           question: {
-            type: "string",
-            description: "The question to ask NotebookLM",
+            type: 'string',
+            description: 'The question to ask NotebookLM',
           },
           session_id: {
-            type: "string",
+            type: 'string',
             description:
-              "Optional session ID for contextual conversations. If omitted, a new session is created.",
+              'Optional session ID for contextual conversations. If omitted, a new session is created.',
           },
           notebook_id: {
-            type: "string",
+            type: 'string',
             description:
-              "Optional notebook ID from your library. If omitted, uses the active notebook. " +
-              "Use list_notebooks to see available notebooks.",
+              'Optional notebook ID from your library. If omitted, uses the active notebook. ' +
+              'Use list_notebooks to see available notebooks.',
           },
           notebook_url: {
-            type: "string",
+            type: 'string',
             description:
-              "Optional notebook URL (overrides notebook_id). Use this for ad-hoc queries to notebooks not in your library.",
+              'Optional notebook URL (overrides notebook_id). Use this for ad-hoc queries to notebooks not in your library.',
           },
           show_browser: {
-            type: "boolean",
+            type: 'boolean',
             description:
-              "Show browser window for debugging (simple version). " +
-              "For advanced control (typing speed, stealth, etc.), use browser_options instead.",
+              'Show browser window for debugging (simple version). ' +
+              'For advanced control (typing speed, stealth, etc.), use browser_options instead.',
           },
           browser_options: {
-            type: "object",
+            type: 'object',
             description:
-              "Optional browser behavior settings. Claude can control everything: " +
-              "visibility, typing speed, stealth mode, timeouts. Useful for debugging or fine-tuning.",
+              'Optional browser behavior settings. Claude can control everything: ' +
+              'visibility, typing speed, stealth mode, timeouts. Useful for debugging or fine-tuning.',
             properties: {
               show: {
-                type: "boolean",
-                description: "Show browser window (default: from ENV or false)",
+                type: 'boolean',
+                description: 'Show browser window (default: from ENV or false)',
               },
               headless: {
-                type: "boolean",
-                description: "Run browser in headless mode (default: true)",
+                type: 'boolean',
+                description: 'Run browser in headless mode (default: true)',
               },
               timeout_ms: {
-                type: "number",
-                description: "Browser operation timeout in milliseconds (default: 30000)",
+                type: 'number',
+                description: 'Browser operation timeout in milliseconds (default: 30000)',
               },
               stealth: {
-                type: "object",
-                description: "Human-like behavior settings to avoid detection",
+                type: 'object',
+                description: 'Human-like behavior settings to avoid detection',
                 properties: {
                   enabled: {
-                    type: "boolean",
-                    description: "Master switch for all stealth features (default: true)",
+                    type: 'boolean',
+                    description: 'Master switch for all stealth features (default: true)',
                   },
                   random_delays: {
-                    type: "boolean",
-                    description: "Random delays between actions (default: true)",
+                    type: 'boolean',
+                    description: 'Random delays between actions (default: true)',
                   },
                   human_typing: {
-                    type: "boolean",
-                    description: "Human-like typing patterns (default: true)",
+                    type: 'boolean',
+                    description: 'Human-like typing patterns (default: true)',
                   },
                   mouse_movements: {
-                    type: "boolean",
-                    description: "Realistic mouse movements (default: true)",
+                    type: 'boolean',
+                    description: 'Realistic mouse movements (default: true)',
                   },
                   typing_wpm_min: {
-                    type: "number",
-                    description: "Minimum typing speed in WPM (default: 160)",
+                    type: 'number',
+                    description: 'Minimum typing speed in WPM (default: 160)',
                   },
                   typing_wpm_max: {
-                    type: "number",
-                    description: "Maximum typing speed in WPM (default: 240)",
+                    type: 'number',
+                    description: 'Maximum typing speed in WPM (default: 240)',
                   },
                   delay_min_ms: {
-                    type: "number",
-                    description: "Minimum delay between actions in ms (default: 100)",
+                    type: 'number',
+                    description: 'Minimum delay between actions in ms (default: 100)',
                   },
                   delay_max_ms: {
-                    type: "number",
-                    description: "Maximum delay between actions in ms (default: 400)",
+                    type: 'number',
+                    description: 'Maximum delay between actions in ms (default: 400)',
                   },
                 },
               },
               viewport: {
-                type: "object",
-                description: "Browser viewport size",
+                type: 'object',
+                description: 'Browser viewport size',
                 properties: {
                   width: {
-                    type: "number",
-                    description: "Viewport width in pixels (default: 1920)",
+                    type: 'number',
+                    description: 'Viewport width in pixels (default: 1920)',
                   },
                   height: {
-                    type: "number",
-                    description: "Viewport height in pixels (default: 1080)",
+                    type: 'number',
+                    description: 'Viewport height in pixels (default: 1080)',
                   },
                 },
               },
             },
           },
         },
-        required: ["question"],
+        required: ['question'],
       },
     },
     {
-      name: "auto_discover_notebook",
-      description:
-        `🚀 AUTO-DISCOVERY — Automatically generate notebook metadata via NotebookLM (RECOMMENDED)
+      name: 'auto_discover_notebook',
+      description: `🚀 AUTO-DISCOVERY — Automatically generate notebook metadata via NotebookLM (RECOMMENDED)
 
 ## When to Use
 - User provides NotebookLM URL and wants quick/automatic setup
@@ -288,20 +287,19 @@ Visit https://notebooklm.google/ → Login (free: 100 notebooks, 50 sources each
 
 (Upgraded: Google AI Pro/Ultra gives 5x higher limits)`,
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           url: {
-            type: "string",
-            description: "The NotebookLM notebook URL",
+            type: 'string',
+            description: 'The NotebookLM notebook URL',
           },
         },
-        required: ["url"],
+        required: ['url'],
       },
     },
     {
-      name: "add_notebook",
-      description:
-        `📝 MANUAL ENTRY — Add notebook with manually specified metadata (use auto_discover_notebook instead)
+      name: 'add_notebook',
+      description: `📝 MANUAL ENTRY — Add notebook with manually specified metadata (use auto_discover_notebook instead)
 
 ## When to Use
 - Auto-discovery failed or unavailable
@@ -349,73 +347,72 @@ Visit https://notebooklm.google/ → Login (free: 100 notebooks, 50 sources each
 
 (Upgraded: Google AI Pro/Ultra gives 5x higher limits)`,
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           url: {
-            type: "string",
-            description: "The NotebookLM notebook URL",
+            type: 'string',
+            description: 'The NotebookLM notebook URL',
           },
           name: {
-            type: "string",
+            type: 'string',
             description: "Display name for the notebook (e.g., 'n8n Documentation')",
           },
           description: {
-            type: "string",
-            description: "What knowledge/content is in this notebook",
+            type: 'string',
+            description: 'What knowledge/content is in this notebook',
           },
           topics: {
-            type: "array",
-            items: { type: "string" },
-            description: "Topics covered in this notebook",
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Topics covered in this notebook',
           },
           content_types: {
-            type: "array",
-            items: { type: "string" },
-            description:
-              "Types of content (e.g., ['documentation', 'examples', 'best practices'])",
+            type: 'array',
+            items: { type: 'string' },
+            description: "Types of content (e.g., ['documentation', 'examples', 'best practices'])",
           },
           use_cases: {
-            type: "array",
-            items: { type: "string" },
-            description: "When should Claude use this notebook (e.g., ['Implementing n8n workflows'])",
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              "When should Claude use this notebook (e.g., ['Implementing n8n workflows'])",
           },
           tags: {
-            type: "array",
-            items: { type: "string" },
-            description: "Optional tags for organization",
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Optional tags for organization',
           },
         },
-        required: ["url", "name", "description", "topics"],
+        required: ['url', 'name', 'description', 'topics'],
       },
     },
     {
-      name: "list_notebooks",
+      name: 'list_notebooks',
       description:
-        "List all library notebooks with metadata (name, topics, use cases, URL). " +
-        "Use this to present options, then ask which notebook to use for the task.",
+        'List all library notebooks with metadata (name, topics, use cases, URL). ' +
+        'Use this to present options, then ask which notebook to use for the task.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {},
       },
     },
     {
-      name: "get_notebook",
-      description: "Get detailed information about a specific notebook by ID",
+      name: 'get_notebook',
+      description: 'Get detailed information about a specific notebook by ID',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           id: {
-            type: "string",
-            description: "The notebook ID",
+            type: 'string',
+            description: 'The notebook ID',
           },
         },
-        required: ["id"],
+        required: ['id'],
       },
     },
     {
-      name: "select_notebook",
-      description:
-        `Set a notebook as the active default (used when ask_question has no notebook_id).
+      name: 'select_notebook',
+      description: `Set a notebook as the active default (used when ask_question has no notebook_id).
 
 ## When To Use
 - User switches context: "Let's work on React now"
@@ -431,20 +428,19 @@ Visit https://notebooklm.google/ → Login (free: 100 notebooks, 50 sources each
 User: "Now let's build the React frontend"
 You: "Switching to React notebook..." (call select_notebook)`,
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           id: {
-            type: "string",
-            description: "The notebook ID to activate",
+            type: 'string',
+            description: 'The notebook ID to activate',
           },
         },
-        required: ["id"],
+        required: ['id'],
       },
     },
     {
-      name: "update_notebook",
-      description:
-        `Update notebook metadata based on user intent.
+      name: 'update_notebook',
+      description: `Update notebook metadata based on user intent.
 
 ## Pattern
 1) Identify target notebook and fields (topics, description, use_cases, tags, url)
@@ -462,52 +458,51 @@ You: "Switching to React notebook..." (call select_notebook)`,
 
 Tip: You may update multiple fields at once if requested.`,
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           id: {
-            type: "string",
-            description: "The notebook ID to update",
+            type: 'string',
+            description: 'The notebook ID to update',
           },
           name: {
-            type: "string",
-            description: "New display name",
+            type: 'string',
+            description: 'New display name',
           },
           description: {
-            type: "string",
-            description: "New description",
+            type: 'string',
+            description: 'New description',
           },
           topics: {
-            type: "array",
-            items: { type: "string" },
-            description: "New topics list",
+            type: 'array',
+            items: { type: 'string' },
+            description: 'New topics list',
           },
           content_types: {
-            type: "array",
-            items: { type: "string" },
-            description: "New content types",
+            type: 'array',
+            items: { type: 'string' },
+            description: 'New content types',
           },
           use_cases: {
-            type: "array",
-            items: { type: "string" },
-            description: "New use cases",
+            type: 'array',
+            items: { type: 'string' },
+            description: 'New use cases',
           },
           tags: {
-            type: "array",
-            items: { type: "string" },
-            description: "New tags",
+            type: 'array',
+            items: { type: 'string' },
+            description: 'New tags',
           },
           url: {
-            type: "string",
-            description: "New notebook URL",
+            type: 'string',
+            description: 'New notebook URL',
           },
         },
-        required: ["id"],
+        required: ['id'],
       },
     },
     {
-      name: "remove_notebook",
-      description:
-        `Dangerous — requires explicit user confirmation.
+      name: 'remove_notebook',
+      description: `Dangerous — requires explicit user confirmation.
 
 ## Confirmation Workflow
 1) User requests removal ("Remove the React notebook")
@@ -522,132 +517,133 @@ User: "Delete the old React notebook"
 You: "Remove 'React Best Practices' from your library?"
 User: "Yes" → call remove_notebook`,
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           id: {
-            type: "string",
-            description: "The notebook ID to remove",
+            type: 'string',
+            description: 'The notebook ID to remove',
           },
         },
-        required: ["id"],
+        required: ['id'],
       },
     },
     {
-      name: "search_notebooks",
+      name: 'search_notebooks',
       description:
-        "Search library by query (name, description, topics, tags). " +
-        "Use to propose relevant notebooks for the task and then ask which to use.",
+        'Search library by query (name, description, topics, tags). ' +
+        'Use to propose relevant notebooks for the task and then ask which to use.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           query: {
-            type: "string",
-            description: "Search query",
+            type: 'string',
+            description: 'Search query',
           },
         },
-        required: ["query"],
+        required: ['query'],
       },
     },
     {
-      name: "get_library_stats",
-      description: "Get statistics about your notebook library (total notebooks, usage, etc.)",
+      name: 'get_library_stats',
+      description: 'Get statistics about your notebook library (total notebooks, usage, etc.)',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {},
       },
     },
     {
-      name: "list_sessions",
+      name: 'list_sessions',
       description:
-        "List all active sessions with stats (age, message count, last activity). " +
-        "Use to continue the most relevant session instead of starting from scratch.",
+        'List all active sessions with stats (age, message count, last activity). ' +
+        'Use to continue the most relevant session instead of starting from scratch.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {},
       },
     },
     {
-      name: "close_session",
-      description: "Close a specific session by session ID. Ask before closing if the user might still need it.",
+      name: 'close_session',
+      description:
+        'Close a specific session by session ID. Ask before closing if the user might still need it.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           session_id: {
-            type: "string",
-            description: "The session ID to close",
+            type: 'string',
+            description: 'The session ID to close',
           },
         },
-        required: ["session_id"],
+        required: ['session_id'],
       },
     },
     {
-      name: "reset_session",
+      name: 'reset_session',
       description:
         "Reset a session's chat history (keep same session ID). " +
-        "Use for a clean slate when the task changes; ask the user before resetting.",
+        'Use for a clean slate when the task changes; ask the user before resetting.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           session_id: {
-            type: "string",
-            description: "The session ID to reset",
+            type: 'string',
+            description: 'The session ID to reset',
           },
         },
-        required: ["session_id"],
+        required: ['session_id'],
       },
     },
     {
-      name: "get_health",
+      name: 'get_health',
       description:
-        "Get server health status including authentication state, active sessions, and configuration. " +
-        "Use this to verify the server is ready before starting research workflows.\n\n" +
-        "If authenticated=false and having persistent issues:\n" +
-        "Consider running cleanup_data(preserve_library=true) + setup_auth for fresh start with clean browser session.",
+        'Get server health status including authentication state, active sessions, and configuration. ' +
+        'Use this to verify the server is ready before starting research workflows.\n\n' +
+        'If authenticated=false and having persistent issues:\n' +
+        'Consider running cleanup_data(preserve_library=true) + setup_auth for fresh start with clean browser session.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {},
       },
     },
     {
-      name: "setup_auth",
+      name: 'setup_auth',
       description:
-        "Google authentication for NotebookLM access - opens a browser window for manual login to your Google account. " +
-        "Returns immediately after opening the browser. You have up to 10 minutes to complete the login. " +
+        'Google authentication for NotebookLM access - opens a browser window for manual login to your Google account. ' +
+        'Returns immediately after opening the browser. You have up to 10 minutes to complete the login. ' +
         "Use 'get_health' tool afterwards to verify authentication was saved successfully. " +
-        "Use this for first-time authentication or when auto-login credentials are not available. " +
-        "IMPORTANT: If already authenticated, this tool will skip re-authentication. " +
+        'Use this for first-time authentication or when auto-login credentials are not available. ' +
+        'IMPORTANT: If already authenticated, this tool will skip re-authentication. ' +
         "For switching accounts or rate-limit workarounds, use 're_auth' tool instead.\n\n" +
-        "TROUBLESHOOTING for persistent auth issues:\n" +
-        "If setup_auth fails or you encounter browser/session issues:\n" +
-        "1. Ask user to close ALL Chrome/Chromium instances\n" +
-        "2. Run cleanup_data(confirm=true, preserve_library=true) to clean old data\n" +
-        "3. Run setup_auth again for fresh start\n" +
-        "This helps resolve conflicts from old browser sessions and installation data.",
+        'TROUBLESHOOTING for persistent auth issues:\n' +
+        'If setup_auth fails or you encounter browser/session issues:\n' +
+        '1. Ask user to close ALL Chrome/Chromium instances\n' +
+        '2. Run cleanup_data(confirm=true, preserve_library=true) to clean old data\n' +
+        '3. Run setup_auth again for fresh start\n' +
+        'This helps resolve conflicts from old browser sessions and installation data.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           show_browser: {
-            type: "boolean",
+            type: 'boolean',
             description:
-              "Show browser window (simple version). Default: true for setup. " +
-              "For advanced control, use browser_options instead.",
+              'Show browser window (simple version). Default: true for setup. ' +
+              'For advanced control, use browser_options instead.',
           },
           browser_options: {
-            type: "object",
+            type: 'object',
             description:
-              "Optional browser settings. Control visibility, timeouts, and stealth behavior.",
+              'Optional browser settings. Control visibility, timeouts, and stealth behavior.',
             properties: {
               show: {
-                type: "boolean",
-                description: "Show browser window (default: true for setup)",
+                type: 'boolean',
+                description: 'Show browser window (default: true for setup)',
               },
               headless: {
-                type: "boolean",
-                description: "Run browser in headless mode (default: false for setup)",
+                type: 'boolean',
+                description: 'Run browser in headless mode (default: false for setup)',
               },
               timeout_ms: {
-                type: "number",
-                description: "Browser operation timeout in milliseconds (default: 30000)",
+                type: 'number',
+                description: 'Browser operation timeout in milliseconds (default: 30000)',
               },
             },
           },
@@ -655,69 +651,69 @@ User: "Yes" → call remove_notebook`,
       },
     },
     {
-      name: "de_auth",
+      name: 'de_auth',
       description:
-        "De-authenticate (logout) - Clears all authentication data for security. " +
-        "Use this when:\n" +
-        "- User wants to log out for security reasons\n" +
-        "- Removing credentials before shutting down\n" +
-        "- Clearing auth without immediately re-authenticating\n\n" +
-        "This will:\n" +
-        "1. Close all active browser sessions\n" +
-        "2. Delete all saved authentication data (cookies, Chrome profile)\n" +
-        "3. Preserve notebook library and other data\n\n" +
-        "IMPORTANT: After de_auth, the server will need re-authentication via setup_auth or re_auth before making queries.\n\n" +
+        'De-authenticate (logout) - Clears all authentication data for security. ' +
+        'Use this when:\n' +
+        '- User wants to log out for security reasons\n' +
+        '- Removing credentials before shutting down\n' +
+        '- Clearing auth without immediately re-authenticating\n\n' +
+        'This will:\n' +
+        '1. Close all active browser sessions\n' +
+        '2. Delete all saved authentication data (cookies, Chrome profile)\n' +
+        '3. Preserve notebook library and other data\n\n' +
+        'IMPORTANT: After de_auth, the server will need re-authentication via setup_auth or re_auth before making queries.\n\n' +
         "Use 'get_health' to verify de-authentication was successful (authenticated: false).",
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {},
       },
     },
     {
-      name: "re_auth",
+      name: 're_auth',
       description:
-        "Switch to a different Google account or re-authenticate. " +
-        "Use this when:\n" +
-        "- NotebookLM rate limit is reached (50 queries/day for free accounts)\n" +
-        "- You want to switch to a different Google account\n" +
-        "- Authentication is broken and needs a fresh start\n\n" +
-        "This will:\n" +
-        "1. Close all active browser sessions\n" +
-        "2. Delete all saved authentication data (cookies, Chrome profile)\n" +
-        "3. Open browser for fresh Google login\n\n" +
+        'Switch to a different Google account or re-authenticate. ' +
+        'Use this when:\n' +
+        '- NotebookLM rate limit is reached (50 queries/day for free accounts)\n' +
+        '- You want to switch to a different Google account\n' +
+        '- Authentication is broken and needs a fresh start\n\n' +
+        'This will:\n' +
+        '1. Close all active browser sessions\n' +
+        '2. Delete all saved authentication data (cookies, Chrome profile)\n' +
+        '3. Open browser for fresh Google login\n\n' +
         "After completion, use 'get_health' to verify authentication.\n\n" +
-        "TROUBLESHOOTING for persistent auth issues:\n" +
-        "If re_auth fails repeatedly:\n" +
-        "1. Ask user to close ALL Chrome/Chromium instances\n" +
-        "2. Run cleanup_data(confirm=false, preserve_library=true) to preview old files\n" +
-        "3. Run cleanup_data(confirm=true, preserve_library=true) to clean everything except library\n" +
-        "4. Run re_auth again for completely fresh start\n" +
-        "This removes old installation data and browser sessions that can cause conflicts.",
+        'TROUBLESHOOTING for persistent auth issues:\n' +
+        'If re_auth fails repeatedly:\n' +
+        '1. Ask user to close ALL Chrome/Chromium instances\n' +
+        '2. Run cleanup_data(confirm=false, preserve_library=true) to preview old files\n' +
+        '3. Run cleanup_data(confirm=true, preserve_library=true) to clean everything except library\n' +
+        '4. Run re_auth again for completely fresh start\n' +
+        'This removes old installation data and browser sessions that can cause conflicts.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           show_browser: {
-            type: "boolean",
+            type: 'boolean',
             description:
-              "Show browser window (simple version). Default: true for re-auth. " +
-              "For advanced control, use browser_options instead.",
+              'Show browser window (simple version). Default: true for re-auth. ' +
+              'For advanced control, use browser_options instead.',
           },
           browser_options: {
-            type: "object",
+            type: 'object',
             description:
-              "Optional browser settings. Control visibility, timeouts, and stealth behavior.",
+              'Optional browser settings. Control visibility, timeouts, and stealth behavior.',
             properties: {
               show: {
-                type: "boolean",
-                description: "Show browser window (default: true for re-auth)",
+                type: 'boolean',
+                description: 'Show browser window (default: true for re-auth)',
               },
               headless: {
-                type: "boolean",
-                description: "Run browser in headless mode (default: false for re-auth)",
+                type: 'boolean',
+                description: 'Run browser in headless mode (default: false for re-auth)',
               },
               timeout_ms: {
-                type: "number",
-                description: "Browser operation timeout in milliseconds (default: 30000)",
+                type: 'number',
+                description: 'Browser operation timeout in milliseconds (default: 30000)',
               },
             },
           },
@@ -725,45 +721,45 @@ User: "Yes" → call remove_notebook`,
       },
     },
     {
-      name: "cleanup_data",
+      name: 'cleanup_data',
       description:
-        "ULTRATHINK Deep Cleanup - Scans entire system for ALL NotebookLM MCP data files across 8 categories. Always runs in deep mode, shows categorized preview before deletion.\n\n" +
-        "⚠️ CRITICAL: Close ALL Chrome/Chromium instances BEFORE running this tool! Open browsers can prevent cleanup and cause issues.\n\n" +
-        "Categories scanned:\n" +
-        "1. Legacy Installation (notebooklm-mcp-nodejs) - Old paths with -nodejs suffix\n" +
-        "2. Current Installation (notebooklm-mcp) - Active data, browser profiles, library\n" +
-        "3. NPM/NPX Cache - Cached installations from npx\n" +
-        "4. Claude CLI MCP Logs - MCP server logs from Claude CLI\n" +
-        "5. Temporary Backups - Backup directories in system temp\n" +
-        "6. Claude Projects Cache - Project-specific cache (optional)\n" +
-        "7. Editor Logs (Cursor/VSCode) - MCP logs from code editors (optional)\n" +
-        "8. Trash Files - Deleted notebooklm files in system trash (optional)\n\n" +
-        "Works cross-platform (Linux, Windows, macOS). Safe by design: shows detailed preview before deletion, requires explicit confirmation.\n\n" +
-        "LIBRARY PRESERVATION: Set preserve_library=true to keep your notebook library.json file while cleaning everything else.\n\n" +
-        "RECOMMENDED WORKFLOW for fresh start:\n" +
-        "1. Ask user to close ALL Chrome/Chromium instances\n" +
-        "2. Run cleanup_data(confirm=false, preserve_library=true) to preview\n" +
-        "3. Run cleanup_data(confirm=true, preserve_library=true) to execute\n" +
-        "4. Run setup_auth or re_auth for fresh browser session\n\n" +
-        "Use cases: Clean reinstall, troubleshooting auth issues, removing all traces before uninstall, cleaning old browser sessions and installation data.",
+        'ULTRATHINK Deep Cleanup - Scans entire system for ALL NotebookLM MCP data files across 8 categories. Always runs in deep mode, shows categorized preview before deletion.\n\n' +
+        '⚠️ CRITICAL: Close ALL Chrome/Chromium instances BEFORE running this tool! Open browsers can prevent cleanup and cause issues.\n\n' +
+        'Categories scanned:\n' +
+        '1. Legacy Installation (notebooklm-mcp-nodejs) - Old paths with -nodejs suffix\n' +
+        '2. Current Installation (notebooklm-mcp) - Active data, browser profiles, library\n' +
+        '3. NPM/NPX Cache - Cached installations from npx\n' +
+        '4. Claude CLI MCP Logs - MCP server logs from Claude CLI\n' +
+        '5. Temporary Backups - Backup directories in system temp\n' +
+        '6. Claude Projects Cache - Project-specific cache (optional)\n' +
+        '7. Editor Logs (Cursor/VSCode) - MCP logs from code editors (optional)\n' +
+        '8. Trash Files - Deleted notebooklm files in system trash (optional)\n\n' +
+        'Works cross-platform (Linux, Windows, macOS). Safe by design: shows detailed preview before deletion, requires explicit confirmation.\n\n' +
+        'LIBRARY PRESERVATION: Set preserve_library=true to keep your notebook library.json file while cleaning everything else.\n\n' +
+        'RECOMMENDED WORKFLOW for fresh start:\n' +
+        '1. Ask user to close ALL Chrome/Chromium instances\n' +
+        '2. Run cleanup_data(confirm=false, preserve_library=true) to preview\n' +
+        '3. Run cleanup_data(confirm=true, preserve_library=true) to execute\n' +
+        '4. Run setup_auth or re_auth for fresh browser session\n\n' +
+        'Use cases: Clean reinstall, troubleshooting auth issues, removing all traces before uninstall, cleaning old browser sessions and installation data.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           confirm: {
-            type: "boolean",
+            type: 'boolean',
             description:
-              "Confirmation flag. Tool shows preview first, then user confirms deletion. " +
-              "Set to true only after user has reviewed the preview and explicitly confirmed.",
+              'Confirmation flag. Tool shows preview first, then user confirms deletion. ' +
+              'Set to true only after user has reviewed the preview and explicitly confirmed.',
           },
           preserve_library: {
-            type: "boolean",
+            type: 'boolean',
             description:
-              "Preserve library.json file during cleanup. Default: false. " +
-              "Set to true to keep your notebook library while deleting everything else (browser data, caches, logs).",
+              'Preserve library.json file during cleanup. Default: false. ' +
+              'Set to true to keep your notebook library while deleting everything else (browser data, caches, logs).',
             default: false,
           },
         },
-        required: ["confirm"],
+        required: ['confirm'],
       },
     },
   ];
@@ -822,19 +818,19 @@ export class ToolHandlers {
           if (allNotebooks.length === 0) {
             throw new Error(
               `Notebook not found: '${notebook_id}'\n\n` +
-              `❌ No notebooks configured in library.\n\n` +
-              `To add a notebook:\n` +
-              `  POST /notebooks with { url, name, description, topics }\n\n` +
-              `Or use notebook_url directly in your request:\n` +
-              `  { "question": "...", "notebook_url": "https://notebooklm.google.com/notebook/..." }`
+                `❌ No notebooks configured in library.\n\n` +
+                `To add a notebook:\n` +
+                `  POST /notebooks with { url, name, description, topics }\n\n` +
+                `Or use notebook_url directly in your request:\n` +
+                `  { "question": "...", "notebook_url": "https://notebooklm.google.com/notebook/..." }`
             );
           } else {
-            const availableIds = allNotebooks.map(n => n.id).join(', ');
+            const availableIds = allNotebooks.map((n) => n.id).join(', ');
             throw new Error(
               `Notebook not found: '${notebook_id}'\n\n` +
-              `Available notebooks: ${availableIds}\n\n` +
-              `To list all notebooks: GET /notebooks\n` +
-              `To add a new notebook: POST /notebooks`
+                `Available notebooks: ${availableIds}\n\n` +
+                `To list all notebooks: GET /notebooks\n` +
+                `To add a new notebook: POST /notebooks`
             );
           }
         }
@@ -856,30 +852,30 @@ export class ToolHandlers {
           if (allNotebooks.length === 0) {
             throw new Error(
               `❌ No notebook specified and no notebooks configured in library.\n\n` +
-              `Please either:\n` +
-              `1. Add a notebook to the library:\n` +
-              `   POST /notebooks with { url, name, description, topics }\n\n` +
-              `2. Or specify notebook_url in your request:\n` +
-              `   { "question": "...", "notebook_url": "https://notebooklm.google.com/notebook/..." }\n\n` +
-              `3. Or specify notebook_id from existing notebooks:\n` +
-              `   GET /notebooks to list available notebooks`
+                `Please either:\n` +
+                `1. Add a notebook to the library:\n` +
+                `   POST /notebooks with { url, name, description, topics }\n\n` +
+                `2. Or specify notebook_url in your request:\n` +
+                `   { "question": "...", "notebook_url": "https://notebooklm.google.com/notebook/..." }\n\n` +
+                `3. Or specify notebook_id from existing notebooks:\n` +
+                `   GET /notebooks to list available notebooks`
             );
           } else {
-            const availableIds = allNotebooks.map(n => `${n.id} (${n.name})`).join('\n   - ');
+            const availableIds = allNotebooks.map((n) => `${n.id} (${n.name})`).join('\n   - ');
             throw new Error(
               `❌ No notebook specified.\n\n` +
-              `Available notebooks:\n   - ${availableIds}\n\n` +
-              `Please specify one of:\n` +
-              `  - notebook_id: "${allNotebooks[0].id}"\n` +
-              `  - notebook_url: "https://notebooklm.google.com/notebook/..."\n\n` +
-              `Or set an active notebook: PUT /notebooks/${allNotebooks[0].id}/activate`
+                `Available notebooks:\n   - ${availableIds}\n\n` +
+                `Please specify one of:\n` +
+                `  - notebook_id: "${allNotebooks[0].id}"\n` +
+                `  - notebook_url: "https://notebooklm.google.com/notebook/..."\n\n` +
+                `Or set an active notebook: PUT /notebooks/${allNotebooks[0].id}/activate`
             );
           }
         }
       }
 
       // Progress: Getting or creating session
-      await sendProgress?.("Getting or creating browser session...", 1, 5);
+      await sendProgress?.('Getting or creating browser session...', 1, 5);
 
       // Apply browser options temporarily
       const originalConfig = { ...CONFIG };
@@ -905,32 +901,32 @@ export class ToolHandlers {
           overrideHeadless
         );
 
-      // Progress: Asking question
-      await sendProgress?.("Asking question to NotebookLM...", 2, 5);
+        // Progress: Asking question
+        await sendProgress?.('Asking question to NotebookLM...', 2, 5);
 
-      // Ask the question (pass progress callback)
-      const rawAnswer = await session.ask(question, sendProgress);
-      // Note: FOLLOW_UP_REMINDER removed for cleaner responses
-      const answer = rawAnswer.trimEnd();
+        // Ask the question (pass progress callback)
+        const rawAnswer = await session.ask(question, sendProgress);
+        // Note: FOLLOW_UP_REMINDER removed for cleaner responses
+        const answer = rawAnswer.trimEnd();
 
-      // Get session info
-      const sessionInfo = session.getInfo();
+        // Get session info
+        const sessionInfo = session.getInfo();
 
-      const result: AskQuestionResult = {
-        status: "success",
-        question,
-        answer,
-        session_id: session.sessionId,
-        notebook_url: session.notebookUrl,
-        session_info: {
-          age_seconds: sessionInfo.age_seconds,
-          message_count: sessionInfo.message_count,
-          last_activity: sessionInfo.last_activity,
-        },
-      };
+        const result: AskQuestionResult = {
+          status: 'success',
+          question,
+          answer,
+          session_id: session.sessionId,
+          notebook_url: session.notebookUrl,
+          session_info: {
+            age_seconds: sessionInfo.age_seconds,
+            message_count: sessionInfo.message_count,
+            last_activity: sessionInfo.last_activity,
+          },
+        };
 
         // Progress: Complete
-        await sendProgress?.("Question answered successfully!", 5, 5);
+        await sendProgress?.('Question answered successfully!', 5, 5);
 
         log.success(`✅ [TOOL] ask_question completed successfully`);
         return {
@@ -942,20 +938,19 @@ export class ToolHandlers {
         Object.assign(CONFIG, originalConfig);
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
       // Special handling for rate limit errors
-      if (error instanceof RateLimitError || errorMessage.toLowerCase().includes("rate limit")) {
+      if (error instanceof RateLimitError || errorMessage.toLowerCase().includes('rate limit')) {
         log.error(`🚫 [TOOL] Rate limit detected`);
         return {
           success: false,
           error:
-            "NotebookLM rate limit reached (50 queries/day for free accounts).\n\n" +
-            "You can:\n" +
+            'NotebookLM rate limit reached (50 queries/day for free accounts).\n\n' +
+            'You can:\n' +
             "1. Use the 're_auth' tool to login with a different Google account\n" +
-            "2. Wait until tomorrow for the quota to reset\n" +
-            "3. Upgrade to Google AI Pro/Ultra for 5x higher limits\n\n" +
+            '2. Wait until tomorrow for the quota to reset\n' +
+            '3. Upgrade to Google AI Pro/Ultra for 5x higher limits\n\n' +
             `Original error: ${errorMessage}`,
         };
       }
@@ -1012,16 +1007,13 @@ export class ToolHandlers {
         })),
       };
 
-      log.success(
-        `✅ [TOOL] list_sessions completed (${result.active_sessions} sessions)`
-      );
+      log.success(`✅ [TOOL] list_sessions completed (${result.active_sessions} sessions)`);
       return {
         success: true,
         data: result,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] list_sessions failed: ${errorMessage}`);
       return {
         success: false,
@@ -1035,9 +1027,7 @@ export class ToolHandlers {
    */
   async handleCloseSession(args: {
     session_id: string;
-  }): Promise<
-    ToolResult<{ status: string; message: string; session_id: string }>
-  > {
+  }): Promise<ToolResult<{ status: string; message: string; session_id: string }>> {
     const { session_id } = args;
 
     log.info(`🔧 [TOOL] close_session called`);
@@ -1051,7 +1041,7 @@ export class ToolHandlers {
         return {
           success: true,
           data: {
-            status: "success",
+            status: 'success',
             message: `Session ${session_id} closed successfully`,
             session_id,
           },
@@ -1064,8 +1054,7 @@ export class ToolHandlers {
         };
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] close_session failed: ${errorMessage}`);
       return {
         success: false,
@@ -1079,9 +1068,7 @@ export class ToolHandlers {
    */
   async handleResetSession(args: {
     session_id: string;
-  }): Promise<
-    ToolResult<{ status: string; message: string; session_id: string }>
-  > {
+  }): Promise<ToolResult<{ status: string; message: string; session_id: string }>> {
     const { session_id } = args;
 
     log.info(`🔧 [TOOL] reset_session called`);
@@ -1104,14 +1091,13 @@ export class ToolHandlers {
       return {
         success: true,
         data: {
-          status: "success",
+          status: 'success',
           message: `Session ${session_id} reset successfully`,
           session_id,
         },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] reset_session failed: ${errorMessage}`);
       return {
         success: false,
@@ -1149,9 +1135,9 @@ export class ToolHandlers {
       const stats = this.sessionManager.getStats();
 
       const result = {
-        status: "ok",
+        status: 'ok',
         authenticated,
-        notebook_url: CONFIG.notebookUrl || "not configured",
+        notebook_url: CONFIG.notebookUrl || 'not configured',
         active_sessions: stats.active_sessions,
         max_sessions: stats.max_sessions,
         session_timeout: stats.session_timeout,
@@ -1160,10 +1146,10 @@ export class ToolHandlers {
         auto_login_enabled: CONFIG.autoLoginEnabled,
         stealth_enabled: CONFIG.stealthEnabled,
         // Add troubleshooting tip if not authenticated
-        ...((!authenticated) && {
+        ...(!authenticated && {
           troubleshooting_tip:
-            "For fresh start with clean browser session: Close all Chrome instances → " +
-            "cleanup_data(confirm=true, preserve_library=true) → setup_auth"
+            'For fresh start with clean browser session: Close all Chrome instances → ' +
+            'cleanup_data(confirm=true, preserve_library=true) → setup_auth',
         }),
       };
 
@@ -1173,8 +1159,7 @@ export class ToolHandlers {
         data: result,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] get_health failed: ${errorMessage}`);
       return {
         success: false,
@@ -1206,7 +1191,7 @@ export class ToolHandlers {
     const { show_browser, browser_options } = args;
 
     // CRITICAL: Send immediate progress to reset timeout from the very start
-    await sendProgress?.("Initializing authentication setup...", 0, 10);
+    await sendProgress?.('Initializing authentication setup...', 0, 10);
 
     log.info(`🔧 [TOOL] setup_auth called`);
     if (show_browser !== undefined) {
@@ -1222,12 +1207,12 @@ export class ToolHandlers {
 
     try {
       // Progress: Starting
-      await sendProgress?.("Preparing authentication browser...", 1, 10);
+      await sendProgress?.('Preparing authentication browser...', 1, 10);
 
       log.info(`  🌐 Opening browser for interactive login...`);
 
       // Progress: Opening browser
-      await sendProgress?.("Opening browser window...", 2, 10);
+      await sendProgress?.('Opening browser window...', 2, 10);
 
       // Perform setup with progress updates (uses CONFIG internally)
       const success = await this.authManager.performSetup(sendProgress);
@@ -1236,14 +1221,14 @@ export class ToolHandlers {
 
       if (success) {
         // Progress: Complete
-        await sendProgress?.("Authentication saved successfully!", 10, 10);
+        await sendProgress?.('Authentication saved successfully!', 10, 10);
 
         log.success(`✅ [TOOL] setup_auth completed (${durationSeconds.toFixed(1)}s)`);
         return {
           success: true,
           data: {
-            status: "authenticated",
-            message: "Successfully authenticated and saved browser state",
+            status: 'authenticated',
+            message: 'Successfully authenticated and saved browser state',
             authenticated: true,
             duration_seconds: durationSeconds,
           },
@@ -1252,12 +1237,11 @@ export class ToolHandlers {
         log.error(`❌ [TOOL] setup_auth failed (${durationSeconds.toFixed(1)}s)`);
         return {
           success: false,
-          error: "Authentication failed or was cancelled",
+          error: 'Authentication failed or was cancelled',
         };
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       const durationSeconds = (Date.now() - startTime) / 1000;
       log.error(`❌ [TOOL] setup_auth failed: ${errorMessage} (${durationSeconds.toFixed(1)}s)`);
       return {
@@ -1293,27 +1277,26 @@ export class ToolHandlers {
 
     try {
       // 1. Close all active sessions
-      log.info("  🛑 Closing all sessions...");
+      log.info('  🛑 Closing all sessions...');
       await this.sessionManager.closeAllSessions();
-      log.success("  ✅ All sessions closed");
+      log.success('  ✅ All sessions closed');
 
       // 2. Clear all auth data
-      log.info("  🗑️  Clearing all authentication data...");
+      log.info('  🗑️  Clearing all authentication data...');
       await this.authManager.clearAllAuthData();
-      log.success("  ✅ Authentication data cleared");
+      log.success('  ✅ Authentication data cleared');
 
       log.success(`✅ [TOOL] de_auth completed - Successfully logged out`);
       return {
         success: true,
         data: {
-          status: "de-authenticated",
-          message: "Successfully logged out. Use setup_auth or re_auth to authenticate again.",
+          status: 'de-authenticated',
+          message: 'Successfully logged out. Use setup_auth or re_auth to authenticate again.',
           authenticated: false,
         },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] de_auth failed: ${errorMessage}`);
       return {
         success: false,
@@ -1347,7 +1330,7 @@ export class ToolHandlers {
   > {
     const { show_browser, browser_options } = args;
 
-    await sendProgress?.("Preparing re-authentication...", 0, 12);
+    await sendProgress?.('Preparing re-authentication...', 0, 12);
     log.info(`🔧 [TOOL] re_auth called`);
     if (show_browser !== undefined) {
       log.info(`  Show browser: ${show_browser}`);
@@ -1362,30 +1345,30 @@ export class ToolHandlers {
 
     try {
       // 1. De-authenticate first (logout)
-      await sendProgress?.("De-authenticating...", 1, 12);
-      log.info("  🔓 De-authenticating (logout)...");
+      await sendProgress?.('De-authenticating...', 1, 12);
+      log.info('  🔓 De-authenticating (logout)...');
       const deAuthResult = await this.handleDeAuth();
       if (!deAuthResult.success) {
         throw new Error(`De-authentication failed: ${deAuthResult.error}`);
       }
-      log.success("  ✅ De-authentication complete");
+      log.success('  ✅ De-authentication complete');
 
       // 2. Perform fresh setup
-      await sendProgress?.("Starting fresh authentication...", 3, 12);
-      log.info("  🌐 Starting fresh authentication setup...");
+      await sendProgress?.('Starting fresh authentication...', 3, 12);
+      log.info('  🌐 Starting fresh authentication setup...');
       const success = await this.authManager.performSetup(sendProgress);
 
       const durationSeconds = (Date.now() - startTime) / 1000;
 
       if (success) {
-        await sendProgress?.("Re-authentication complete!", 12, 12);
+        await sendProgress?.('Re-authentication complete!', 12, 12);
         log.success(`✅ [TOOL] re_auth completed (${durationSeconds.toFixed(1)}s)`);
         return {
           success: true,
           data: {
-            status: "authenticated",
+            status: 'authenticated',
             message:
-              "Successfully re-authenticated with new account. All previous sessions have been closed.",
+              'Successfully re-authenticated with new account. All previous sessions have been closed.',
             authenticated: true,
             duration_seconds: durationSeconds,
           },
@@ -1394,15 +1377,13 @@ export class ToolHandlers {
         log.error(`❌ [TOOL] re_auth failed (${durationSeconds.toFixed(1)}s)`);
         return {
           success: false,
-          error: "Re-authentication failed or was cancelled",
+          error: 'Re-authentication failed or was cancelled',
         };
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const durationSeconds = (Date.now() - startTime) / 1000;
-      log.error(
-        `❌ [TOOL] re_auth failed: ${errorMessage} (${durationSeconds.toFixed(1)}s)`
-      );
+      log.error(`❌ [TOOL] re_auth failed: ${errorMessage} (${durationSeconds.toFixed(1)}s)`);
       return {
         success: false,
         error: errorMessage,
@@ -1416,7 +1397,9 @@ export class ToolHandlers {
   /**
    * Handle auto_discover_notebook tool
    */
-  async handleAutoDiscoverNotebook(args: { url: string }): Promise<ToolResult<{ notebook: NotebookEntry }>> {
+  async handleAutoDiscoverNotebook(args: {
+    url: string;
+  }): Promise<ToolResult<{ notebook: NotebookEntry }>> {
     log.info(`🔧 [TOOL] auto_discover_notebook called`);
     log.info(`  URL: ${args.url}`);
 
@@ -1437,7 +1420,7 @@ export class ToolHandlers {
         topics: metadata.tags, // tags → topics
         content_types: ['documentation'],
         use_cases: metadata.tags.slice(0, 3), // Use first 3 tags as use cases
-        auto_generated: true
+        auto_generated: true,
       };
 
       // Add notebook to library
@@ -1466,7 +1449,9 @@ export class ToolHandlers {
   /**
    * Handle add_notebook tool
    */
-  async handleAddNotebook(args: AddNotebookInput): Promise<ToolResult<{ notebook: NotebookEntry }>> {
+  async handleAddNotebook(
+    args: AddNotebookInput
+  ): Promise<ToolResult<{ notebook: NotebookEntry }>> {
     log.info(`🔧 [TOOL] add_notebook called`);
     log.info(`  Name: ${args.name}`);
 
@@ -1490,7 +1475,9 @@ export class ToolHandlers {
   /**
    * Handle list_notebooks tool
    */
-  async handleListNotebooks(): Promise<ToolResult<{ notebooks: NotebookEntry[]; active_notebook_id: string | null }>> {
+  async handleListNotebooks(): Promise<
+    ToolResult<{ notebooks: NotebookEntry[]; active_notebook_id: string | null }>
+  > {
     log.info(`🔧 [TOOL] list_notebooks called`);
 
     try {
@@ -1498,7 +1485,9 @@ export class ToolHandlers {
       const activeNotebook = this.library.getActiveNotebook();
       const active_notebook_id = activeNotebook ? activeNotebook.id : null;
 
-      log.success(`✅ [TOOL] list_notebooks completed (${notebooks.length} notebooks, active: ${active_notebook_id || 'none'})`);
+      log.success(
+        `✅ [TOOL] list_notebooks completed (${notebooks.length} notebooks, active: ${active_notebook_id || 'none'})`
+      );
       return {
         success: true,
         data: {
@@ -1551,7 +1540,9 @@ export class ToolHandlers {
   /**
    * Handle select_notebook tool
    */
-  async handleSelectNotebook(args: { id: string }): Promise<ToolResult<{ notebook: NotebookEntry }>> {
+  async handleSelectNotebook(args: {
+    id: string;
+  }): Promise<ToolResult<{ notebook: NotebookEntry }>> {
     log.info(`🔧 [TOOL] select_notebook called`);
     log.info(`  ID: ${args.id}`);
 
@@ -1575,7 +1566,9 @@ export class ToolHandlers {
   /**
    * Handle update_notebook tool
    */
-  async handleUpdateNotebook(args: UpdateNotebookInput): Promise<ToolResult<{ notebook: NotebookEntry }>> {
+  async handleUpdateNotebook(
+    args: UpdateNotebookInput
+  ): Promise<ToolResult<{ notebook: NotebookEntry }>> {
     log.info(`🔧 [TOOL] update_notebook called`);
     log.info(`  ID: ${args.id}`);
 
@@ -1599,7 +1592,9 @@ export class ToolHandlers {
   /**
    * Handle remove_notebook tool
    */
-  async handleRemoveNotebook(args: { id: string }): Promise<ToolResult<{ removed: boolean; closed_sessions: number }>> {
+  async handleRemoveNotebook(args: {
+    id: string;
+  }): Promise<ToolResult<{ removed: boolean; closed_sessions: number }>> {
     log.info(`🔧 [TOOL] remove_notebook called`);
     log.info(`  ID: ${args.id}`);
 
@@ -1615,9 +1610,7 @@ export class ToolHandlers {
 
       const removed = this.library.removeNotebook(args.id);
       if (removed) {
-        const closedSessions = await this.sessionManager.closeSessionsForNotebook(
-          notebook.url
-        );
+        const closedSessions = await this.sessionManager.closeSessionsForNotebook(notebook.url);
         log.success(`✅ [TOOL] remove_notebook completed`);
         return {
           success: true,
@@ -1643,7 +1636,9 @@ export class ToolHandlers {
   /**
    * Handle search_notebooks tool
    */
-  async handleSearchNotebooks(args: { query: string }): Promise<ToolResult<{ notebooks: NotebookEntry[] }>> {
+  async handleSearchNotebooks(args: {
+    query: string;
+  }): Promise<ToolResult<{ notebooks: NotebookEntry[] }>> {
     log.info(`🔧 [TOOL] search_notebooks called`);
     log.info(`  Query: "${args.query}"`);
 
@@ -1692,9 +1687,7 @@ export class ToolHandlers {
    *
    * ULTRATHINK Deep Cleanup - scans entire system for ALL NotebookLM MCP files
    */
-  async handleCleanupData(
-    args: { confirm: boolean; preserve_library?: boolean }
-  ): Promise<
+  async handleCleanupData(args: { confirm: boolean; preserve_library?: boolean }): Promise<
     ToolResult<{
       status: string;
       mode: string;
@@ -1727,7 +1720,7 @@ export class ToolHandlers {
 
     try {
       // Always run in deep mode
-      const mode = "deep";
+      const mode = 'deep';
 
       if (!confirm) {
         // Preview mode - show what would be deleted
@@ -1736,13 +1729,15 @@ export class ToolHandlers {
         const preview = await cleanupManager.getCleanupPaths(mode, preserve_library);
         const platformInfo = cleanupManager.getPlatformInfo();
 
-        log.info(`  Found ${preview.totalPaths.length} items (${cleanupManager.formatBytes(preview.totalSizeBytes)})`);
+        log.info(
+          `  Found ${preview.totalPaths.length} items (${cleanupManager.formatBytes(preview.totalSizeBytes)})`
+        );
         log.info(`  Platform: ${platformInfo.platform}`);
 
         return {
           success: true,
           data: {
-            status: "preview",
+            status: 'preview',
             mode,
             preview: {
               categories: preview.categories,
@@ -1758,7 +1753,9 @@ export class ToolHandlers {
         const result = await cleanupManager.performCleanup(mode, preserve_library);
 
         if (result.success) {
-          log.success(`✅ [TOOL] cleanup_data completed - deleted ${result.deletedPaths.length} items`);
+          log.success(
+            `✅ [TOOL] cleanup_data completed - deleted ${result.deletedPaths.length} items`
+          );
         } else {
           log.warning(`⚠️  [TOOL] cleanup_data completed with ${result.failedPaths.length} errors`);
         }
@@ -1766,7 +1763,7 @@ export class ToolHandlers {
         return {
           success: result.success,
           data: {
-            status: result.success ? "completed" : "partial",
+            status: result.success ? 'completed' : 'partial',
             mode,
             result: {
               deletedPaths: result.deletedPaths,

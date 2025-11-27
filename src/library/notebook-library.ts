@@ -6,18 +6,18 @@
  * multiple notebooks based on the task at hand.
  */
 
-import fs from "fs";
-import path from "path";
-import { CONFIG } from "../config.js";
-import { log } from "../utils/logger.js";
+import fs from 'fs';
+import path from 'path';
+import { CONFIG } from '../config.js';
+import { log } from '../utils/logger.js';
 import type {
   NotebookEntry,
   Library,
   AddNotebookInput,
   UpdateNotebookInput,
   LibraryStats,
-} from "./types.js";
-import type { SessionManager } from "../session/session-manager.js";
+} from './types.js';
+import type { SessionManager } from '../session/session-manager.js';
 
 export class NotebookLibrary {
   private libraryPath: string;
@@ -26,10 +26,10 @@ export class NotebookLibrary {
 
   constructor(sessionManager?: SessionManager) {
     this.sessionManager = sessionManager;
-    this.libraryPath = path.join(CONFIG.dataDir, "library.json");
+    this.libraryPath = path.join(CONFIG.dataDir, 'library.json');
     this.library = this.loadLibrary();
 
-    log.info("📚 NotebookLibrary initialized");
+    log.info('📚 NotebookLibrary initialized');
     log.info(`  Library path: ${this.libraryPath}`);
     log.info(`  Notebooks: ${this.library.notebooks.length}`);
     if (this.library.active_notebook_id) {
@@ -43,7 +43,7 @@ export class NotebookLibrary {
   private loadLibrary(): Library {
     try {
       if (fs.existsSync(this.libraryPath)) {
-        const data = fs.readFileSync(this.libraryPath, "utf-8");
+        const data = fs.readFileSync(this.libraryPath, 'utf-8');
         const library = JSON.parse(data) as Library;
         log.success(`  ✅ Loaded library with ${library.notebooks.length} notebooks`);
         return library;
@@ -53,7 +53,7 @@ export class NotebookLibrary {
     }
 
     // Create default library with current CONFIG as first entry
-    log.info("  🆕 Creating new library...");
+    log.info('  🆕 Creating new library...');
     const defaultLibrary = this.createDefaultLibrary();
     this.saveLibrary(defaultLibrary);
     return defaultLibrary;
@@ -66,7 +66,8 @@ export class NotebookLibrary {
     const hasConfig =
       CONFIG.notebookUrl &&
       CONFIG.notebookDescription &&
-      CONFIG.notebookDescription !== "General knowledge base - configure NOTEBOOK_DESCRIPTION to help Claude understand what's in this notebook";
+      CONFIG.notebookDescription !==
+        "General knowledge base - configure NOTEBOOK_DESCRIPTION to help Claude understand what's in this notebook";
 
     const notebooks: NotebookEntry[] = [];
 
@@ -94,7 +95,7 @@ export class NotebookLibrary {
       notebooks,
       active_notebook_id: notebooks.length > 0 ? notebooks[0].id : null,
       last_modified: new Date().toISOString(),
-      version: "1.0.0",
+      version: '1.0.0',
     };
   }
 
@@ -105,7 +106,7 @@ export class NotebookLibrary {
     try {
       library.last_modified = new Date().toISOString();
       const data = JSON.stringify(library, null, 2);
-      fs.writeFileSync(this.libraryPath, data, "utf-8");
+      fs.writeFileSync(this.libraryPath, data, 'utf-8');
       this.library = library;
       log.success(`  💾 Library saved (${library.notebooks.length} notebooks)`);
     } catch (error) {
@@ -120,8 +121,8 @@ export class NotebookLibrary {
   private generateId(name: string): string {
     const base = name
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
       .substring(0, 30);
 
     // Ensure uniqueness
@@ -148,11 +149,11 @@ export class NotebookLibrary {
     if (existingWithSameName) {
       throw new Error(
         `A notebook with the name '${input.name}' already exists.\n\n` +
-        `Existing notebook ID: ${existingWithSameName.id}\n` +
-        `URL: ${existingWithSameName.url}\n\n` +
-        `Please use a different name, or update the existing notebook instead.\n` +
-        `To update: PUT /notebooks/${existingWithSameName.id} with new data\n` +
-        `To delete: DELETE /notebooks/${existingWithSameName.id}`
+          `Existing notebook ID: ${existingWithSameName.id}\n` +
+          `URL: ${existingWithSameName.url}\n\n` +
+          `Please use a different name, or update the existing notebook instead.\n` +
+          `To update: PUT /notebooks/${existingWithSameName.id} with new data\n` +
+          `To delete: DELETE /notebooks/${existingWithSameName.id}`
       );
     }
 
@@ -160,12 +161,12 @@ export class NotebookLibrary {
     if (!this.isValidNotebookUrl(input.url)) {
       throw new Error(
         `Invalid NotebookLM URL: ${input.url}\n\n` +
-        `Expected format: https://notebooklm.google.com/notebook/[notebook-id]\n\n` +
-        `Example: https://notebooklm.google.com/notebook/abc-123-def-456\n\n` +
-        `To get the URL:\n` +
-        `1. Go to https://notebooklm.google.com\n` +
-        `2. Open your notebook\n` +
-        `3. Copy the URL from the address bar`
+          `Expected format: https://notebooklm.google.com/notebook/[notebook-id]\n\n` +
+          `Example: https://notebooklm.google.com/notebook/abc-123-def-456\n\n` +
+          `To get the URL:\n` +
+          `1. Go to https://notebooklm.google.com\n` +
+          `2. Open your notebook\n` +
+          `3. Copy the URL from the address bar`
       );
     }
 
@@ -182,7 +183,7 @@ export class NotebookLibrary {
       name: input.name,
       description: input.description,
       topics: input.topics,
-      content_types: input.content_types || ["documentation", "examples"],
+      content_types: input.content_types || ['documentation', 'examples'],
       use_cases: input.use_cases || [
         `Learning about ${input.name}`,
         `Implementing features with ${input.name}`,
@@ -216,9 +217,9 @@ export class NotebookLibrary {
     try {
       const urlObj = new URL(url);
       return (
-        urlObj.hostname === "notebooklm.google.com" &&
-        urlObj.pathname.startsWith("/notebook/") &&
-        urlObj.pathname.length > "/notebook/".length
+        urlObj.hostname === 'notebooklm.google.com' &&
+        urlObj.pathname.startsWith('/notebook/') &&
+        urlObj.pathname.length > '/notebook/'.length
       );
     } catch {
       return false;
@@ -231,11 +232,11 @@ export class NotebookLibrary {
    */
   async validateNotebookExists(url: string): Promise<void> {
     if (!this.sessionManager) {
-      log.warning("  ⚠️  SessionManager not available, skipping live validation");
+      log.warning('  ⚠️  SessionManager not available, skipping live validation');
       return;
     }
 
-    log.info("  🔍 Validating notebook exists (creating temporary session)...");
+    log.info('  🔍 Validating notebook exists (creating temporary session)...');
 
     const tempSessionId = `validate-${Date.now()}`;
 
@@ -247,38 +248,37 @@ export class NotebookLibrary {
         true // headless
       );
 
-      log.success("  ✅ Notebook validated successfully!");
+      log.success('  ✅ Notebook validated successfully!');
 
       // Close the validation session immediately
       await this.sessionManager.closeSession(tempSessionId);
-
     } catch (error) {
       if (error instanceof Error) {
         // Parse the error to give better feedback
         const errorMsg = error.message;
 
-        if (errorMsg.includes("Could not find NotebookLM chat input")) {
+        if (errorMsg.includes('Could not find NotebookLM chat input')) {
           throw new Error(
             `Invalid or inaccessible notebook.\n\n` +
-            `URL: ${url}\n\n` +
-            `The notebook page loaded but the chat interface was not found.\n` +
-            `This usually means:\n` +
-            `- The notebook doesn't exist\n` +
-            `- You don't have access to this notebook\n` +
-            `- The notebook ID in the URL is incorrect\n\n` +
-            `Please verify the URL by:\n` +
-            `1. Go to https://notebooklm.google.com\n` +
-            `2. Open the notebook manually\n` +
-            `3. Copy the exact URL from the address bar`
+              `URL: ${url}\n\n` +
+              `The notebook page loaded but the chat interface was not found.\n` +
+              `This usually means:\n` +
+              `- The notebook doesn't exist\n` +
+              `- You don't have access to this notebook\n` +
+              `- The notebook ID in the URL is incorrect\n\n` +
+              `Please verify the URL by:\n` +
+              `1. Go to https://notebooklm.google.com\n` +
+              `2. Open the notebook manually\n` +
+              `3. Copy the exact URL from the address bar`
           );
         }
 
         throw new Error(
           `Failed to validate notebook:\n${errorMsg}\n\n` +
-          `Please verify:\n` +
-          `1. The URL is correct: ${url}\n` +
-          `2. You have access to this notebook\n` +
-          `3. You are authenticated (run setup-auth if needed)`
+            `Please verify:\n` +
+            `1. The URL is correct: ${url}\n` +
+            `2. You have access to this notebook\n` +
+            `3. You are authenticated (run setup-auth if needed)`
         );
       }
       throw error;
@@ -383,8 +383,7 @@ export class NotebookLibrary {
 
     // If we removed the active notebook, select another one
     if (updated.active_notebook_id === id) {
-      updated.active_notebook_id =
-        updated.notebooks.length > 0 ? updated.notebooks[0].id : null;
+      updated.active_notebook_id = updated.notebooks.length > 0 ? updated.notebooks[0].id : null;
     }
 
     this.saveLibrary(updated);
@@ -420,14 +419,12 @@ export class NotebookLibrary {
    * Get library statistics
    */
   getStats(): LibraryStats {
-    const totalQueries = this.library.notebooks.reduce(
-      (sum, n) => sum + n.use_count,
-      0
-    );
+    const totalQueries = this.library.notebooks.reduce((sum, n) => sum + n.use_count, 0);
 
-    const mostUsed = this.library.notebooks.reduce((max, n) =>
-      n.use_count > (max?.use_count || 0) ? n : max
-    , null as NotebookEntry | null);
+    const mostUsed = this.library.notebooks.reduce(
+      (max, n) => (n.use_count > (max?.use_count || 0) ? n : max),
+      null as NotebookEntry | null
+    );
 
     return {
       total_notebooks: this.library.notebooks.length,

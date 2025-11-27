@@ -8,11 +8,11 @@
 
 ### HTTP Configuration
 
-| Variable | Default | Description |
-|----------|--------|-------------|
-| `HTTP_HOST` | `0.0.0.0` | Listen IP address (`0.0.0.0` = network, `127.0.0.1` = localhost) |
-| `HTTP_PORT` | `3000` | HTTP listen port |
-| `NODE_ENV` | `development` | Environment (`development`, `production`) |
+| Variable    | Default       | Description                                                      |
+| ----------- | ------------- | ---------------------------------------------------------------- |
+| `HTTP_HOST` | `0.0.0.0`     | Listen IP address (`0.0.0.0` = network, `127.0.0.1` = localhost) |
+| `HTTP_PORT` | `3000`        | HTTP listen port                                                 |
+| `NODE_ENV`  | `development` | Environment (`development`, `production`)                        |
 
 **Examples:**
 
@@ -34,10 +34,10 @@ node dist/http-wrapper.js
 
 ### Browser Configuration
 
-| Variable | Default | Description |
-|----------|--------|-------------|
-| `HEADLESS` | `true` | Chrome headless (`true` = invisible, `false` = visible) |
-| `STEALTH_ENABLED` | `true` | Stealth anti-detection mode |
+| Variable          | Default | Description                                             |
+| ----------------- | ------- | ------------------------------------------------------- |
+| `HEADLESS`        | `true`  | Chrome headless (`true` = invisible, `false` = visible) |
+| `STEALTH_ENABLED` | `true`  | Stealth anti-detection mode                             |
 
 **Examples:**
 
@@ -49,10 +49,10 @@ node dist/http-wrapper.js
 
 ### Session Configuration
 
-| Variable | Default | Description |
-|----------|--------|-------------|
-| `MAX_SESSIONS` | `10` | Maximum number of concurrent sessions |
-| `SESSION_TIMEOUT` | `900` | Session timeout in seconds (15 min) |
+| Variable          | Default | Description                           |
+| ----------------- | ------- | ------------------------------------- |
+| `MAX_SESSIONS`    | `10`    | Maximum number of concurrent sessions |
+| `SESSION_TIMEOUT` | `900`   | Session timeout in seconds (15 min)   |
 
 **Examples:**
 
@@ -64,11 +64,11 @@ node dist/http-wrapper.js
 
 ### Data Configuration
 
-| Variable | Default | Description |
-|----------|--------|-------------|
-| `DATA_DIR` | `./Data` | Persistent data directory |
-| `CHROME_PROFILE_DIR` | `./Data/chrome_profile` | Chrome profile |
-| `BROWSER_STATE_DIR` | `./Data/browser_state` | Browser state |
+| Variable             | Default                 | Description               |
+| -------------------- | ----------------------- | ------------------------- |
+| `DATA_DIR`           | `./Data`                | Persistent data directory |
+| `CHROME_PROFILE_DIR` | `./Data/chrome_profile` | Chrome profile            |
+| `BROWSER_STATE_DIR`  | `./Data/browser_state`  | Browser state             |
 
 ---
 
@@ -84,6 +84,7 @@ node dist/http-wrapper.js
 ```
 
 **Advantages:**
+
 - ✅ No network access possible
 - ✅ Maximum security
 - ❌ n8n must be on the same machine
@@ -121,7 +122,7 @@ app.use((req, res, next) => {
   if (authHeader !== `Bearer ${API_KEY}`) {
     return res.status(401).json({
       success: false,
-      error: 'Unauthorized'
+      error: 'Unauthorized',
     });
   }
   next();
@@ -137,6 +138,7 @@ node dist/http-wrapper.js
 ```
 
 **In n8n, add the header:**
+
 ```
 Authorization: Bearer my-super-secure-secret-token
 ```
@@ -229,6 +231,7 @@ The server uses the `utils/logger.ts` module with 4 levels:
 **Disable debug logs:**
 
 Modify `src/session/browser-session.ts` line 415:
+
 ```typescript
 debug: false,  // Disable debug logs
 ```
@@ -297,6 +300,7 @@ curl http://localhost:3000/health
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -325,6 +329,7 @@ curl http://localhost:3000/health
 **Cause:** Port already in use
 
 **Solution:**
+
 ```powershell
 # Change the port
 $env:HTTP_PORT="3001"
@@ -336,6 +341,7 @@ node dist/http-wrapper.js
 **Cause:** Firewall or HOST misconfigured
 
 **Solution:**
+
 ```powershell
 # Check config
 $env:HTTP_HOST="0.0.0.0"  # Not 127.0.0.1!
@@ -350,6 +356,7 @@ Test-NetConnection -ComputerName localhost -Port 3000
 **Cause:** .env used but dotenv not installed
 
 **Solution:**
+
 ```powershell
 npm install dotenv
 ```

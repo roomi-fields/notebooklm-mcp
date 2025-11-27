@@ -9,6 +9,7 @@
 This package contains **everything you need** to deploy NotebookLM MCP in HTTP REST API mode.
 
 **Package contents:**
+
 - ✅ 10 documentation files
 - ✅ 4 automated PowerShell scripts
 - ✅ Step-by-step installation guide
@@ -52,14 +53,17 @@ deployment/
 ## 🎯 Where to Start?
 
 ### I'm in a HURRY (5 minutes)
+
 → **[QUICK-START.md](./QUICK-START.md)**
 Installation and testing in 5 quick steps
 
 ### I want a COMPLETE installation
+
 → **[README.md](./README.md)** then **[docs/01-INSTALL.md](./docs/01-INSTALL.md)**
 Detailed guide with explanations
 
 ### I want to AUTOMATE the installation
+
 → **[scripts/install.ps1](./scripts/install.ps1)**
 PowerShell script that does everything
 
@@ -69,42 +73,42 @@ PowerShell script that does everything
 
 ### 📄 Main Guides
 
-| File | Description | Reading time |
-|---------|-------------|------------------|
-| **[README.md](./README.md)** | Package overview | 5 min |
-| **[QUICK-START.md](./QUICK-START.md)** | Quick start in 5 steps | 2 min |
-| **[INDEX.md](./INDEX.md)** | This file - navigation guide | 3 min |
-| **[PACKAGE-FILES.txt](./PACKAGE-FILES.txt)** | List of required files | 2 min |
+| File                                         | Description                  | Reading time |
+| -------------------------------------------- | ---------------------------- | ------------ |
+| **[README.md](./README.md)**                 | Package overview             | 5 min        |
+| **[QUICK-START.md](./QUICK-START.md)**       | Quick start in 5 steps       | 2 min        |
+| **[INDEX.md](./INDEX.md)**                   | This file - navigation guide | 3 min        |
+| **[PACKAGE-FILES.txt](./PACKAGE-FILES.txt)** | List of required files       | 2 min        |
 
 ### 📚 Detailed Documentation (docs/)
 
-| File | Description | Reading time |
-|---------|-------------|------------------|
-| **[01-INSTALL.md](./docs/01-INSTALL.md)** | Complete installation from scratch | 15 min |
-| **[02-CONFIGURATION.md](./docs/02-CONFIGURATION.md)** | Advanced configuration, variables, security | 12 min |
-| **[03-API.md](./docs/03-API.md)** | Complete REST API documentation | 15 min |
-| **[04-N8N-INTEGRATION.md](./docs/04-N8N-INTEGRATION.md)** | Integration with n8n, workflows | 20 min |
-| **[05-TROUBLESHOOTING.md](./docs/05-TROUBLESHOOTING.md)** | Complete problem resolution | 15 min |
-| **[06-NOTEBOOK-LIBRARY.md](./docs/06-NOTEBOOK-LIBRARY.md)** | Multi-notebook library management | 12 min |
-| **[07-AUTO-DISCOVERY.md](./docs/07-AUTO-DISCOVERY.md)** | Autonomous resource discovery pattern | 15 min |
+| File                                                        | Description                                 | Reading time |
+| ----------------------------------------------------------- | ------------------------------------------- | ------------ |
+| **[01-INSTALL.md](./docs/01-INSTALL.md)**                   | Complete installation from scratch          | 15 min       |
+| **[02-CONFIGURATION.md](./docs/02-CONFIGURATION.md)**       | Advanced configuration, variables, security | 12 min       |
+| **[03-API.md](./docs/03-API.md)**                           | Complete REST API documentation             | 15 min       |
+| **[04-N8N-INTEGRATION.md](./docs/04-N8N-INTEGRATION.md)**   | Integration with n8n, workflows             | 20 min       |
+| **[05-TROUBLESHOOTING.md](./docs/05-TROUBLESHOOTING.md)**   | Complete problem resolution                 | 15 min       |
+| **[06-NOTEBOOK-LIBRARY.md](./docs/06-NOTEBOOK-LIBRARY.md)** | Multi-notebook library management           | 12 min       |
+| **[07-AUTO-DISCOVERY.md](./docs/07-AUTO-DISCOVERY.md)**     | Autonomous resource discovery pattern       | 15 min       |
 
 ### 🤝 Contribution and Project
 
-| File | Description | Reading time |
-|---------|-------------|------------------|
-| **[LICENSE](./LICENSE)** | MIT License with attributions | 3 min |
-| **[CONTRIBUTING.md](./CONTRIBUTING.md)** | Detailed contribution guide | 10 min |
-| **[CHANGELOG.md](./CHANGELOG.md)** | Complete version history | 8 min |
-| **[CREDITS.md](./CREDITS.md)** | Credits, technologies, philosophy | 8 min |
+| File                                     | Description                       | Reading time |
+| ---------------------------------------- | --------------------------------- | ------------ |
+| **[LICENSE](./LICENSE)**                 | MIT License with attributions     | 3 min        |
+| **[CONTRIBUTING.md](./CONTRIBUTING.md)** | Detailed contribution guide       | 10 min       |
+| **[CHANGELOG.md](./CHANGELOG.md)**       | Complete version history          | 8 min        |
+| **[CREDITS.md](./CREDITS.md)**           | Credits, technologies, philosophy | 8 min        |
 
 ### 🔧 PowerShell Scripts (scripts/)
 
-| Script | Description | Usage |
-|--------|-------------|-------|
-| **[install.ps1](./scripts/install.ps1)** | Complete automatic installation | `.\scripts\install.ps1` |
-| **[start-server.ps1](./scripts/start-server.ps1)** | HTTP server startup | `.\scripts\start-server.ps1` |
-| **[stop-server.ps1](./scripts/stop-server.ps1)** | Clean server shutdown | `.\scripts\stop-server.ps1` |
-| **[test-server.ps1](./scripts/test-server.ps1)** | Validation tests | `.\scripts\test-server.ps1` |
+| Script                                             | Description                     | Usage                        |
+| -------------------------------------------------- | ------------------------------- | ---------------------------- |
+| **[install.ps1](./scripts/install.ps1)**           | Complete automatic installation | `.\scripts\install.ps1`      |
+| **[start-server.ps1](./scripts/start-server.ps1)** | HTTP server startup             | `.\scripts\start-server.ps1` |
+| **[stop-server.ps1](./scripts/stop-server.ps1)**   | Clean server shutdown           | `.\scripts\stop-server.ps1`  |
+| **[test-server.ps1](./scripts/test-server.ps1)**   | Validation tests                | `.\scripts\test-server.ps1`  |
 
 ---
 
@@ -188,27 +192,27 @@ cd deployment
 
 ## 📊 Progress Status
 
-| Document | Status | Notes |
-|----------|--------|-------|
-| README.md | ✅ Complete | Overview updated |
-| QUICK-START.md | ✅ Complete | 5 min quick guide |
-| INDEX.md | ✅ Complete | This file - navigation |
-| PACKAGE-FILES.txt | ✅ Complete | File list |
-| LICENSE | ✅ Complete | MIT with attributions |
-| CONTRIBUTING.md | ✅ Complete | Contribution guide |
-| CHANGELOG.md | ✅ Complete | Version 1.1.2-http |
-| CREDITS.md | ✅ Complete | Complete credits |
-| 01-INSTALL.md | ✅ Complete | Detailed installation |
-| 02-CONFIGURATION.md | ✅ Complete | Variables, security, PM2 |
-| 03-API.md | ✅ Complete | 12 documented endpoints |
-| 04-N8N-INTEGRATION.md | ✅ Complete | 3 example workflows |
-| 05-TROUBLESHOOTING.md | ✅ Complete | Complete solutions |
-| 06-NOTEBOOK-LIBRARY.md | ✅ Complete | Multi-notebook library |
-| 07-AUTO-DISCOVERY.md | ✅ Complete | Auto-discovery pattern |
-| install.ps1 | ✅ Complete | Automatic installation |
-| start-server.ps1 | ✅ Complete | Startup with checks |
-| stop-server.ps1 | ✅ Complete | Clean shutdown |
-| test-server.ps1 | ✅ Complete | Validation tests |
+| Document               | Status      | Notes                    |
+| ---------------------- | ----------- | ------------------------ |
+| README.md              | ✅ Complete | Overview updated         |
+| QUICK-START.md         | ✅ Complete | 5 min quick guide        |
+| INDEX.md               | ✅ Complete | This file - navigation   |
+| PACKAGE-FILES.txt      | ✅ Complete | File list                |
+| LICENSE                | ✅ Complete | MIT with attributions    |
+| CONTRIBUTING.md        | ✅ Complete | Contribution guide       |
+| CHANGELOG.md           | ✅ Complete | Version 1.1.2-http       |
+| CREDITS.md             | ✅ Complete | Complete credits         |
+| 01-INSTALL.md          | ✅ Complete | Detailed installation    |
+| 02-CONFIGURATION.md    | ✅ Complete | Variables, security, PM2 |
+| 03-API.md              | ✅ Complete | 12 documented endpoints  |
+| 04-N8N-INTEGRATION.md  | ✅ Complete | 3 example workflows      |
+| 05-TROUBLESHOOTING.md  | ✅ Complete | Complete solutions       |
+| 06-NOTEBOOK-LIBRARY.md | ✅ Complete | Multi-notebook library   |
+| 07-AUTO-DISCOVERY.md   | ✅ Complete | Auto-discovery pattern   |
+| install.ps1            | ✅ Complete | Automatic installation   |
+| start-server.ps1       | ✅ Complete | Startup with checks      |
+| stop-server.ps1        | ✅ Complete | Clean shutdown           |
+| test-server.ps1        | ✅ Complete | Validation tests         |
 
 **Overall status:** ✅ 100% Complete - Ready for Git publication
 
@@ -235,6 +239,7 @@ cd deployment
 **Current version:** 1.3.1
 
 **Included in this version:**
+
 - ✅ MCP Auto-Discovery Tool: `auto_discover_notebook` for Claude Desktop
 - ✅ Critical fix: Claude Desktop compatibility (disabled CompleteRequestSchema)
 - ✅ HTTP Auto-Discovery: POST `/notebooks/auto-discover` endpoint
@@ -250,6 +255,7 @@ cd deployment
 - ✅ Chrome profile limitation documented
 
 **Possible future improvements (1.4.0+):**
+
 - 🔥 Separate Chrome profiles by mode (HTTP vs stdio) - HIGH PRIORITY
 - ⏳ Smart metadata refresh endpoint
 - ⏳ Semantic matching with embeddings
@@ -273,6 +279,7 @@ cd deployment
 ## 🤝 Contribution
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+
 - Reporting bugs
 - Proposing improvements
 - Submitting code

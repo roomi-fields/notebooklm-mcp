@@ -19,7 +19,7 @@ export interface SessionInfo {
  * Result from asking a question
  */
 export interface AskQuestionResult {
-  status: "success" | "error";
+  status: 'success' | 'error';
   question: string;
   answer?: string;
   error?: string;
@@ -49,7 +49,7 @@ export interface Tool {
   title?: string;
   description: string;
   inputSchema: {
-    type: "object";
+    type: 'object';
     properties: Record<string, any>;
     required?: string[];
   };

@@ -9,6 +9,7 @@
 This guide shows you how to query NotebookLM from n8n to create powerful automation workflows.
 
 **What you'll learn:**
+
 - HTTP Request node configuration
 - Complete workflow examples
 - Error handling
@@ -77,10 +78,12 @@ If it works, proceed to step 3. Otherwise, see [Troubleshooting](#-troubleshooti
 ```
 
 **Webhook Configuration:**
+
 - Method: POST
 - Path: `/ask-notebooklm`
 
 **HTTP Request Configuration:**
+
 - URL: `http://192.168.1.52:3000/ask`
 - Body:
   ```json
@@ -91,6 +94,7 @@ If it works, proceed to step 3. Otherwise, see [Troubleshooting](#-troubleshooti
   ```
 
 **Respond Configuration:**
+
 - Response Code: 200
 - Response Body:
   ```json
@@ -101,6 +105,7 @@ If it works, proceed to step 3. Otherwise, see [Troubleshooting](#-troubleshooti
   ```
 
 **Test:**
+
 ```bash
 curl -X POST http://n8n-server:5678/webhook/ask-notebooklm \
   -H "Content-Type: application/json" \
@@ -121,10 +126,12 @@ curl -X POST http://n8n-server:5678/webhook/ask-notebooklm \
 ```
 
 **Schedule Configuration:**
+
 - Trigger Times: Cron Expression
 - Expression: `0 9 * * 1-5` (9am Monday to Friday)
 
 **HTTP Request Configuration:**
+
 - URL: `http://192.168.1.52:3000/ask`
 - Body:
   ```json
@@ -135,6 +142,7 @@ curl -X POST http://n8n-server:5678/webhook/ask-notebooklm \
   ```
 
 **Email Configuration:**
+
 - To: `team@example.com`
 - Subject: `Rapport Parents & Numérique - {{ $now.format('DD/MM/YYYY') }}`
 - Text: `{{ $json.data.answer }}`
@@ -153,10 +161,12 @@ curl -X POST http://n8n-server:5678/webhook/ask-notebooklm \
 ```
 
 **Slack Trigger Configuration:**
+
 - Event: App Mention
 - Workspace: Your workspace
 
 **HTTP Request Configuration:**
+
 - URL: `http://192.168.1.52:3000/ask`
 - Body:
   ```json
@@ -167,6 +177,7 @@ curl -X POST http://n8n-server:5678/webhook/ask-notebooklm \
   ```
 
 **Slack Send Configuration:**
+
 - Channel: `{{ $json.event.channel }}`
 - Text: `{{ $('HTTP Request').item.json.data.answer }}`
 
@@ -193,6 +204,7 @@ New-NetFirewallRule `
 If you have enabled the API key (see [02-CONFIGURATION.md](./02-CONFIGURATION.md)):
 
 **In the HTTP Request node, add a Header:**
+
 - Name: `Authorization`
 - Value: `Bearer votre-api-key-secrete`
 
@@ -210,6 +222,7 @@ HTTP Request ──✓──▶ Success Path
 ```
 
 **Error Trigger Configuration:**
+
 - Error Message: `{{ $json.error }}`
 - Action: Send notification, log, retry, etc.
 
@@ -218,6 +231,7 @@ HTTP Request ──✓──▶ Success Path
 NotebookLM can take 30-60 seconds. Configure the timeout:
 
 **HTTP Request → Settings:**
+
 - Timeout: `120000` (120 seconds)
 
 ### 3. Rate Limiting
@@ -236,6 +250,7 @@ Free NotebookLM = 50 requests/day. Add a counter:
 For follow-up questions, pass the `session_id`:
 
 **First question:**
+
 ```json
 {
   "question": "Quels conseils pour gérer le temps d'écran?"
@@ -243,6 +258,7 @@ For follow-up questions, pass the `session_id`:
 ```
 
 **Follow-up questions:**
+
 ```json
 {
   "question": "Donne-moi un exemple",
@@ -254,13 +270,13 @@ For follow-up questions, pass the `session_id`:
 
 ## 📊 Useful Variables in n8n
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `{{ $json.data.answer }}` | NotebookLM response | Response text |
-| `{{ $json.data.session_id }}` | Session ID | "9a580eee" |
-| `{{ $json.data.session_info.message_count }}` | Message count | 3 |
-| `{{ $json.success }}` | Success/failure | true/false |
-| `{{ $json.error }}` | Error message | "Timeout..." |
+| Variable                                      | Description         | Example       |
+| --------------------------------------------- | ------------------- | ------------- |
+| `{{ $json.data.answer }}`                     | NotebookLM response | Response text |
+| `{{ $json.data.session_id }}`                 | Session ID          | "9a580eee"    |
+| `{{ $json.data.session_info.message_count }}` | Message count       | 3             |
+| `{{ $json.success }}`                         | Success/failure     | true/false    |
+| `{{ $json.error }}`                           | Error message       | "Timeout..."  |
 
 ---
 
@@ -271,6 +287,7 @@ For follow-up questions, pass the `session_id`:
 **Cause:** n8n cannot reach the server
 
 **Solutions:**
+
 1. Verify the server is running: `curl http://192.168.1.52:3000/health`
 2. Check the IP (not `localhost` from remote n8n!)
 3. Check Windows firewall
@@ -280,6 +297,7 @@ For follow-up questions, pass the `session_id`:
 **Cause:** NotebookLM response too long
 
 **Solutions:**
+
 1. Increase timeout HTTP Request → Settings → Timeout: 120000
 2. Verify NotebookLM responds: test with curl
 
@@ -288,6 +306,7 @@ For follow-up questions, pass the `session_id`:
 **Cause:** Invalid or missing API key
 
 **Solutions:**
+
 1. Check Authorization header
 2. Check the API key value
 
@@ -296,6 +315,7 @@ For follow-up questions, pass the `session_id`:
 **Cause:** Invalid `notebook_id` or notebook not configured
 
 **Solutions:**
+
 1. List notebooks: `GET /notebooks`
 2. Use the correct ID or complete URL
 
@@ -314,6 +334,7 @@ Webhook ──▶ Switch ──┬──▶ HTTP (Notebook Parents)
 ```
 
 **Switch Configuration:**
+
 - Mode: Rules
 - Rules:
   - If `{{ $json.topic }}` equals "parents-numerique" → Output 1
@@ -330,6 +351,7 @@ Webhook ──▶ Validate ──✓──▶ HTTP Request ──▶ Response
 ```
 
 **Validate Configuration (Function node):**
+
 ```javascript
 if (!items[0].json.question || items[0].json.question.length < 3) {
   throw new Error('Question trop courte');

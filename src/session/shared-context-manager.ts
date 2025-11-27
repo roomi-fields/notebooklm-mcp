@@ -12,13 +12,13 @@
  * Based on the Python implementation from shared_context_manager.py
  */
 
-import type { BrowserContext } from "patchright";
-import { chromium } from "patchright";
-import { CONFIG } from "../config.js";
-import { log } from "../utils/logger.js";
-import { AuthManager } from "../auth/auth-manager.js";
-import fs from "fs";
-import path from "path";
+import type { BrowserContext } from 'patchright';
+import { chromium } from 'patchright';
+import { CONFIG } from '../config.js';
+import { log } from '../utils/logger.js';
+import { AuthManager } from '../auth/auth-manager.js';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Shared Context Manager
@@ -40,13 +40,13 @@ export class SharedContextManager {
   constructor(authManager: AuthManager) {
     this.authManager = authManager;
 
-    log.info("🌐 SharedContextManager initialized (PERSISTENT MODE)");
+    log.info('🌐 SharedContextManager initialized (PERSISTENT MODE)');
     log.info(`  Chrome Profile: ${CONFIG.chromeProfileDir}`);
-    log.success("  Fingerprint: PERSISTENT across restarts! 🎯");
+    log.success('  Fingerprint: PERSISTENT across restarts! 🎯');
 
     // Cleanup old isolated profiles at startup (best-effort)
     if (CONFIG.cleanupInstancesOnStartup) {
-      void this.pruneIsolatedProfiles("startup");
+      void this.pruneIsolatedProfiles('startup');
     }
   }
 
@@ -66,15 +66,15 @@ export class SharedContextManager {
     // Check if headless mode needs to be changed (e.g., show_browser=true)
     // If yes, close the browser so it gets recreated with the new mode
     if (this.needsHeadlessModeChange(overrideHeadless)) {
-      log.warning("🔄 Headless mode change detected - recreating browser context...");
+      log.warning('🔄 Headless mode change detected - recreating browser context...');
       await this.closeContext();
     }
 
     if (await this.needsRecreation()) {
-      log.warning("🔄 Creating/Loading persistent context...");
+      log.warning('🔄 Creating/Loading persistent context...');
       await this.recreateContext(overrideHeadless);
     } else {
-      log.success("♻️  Reusing existing persistent context");
+      log.success('♻️  Reusing existing persistent context');
     }
 
     return this.globalContext!;
@@ -86,17 +86,17 @@ export class SharedContextManager {
   private async needsRecreation(): Promise<boolean> {
     // No context exists yet (first time or after manual close)
     if (!this.globalContext) {
-      log.info("  ℹ️  No context exists yet");
+      log.info('  ℹ️  No context exists yet');
       return true;
     }
 
     // Async validity check (will throw if closed)
     try {
       await this.globalContext.cookies();
-      log.dim("  ✅ Context still valid (browser open)");
+      log.dim('  ✅ Context still valid (browser open)');
       return false;
-    } catch (error) {
-      log.warning("  ⚠️  Context appears closed - will recreate");
+    } catch {
+      log.warning('  ⚠️  Context appears closed - will recreate');
       this.globalContext = null;
       this.contextCreatedAt = null;
       this.currentHeadlessMode = null;
@@ -125,7 +125,7 @@ export class SharedContextManager {
     // Close old context if exists
     if (this.globalContext) {
       try {
-        log.info("  🗑️  Closing old context...");
+        log.info('  🗑️  Closing old context...');
         await this.globalContext.close();
       } catch (error) {
         log.warning(`  ⚠️  Error closing old context: ${error}`);
@@ -137,10 +137,10 @@ export class SharedContextManager {
 
     if (statePath) {
       log.success(`  📂 Found auth state: ${statePath}`);
-      log.info("  💡 Will load cookies into persistent profile");
+      log.info('  💡 Will load cookies into persistent profile');
     } else {
-      log.warning("  🆕 No saved auth - fresh persistent profile");
-      log.info("  💡 First login will save auth to persistent profile");
+      log.warning('  🆕 No saved auth - fresh persistent profile');
+      log.info('  💡 First login will save auth to persistent profile');
     }
 
     // Determine headless mode: use override if provided, otherwise use CONFIG
@@ -154,10 +154,10 @@ export class SharedContextManager {
     // NOTE: userDataDir is passed as first parameter, NOT in options!
     const launchOptions = {
       headless: shouldBeHeadless,
-      channel: "chrome" as const,
+      channel: 'chrome' as const,
       viewport: CONFIG.viewport,
-      locale: "en-US",
-      timezoneId: "Europe/Berlin",
+      locale: 'en-US',
+      timezoneId: 'Europe/Berlin',
       // ✅ CRITICAL FIX: Pass storageState directly at launch!
       // This is the PROPER way to handle session cookies (Playwright bug workaround)
       // Benefits:
@@ -166,10 +166,10 @@ export class SharedContextManager {
       // - Chrome loads everything automatically
       ...(statePath && { storageState: statePath }),
       args: [
-        "--disable-blink-features=AutomationControlled",
-        "--disable-dev-shm-usage",
-        "--no-first-run",
-        "--no-default-browser-check",
+        '--disable-blink-features=AutomationControlled',
+        '--disable-dev-shm-usage',
+        '--no-first-run',
+        '--no-default-browser-check',
       ],
     };
 
@@ -178,7 +178,7 @@ export class SharedContextManager {
     const baseProfile = CONFIG.chromeProfileDir;
     const strategy = CONFIG.profileStrategy;
     const tryLaunch = async (userDataDir: string) => {
-      log.info("  🚀 Launching persistent Chrome context...");
+      log.info('  🚀 Launching persistent Chrome context...');
       log.dim(`  📍 Profile location: ${userDataDir}`);
       if (statePath) {
         log.info(`  📄 Loading auth state: ${statePath}`);
@@ -187,7 +187,7 @@ export class SharedContextManager {
     };
 
     try {
-      if (strategy === "isolated") {
+      if (strategy === 'isolated') {
         const isolatedDir = await this.prepareIsolatedProfileDir(baseProfile);
         this.globalContext = await tryLaunch(isolatedDir);
         this.currentProfileDir = isolatedDir;
@@ -201,16 +201,20 @@ export class SharedContextManager {
     } catch (e: unknown) {
       const msg = String(e instanceof Error ? e.message : e);
       const isSingleton = /ProcessSingleton|SingletonLock|profile is already in use/i.test(msg);
-      if (strategy === "single" || !isSingleton) {
+      if (strategy === 'single' || !isSingleton) {
         // hard fail
-        if (isSingleton && strategy === "single") {
-          log.error("❌ Chrome profile already in use and strategy=single. Close other instance or set NOTEBOOK_PROFILE_STRATEGY=auto/isolated.");
+        if (isSingleton && strategy === 'single') {
+          log.error(
+            '❌ Chrome profile already in use and strategy=single. Close other instance or set NOTEBOOK_PROFILE_STRATEGY=auto/isolated.'
+          );
         }
         throw e;
       }
 
       // auto strategy with lock → fall back to isolated instance dir
-      log.warning("⚠️  Base Chrome profile in use by another process. Falling back to isolated per-instance profile...");
+      log.warning(
+        '⚠️  Base Chrome profile in use by another process. Falling back to isolated per-instance profile...'
+      );
       const isolatedDir = await this.prepareIsolatedProfileDir(baseProfile);
       this.globalContext = await tryLaunch(isolatedDir);
       this.currentProfileDir = isolatedDir;
@@ -220,32 +224,34 @@ export class SharedContextManager {
     this.currentHeadlessMode = shouldBeHeadless;
     // Track close event to force recreation next time
     try {
-      this.globalContext.on("close", () => {
-        log.warning("  🛑 Persistent context was closed externally");
+      this.globalContext.on('close', () => {
+        log.warning('  🛑 Persistent context was closed externally');
         this.globalContext = null;
         this.contextCreatedAt = null;
         this.currentHeadlessMode = null;
       });
-    } catch {}
+    } catch {
+      /* Event handler registration may fail on closed context */
+    }
 
     // Validate cookies if we loaded state
     if (statePath) {
       try {
         if (await this.authManager.validateCookiesExpiry(this.globalContext)) {
-          log.success("  ✅ Authentication state loaded successfully");
-          log.success("  🎯 Session cookies persisted correctly!");
+          log.success('  ✅ Authentication state loaded successfully');
+          log.success('  🎯 Session cookies persisted correctly!');
         } else {
-          log.warning("  ⚠️  Cookies expired - will need re-login");
+          log.warning('  ⚠️  Cookies expired - will need re-login');
         }
       } catch (error) {
         log.warning(`  ⚠️  Could not validate auth state: ${error}`);
       }
     }
 
-    log.success("✅ Persistent context ready!");
+    log.success('✅ Persistent context ready!');
     log.dim(`  Context ID: ${this.getContextId()}`);
     log.dim(`  Chrome Profile: ${CONFIG.chromeProfileDir}`);
-    log.success("  🎯 Fingerprint: PERSISTENT (same across restarts!)");
+    log.success('  🎯 Fingerprint: PERSISTENT (same across restarts!)');
   }
 
   /**
@@ -256,14 +262,14 @@ export class SharedContextManager {
    */
   async closeContext(): Promise<void> {
     if (this.globalContext) {
-      log.warning("🛑 Closing persistent context...");
-      log.info("  💾 Chrome is saving profile to disk...");
+      log.warning('🛑 Closing persistent context...');
+      log.info('  💾 Chrome is saving profile to disk...');
       try {
         await this.globalContext.close();
         this.globalContext = null;
         this.contextCreatedAt = null;
         this.currentHeadlessMode = null;
-        log.success("✅ Persistent context closed");
+        log.success('✅ Persistent context closed');
         log.success(`  💾 Profile saved: ${this.currentProfileDir || CONFIG.chromeProfileDir}`);
       } catch (error) {
         log.error(`❌ Error closing context: ${error}`);
@@ -281,7 +287,7 @@ export class SharedContextManager {
         log.warning(`  ⚠️  Cleanup (self) failed: ${err}`);
       }
       try {
-        await this.pruneIsolatedProfiles("shutdown");
+        await this.pruneIsolatedProfiles('shutdown');
       } catch (err) {
         log.warning(`  ⚠️  Cleanup (prune) failed: ${err}`);
       }
@@ -294,7 +300,7 @@ export class SharedContextManager {
     try {
       fs.mkdirSync(dir, { recursive: true });
       if (CONFIG.cloneProfileOnIsolated && fs.existsSync(baseProfile)) {
-        log.info("  🧬 Cloning base Chrome profile into isolated instance (may take time)...");
+        log.info('  🧬 Cloning base Chrome profile into isolated instance (may take time)...');
         // Best-effort clone without locks
         await (fs.promises as any).cp(baseProfile, dir, {
           recursive: true,
@@ -302,12 +308,12 @@ export class SharedContextManager {
           force: true,
           filter: (src: string) => {
             const bn = path.basename(src);
-            return !/^Singleton/i.test(bn) && !bn.endsWith(".lock") && !bn.endsWith(".tmp");
+            return !/^Singleton/i.test(bn) && !bn.endsWith('.lock') && !bn.endsWith('.tmp');
           },
         } as any);
-        log.success("  ✅ Clone complete");
+        log.success('  ✅ Clone complete');
       } else {
-        log.info("  🧪 Using fresh isolated Chrome profile (no clone)");
+        log.info('  🧪 Using fresh isolated Chrome profile (no clone)');
       }
     } catch (err) {
       log.warning(`  ⚠️  Could not prepare isolated profile: ${err}`);
@@ -315,9 +321,9 @@ export class SharedContextManager {
     return dir;
   }
 
-  private async pruneIsolatedProfiles(phase: "startup" | "shutdown"): Promise<void> {
+  private async pruneIsolatedProfiles(phase: 'startup' | 'shutdown'): Promise<void> {
     const root = CONFIG.chromeInstancesDir;
-    let entries: Array<{ path: string; mtimeMs: number }>; 
+    let entries: Array<{ path: string; mtimeMs: number }>;
     try {
       const names = await fs.promises.readdir(root, { withFileTypes: true });
       entries = [];
@@ -327,7 +333,9 @@ export class SharedContextManager {
         try {
           const st = await fs.promises.stat(p);
           entries.push({ path: p, mtimeMs: st.mtimeMs });
-        } catch {}
+        } catch {
+          /* Ignore stat errors for individual directories */
+        }
       }
     } catch {
       return; // directory absent is fine
@@ -351,7 +359,8 @@ export class SharedContextManager {
       const ageMs = now - e.mtimeMs;
       const overTtl = ttlMs > 0 && ageMs > ttlMs;
       const overCount = i >= maxCount;
-      const isCurrent = this.currentProfileDir && path.resolve(e.path) === path.resolve(this.currentProfileDir);
+      const isCurrent =
+        this.currentProfileDir && path.resolve(e.path) === path.resolve(this.currentProfileDir);
       if (!isCurrent && (overTtl || overCount)) {
         toDelete.add(e.path);
       } else {
@@ -379,11 +388,13 @@ export class SharedContextManager {
     // Best-effort: try removing typical lock files first, then the directory
     try {
       await fs.promises.rm(dir, { recursive: true, force: true } as any);
-    } catch (err) {
+    } catch {
       // If rm is not available in older node, fallback to rmdir
       try {
         await (fs.promises as any).rmdir(dir, { recursive: true });
-      } catch {}
+      } catch {
+        /* Ignore errors during fallback removal */
+      }
     }
   }
 
@@ -445,15 +456,15 @@ export class SharedContextManager {
     // Calculate target headless mode
     // If override is specified, use it (!overrideHeadless because true = show browser = headless false)
     // Otherwise, use CONFIG.headless (which may have been temporarily modified by browser_options)
-    const targetHeadless = overrideHeadless !== undefined
-      ? !overrideHeadless
-      : CONFIG.headless;
+    const targetHeadless = overrideHeadless !== undefined ? !overrideHeadless : CONFIG.headless;
 
     // Compare with current mode
     const needsChange = this.currentHeadlessMode !== targetHeadless;
 
     if (needsChange) {
-      log.info(`  Browser mode change detected: ${this.currentHeadlessMode ? 'HEADLESS' : 'VISIBLE'} → ${targetHeadless ? 'HEADLESS' : 'VISIBLE'}`);
+      log.info(
+        `  Browser mode change detected: ${this.currentHeadlessMode ? 'HEADLESS' : 'VISIBLE'} → ${targetHeadless ? 'HEADLESS' : 'VISIBLE'}`
+      );
     }
 
     return needsChange;
@@ -464,9 +475,9 @@ export class SharedContextManager {
    */
   private getContextId(): string {
     if (!this.globalContext) {
-      return "none";
+      return 'none';
     }
     // Use internal Playwright _guid as ID (internal property, not typed)
-    return `ctx-${(this.globalContext as unknown as { _guid?: string })._guid || "unknown"}`;
+    return `ctx-${(this.globalContext as unknown as { _guid?: string })._guid || 'unknown'}`;
   }
 }

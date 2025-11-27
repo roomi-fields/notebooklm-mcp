@@ -89,11 +89,11 @@ curl -X POST http://localhost:3000/ask `
 
 ## 🐛 Common Issues
 
-| Problem | Solution |
-|---------|----------|
-| Port 3000 occupied | `netstat -ano \| findstr :3000` then `taskkill /PID <pid> /F` |
-| Session expires | `npm run setup-auth` |
-| "Target page closed" | Stop all node.exe processes and restart |
+| Problem              | Solution                                                      |
+| -------------------- | ------------------------------------------------------------- |
+| Port 3000 occupied   | `netstat -ano \| findstr :3000` then `taskkill /PID <pid> /F` |
+| Session expires      | `npm run setup-auth`                                          |
+| "Target page closed" | Stop all node.exe processes and restart                       |
 
 ---
 

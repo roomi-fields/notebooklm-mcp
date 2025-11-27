@@ -9,6 +9,7 @@
 The **NotebookLM MCP HTTP Server** integrates a library system that allows you to manage multiple NotebookLM notebooks and easily switch between them.
 
 **Key features:**
+
 - ✅ Add multiple notebooks with automatic validation
 - ✅ Switch between notebooks in a single request
 - ✅ Live validation (verifies that the notebook actually exists)
@@ -50,10 +51,7 @@ Location: `%LOCALAPPDATA%\notebooklm-mcp\Data\library.json`
       "description": "William Shakespeare - L'intégrale des pièces",
       "topics": ["littérature", "théâtre", "Shakespeare"],
       "content_types": ["documentation", "examples"],
-      "use_cases": [
-        "Recherche sur les œuvres de Shakespeare",
-        "Analyse littéraire et citations"
-      ],
+      "use_cases": ["Recherche sur les œuvres de Shakespeare", "Analyse littéraire et citations"],
       "added_at": "2025-11-22T08:54:33.592Z",
       "last_used": "2025-11-22T08:54:39.064Z",
       "use_count": 3,
@@ -68,19 +66,19 @@ Location: `%LOCALAPPDATA%\notebooklm-mcp\Data\library.json`
 
 ### NotebookEntry Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | Unique ID (slug generated from name) |
-| `url` | string | NotebookLM URL (validated) |
-| `name` | string | Notebook name (unique) |
-| `description` | string | Complete description |
-| `topics` | string[] | List of covered topics |
+| Field           | Type     | Description                          |
+| --------------- | -------- | ------------------------------------ |
+| `id`            | string   | Unique ID (slug generated from name) |
+| `url`           | string   | NotebookLM URL (validated)           |
+| `name`          | string   | Notebook name (unique)               |
+| `description`   | string   | Complete description                 |
+| `topics`        | string[] | List of covered topics               |
 | `content_types` | string[] | Content types (docs, examples, etc.) |
-| `use_cases` | string[] | Recommended use cases |
-| `added_at` | ISO date | Date added |
-| `last_used` | ISO date | Last used |
-| `use_count` | number | Number of requests |
-| `tags` | string[] | Custom tags |
+| `use_cases`     | string[] | Recommended use cases                |
+| `added_at`      | ISO date | Date added                           |
+| `last_used`     | ISO date | Last used                            |
+| `use_count`     | number   | Number of requests                   |
+| `tags`          | string[] | Custom tags                          |
 
 ---
 
@@ -123,6 +121,7 @@ curl -X POST http://localhost:3000/notebooks \
 ```
 
 **PowerShell:**
+
 ```powershell
 $body = @{
     url = "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940"
@@ -166,6 +165,7 @@ curl http://localhost:3000/notebooks
 ```
 
 **PowerShell:**
+
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:3000/notebooks"
 ```
@@ -208,6 +208,7 @@ curl -X PUT http://localhost:3000/notebooks/shakespeare/activate
 ```
 
 **PowerShell:**
+
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:3000/notebooks/shakespeare/activate" -Method Put
 ```
@@ -221,11 +222,13 @@ Invoke-RestMethod -Uri "http://localhost:3000/notebooks/shakespeare/activate" -M
 The server verifies that the URL is in NotebookLM format:
 
 ✅ **Valid:**
+
 ```
 https://notebooklm.google.com/notebook/74912e55-34a4-4027-bdcc-8e89badd0efd
 ```
 
 ❌ **Invalid:**
+
 ```
 https://example.com/notebook
 https://notebooklm.google.com/
@@ -242,12 +245,14 @@ When adding, the server:
 4. Closes the temporary session
 
 **Detected errors:**
+
 - Non-existent notebook
 - Notebook without access (permissions)
 - Incorrect URL
 - Invalid notebook ID
 
 **Error example:**
+
 ```json
 {
   "success": false,
@@ -268,6 +273,7 @@ POST /notebooks {"name": "parents et numérique", ...}  # ❌ (case-insensitive)
 ```
 
 **Returned error:**
+
 ```json
 {
   "success": false,
@@ -282,6 +288,7 @@ POST /notebooks {"name": "parents et numérique", ...}  # ❌ (case-insensitive)
 ### Automatic Counters
 
 Each request to a notebook automatically increments:
+
 - `use_count` - Total number of requests
 - `last_used` - Last used timestamp
 
@@ -339,6 +346,7 @@ curl -X DELETE http://localhost:3000/notebooks/parents-numerique
 ```
 
 **Behavior:**
+
 - Removes the notebook from library.json
 - If it was the active notebook, automatically selects the first remaining notebook
 - Open sessions on this notebook remain active
@@ -386,6 +394,7 @@ searchNotebooks(query: string): NotebookEntry[]
 ```
 
 Searches in:
+
 - Notebook name
 - Description
 - Topics
@@ -445,9 +454,13 @@ Notebooks by area of expertise:
 ```json
 {
   "notebooks": [
-    {"id": "psychology", "name": "Psychology Resources", "topics": ["mindfulness", "therapy", "CBT"]},
-    {"id": "tech", "name": "Tech Documentation", "topics": ["React", "Node", "TypeScript"]},
-    {"id": "business", "name": "Business Knowledge", "topics": ["marketing", "sales"]}
+    {
+      "id": "psychology",
+      "name": "Psychology Resources",
+      "topics": ["mindfulness", "therapy", "CBT"]
+    },
+    { "id": "tech", "name": "Tech Documentation", "topics": ["React", "Node", "TypeScript"] },
+    { "id": "business", "name": "Business Knowledge", "topics": ["marketing", "sales"] }
   ]
 }
 ```
@@ -483,6 +496,7 @@ notepad "$env:LOCALAPPDATA\notebooklm-mcp\Data\library.json"
 ```
 
 **⚠️ Warning:**
+
 - Respect the JSON format (validate with a linter)
 - Restart the server after manual modification
 - Manual modifications do not go through validations
@@ -490,12 +504,14 @@ notepad "$env:LOCALAPPDATA\notebooklm-mcp\Data\library.json"
 ### Export/Import the Library
 
 **Export:**
+
 ```powershell
 Copy-Item "$env:LOCALAPPDATA\notebooklm-mcp\Data\library.json" `
     -Destination "D:\backup\library-backup.json"
 ```
 
 **Import:**
+
 ```powershell
 Copy-Item "D:\backup\library-backup.json" `
     -Destination "$env:LOCALAPPDATA\notebooklm-mcp\Data\library.json"
@@ -523,6 +539,7 @@ Remove-Item "$env:LOCALAPPDATA\notebooklm-mcp\Data\library.json"
 **Cause:** No notebook configured or incorrect ID
 
 **Solution:**
+
 ```bash
 # List available notebooks
 curl http://localhost:3000/notebooks
@@ -541,6 +558,7 @@ curl -X POST http://localhost:3000/ask \
 **Cause:** Inaccessible notebook or invalid URL
 
 **Solution:**
+
 1. Verify that you are authenticated: `npm run setup-auth`
 2. Test the URL manually in Chrome
 3. Check notebook permissions (shared with your account?)
@@ -551,6 +569,7 @@ curl -X POST http://localhost:3000/ask \
 **Cause:** Duplicate name
 
 **Solutions:**
+
 ```bash
 # Option 1: Use a different name
 curl -X POST http://localhost:3000/notebooks \
@@ -568,6 +587,7 @@ curl -X DELETE http://localhost:3000/notebooks/parents-numerique
 **Symptoms:** JSON errors at startup
 
 **Solution:**
+
 ```powershell
 # Restore from backup if available
 Copy-Item "$env:LOCALAPPDATA\notebooklm-mcp\Data\library-backup.json" `
@@ -666,6 +686,7 @@ $list.data.notebooks | Format-Table id, name, use_count, active
 **Complete library guide!** ✅
 
 For more information, see:
+
 - [03-API.md](./03-API.md) - Complete API reference
 - [01-INSTALL.md](./01-INSTALL.md) - Installation guide
 - [05-TROUBLESHOOTING.md](./05-TROUBLESHOOTING.md) - Troubleshooting

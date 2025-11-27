@@ -17,38 +17,42 @@ Or for network access: `http://<SERVER-IP>:3000`
 ## 📡 Available Endpoints (22 total)
 
 ### Authentication
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| `POST` | `/setup-auth` | First-time authentication |
-| `POST` | `/de-auth` | Logout (clear credentials) |
-| `POST` | `/re-auth` | Re-authenticate / switch account |
+
+| Method | Endpoint        | Description                       |
+| ------ | --------------- | --------------------------------- |
+| `POST` | `/setup-auth`   | First-time authentication         |
+| `POST` | `/de-auth`      | Logout (clear credentials)        |
+| `POST` | `/re-auth`      | Re-authenticate / switch account  |
 | `POST` | `/cleanup-data` | Clean all data (requires confirm) |
 
 ### Queries
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| `GET` | `/health` | Server health check |
-| `POST` | `/ask` | Ask a question to NotebookLM |
+
+| Method | Endpoint  | Description                  |
+| ------ | --------- | ---------------------------- |
+| `GET`  | `/health` | Server health check          |
+| `POST` | `/ask`    | Ask a question to NotebookLM |
 
 ### Notebooks
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| `GET` | `/notebooks` | List all notebooks |
-| `POST` | `/notebooks` | Add a notebook manually |
-| `POST` | `/notebooks/auto-discover` | Auto-generate notebook metadata |
-| `GET` | `/notebooks/search` | Search notebooks by query |
-| `GET` | `/notebooks/stats` | Get library statistics |
-| `GET` | `/notebooks/:id` | Get notebook details |
-| `PUT` | `/notebooks/:id` | Update notebook metadata |
-| `DELETE` | `/notebooks/:id` | Delete a notebook |
-| `PUT` | `/notebooks/:id/activate` | Activate a notebook (set as default) |
+
+| Method   | Endpoint                   | Description                          |
+| -------- | -------------------------- | ------------------------------------ |
+| `GET`    | `/notebooks`               | List all notebooks                   |
+| `POST`   | `/notebooks`               | Add a notebook manually              |
+| `POST`   | `/notebooks/auto-discover` | Auto-generate notebook metadata      |
+| `GET`    | `/notebooks/search`        | Search notebooks by query            |
+| `GET`    | `/notebooks/stats`         | Get library statistics               |
+| `GET`    | `/notebooks/:id`           | Get notebook details                 |
+| `PUT`    | `/notebooks/:id`           | Update notebook metadata             |
+| `DELETE` | `/notebooks/:id`           | Delete a notebook                    |
+| `PUT`    | `/notebooks/:id/activate`  | Activate a notebook (set as default) |
 
 ### Sessions
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| `GET` | `/sessions` | List active sessions |
-| `POST` | `/sessions/:id/reset` | Reset session history |
-| `DELETE` | `/sessions/:id` | Close a session |
+
+| Method   | Endpoint              | Description           |
+| -------- | --------------------- | --------------------- |
+| `GET`    | `/sessions`           | List active sessions  |
+| `POST`   | `/sessions/:id/reset` | Reset session history |
+| `DELETE` | `/sessions/:id`       | Close a session       |
 
 ---
 
@@ -59,11 +63,13 @@ Or for network access: `http://<SERVER-IP>:3000`
 Check server and authentication status.
 
 **Request:**
+
 ```bash
 curl http://localhost:3000/health
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -77,6 +83,7 @@ curl http://localhost:3000/health
 ```
 
 **Error Response (500):**
+
 ```json
 {
   "success": false,
@@ -85,6 +92,7 @@ curl http://localhost:3000/health
 ```
 
 **Fields:**
+
 - `authenticated` - Valid Google session
 - `sessions` - Number of active sessions
 - `library_notebooks` - Number of configured notebooks
@@ -99,6 +107,7 @@ curl http://localhost:3000/health
 Ask a question to NotebookLM and get a response.
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:3000/ask \
   -H "Content-Type: application/json" \
@@ -110,15 +119,16 @@ curl -X POST http://localhost:3000/ask \
 
 **Body Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|--------|-------------|
-| `question` | string | ✅ Yes | The question to ask |
-| `notebook_id` | string | ❌ No | Notebook ID (or URL) |
-| `notebook_url` | string | ❌ No | Direct notebook URL |
-| `session_id` | string | ❌ No | Reuse an existing session |
-| `show_browser` | boolean | ❌ No | Show Chrome (debug) |
+| Parameter      | Type    | Required | Description               |
+| -------------- | ------- | -------- | ------------------------- |
+| `question`     | string  | ✅ Yes   | The question to ask       |
+| `notebook_id`  | string  | ❌ No    | Notebook ID (or URL)      |
+| `notebook_url` | string  | ❌ No    | Direct notebook URL       |
+| `session_id`   | string  | ❌ No    | Reuse an existing session |
+| `show_browser` | boolean | ❌ No    | Show Chrome (debug)       |
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -138,6 +148,7 @@ curl -X POST http://localhost:3000/ask \
 ```
 
 **Error Response (400):**
+
 ```json
 {
   "success": false,
@@ -146,6 +157,7 @@ curl -X POST http://localhost:3000/ask \
 ```
 
 **Error Response (500):**
+
 ```json
 {
   "success": false,
@@ -156,6 +168,7 @@ curl -X POST http://localhost:3000/ask \
 **Response Time:** 30-60 seconds
 
 **PowerShell Examples:**
+
 ```powershell
 # Simple question
 $body = @{
@@ -183,6 +196,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/ask" -Method Post -Body $body -Con
 Configure Google authentication (opens Chrome).
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:3000/setup-auth \
   -H "Content-Type: application/json" \
@@ -193,11 +207,12 @@ curl -X POST http://localhost:3000/setup-auth \
 
 **Body Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|--------|-------------|
-| `show_browser` | boolean | ❌ No | Show Chrome (default: true) |
+| Parameter      | Type    | Required | Description                 |
+| -------------- | ------- | -------- | --------------------------- |
+| `show_browser` | boolean | ❌ No    | Show Chrome (default: true) |
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -217,11 +232,13 @@ curl -X POST http://localhost:3000/setup-auth \
 List all notebooks configured in the library.
 
 **Request:**
+
 ```bash
 curl http://localhost:3000/notebooks
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -254,12 +271,14 @@ curl http://localhost:3000/notebooks
 Add a new notebook to the library.
 
 **⚠️ Automatic validations:**
+
 - ✅ Checks NotebookLM URL format
 - ✅ Validates that the notebook actually exists (live check)
 - ✅ Blocks duplicate names
 - ✅ Creates a temporary session to test access
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:3000/notebooks \
   -H "Content-Type: application/json" \
@@ -273,17 +292,18 @@ curl -X POST http://localhost:3000/notebooks \
 
 **Body Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|--------|-------------|
-| `url` | string | ✅ Yes | NotebookLM notebook URL |
-| `name` | string | ✅ Yes | Notebook name (unique) |
-| `description` | string | ✅ Yes | Description |
-| `topics` | string[] | ✅ Yes | List of topics |
-| `content_types` | string[] | ❌ No | Content types (default: `["documentation", "examples"]`) |
-| `use_cases` | string[] | ❌ No | Use cases (auto-generated if absent) |
-| `tags` | string[] | ❌ No | Tags |
+| Parameter       | Type     | Required | Description                                              |
+| --------------- | -------- | -------- | -------------------------------------------------------- |
+| `url`           | string   | ✅ Yes   | NotebookLM notebook URL                                  |
+| `name`          | string   | ✅ Yes   | Notebook name (unique)                                   |
+| `description`   | string   | ✅ Yes   | Description                                              |
+| `topics`        | string[] | ✅ Yes   | List of topics                                           |
+| `content_types` | string[] | ❌ No    | Content types (default: `["documentation", "examples"]`) |
+| `use_cases`     | string[] | ❌ No    | Use cases (auto-generated if absent)                     |
+| `tags`          | string[] | ❌ No    | Tags                                                     |
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -309,6 +329,7 @@ curl -X POST http://localhost:3000/notebooks \
 **Possible Errors:**
 
 **400 - Name already in use:**
+
 ```json
 {
   "success": false,
@@ -317,6 +338,7 @@ curl -X POST http://localhost:3000/notebooks \
 ```
 
 **400 - Invalid URL:**
+
 ```json
 {
   "success": false,
@@ -325,6 +347,7 @@ curl -X POST http://localhost:3000/notebooks \
 ```
 
 **400 - Notebook inaccessible:**
+
 ```json
 {
   "success": false,
@@ -343,6 +366,7 @@ curl -X POST http://localhost:3000/notebooks \
 Automatically generate notebook metadata by querying NotebookLM itself.
 
 **Request:**
+
 ```json
 {
   "url": "https://notebooklm.google.com/notebook/abc123"
@@ -350,6 +374,7 @@ Automatically generate notebook metadata by querying NotebookLM itself.
 ```
 
 **Response (Success):**
+
 ```json
 {
   "success": true,
@@ -376,6 +401,7 @@ Automatically generate notebook metadata by querying NotebookLM itself.
 ```
 
 **Response (Error):**
+
 ```json
 {
   "error": "NotebookLM returned invalid metadata format",
@@ -384,6 +410,7 @@ Automatically generate notebook metadata by querying NotebookLM itself.
 ```
 
 **Errors:**
+
 - `400 Bad Request`: Invalid URL format
 - `404 Not Found`: Notebook not accessible
 - `500 Internal Server Error`: NotebookLM query failed or returned invalid format
@@ -400,6 +427,7 @@ Automatically generate notebook metadata by querying NotebookLM itself.
 **Progressive Disclosure Pattern:**
 
 This endpoint enables the **Level 0** of progressive disclosure:
+
 - Metadata stored locally (lightweight, ~100 bytes per notebook)
 - Loaded at startup for instant matching
 - Deep queries to NotebookLM only when notebook is selected
@@ -415,11 +443,13 @@ Orchestrators (Claude Code, n8n, Cursor) can scan all notebook metadata without 
 Get details of a specific notebook.
 
 **Request:**
+
 ```bash
 curl http://localhost:3000/notebooks/parents-numerique
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -437,6 +467,7 @@ curl http://localhost:3000/notebooks/parents-numerique
 ```
 
 **Error Response (404):**
+
 ```json
 {
   "success": false,
@@ -453,11 +484,13 @@ curl http://localhost:3000/notebooks/parents-numerique
 Delete a notebook from the library.
 
 **Request:**
+
 ```bash
 curl -X DELETE http://localhost:3000/notebooks/parents-numerique
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -469,6 +502,7 @@ curl -X DELETE http://localhost:3000/notebooks/parents-numerique
 ```
 
 **Error Response (404):**
+
 ```json
 {
   "success": false,
@@ -477,6 +511,7 @@ curl -X DELETE http://localhost:3000/notebooks/parents-numerique
 ```
 
 **Behavior:**
+
 - If the deleted notebook was active, the first remaining notebook automatically becomes active
 - If it was the last notebook, `active_notebook_id` becomes `null`
 - Sessions using this notebook remain open but are no longer linked to a library notebook
@@ -490,11 +525,13 @@ curl -X DELETE http://localhost:3000/notebooks/parents-numerique
 Set a notebook as active (default notebook for requests without `notebook_id`).
 
 **Request:**
+
 ```bash
 curl -X PUT http://localhost:3000/notebooks/shakespeare/activate
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -514,6 +551,7 @@ curl -X PUT http://localhost:3000/notebooks/shakespeare/activate
 ```
 
 **Error Response (404):**
+
 ```json
 {
   "success": false,
@@ -522,6 +560,7 @@ curl -X PUT http://localhost:3000/notebooks/shakespeare/activate
 ```
 
 **Behavior:**
+
 - Updates `last_used` to current date/time
 - Sets `active_notebook_id` in library.json
 - Does not create a session (metadata only)
@@ -535,11 +574,13 @@ curl -X PUT http://localhost:3000/notebooks/shakespeare/activate
 List all active browser sessions.
 
 **Request:**
+
 ```bash
 curl http://localhost:3000/sessions
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -569,11 +610,13 @@ curl http://localhost:3000/sessions
 Close a specific browser session.
 
 **Request:**
+
 ```bash
 curl -X DELETE http://localhost:3000/sessions/9a580eee
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -585,6 +628,7 @@ curl -X DELETE http://localhost:3000/sessions/9a580eee
 ```
 
 **Error Response (404):**
+
 ```json
 {
   "success": false,
@@ -601,11 +645,13 @@ curl -X DELETE http://localhost:3000/sessions/9a580eee
 Logout by clearing all authentication data. Preserves notebook library.
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:3000/de-auth
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -618,6 +664,7 @@ curl -X POST http://localhost:3000/de-auth
 ```
 
 **Use cases:**
+
 - Security logout before shutting down
 - Clearing credentials without re-authenticating
 - Removing access temporarily
@@ -631,6 +678,7 @@ curl -X POST http://localhost:3000/de-auth
 Switch to a different Google account or re-authenticate after logout.
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:3000/re-auth \
   -H "Content-Type: application/json" \
@@ -641,11 +689,12 @@ curl -X POST http://localhost:3000/re-auth \
 
 **Body Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|--------|-------------|
-| `show_browser` | boolean | ❌ No | Show browser window (default: true) |
+| Parameter      | Type    | Required | Description                         |
+| -------------- | ------- | -------- | ----------------------------------- |
+| `show_browser` | boolean | ❌ No    | Show browser window (default: true) |
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -659,6 +708,7 @@ curl -X POST http://localhost:3000/re-auth \
 ```
 
 **Use cases:**
+
 - Switching Google accounts
 - Recovery from rate limits (50 queries/day on free accounts)
 - Fresh authentication after errors
@@ -674,6 +724,7 @@ Deep cleanup of all NotebookLM MCP data files across 8 categories.
 **⚠️ CRITICAL:** Close ALL Chrome/Chromium instances BEFORE running this!
 
 **Request:**
+
 ```bash
 # Preview first (confirm=false)
 curl -X POST http://localhost:3000/cleanup-data \
@@ -694,12 +745,13 @@ curl -X POST http://localhost:3000/cleanup-data \
 
 **Body Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|--------|-------------|
-| `confirm` | boolean | ✅ Yes | Must be true to execute (false for preview) |
-| `preserve_library` | boolean | ❌ No | Keep library.json file (default: false) |
+| Parameter          | Type    | Required | Description                                 |
+| ------------------ | ------- | -------- | ------------------------------------------- |
+| `confirm`          | boolean | ✅ Yes   | Must be true to execute (false for preview) |
+| `preserve_library` | boolean | ❌ No    | Keep library.json file (default: false)     |
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -721,6 +773,7 @@ curl -X POST http://localhost:3000/cleanup-data \
 Update notebook metadata (name, description, topics, etc.).
 
 **Request:**
+
 ```bash
 curl -X PUT http://localhost:3000/notebooks/n8n-workflows \
   -H "Content-Type: application/json" \
@@ -733,14 +786,15 @@ curl -X PUT http://localhost:3000/notebooks/n8n-workflows \
 
 **Body Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|--------|-------------|
-| `name` | string | ❌ No | New notebook name |
-| `description` | string | ❌ No | New description |
-| `topics` | string[] | ❌ No | New topics array |
-| `use_cases` | string[] | ❌ No | New use cases array |
+| Parameter     | Type     | Required | Description         |
+| ------------- | -------- | -------- | ------------------- |
+| `name`        | string   | ❌ No    | New notebook name   |
+| `description` | string   | ❌ No    | New description     |
+| `topics`      | string[] | ❌ No    | New topics array    |
+| `use_cases`   | string[] | ❌ No    | New use cases array |
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -765,17 +819,19 @@ curl -X PUT http://localhost:3000/notebooks/n8n-workflows \
 Search notebooks by keyword in name, description, or topics.
 
 **Request:**
+
 ```bash
 curl "http://localhost:3000/notebooks/search?query=automation"
 ```
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|--------|-------------|
-| `query` | string | ✅ Yes | Search keyword |
+| Parameter | Type   | Required | Description    |
+| --------- | ------ | -------- | -------------- |
+| `query`   | string | ✅ Yes   | Search keyword |
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -802,11 +858,13 @@ curl "http://localhost:3000/notebooks/search?query=automation"
 Get statistics about the notebook library.
 
 **Request:**
+
 ```bash
 curl http://localhost:3000/notebooks/stats
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -839,11 +897,13 @@ curl http://localhost:3000/notebooks/stats
 Reset a session's chat history while keeping the same session ID.
 
 **Request:**
+
 ```bash
 curl -X POST http://localhost:3000/sessions/9a580eee/reset
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -856,6 +916,7 @@ curl -X POST http://localhost:3000/sessions/9a580eee/reset
 ```
 
 **Use cases:**
+
 - Clean slate for new task without losing session context
 - Starting fresh conversation in same notebook
 
@@ -863,26 +924,26 @@ curl -X POST http://localhost:3000/sessions/9a580eee/reset
 
 ## 🔒 HTTP Error Codes
 
-| Code | Meaning | Description |
-|------|---------------|-------------|
-| `200` | OK | Successful request |
-| `400` | Bad Request | Missing or invalid parameters |
-| `401` | Unauthorized | Authentication required (if API key enabled) |
-| `404` | Not Found | Resource not found |
-| `500` | Internal Server Error | Server error |
-| `503` | Service Unavailable | Server overloaded (too many sessions) |
+| Code  | Meaning               | Description                                  |
+| ----- | --------------------- | -------------------------------------------- |
+| `200` | OK                    | Successful request                           |
+| `400` | Bad Request           | Missing or invalid parameters                |
+| `401` | Unauthorized          | Authentication required (if API key enabled) |
+| `404` | Not Found             | Resource not found                           |
+| `500` | Internal Server Error | Server error                                 |
+| `503` | Service Unavailable   | Server overloaded (too many sessions)        |
 
 ---
 
 ## 📊 Limits and Quotas
 
-| Limit | Value | Configurable |
-|--------|--------|--------------|
-| **Concurrent sessions** | 10 | ✅ Yes (`MAX_SESSIONS`) |
-| **Session timeout** | 15 min | ✅ Yes (`SESSION_TIMEOUT`) |
-| **Request timeout** | 120 sec | ❌ No (hardcoded) |
-| **Max question size** | Unlimited | ❌ No |
-| **NotebookLM rate limit** | 50/day | ❌ No (Google limit) |
+| Limit                     | Value     | Configurable               |
+| ------------------------- | --------- | -------------------------- |
+| **Concurrent sessions**   | 10        | ✅ Yes (`MAX_SESSIONS`)    |
+| **Session timeout**       | 15 min    | ✅ Yes (`SESSION_TIMEOUT`) |
+| **Request timeout**       | 120 sec   | ❌ No (hardcoded)          |
+| **Max question size**     | Unlimited | ❌ No                      |
+| **NotebookLM rate limit** | 50/day    | ❌ No (Google limit)       |
 
 ---
 
@@ -909,7 +970,7 @@ curl -X POST http://localhost:3000/sessions/9a580eee/reset
       "request": {
         "method": "POST",
         "url": "http://localhost:3000/ask",
-        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
           "raw": "{\"question\":\"What advice for parents?\",\"notebook_id\":\"parents-numerique\"}"

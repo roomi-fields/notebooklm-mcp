@@ -11,8 +11,8 @@
  * Based on the Python implementation from stealth_utils.py
  */
 
-import type { Page } from "patchright";
-import { CONFIG } from "../config.js";
+import type { Page } from 'patchright';
+import { CONFIG } from '../config.js';
 
 // ============================================================================
 // Helper Functions
@@ -43,7 +43,7 @@ export function randomFloat(min: number, max: number): number {
  * Generate random character (for typos)
  */
 export function randomChar(): string {
-  const chars = "qwertyuiopasdfghjklzxcvbnm";
+  const chars = 'qwertyuiopasdfghjklzxcvbnm';
   return chars[randomInt(0, chars.length - 1)];
 }
 
@@ -69,10 +69,7 @@ export function gaussian(mean: number, stdDev: number): number {
  * @param minMs Minimum delay in milliseconds (default: from CONFIG)
  * @param maxMs Maximum delay in milliseconds (default: from CONFIG)
  */
-export async function randomDelay(
-  minMs?: number,
-  maxMs?: number
-): Promise<void> {
+export async function randomDelay(minMs?: number, maxMs?: number): Promise<void> {
   minMs = minMs ?? CONFIG.minDelayMs;
   maxMs = maxMs ?? CONFIG.maxDelayMs;
 
@@ -139,7 +136,7 @@ export async function humanType(
   const avgDelayMs = (60 * 1000) / charsPerMinute;
 
   // Clear existing text first
-  await page.fill(selector, "");
+  await page.fill(selector, '');
   await randomDelay(30, 80);
 
   // Click to focus
@@ -147,7 +144,7 @@ export async function humanType(
   await randomDelay(20, 60);
 
   // Type each character
-  let currentText = "";
+  let currentText = '';
   let i = 0;
 
   while (i < text.length) {
@@ -176,11 +173,11 @@ export async function humanType(
 
     // Variable delay between characters – tuned for faster but still human-like typing
     let delay: number;
-    if (char === "." || char === "!" || char === "?") {
+    if (char === '.' || char === '!' || char === '?') {
       delay = randomFloat(avgDelayMs * 1.05, avgDelayMs * 1.4);
-    } else if (char === " ") {
+    } else if (char === ' ') {
       delay = randomFloat(avgDelayMs * 0.5, avgDelayMs * 0.9);
-    } else if (char === ",") {
+    } else if (char === ',') {
       delay = randomFloat(avgDelayMs * 0.9, avgDelayMs * 1.2);
     } else {
       // Normal character
@@ -320,18 +317,18 @@ export async function realisticClick(
 export async function smoothScroll(
   page: Page,
   amount?: number,
-  direction: "up" | "down" = "down"
+  direction: 'up' | 'down' = 'down'
 ): Promise<void> {
   amount = amount ?? randomInt(100, 400);
   amount = Math.abs(amount);
-  if (direction === "up") {
+  if (direction === 'up') {
     amount = -amount;
   }
 
   if (!CONFIG.stealthEnabled || !CONFIG.stealthMouseMovements) {
     await page.evaluate((scrollAmount) => {
       // @ts-expect-error - window exists in browser context
-      window.scrollBy({ top: scrollAmount, behavior: "auto" });
+      window.scrollBy({ top: scrollAmount, behavior: 'auto' });
     }, amount);
     return;
   }
@@ -343,7 +340,7 @@ export async function smoothScroll(
   for (let i = 0; i < steps; i++) {
     await page.evaluate((step) => {
       // @ts-expect-error - window exists in browser context
-      window.scrollBy({ top: step, behavior: "smooth" });
+      window.scrollBy({ top: step, behavior: 'smooth' });
     }, stepAmount);
     await sleep(randomFloat(20, 50));
   }
@@ -395,10 +392,7 @@ export async function readingPause(textLength: number, wpm?: number): Promise<vo
  * @param page Playwright page instance
  * @param iterations Number of small movements (default: 3)
  */
-export async function randomMouseJitter(
-  page: Page,
-  iterations: number = 3
-): Promise<void> {
+export async function randomMouseJitter(page: Page, iterations: number = 3): Promise<void> {
   if (!CONFIG.stealthEnabled || !CONFIG.stealthMouseMovements) {
     return;
   }
@@ -464,14 +458,14 @@ export async function simulateReadingPage(page: Page): Promise<void> {
 
   for (let i = 0; i < scrollCount; i++) {
     // Scroll down
-    await smoothScroll(page, undefined, "down");
+    await smoothScroll(page, undefined, 'down');
 
     // "Read" the visible content
     await randomDelay(800, 1500);
 
     // Sometimes scroll up a bit (humans do this)
     if (Math.random() < 0.3) {
-      await smoothScroll(page, randomInt(50, 150), "up");
+      await smoothScroll(page, randomInt(50, 150), 'up');
       await randomDelay(400, 800);
     }
   }

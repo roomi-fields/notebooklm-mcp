@@ -6,13 +6,13 @@
 
 **Chat directly with NotebookLM for zero-hallucination answers based on your own notebooks**
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![MCP](https://img.shields.io/badge/MCP-2025-green.svg)](https://modelcontextprotocol.io/)
-[![npm](https://img.shields.io/npm/v/@roomi-fields/notebooklm-mcp.svg)](https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-MCP-8A2BE2)](https://claude.ai/claude-code)
-[![n8n](https://img.shields.io/badge/n8n-HTTP_API-orange)](./deployment/docs/04-N8N-INTEGRATION.md)
-[![GitHub](https://img.shields.io/github/stars/roomi-fields/notebooklm-mcp?style=social)](https://github.com/roomi-fields/notebooklm-mcp)
+<!-- Badges -->
+
+[![CI](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml) [![npm version](https://badge.fury.io/js/%40roomi-fields%2Fnotebooklm-mcp.svg)](https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp) [![npm downloads](https://img.shields.io/npm/dm/@roomi-fields/notebooklm-mcp.svg)](https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp) [![codecov](https://codecov.io/gh/roomi-fields/notebooklm-mcp/branch/main/graph/badge.svg)](https://codecov.io/gh/roomi-fields/notebooklm-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/) [![Node.js](https://img.shields.io/badge/Node.js->=18-green.svg)](https://nodejs.org/)
+
+[![MCP](https://img.shields.io/badge/MCP-2025-green.svg)](https://modelcontextprotocol.io/) [![Claude Code](https://img.shields.io/badge/Claude_Code-MCP-8A2BE2)](https://claude.ai/claude-code) [![n8n](https://img.shields.io/badge/n8n-HTTP_API-orange)](./deployment/docs/04-N8N-INTEGRATION.md) [![GitHub](https://img.shields.io/github/stars/roomi-fields/notebooklm-mcp?style=social)](https://github.com/roomi-fields/notebooklm-mcp)
+
+<!-- End Badges -->
 
 [MCP Installation](#mcp-installation) • [HTTP REST API](#http-rest-api) • [Why NotebookLM](#why-notebooklm-not-local-rag) • [Examples](#real-world-example) • [Documentation](./deployment/docs/)
 
@@ -31,6 +31,7 @@
 Use NotebookLM from **any tool** via HTTP REST API:
 
 **Option A: Install from npm**
+
 ```bash
 # Install globally
 npm install -g @roomi-fields/notebooklm-mcp
@@ -44,6 +45,7 @@ notebooklm-mcp
 ```
 
 **Option B: Install from source (Required for HTTP mode)**
+
 ```bash
 # Clone and install
 git clone https://github.com/roomi-fields/notebooklm-mcp.git
@@ -54,6 +56,7 @@ npm run start:http
 ```
 
 **Query the API:**
+
 ```bash
 curl -X POST http://localhost:3000/ask \
   -H "Content-Type: application/json" \
@@ -61,6 +64,7 @@ curl -X POST http://localhost:3000/ask \
 ```
 
 **Perfect for:**
+
 - ✅ n8n workflows and automation
 - ✅ Zapier, Make.com integrations
 - ✅ Custom web applications
@@ -93,6 +97,7 @@ codex mcp add notebooklm -- npx @roomi-fields/notebooklm-mcp@latest
 ```
 
 **Perfect for:**
+
 - ✅ Claude Code, Cursor, Codex
 - ✅ Any MCP-compatible AI assistant
 - ✅ Direct CLI integration
@@ -102,6 +107,7 @@ codex mcp add notebooklm -- npx @roomi-fields/notebooklm-mcp@latest
 ## The Problem
 
 When you tell Claude Code or Cursor to "search through my local documentation", here's what happens:
+
 - **Massive token consumption**: Searching through documentation means reading multiple files repeatedly
 - **Inaccurate retrieval**: Searches for keywords, misses context and connections between docs
 - **Hallucinations**: When it can't find something, it invents plausible-sounding APIs
@@ -121,12 +127,12 @@ Your Task → Agent/n8n asks NotebookLM → Gemini synthesizes answer → Correc
 
 ## Why NotebookLM, Not Local RAG?
 
-| Approach | Token Cost | Setup Time | Hallucinations | Answer Quality |
-|----------|------------|------------|----------------|----------------|
-| **Feed docs to Claude** | 🔴 Very high (multiple file reads) | Instant | Yes - fills gaps | Variable retrieval |
-| **Web search** | 🟡 Medium | Instant | High - unreliable sources | Hit or miss |
-| **Local RAG** | 🟡 Medium-High | Hours (embeddings, chunking) | Medium - retrieval gaps | Depends on setup |
-| **NotebookLM MCP** | 🟢 Minimal | 5 minutes | **Zero** - refuses if unknown | Expert synthesis |
+| Approach                | Token Cost                         | Setup Time                   | Hallucinations                | Answer Quality     |
+| ----------------------- | ---------------------------------- | ---------------------------- | ----------------------------- | ------------------ |
+| **Feed docs to Claude** | 🔴 Very high (multiple file reads) | Instant                      | Yes - fills gaps              | Variable retrieval |
+| **Web search**          | 🟡 Medium                          | Instant                      | High - unreliable sources     | Hit or miss        |
+| **Local RAG**           | 🟡 Medium-High                     | Hours (embeddings, chunking) | Medium - retrieval gaps       | Depends on setup   |
+| **NotebookLM MCP**      | 🟢 Minimal                         | 5 minutes                    | **Zero** - refuses if unknown | Expert synthesis   |
 
 ### What Makes NotebookLM Superior?
 
@@ -187,17 +193,17 @@ curl -X POST http://localhost:3000/ask \
 
 ### API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/health` | Check server health |
-| `POST` | `/ask` | Ask a question to NotebookLM |
-| `GET` | `/notebooks` | List all notebooks |
-| `POST` | `/notebooks` | Add notebook (with live validation) |
-| `POST` | `/notebooks/auto-discover` | Auto-generate notebook metadata |
-| `DELETE` | `/notebooks/:id` | Remove a notebook |
-| `PUT` | `/notebooks/:id/activate` | Set active notebook |
-| `GET` | `/sessions` | List active sessions |
-| `DELETE` | `/sessions/:id` | Close a session |
+| Method   | Endpoint                   | Description                         |
+| -------- | -------------------------- | ----------------------------------- |
+| `GET`    | `/health`                  | Check server health                 |
+| `POST`   | `/ask`                     | Ask a question to NotebookLM        |
+| `GET`    | `/notebooks`               | List all notebooks                  |
+| `POST`   | `/notebooks`               | Add notebook (with live validation) |
+| `POST`   | `/notebooks/auto-discover` | Auto-generate notebook metadata     |
+| `DELETE` | `/notebooks/:id`           | Remove a notebook                   |
+| `PUT`    | `/notebooks/:id/activate`  | Set active notebook                 |
+| `GET`    | `/sessions`                | List active sessions                |
+| `DELETE` | `/sessions/:id`            | Close a session                     |
 
 **👉 Full API documentation:** [deployment/docs/03-API.md](./deployment/docs/03-API.md)
 
@@ -236,6 +242,7 @@ Autonomous resource discovery enables AI orchestrators to find and use relevant 
 ### How it works
 
 **1. Add notebook** (zero manual metadata):
+
 ```bash
 curl -X POST http://localhost:3000/notebooks/auto-discover \
   -H "Content-Type: application/json" \
@@ -243,11 +250,13 @@ curl -X POST http://localhost:3000/notebooks/auto-discover \
 ```
 
 **2. System queries NotebookLM** to auto-generate:
+
 - Kebab-case name (3 words max)
 - Concise description (2 sentences)
 - Relevant tags (8-10 keywords)
 
 **3. Orchestrators discover autonomously**:
+
 - Claude Code finds relevant docs without prompting
 - n8n workflows auto-select documentation
 - Cursor matches context to notebooks
@@ -267,6 +276,7 @@ Inspired by [Claude Skills best practices](https://platform.claude.com/docs/en/a
 **After**: Self-organizing library, autonomous documentation discovery
 
 Perfect for:
+
 - ✅ Teams with 10+ documentation notebooks
 - ✅ n8n workflows needing dynamic doc access
 - ✅ Claude Code autonomous research
@@ -315,9 +325,10 @@ npm run daemon:delete
 ```
 
 **Features:**
+
 - ✅ Runs in background without terminal window
 - ✅ Auto-restart on crash
-- ✅ Centralized log management (logs/pm2-*.log)
+- ✅ Centralized log management (logs/pm2-\*.log)
 - ✅ Memory limit protection (1GB max)
 - ✅ Production-ready process management
 
@@ -342,6 +353,7 @@ npm run daemon:delete
 ```bash
 claude mcp add notebooklm npx @roomi-fields/notebooklm-mcp@latest
 ```
+
 </details>
 
 <details>
@@ -350,6 +362,7 @@ claude mcp add notebooklm npx @roomi-fields/notebooklm-mcp@latest
 ```bash
 codex mcp add notebooklm -- npx @roomi-fields/notebooklm-mcp@latest
 ```
+
 </details>
 
 <details>
@@ -358,12 +371,14 @@ codex mcp add notebooklm -- npx @roomi-fields/notebooklm-mcp@latest
 ```bash
 gemini mcp add notebooklm npx @roomi-fields/notebooklm-mcp@latest
 ```
+
 </details>
 
 <details>
 <summary>Cursor</summary>
 
 Add to `~/.cursor/mcp.json`:
+
 ```json
 {
   "mcpServers": {
@@ -374,6 +389,7 @@ Add to `~/.cursor/mcp.json`:
   }
 }
 ```
+
 </details>
 
 <details>
@@ -382,6 +398,7 @@ Add to `~/.cursor/mcp.json`:
 ```bash
 amp mcp add notebooklm -- npx @roomi-fields/notebooklm-mcp@latest
 ```
+
 </details>
 
 <details>
@@ -390,12 +407,14 @@ amp mcp add notebooklm -- npx @roomi-fields/notebooklm-mcp@latest
 ```bash
 code --add-mcp '{"name":"notebooklm","command":"npx","args":["@roomi-fields/notebooklm-mcp@latest"]}'
 ```
+
 </details>
 
 <details>
 <summary>Other MCP clients</summary>
 
 **Generic MCP config:**
+
 ```json
 {
   "mcpServers": {
@@ -406,6 +425,7 @@ code --add-mcp '{"name":"notebooklm","command":"npx","args":["@roomi-fields/note
   }
 }
 ```
+
 </details>
 
 ### MCP Quick Start
@@ -415,14 +435,17 @@ code --add-mcp '{"name":"notebooklm","command":"npx","args":["@roomi-fields/note
 2. **Authenticate** (one-time)
 
 Say in your chat (Claude/Codex):
+
 ```
 "Log me in to NotebookLM"
 ```
-*A Chrome window opens → log in with Google*
+
+_A Chrome window opens → log in with Google_
 
 3. **Create your knowledge base**
 
 Go to [notebooklm.google.com](https://notebooklm.google.com) → Create notebook → Upload your docs:
+
 - 📄 PDFs, Google Docs, markdown files
 - 🔗 Websites, GitHub repos
 - 🎥 YouTube videos
@@ -448,15 +471,15 @@ The original author [PleasePrompto](https://github.com/PleasePrompto) also creat
 
 ### When to use which approach?
 
-| Feature | This Project (MCP + HTTP) | Original Skill (Python) |
-|---------|---------------------------|-------------------------|
-| **Protocol** | MCP (Model Context Protocol) | Claude Skills |
-| **Installation** | `claude mcp add notebooklm npx @roomi-fields/notebooklm-mcp` | Clone to `~/.claude/skills/` |
-| **Sessions** | ✅ Persistent browser sessions | Fresh browser per query |
-| **Compatibility** | ✅ Claude Code, Cursor, Codex, any MCP client | Claude Code only |
-| **HTTP API** | ✅ Works with n8n, Zapier, Make.com | ❌ Not available |
-| **Language** | TypeScript | Python |
-| **Use case** | Long conversations, automation workflows | Quick one-off queries |
+| Feature           | This Project (MCP + HTTP)                                    | Original Skill (Python)      |
+| ----------------- | ------------------------------------------------------------ | ---------------------------- |
+| **Protocol**      | MCP (Model Context Protocol)                                 | Claude Skills                |
+| **Installation**  | `claude mcp add notebooklm npx @roomi-fields/notebooklm-mcp` | Clone to `~/.claude/skills/` |
+| **Sessions**      | ✅ Persistent browser sessions                               | Fresh browser per query      |
+| **Compatibility** | ✅ Claude Code, Cursor, Codex, any MCP client                | Claude Code only             |
+| **HTTP API**      | ✅ Works with n8n, Zapier, Make.com                          | ❌ Not available             |
+| **Language**      | TypeScript                                                   | Python                       |
+| **Use case**      | Long conversations, automation workflows                     | Quick one-off queries        |
 
 ### Which one should you choose?
 
@@ -483,9 +506,10 @@ Both use the same Patchright browser automation technology and provide zero-hall
 **Challenge**: n8n's API is new — Claude hallucinates node names and functions.
 
 **Solution**:
+
 1. Downloaded complete n8n documentation → merged into manageable chunks
 2. Uploaded to NotebookLM
-3. Told Claude: *"Build me a Gmail spam filter workflow. Use this NotebookLM: [link]"*
+3. Told Claude: _"Build me a Gmail spam filter workflow. Use this NotebookLM: [link]"_
 
 **Watch the AI-to-AI conversation:**
 
@@ -512,23 +536,29 @@ Claude → ✅ "Here's your complete workflow JSON..."
 ## Core Features
 
 ### **Zero Hallucinations**
+
 NotebookLM refuses to answer if information isn't in your docs. No invented APIs.
 
 ### **Multi-Notebook Library**
+
 Manage multiple NotebookLM notebooks with automatic validation, duplicate detection, and smart selection.
 
 ### **Autonomous Research**
+
 Claude asks follow-up questions automatically, building complete understanding before coding.
 
 ### **Deep, Iterative Research**
+
 - Claude automatically asks follow-up questions to build complete understanding
 - Each answer triggers deeper questions until Claude has all the details
 - Example: For n8n workflow, Claude asked multiple sequential questions about Gmail integration, error handling, and data transformation
 
 ### **HTTP REST API**
+
 Use NotebookLM from n8n, Zapier, Make.com, or any HTTP client. No MCP required.
 
 ### **Cross-Tool Sharing**
+
 Set up once, use everywhere. Claude Code, Codex, Cursor, n8n — all can access the same library.
 
 ---
@@ -555,35 +585,38 @@ graph LR
 
 ## Common Commands (MCP Mode)
 
-| Intent | Say | Result |
-|--------|-----|--------|
-| Authenticate | *"Open NotebookLM auth setup"* or *"Log me in to NotebookLM"* | Chrome opens for login |
-| Add notebook | *"Add [link] to library"* | Saves notebook with metadata |
-| List notebooks | *"Show our notebooks"* | Lists all saved notebooks |
-| Research first | *"Research this in NotebookLM before coding"* | Multi-question session |
-| Select notebook | *"Use the React notebook"* | Sets active notebook |
-| Update notebook | *"Update notebook tags"* | Modify metadata |
-| Remove notebook | *"Remove [notebook] from library"* | Deletes from library |
-| View browser | *"Show me the browser"* | Watch live NotebookLM chat |
-| Fix auth | *"Repair NotebookLM authentication"* | Clears and re-authenticates |
-| Switch account | *"Re-authenticate with different Google account"* | Changes account |
-| Clean restart | *"Run NotebookLM cleanup"* | Removes all data for fresh start |
+| Intent          | Say                                                           | Result                           |
+| --------------- | ------------------------------------------------------------- | -------------------------------- |
+| Authenticate    | _"Open NotebookLM auth setup"_ or _"Log me in to NotebookLM"_ | Chrome opens for login           |
+| Add notebook    | _"Add [link] to library"_                                     | Saves notebook with metadata     |
+| List notebooks  | _"Show our notebooks"_                                        | Lists all saved notebooks        |
+| Research first  | _"Research this in NotebookLM before coding"_                 | Multi-question session           |
+| Select notebook | _"Use the React notebook"_                                    | Sets active notebook             |
+| Update notebook | _"Update notebook tags"_                                      | Modify metadata                  |
+| Remove notebook | _"Remove [notebook] from library"_                            | Deletes from library             |
+| View browser    | _"Show me the browser"_                                       | Watch live NotebookLM chat       |
+| Fix auth        | _"Repair NotebookLM authentication"_                          | Clears and re-authenticates      |
+| Switch account  | _"Re-authenticate with different Google account"_             | Changes account                  |
+| Clean restart   | _"Run NotebookLM cleanup"_                                    | Removes all data for fresh start |
 
 ---
 
 ## Comparison to Alternatives
 
 ### vs. Downloading docs locally
+
 - **You**: Download docs → Claude: "search through these files"
 - **Problem**: Claude reads thousands of files → massive token usage, often misses connections
 - **NotebookLM**: Pre-indexed by Gemini, semantic understanding across all docs
 
 ### vs. Web search
+
 - **You**: "Research X online"
 - **Problem**: Outdated info, hallucinated examples, unreliable sources
 - **NotebookLM**: Only your trusted docs, always current, with citations
 
 ### vs. Local RAG setup
+
 - **You**: Set up embeddings, vector DB, chunking strategy, retrieval pipeline
 - **Problem**: Hours of setup, tuning retrieval, still gets "creative" with gaps
 - **NotebookLM**: Upload docs → done. Google handles everything.
@@ -602,7 +635,7 @@ Free tier has daily query limits per Google account. Quick account switching sup
 Chrome runs locally. Your credentials never leave your machine. Use a dedicated Google account if concerned.
 
 **Can I see what's happening?**
-Yes! Say *"Show me the browser"* (MCP mode) or set `HEADLESS=false` (HTTP mode) to watch the live NotebookLM conversation.
+Yes! Say _"Show me the browser"_ (MCP mode) or set `HEADLESS=false` (HTTP mode) to watch the live NotebookLM conversation.
 
 **What makes this better than Claude's built-in knowledge?**
 Your docs are always current. No training cutoff. No hallucinations. Perfect for new libraries, internal APIs, or fast-moving projects.
@@ -628,6 +661,7 @@ While I've built in humanization features (realistic typing speeds, natural dela
 
 **About CLI tools and AI agents:**
 CLI tools like Claude Code, Codex, and similar AI-powered assistants are incredibly powerful, but they can make mistakes. Please use them with care and awareness:
+
 - Always review changes before committing or deploying
 - Test in safe environments first
 - Keep backups of important work
@@ -644,6 +678,7 @@ That said, if you run into problems or have questions, feel free to open an issu
 ### ✅ Implemented in v1.3.2
 
 **🤖 Auto-Discovery: Autonomous Resource Discovery**
+
 - ✅ Automatically generate notebook name, description, and tags via NotebookLM
 - ✅ Progressive disclosure pattern inspired by Claude Skills best practices
 - ✅ Zero-friction notebook addition (30 seconds vs 5 minutes)
@@ -655,12 +690,14 @@ That said, if you run into problems or have questions, feel free to open an issu
 ### 🔧 Minor Fixes (v1.3.5)
 
 **Cosmetic improvements:**
+
 - Fix PowerShell `CursorPosition` error in test scripts (non-interactive terminal)
 - Add strict type validation for `show_browser` parameter (return 400 on invalid types)
 
 ### 🔜 Planned for v1.4.0+
 
 **🔥 Separate Chrome Profiles by Mode (Priority):**
+
 - Enable HTTP and MCP stdio modes to run simultaneously
 - Automatic profile detection: `chrome_profile_http` vs `chrome_profile_stdio`
 - No user configuration needed - just works
@@ -668,15 +705,18 @@ That said, if you run into problems or have questions, feel free to open an issu
 - **👉 See [Chrome Profile Limitation](./docs/CHROME_PROFILE_LIMITATION.md) for details**
 
 **Smart Metadata Refresh:**
+
 - Auto-detect when notebook content has changed
 - Re-query NotebookLM to update metadata
 - Endpoint: `PATCH /notebooks/:id/refresh`
 
 **Semantic Matching:**
+
 - Use embeddings for advanced notebook matching beyond tags
 - Endpoint: `GET /notebooks/match?query=gmail&semantic=true`
 
 **Usage Analytics:**
+
 - Track which notebooks are queried together
 - Suggest related notebooks based on usage patterns
 - Endpoint: `GET /notebooks/:id/related`
@@ -684,16 +724,19 @@ That said, if you run into problems or have questions, feel free to open an issu
 ### 🚀 Previously Implemented
 
 **✅ PM2 Daemon Mode (v1.1.2):**
+
 - Cross-platform process manager with auto-restart
 - Commands: `npm run daemon:start`, `daemon:logs`, `daemon:status`
 - Built-in log rotation and monitoring
 
 **✅ Multi-Notebook Library (v1.1.2):**
+
 - Live validation of notebooks
 - Duplicate detection
 - Smart notebook selection
 
 ### 💡 Have an idea?
+
 [Open a discussion](https://github.com/roomi-fields/notebooklm-mcp/discussions) to suggest new features!
 
 ---

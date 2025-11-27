@@ -53,5 +53,5 @@ __pycache__/
 .venv/
 venv/
 
-# Tests (Vitest not configured - use deployment/scripts for testing)
-tests/
+# Test coverage output
+coverage/

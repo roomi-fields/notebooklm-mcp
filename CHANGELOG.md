@@ -7,15 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.5] - 2025-11-27
+
+### Added
+
+**Quality Tooling & CI/CD:**
+
+- Added Jest testing framework with comprehensive test suite (327 tests)
+- Added ESLint configuration for code quality enforcement
+- Added Prettier for consistent code formatting
+- Added Husky + lint-staged for pre-commit hooks
+- Added GitHub Actions CI workflow with multi-Node version testing (18.x, 20.x, 22.x)
+- Added Codecov integration for coverage tracking
+- Added type-coverage tool (99.01% coverage)
+
+**Test Coverage:**
+
+- Unit tests for `logger.ts` (100% coverage)
+- Unit tests for `errors.ts` and error types
+- Unit tests for `config.ts` parsing and validation
+- Unit tests for `stealth-utils.ts` timing functions
+- Unit tests for `cleanup-manager.ts` core functionality
+- Unit tests for `page-utils.ts` selectors and utilities
+- Type system tests for `ToolResult<T>` discriminated union
+
+### Fixed
+
+- Fixed Prettier formatting issues in README.md and test files
+- Fixed code style consistency across all source files
+
+---
+
 ## [1.3.4] - 2025-11-26
 
 ### Fixed
 
 **CLI Scripts:**
+
 - Fixed `de-auth.ts` CLI script: added missing implementation
 - Improved page load wait logic in authentication flow
 
 **Test Reliability:**
+
 - Improved `test-auth.ps1` reliability: reduced from 9 tests to 7 focused tests
 - Smart cleanup test that checks auth status before attempting restore
 - Cleanup test now passes regardless of whether manual re-auth is needed
@@ -28,27 +61,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 **CORS Hardening:**
+
 - Added CORS whitelist configuration via `CORS_ORIGINS` environment variable
 - Default whitelist allows only localhost origins (ports 3000, 5678, 8080)
 - Blocked external origins no longer receive CORS headers
 - Supports wildcard `*` for development when explicitly configured
 
 **Input Validation:**
+
 - Added Zod schema validation for all HTTP endpoints
 - Validates request bodies with detailed error messages
 - Schemas: AskQuestionSchema, AddNotebookSchema, UpdateNotebookSchema, AutoDiscoverSchema, CleanupDataSchema, ShowBrowserSchema
 
 **Express Route Security:**
+
 - Fixed route ordering: static routes (`/notebooks/search`, `/notebooks/stats`) now correctly matched before parameterized routes (`/notebooks/:id`)
 - Prevents route hijacking vulnerabilities
 
 ### Fixed
 
 **Error Handling:**
+
 - Replaced 30+ empty catch blocks with proper `log.debug()` logging
 - Improved error visibility for debugging without breaking functionality
 
 **Type Safety:**
+
 - Refactored `ToolResult<T>` to discriminated union type for compile-time safety
 - Fixed `ServerState` types with proper `Browser`, `SessionManager`, `AuthManager` types
 - Added `JSONSchemaProperty` type for MCP tool input schemas
@@ -58,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 **Test Coverage (25 → 72 tests, +188%):**
+
 - `test-validation.ps1` (18 tests) - Zod schema validation testing
 - `test-auth.ps1` (8 tests) - Authentication endpoint testing
 - `test-cors.ps1` (10 tests) - CORS configuration testing
@@ -71,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 **Authentication Management:**
+
 - New MCP tool `de_auth` for secure logout (clears all credentials without re-authenticating)
 - Separation of concerns: `de_auth` (logout only), `re_auth` (logout + re-authenticate), `setup_auth` (first-time)
 - HTTP API endpoints for complete authentication lifecycle:
@@ -79,6 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `POST /cleanup-data` - Clean all data (requires confirmation)
 
 **HTTP API Feature Parity:**
+
 - Added 7 missing endpoints to achieve 100% parity with MCP stdio tools
 - Authentication: `/de-auth`, `/re-auth`, `/cleanup-data`
 - Notebooks: `PUT /notebooks/:id`, `/notebooks/search`, `/notebooks/stats`
@@ -86,6 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All 22 endpoints now available via both HTTP REST API and MCP stdio
 
 **Documentation:**
+
 - Complete API reference updated with all 22 endpoints in `deployment/docs/03-API.md`
 - Added curl examples and request/response schemas for all new endpoints
 - Categorized endpoints by type (Authentication, Queries, Notebooks, Sessions)
@@ -93,12 +135,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 **Authentication Preservation:**
+
 - Critical fix: `setup_auth` no longer erases existing authentication
 - Added check for existing auth before clearing credentials
 - Users can now switch between HTTP and MCP stdio modes without re-authenticating
 - Preserves user experience when switching interfaces
 
 **Code Quality:**
+
 - Refactored `re_auth` to use `de_auth` internally (DRY principle)
 - Improved separation of concerns in authentication flow
 - Better error handling in HTTP wrapper
@@ -106,6 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 **Version Synchronization:**
+
 - Updated all version references across codebase to 1.3.2
 - Synchronized versions in package.json, src/index.ts, src/http-wrapper.ts, README.md
 - Consistent versioning across all documentation files
@@ -117,12 +162,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 **MCP Auto-Discovery Tool:**
+
 - New MCP tool `auto_discover_notebook` for Claude Desktop/Cursor integration
 - Automatically generates notebook metadata via NotebookLM (30 seconds vs 5 minutes)
 - Zero-friction notebook addition: just provide URL, metadata is auto-generated
 - Parity with HTTP API: MCP clients now have same auto-discovery capability
 
 **Documentation:**
+
 - Added `docs/CHROME_PROFILE_LIMITATION.md` documenting Chrome profile conflict
 - Documented current limitation: HTTP and MCP stdio modes cannot run simultaneously
 - Added roadmap for v1.4.0: Separate Chrome profiles by mode
@@ -130,6 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 **Critical Compatibility Fix:**
+
 - Disabled `CompleteRequestSchema` handler causing crashes with Claude Desktop
 - Fixed: "Server does not support completions" error on connection
 - Claude Desktop now connects successfully without modifications
@@ -137,11 +185,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 **Tool Documentation:**
+
 - Updated `add_notebook` tool to recommend `auto_discover_notebook` first
 - Clarified when to use manual entry vs auto-discovery
 - Added fallback workflow if auto-discovery fails
 
 **README Updates:**
+
 - Added warning about HTTP/stdio mode conflict (temporary until v1.4.0)
 - Added Chrome profile limitation to roadmap as priority feature
 - Updated feature descriptions to mention MCP auto-discovery availability
@@ -149,6 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Known Issues
 
 **Chrome Profile Locking:**
+
 - HTTP server and MCP stdio modes cannot run simultaneously
 - Both modes use same Chrome profile, causing "resource busy" errors
 - **Workaround:** Choose one mode at a time, or stop HTTP daemon before using Claude Desktop
@@ -161,6 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 **Auto-Discovery Feature:**
+
 - New endpoint `POST /notebooks/auto-discover` for autonomous resource discovery
 - Automatic metadata generation by querying NotebookLM itself
 - Progressive disclosure pattern inspired by Claude Skills best practices
@@ -170,6 +222,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete documentation in `deployment/docs/07-AUTO-DISCOVERY.md`
 
 **Key Benefits:**
+
 - Autonomous resource discovery: Orchestrators can find relevant documentation without manual intervention
 - Zero-friction notebook addition (30 seconds vs 5 minutes manual setup)
 - Self-organizing documentation library
@@ -178,6 +231,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 **Documentation:**
+
 - Updated API documentation with auto-discovery endpoint details
 - Added progressive disclosure pattern explanation
 - Enhanced README with auto-discovery feature showcase
@@ -190,6 +244,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 **HTTP REST API Wrapper:**
+
 - Express.js server exposing the MCP API via HTTP REST
 - 8 documented REST endpoints (see [docs/03-API.md](./docs/03-API.md))
 - CORS support for n8n/Zapier/Make integration
@@ -198,6 +253,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced logs with version, configuration, and available endpoints
 
 **Complete Documentation:**
+
 - Step-by-step installation guide ([docs/01-INSTALL.md](./docs/01-INSTALL.md))
 - Configuration and security guide ([docs/02-CONFIGURATION.md](./docs/02-CONFIGURATION.md))
 - Complete API reference ([docs/03-API.md](./docs/03-API.md))
@@ -207,12 +263,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Navigation index ([INDEX.md](./INDEX.md))
 
 **PowerShell Automation Scripts:**
+
 - `scripts/install.ps1` - Automated installation with checks
 - `scripts/start-server.ps1` - Startup with pre-checks
 - `scripts/stop-server.ps1` - Clean server shutdown
 - `scripts/test-server.ps1` - Validation tests (health, notebooks, ask)
 
 **Deployment Package:**
+
 - Isolated and clean `deployment/` directory
 - `PACKAGE-FILES.txt` file listing required files
 - Ready for distribution via Git or npm
@@ -220,6 +278,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 **Critical Bug - Windows Authentication:**
+
 - **Issue:** chrome_profile/ remained empty after Google authentication
 - **Cause:** Windows filesystem does not immediately flush writes
 - **Solution:** Added a 5-second delay before closing Chrome
@@ -227,6 +286,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Impact:** Persistent authentication now works on Windows
 
 **Bug - Streaming Detection:**
+
 - **Issue:** Truncated responses or placeholders returned ("Getting the context...")
 - **Cause:** Stability threshold too low (3 polls) and missing NotebookLM placeholders
 - **Solution:**
@@ -236,6 +296,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Impact:** Complete and reliable responses (tested up to 5964 characters)
 
 **Bug - System Text in Responses:**
+
 - **Issue:** Each response contained "\n\nEXTREMELY IMPORTANT: Is that ALL you need..."
 - **Cause:** `FOLLOW_UP_REMINDER` constant added after text cleanup
 - **Solution:** Removed the constant and its usage
@@ -245,6 +306,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 **Log Improvements:**
+
 - Added server version in startup banner
 - Display of configuration (Host, Port, network accessibility)
 - List of available endpoints at startup
@@ -252,11 +314,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Format: `log.success()`, `log.info()`, `log.warning()`, `log.error()`, `log.dim()`
 
 **Configuration:**
+
 - Documented and standardized environment variables
 - `.env` support with dotenv (optional)
 - Sane defaults: `HTTP_HOST=0.0.0.0`, `HTTP_PORT=3000`, `HEADLESS=true`
 
 **Compatibility:**
+
 - Maintained 100% compatibility with original MCP stdio mode
 - No breaking changes to existing features
 
@@ -265,10 +329,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.2] - 2025-01-20
 
 ### Added
+
 - Support for Claude Code as MCP client
 - Improved documentation for installation
 
 ### Fixed
+
 - Executable permissions for npm binary
 - Reference in package.json
 
@@ -279,6 +345,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial version of the original NotebookLM MCP Server project by Please Prompto!
 
 ### Added
+
 - MCP server for NotebookLM via stdio protocol
 - Persistent Google authentication
 - Browser session management with Playwright
@@ -303,6 +370,7 @@ Initial version of the original NotebookLM MCP Server project by Please Prompto!
 **Notes:**
 
 The `1.1.2-http` version is a major extension of the original project that adds:
+
 1. Complete HTTP REST API wrapper
 2. Production-ready deployment package
 3. Comprehensive documentation (5 guides + scripts)

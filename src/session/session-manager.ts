@@ -12,13 +12,13 @@
  * Based on the Python implementation from session_manager.py
  */
 
-import { AuthManager } from "../auth/auth-manager.js";
-import { BrowserSession } from "./browser-session.js";
-import { SharedContextManager } from "./shared-context-manager.js";
-import { CONFIG } from "../config.js";
-import { log } from "../utils/logger.js";
-import type { SessionInfo } from "../types.js";
-import { randomBytes } from "crypto";
+import { AuthManager } from '../auth/auth-manager.js';
+import { BrowserSession } from './browser-session.js';
+import { SharedContextManager } from './shared-context-manager.js';
+import { CONFIG } from '../config.js';
+import { log } from '../utils/logger.js';
+import type { SessionInfo } from '../types.js';
+import { randomBytes } from 'crypto';
 
 export class SessionManager {
   private authManager: AuthManager;
@@ -34,16 +34,13 @@ export class SessionManager {
     this.maxSessions = CONFIG.maxSessions;
     this.sessionTimeout = CONFIG.sessionTimeout;
 
-    log.info("🎯 SessionManager initialized");
+    log.info('🎯 SessionManager initialized');
     log.info(`  Max sessions: ${this.maxSessions}`);
     log.info(
       `  Timeout: ${this.sessionTimeout}s (${Math.floor(this.sessionTimeout / 60)} minutes)`
     );
 
-    const cleanupIntervalSeconds = Math.max(
-      60,
-      Math.min(Math.floor(this.sessionTimeout / 2), 300)
-    );
+    const cleanupIntervalSeconds = Math.max(60, Math.min(Math.floor(this.sessionTimeout / 2), 300));
     this.cleanupInterval = setInterval(() => {
       this.cleanupInactiveSessions().catch((error) => {
         log.warning(`⚠️  Error during automatic session cleanup: ${error}`);
@@ -56,7 +53,7 @@ export class SessionManager {
    * Generate a unique session ID
    */
   private generateSessionId(): string {
-    return randomBytes(4).toString("hex");
+    return randomBytes(4).toString('hex');
   }
 
   /**
@@ -72,12 +69,12 @@ export class SessionManager {
     overrideHeadless?: boolean
   ): Promise<BrowserSession> {
     // Determine target notebook URL
-    const targetUrl = (notebookUrl || CONFIG.notebookUrl || "").trim();
+    const targetUrl = (notebookUrl || CONFIG.notebookUrl || '').trim();
     if (!targetUrl) {
-      throw new Error("Notebook URL is required to create a session");
+      throw new Error('Notebook URL is required to create a session');
     }
-    if (!targetUrl.startsWith("http")) {
-      throw new Error("Notebook URL must be an absolute URL");
+    if (!targetUrl.startsWith('http')) {
+      throw new Error('Notebook URL must be an absolute URL');
     }
 
     // Generate ID if not provided
@@ -89,9 +86,13 @@ export class SessionManager {
     // Check if browser visibility mode needs to change
     if (overrideHeadless !== undefined) {
       if (this.sharedContextManager.needsHeadlessModeChange(overrideHeadless)) {
-        log.warning(`🔄 Browser visibility changed - closing all sessions to recreate browser context...`);
+        log.warning(
+          `🔄 Browser visibility changed - closing all sessions to recreate browser context...`
+        );
         const currentMode = this.sharedContextManager.getCurrentHeadlessMode();
-        log.info(`  Switching from ${currentMode ? 'HEADLESS' : 'VISIBLE'} to ${overrideHeadless ? 'VISIBLE' : 'HEADLESS'}`);
+        log.info(
+          `  Switching from ${currentMode ? 'HEADLESS' : 'VISIBLE'} to ${overrideHeadless ? 'VISIBLE' : 'HEADLESS'}`
+        );
 
         // Close all sessions (they all use the same context)
         await this.closeAllSessions();
@@ -292,9 +293,9 @@ export class SessionManager {
     }
 
     if (this.sessions.size === 0) {
-      log.warning("🛑 Closing shared context (no active sessions)...");
+      log.warning('🛑 Closing shared context (no active sessions)...');
       await this.sharedContextManager.closeContext();
-      log.success("✅ All sessions closed");
+      log.success('✅ All sessions closed');
       return;
     }
 
@@ -313,7 +314,7 @@ export class SessionManager {
     // Close the shared context
     await this.sharedContextManager.closeContext();
 
-    log.success("✅ All sessions closed");
+    log.success('✅ All sessions closed');
   }
 
   /**
@@ -335,14 +336,8 @@ export class SessionManager {
   } {
     const sessionsInfo = this.getAllSessionsInfo();
 
-    const totalMessages = sessionsInfo.reduce(
-      (sum, info) => sum + info.message_count,
-      0
-    );
-    const oldestSessionSeconds = Math.max(
-      ...sessionsInfo.map((info) => info.age_seconds),
-      0
-    );
+    const totalMessages = sessionsInfo.reduce((sum, info) => sum + info.message_count, 0);
+    const oldestSessionSeconds = Math.max(...sessionsInfo.map((info) => info.age_seconds), 0);
 
     return {
       active_sessions: sessionsInfo.length,

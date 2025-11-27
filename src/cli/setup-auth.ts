@@ -8,15 +8,15 @@
  * Google authentication for NotebookLM MCP Server.
  */
 
-import { AuthManager } from "../auth/auth-manager.js";
-import { log } from "../utils/logger.js";
+import { AuthManager } from '../auth/auth-manager.js';
+import { log } from '../utils/logger.js';
 
 async function main() {
-  console.log("");
-  console.log("==========================================");
-  console.log("  NotebookLM MCP - Authentication Setup");
-  console.log("==========================================");
-  console.log("");
+  console.log('');
+  console.log('==========================================');
+  console.log('  NotebookLM MCP - Authentication Setup');
+  console.log('==========================================');
+  console.log('');
 
   const authManager = new AuthManager();
 
@@ -25,22 +25,22 @@ async function main() {
     const existingAuth = await authManager.getValidStatePath();
 
     if (existingAuth) {
-      log.success("Already authenticated!");
-      log.info("");
-      log.info("Your Google session is valid.");
+      log.success('Already authenticated!');
+      log.info('');
+      log.info('Your Google session is valid.');
       log.info("Use 'npm run re-auth' to switch accounts or re-authenticate.");
-      log.info("");
+      log.info('');
       process.exit(0);
     }
 
-    log.info("Starting interactive authentication...");
-    log.info("");
-    log.warning("Instructions:");
-    log.info("  1. Chrome will open (visible window)");
-    log.info("  2. Log in to your Google account");
-    log.info("  3. Wait for NotebookLM to load");
-    log.info("  4. Browser will close automatically when done");
-    log.info("");
+    log.info('Starting interactive authentication...');
+    log.info('');
+    log.warning('Instructions:');
+    log.info('  1. Chrome will open (visible window)');
+    log.info('  2. Log in to your Google account');
+    log.info('  3. Wait for NotebookLM to load');
+    log.info('  4. Browser will close automatically when done');
+    log.info('');
 
     // Perform setup with visible browser
     const success = await authManager.performSetup(
@@ -55,30 +55,30 @@ async function main() {
       true // show_browser = true
     );
 
-    console.log("");
+    console.log('');
 
     if (success) {
-      log.success("==========================================");
-      log.success("  Authentication configured successfully!");
-      log.success("==========================================");
-      log.info("");
-      log.info("Google session valid for ~399 days");
-      log.info("");
-      log.info("Next steps:");
-      log.info("  - Start HTTP server: npm run start:http");
-      log.info("  - Or use with Claude: npx notebooklm-mcp");
-      log.info("");
+      log.success('==========================================');
+      log.success('  Authentication configured successfully!');
+      log.success('==========================================');
+      log.info('');
+      log.info('Google session valid for ~399 days');
+      log.info('');
+      log.info('Next steps:');
+      log.info('  - Start HTTP server: npm run start:http');
+      log.info('  - Or use with Claude: npx notebooklm-mcp');
+      log.info('');
       process.exit(0);
     } else {
-      log.error("==========================================");
-      log.error("  Authentication failed");
-      log.error("==========================================");
-      log.info("");
-      log.info("Possible solutions:");
-      log.info("  1. Run again: npm run setup-auth");
-      log.info("  2. Check that Chrome closed properly");
-      log.info("  3. See: deployment/docs/05-TROUBLESHOOTING.md");
-      log.info("");
+      log.error('==========================================');
+      log.error('  Authentication failed');
+      log.error('==========================================');
+      log.info('');
+      log.info('Possible solutions:');
+      log.info('  1. Run again: npm run setup-auth');
+      log.info('  2. Check that Chrome closed properly');
+      log.info('  3. See: deployment/docs/05-TROUBLESHOOTING.md');
+      log.info('');
       process.exit(1);
     }
   } catch (error) {

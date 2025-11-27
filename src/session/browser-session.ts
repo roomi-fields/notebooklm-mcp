@@ -13,18 +13,15 @@
  * Based on the Python implementation from browser_session.py
  */
 
-import type { BrowserContext, Page } from "patchright";
-import { SharedContextManager } from "./shared-context-manager.js";
-import { AuthManager } from "../auth/auth-manager.js";
-import { humanType, randomDelay } from "../utils/stealth-utils.js";
-import {
-  waitForLatestAnswer,
-  snapshotAllResponses,
-} from "../utils/page-utils.js";
-import { CONFIG } from "../config.js";
-import { log } from "../utils/logger.js";
-import type { SessionInfo, ProgressCallback } from "../types.js";
-import { RateLimitError } from "../errors.js";
+import type { BrowserContext, Page } from 'patchright';
+import { SharedContextManager } from './shared-context-manager.js';
+import { AuthManager } from '../auth/auth-manager.js';
+import { humanType, randomDelay } from '../utils/stealth-utils.js';
+import { waitForLatestAnswer, snapshotAllResponses } from '../utils/page-utils.js';
+import { CONFIG } from '../config.js';
+import { log } from '../utils/logger.js';
+import type { SessionInfo, ProgressCallback } from '../types.js';
+import { RateLimitError } from '../errors.js';
 
 export class BrowserSession {
   public readonly sessionId: string;
@@ -76,8 +73,10 @@ export class BrowserSession {
         this.page = await this.context.newPage();
       } catch (e: unknown) {
         const msg = String(e instanceof Error ? e.message : e);
-        if (/has been closed|Target .* closed|Browser has been closed|Context .* closed/i.test(msg)) {
-          log.warning("  ♻️  Context was closed. Recreating and retrying newPage...");
+        if (
+          /has been closed|Target .* closed|Browser has been closed|Context .* closed/i.test(msg)
+        ) {
+          log.warning('  ♻️  Context was closed. Recreating and retrying newPage...');
           this.context = await this.sharedContextManager.getOrCreateContext();
           this.page = await this.context.newPage();
         } else {
@@ -89,7 +88,7 @@ export class BrowserSession {
       // Navigate to notebook
       log.info(`  🌐 Navigating to: ${this.notebookUrl}`);
       await this.page.goto(this.notebookUrl, {
-        waitUntil: "domcontentloaded",
+        waitUntil: 'domcontentloaded',
         timeout: CONFIG.browserTimeout,
       });
 
@@ -97,15 +96,13 @@ export class BrowserSession {
       await randomDelay(2000, 3000);
 
       // Check if we need to login
-      const isAuthenticated = await this.authManager.validateCookiesExpiry(
-        this.context
-      );
+      const isAuthenticated = await this.authManager.validateCookiesExpiry(this.context);
 
       if (!isAuthenticated) {
         log.warning(`  🔑 Session ${this.sessionId} needs authentication`);
         const loginSuccess = await this.ensureAuthenticated();
         if (!loginSuccess) {
-          throw new Error("Failed to authenticate session");
+          throw new Error('Failed to authenticate session');
         }
       } else {
         log.success(`  ✅ Session already authenticated`);
@@ -155,40 +152,40 @@ export class BrowserSession {
    */
   private async waitForNotebookLMReady(): Promise<void> {
     if (!this.page) {
-      throw new Error("Page not initialized");
+      throw new Error('Page not initialized');
     }
 
     try {
       // PRIMARY: Exact Python selector - textarea.query-box-input
-      log.info("  ⏳ Waiting for chat input (textarea.query-box-input)...");
-      await this.page.waitForSelector("textarea.query-box-input", {
+      log.info('  ⏳ Waiting for chat input (textarea.query-box-input)...');
+      await this.page.waitForSelector('textarea.query-box-input', {
         timeout: 10000, // Python uses 10s timeout
-        state: "visible", // ONLY check visibility (NO disabled check!)
+        state: 'visible', // ONLY check visibility (NO disabled check!)
       });
-      log.success("  ✅ Chat input ready!");
+      log.success('  ✅ Chat input ready!');
     } catch {
       // FALLBACK: Python alternative selector
       try {
-        log.info("  ⏳ Trying fallback selector (aria-label)...");
+        log.info('  ⏳ Trying fallback selector (aria-label)...');
         await this.page.waitForSelector('textarea[aria-label="Feld für Anfragen"]', {
           timeout: 5000, // Python uses 5s for fallback
-          state: "visible",
+          state: 'visible',
         });
-        log.success("  ✅ Chat input ready (fallback)!");
+        log.success('  ✅ Chat input ready (fallback)!');
       } catch (error) {
         log.error(`  ❌ NotebookLM interface not ready: ${error}`);
         const currentUrl = this.page?.url() || 'unknown';
         throw new Error(
           `Could not find NotebookLM chat input.\n\n` +
-          `Current URL: ${currentUrl}\n\n` +
-          `Possible causes:\n` +
-          `1. Invalid notebook URL - the notebook may not exist or you don't have access\n` +
-          `2. NotebookLM page structure changed (rare)\n` +
-          `3. Page took too long to load (timeout after 15 seconds)\n\n` +
-          `Please verify:\n` +
-          `- The notebook URL is correct\n` +
-          `- You have access to this notebook\n` +
-          `- The URL format: https://notebooklm.google.com/notebook/[id]`
+            `Current URL: ${currentUrl}\n\n` +
+            `Possible causes:\n` +
+            `1. Invalid notebook URL - the notebook may not exist or you don't have access\n` +
+            `2. NotebookLM page structure changed (rare)\n` +
+            `3. Page took too long to load (timeout after 15 seconds)\n\n` +
+            `Please verify:\n` +
+            `- The notebook URL is correct\n` +
+            `- You have access to this notebook\n` +
+            `- The URL format: https://notebooklm.google.com/notebook/[id]`
         );
       }
     }
@@ -214,7 +211,7 @@ export class BrowserSession {
    */
   private async ensureAuthenticated(): Promise<boolean> {
     if (!this.page) {
-      throw new Error("Page not initialized");
+      throw new Error('Page not initialized');
     }
 
     log.info(`🔑 Checking authentication for session ${this.sessionId}...`);
@@ -239,13 +236,11 @@ export class BrowserSession {
 
       // Reload page to apply new auth
       log.info(`  🔄 Reloading page...`);
-      await (this.page as Page).reload({ waitUntil: "domcontentloaded" });
+      await (this.page as Page).reload({ waitUntil: 'domcontentloaded' });
       await randomDelay(2000, 3000);
 
       // Check if it worked
-      const nowValid = await this.authManager.validateCookiesExpiry(
-        this.context
-      );
+      const nowValid = await this.authManager.validateCookiesExpiry(this.context);
       if (nowValid) {
         log.success(`  ✅ Auth state loaded successfully`);
         return true;
@@ -268,7 +263,7 @@ export class BrowserSession {
         log.success(`  ✅ Auto-login successful`);
         // Navigate back to notebook
         await this.page.goto(this.notebookUrl, {
-          waitUntil: "domcontentloaded",
+          waitUntil: 'domcontentloaded',
         });
         await randomDelay(2000, 3000);
         return true;
@@ -277,9 +272,7 @@ export class BrowserSession {
         return false;
       }
     } else {
-      log.error(
-        `  ❌ Auto-login disabled and no valid auth state - manual login required`
-      );
+      log.error(`  ❌ Auto-login disabled and no valid auth state - manual login required`);
       return false;
     }
   }
@@ -350,11 +343,11 @@ export class BrowserSession {
       }
 
       if (await applyToPage()) {
-        this.page?.off("framenavigated", handleNavigation);
+        this.page?.off('framenavigated', handleNavigation);
       }
     };
 
-    this.page.on("framenavigated", handleNavigation);
+    this.page.on('framenavigated', handleNavigation);
   }
 
   /**
@@ -370,14 +363,14 @@ export class BrowserSession {
       log.info(`💬 [${this.sessionId}] Asking: "${question.substring(0, 100)}..."`);
       const page = this.page!;
       // Ensure we're still authenticated
-      await sendProgress?.("Verifying authentication...", 2, 5);
+      await sendProgress?.('Verifying authentication...', 2, 5);
       const isAuth = await this.authManager.validateCookiesExpiry(this.context);
       if (!isAuth) {
         log.warning(`  🔑 Session expired, re-authenticating...`);
-        await sendProgress?.("Re-authenticating session...", 2, 5);
+        await sendProgress?.('Re-authenticating session...', 2, 5);
         const reAuthSuccess = await this.ensureAuthenticated();
         if (!reAuthSuccess) {
-          throw new Error("Failed to re-authenticate session");
+          throw new Error('Failed to re-authenticate session');
         }
       }
 
@@ -390,13 +383,13 @@ export class BrowserSession {
       const inputSelector = await this.findChatInput();
       if (!inputSelector) {
         throw new Error(
-          "Could not find visible chat input element. " +
-          "Please check if the notebook page has loaded correctly."
+          'Could not find visible chat input element. ' +
+            'Please check if the notebook page has loaded correctly.'
         );
       }
 
       log.info(`  ⌨️  Typing question with human-like behavior...`);
-      await sendProgress?.("Typing question with human-like behavior...", 2, 5);
+      await sendProgress?.('Typing question with human-like behavior...', 2, 5);
       await humanType(page, inputSelector, question, {
         withTypos: true,
         wpm: Math.max(CONFIG.typingWpmMin, CONFIG.typingWpmMax),
@@ -407,32 +400,32 @@ export class BrowserSession {
 
       // Submit the question (Enter key)
       log.info(`  📤 Submitting question...`);
-      await sendProgress?.("Submitting question...", 3, 5);
-      await page.keyboard.press("Enter");
+      await sendProgress?.('Submitting question...', 3, 5);
+      await page.keyboard.press('Enter');
 
       // Small pause after submit
       await randomDelay(1000, 1500);
 
       // Wait for the response with streaming detection
       log.info(`  ⏳ Waiting for response (with streaming detection)...`);
-      await sendProgress?.("Waiting for NotebookLM response (streaming detection active)...", 3, 5);
+      await sendProgress?.('Waiting for NotebookLM response (streaming detection active)...', 3, 5);
       const answer = await waitForLatestAnswer(page, {
         question,
         timeoutMs: 120000, // 2 minutes
         pollIntervalMs: 1000,
         ignoreTexts: existingResponses,
-        debug: true,  // Enable debug to see exact text
+        debug: true, // Enable debug to see exact text
       });
 
       if (!answer) {
-        throw new Error("Timeout waiting for response from NotebookLM");
+        throw new Error('Timeout waiting for response from NotebookLM');
       }
 
       // Check for rate limit errors AFTER receiving answer
       log.info(`  🔍 Checking for rate limit errors...`);
       if (await this.detectRateLimitError()) {
         throw new RateLimitError(
-          "NotebookLM rate limit reached (50 queries/day for free accounts)"
+          'NotebookLM rate limit reached (50 queries/day for free accounts)'
         );
       }
 
@@ -455,7 +448,13 @@ export class BrowserSession {
         log.warning(`  ♻️  Detected closed page/context. Recovering session and retrying ask...`);
         try {
           this.initialized = false;
-          if (this.page) { try { await this.page.close(); } catch {} }
+          if (this.page) {
+            try {
+              await this.page.close();
+            } catch {
+              /* Ignore errors during cleanup */
+            }
+          }
           this.page = null;
           await this.init();
           return await askOnce();
@@ -485,7 +484,7 @@ export class BrowserSession {
 
     // Use EXACT Python selectors (in order of preference)
     const selectors = [
-      "textarea.query-box-input", // ← PRIMARY Python selector
+      'textarea.query-box-input', // ← PRIMARY Python selector
       'textarea[aria-label="Feld für Anfragen"]', // ← Python fallback
     ];
 
@@ -524,28 +523,28 @@ export class BrowserSession {
 
     // Error message selectors (common patterns for error containers)
     const errorSelectors = [
-      ".error-message",
-      ".error-container",
+      '.error-message',
+      '.error-container',
       "[role='alert']",
-      ".rate-limit-message",
-      "[data-error]",
-      ".notification-error",
-      ".alert-error",
-      ".toast-error",
+      '.rate-limit-message',
+      '[data-error]',
+      '.notification-error',
+      '.alert-error',
+      '.toast-error',
     ];
 
     // Keywords that indicate rate limiting
     const keywords = [
-      "rate limit",
-      "limit exceeded",
-      "quota exhausted",
-      "daily limit",
-      "limit reached",
-      "too many requests",
-      "ratenlimit",
-      "quota",
-      "query limit",
-      "request limit",
+      'rate limit',
+      'limit exceeded',
+      'quota exhausted',
+      'daily limit',
+      'limit reached',
+      'too many requests',
+      'ratenlimit',
+      'quota',
+      'query limit',
+      'request limit',
     ];
 
     // Check error containers for rate limit messages
@@ -572,11 +571,11 @@ export class BrowserSession {
 
     // Also check if chat input is disabled (sometimes NotebookLM disables input when rate limited)
     try {
-      const inputSelector = "textarea.query-box-input";
+      const inputSelector = 'textarea.query-box-input';
       const input = await this.page.$(inputSelector);
       if (input) {
         const isDisabled = await input.evaluate((el) => {
-          return (el as { disabled?: boolean }).disabled || el.hasAttribute("disabled");
+          return (el as { disabled?: boolean }).disabled || el.hasAttribute('disabled');
         });
 
         if (isDisabled) {
@@ -614,7 +613,7 @@ export class BrowserSession {
       }
       log.info(`🔄 [${this.sessionId}] Resetting chat history...`);
       // Reload the page to clear chat history
-      await (this.page as Page).reload({ waitUntil: "domcontentloaded" });
+      await (this.page as Page).reload({ waitUntil: 'domcontentloaded' });
       await randomDelay(2000, 3000);
 
       // Wait for interface to be ready again
@@ -634,7 +633,13 @@ export class BrowserSession {
       if (/has been closed|Target .* closed|Browser has been closed|Context .* closed/i.test(msg)) {
         log.warning(`  ♻️  Detected closed page/context during reset. Recovering and retrying...`);
         this.initialized = false;
-        if (this.page) { try { await this.page.close(); } catch {} }
+        if (this.page) {
+          try {
+            await this.page.close();
+          } catch {
+            /* Ignore errors during cleanup */
+          }
+        }
         this.page = null;
         await this.init();
         await resetOnce();

@@ -30,8 +30,8 @@
  * Based on the Python NotebookLM API implementation
  */
 
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -41,14 +41,14 @@ import {
   // CompleteRequestSchema, // Disabled for Claude Desktop compatibility
   Tool,
   Resource,
-} from "@modelcontextprotocol/sdk/types.js";
+} from '@modelcontextprotocol/sdk/types.js';
 
-import { AuthManager } from "./auth/auth-manager.js";
-import { SessionManager } from "./session/session-manager.js";
-import { NotebookLibrary } from "./library/notebook-library.js";
-import { ToolHandlers, buildToolDefinitions } from "./tools/index.js";
-import { CONFIG } from "./config.js";
-import { log } from "./utils/logger.js";
+import { AuthManager } from './auth/auth-manager.js';
+import { SessionManager } from './session/session-manager.js';
+import { NotebookLibrary } from './library/notebook-library.js';
+import { ToolHandlers, buildToolDefinitions } from './tools/index.js';
+import { CONFIG } from './config.js';
+import { log } from './utils/logger.js';
 
 /**
  * Main MCP Server Class
@@ -65,8 +65,8 @@ class NotebookLMMCPServer {
     // Initialize MCP Server
     this.server = new Server(
       {
-        name: "notebooklm-mcp",
-        version: "1.3.4",
+        name: 'notebooklm-mcp',
+        version: '1.3.5',
       },
       {
         capabilities: {
@@ -81,11 +81,7 @@ class NotebookLMMCPServer {
     this.authManager = new AuthManager();
     this.sessionManager = new SessionManager(this.authManager);
     this.library = new NotebookLibrary();
-    this.toolHandlers = new ToolHandlers(
-      this.sessionManager,
-      this.authManager,
-      this.library
-    );
+    this.toolHandlers = new ToolHandlers(this.sessionManager, this.authManager, this.library);
 
     // Build tool definitions with library context
     this.toolDefinitions = buildToolDefinitions(this.library) as Tool[];
@@ -94,8 +90,8 @@ class NotebookLMMCPServer {
     this.setupHandlers();
     this.setupShutdownHandlers();
 
-    log.info("🚀 NotebookLM MCP Server initialized");
-    log.info(`  Version: 1.3.4`);
+    log.info('🚀 NotebookLM MCP Server initialized');
+    log.info(`  Version: 1.3.5`);
     log.info(`  Node: ${process.version}`);
     log.info(`  Platform: ${process.platform}`);
   }
@@ -132,7 +128,7 @@ class NotebookLMMCPServer {
   private setupHandlers(): void {
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      log.info("📋 [MCP] list_tools request received");
+      log.info('📋 [MCP] list_tools request received');
       return {
         tools: this.toolDefinitions,
       };
@@ -140,20 +136,20 @@ class NotebookLMMCPServer {
 
     // List available resources
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
-      log.info("📚 [MCP] list_resources request received");
+      log.info('📚 [MCP] list_resources request received');
 
       const notebooks = this.library.listNotebooks();
       const resources: Resource[] = [
         {
-          uri: "notebooklm://library",
-          name: "Notebook Library",
+          uri: 'notebooklm://library',
+          name: 'Notebook Library',
           description:
-            "Complete notebook library with all available knowledge sources. " +
-            "Read this to discover what notebooks are available. " +
+            'Complete notebook library with all available knowledge sources. ' +
+            'Read this to discover what notebooks are available. ' +
             "⚠️ If you think a notebook might help with the user's task, " +
-            "ASK THE USER FOR PERMISSION before consulting it: " +
+            'ASK THE USER FOR PERMISSION before consulting it: ' +
             "'Should I consult the [notebook] for this task?'",
-          mimeType: "application/json",
+          mimeType: 'application/json',
         },
       ];
 
@@ -163,9 +159,9 @@ class NotebookLMMCPServer {
           uri: `notebooklm://library/${notebook.id}`,
           name: notebook.name,
           description:
-            `${notebook.description} | Topics: ${notebook.topics.join(", ")} | ` +
+            `${notebook.description} | Topics: ${notebook.topics.join(', ')} | ` +
             `💡 Use ask_question to query this notebook (ask user permission first if task isn't explicitly about these topics)`,
-          mimeType: "application/json",
+          mimeType: 'application/json',
         });
       }
 
@@ -173,13 +169,13 @@ class NotebookLMMCPServer {
       const active = this.library.getActiveNotebook();
       if (active) {
         resources.push({
-          uri: "notebooklm://metadata",
-          name: "Active Notebook Metadata (Legacy)",
+          uri: 'notebooklm://metadata',
+          name: 'Active Notebook Metadata (Legacy)',
           description:
-            "Information about the currently active notebook. " +
-            "DEPRECATED: Use notebooklm://library instead for multi-notebook support. " +
+            'Information about the currently active notebook. ' +
+            'DEPRECATED: Use notebooklm://library instead for multi-notebook support. ' +
             "⚠️ Always ask user permission before using notebooks for tasks they didn't explicitly mention.",
-          mimeType: "application/json",
+          mimeType: 'application/json',
         });
       }
 
@@ -188,18 +184,18 @@ class NotebookLMMCPServer {
 
     // List resource templates
     this.server.setRequestHandler(ListResourceTemplatesRequestSchema, async () => {
-      log.info("📑 [MCP] list_resource_templates request received");
+      log.info('📑 [MCP] list_resource_templates request received');
 
       return {
         resourceTemplates: [
           {
-            uriTemplate: "notebooklm://library/{id}",
-            name: "Notebook by ID",
+            uriTemplate: 'notebooklm://library/{id}',
+            name: 'Notebook by ID',
             description:
-              "Access a specific notebook from your library by ID. " +
-              "Provides detailed metadata about the notebook including topics, use cases, and usage statistics. " +
+              'Access a specific notebook from your library by ID. ' +
+              'Provides detailed metadata about the notebook including topics, use cases, and usage statistics. ' +
               "💡 Use the 'id' parameter from list_notebooks to access specific notebooks.",
-            mimeType: "application/json",
+            mimeType: 'application/json',
           },
         ],
       };
@@ -211,19 +207,21 @@ class NotebookLMMCPServer {
       log.info(`📖 [MCP] read_resource request: ${uri}`);
 
       // Handle library resource
-      if (uri === "notebooklm://library") {
+      if (uri === 'notebooklm://library') {
         const notebooks = this.library.listNotebooks();
         const stats = this.library.getStats();
         const active = this.library.getActiveNotebook();
 
         const libraryData = {
-          active_notebook: active ? {
-            id: active.id,
-            name: active.name,
-            description: active.description,
-            topics: active.topics,
-          } : null,
-          notebooks: notebooks.map(nb => ({
+          active_notebook: active
+            ? {
+                id: active.id,
+                name: active.name,
+                description: active.description,
+                topics: active.topics,
+              }
+            : null,
+          notebooks: notebooks.map((nb) => ({
             id: nb.id,
             name: nb.name,
             description: nb.description,
@@ -242,7 +240,7 @@ class NotebookLMMCPServer {
           contents: [
             {
               uri,
-              mimeType: "application/json",
+              mimeType: 'application/json',
               text: JSON.stringify(libraryData, null, 2),
             },
           ],
@@ -250,11 +248,11 @@ class NotebookLMMCPServer {
       }
 
       // Handle individual notebook resource
-      if (uri.startsWith("notebooklm://library/")) {
-        const prefix = "notebooklm://library/";
+      if (uri.startsWith('notebooklm://library/')) {
+        const prefix = 'notebooklm://library/';
         const encodedId = uri.slice(prefix.length);
         if (!encodedId) {
-          throw new Error("Notebook resource requires an ID (e.g. notebooklm://library/{id})");
+          throw new Error('Notebook resource requires an ID (e.g. notebooklm://library/{id})');
         }
 
         let id: string;
@@ -280,7 +278,7 @@ class NotebookLMMCPServer {
           contents: [
             {
               uri,
-              mimeType: "application/json",
+              mimeType: 'application/json',
               text: JSON.stringify(notebook, null, 2),
             },
           ],
@@ -288,11 +286,11 @@ class NotebookLMMCPServer {
       }
 
       // Legacy metadata resource (backwards compatibility)
-      if (uri === "notebooklm://metadata") {
+      if (uri === 'notebooklm://metadata') {
         const active = this.library.getActiveNotebook();
 
         if (!active) {
-          throw new Error("No active notebook. Use notebooklm://library to see all notebooks.");
+          throw new Error('No active notebook. Use notebooklm://library to see all notebooks.');
         }
 
         const metadata = {
@@ -304,14 +302,14 @@ class NotebookLMMCPServer {
           notebook_id: active.id,
           last_used: active.last_used,
           use_count: active.use_count,
-          note: "DEPRECATED: Use notebooklm://library or notebooklm://library/{id} instead",
+          note: 'DEPRECATED: Use notebooklm://library or notebooklm://library/{id} instead',
         };
 
         return {
           contents: [
             {
               uri,
-              mimeType: "application/json",
+              mimeType: 'application/json',
               text: JSON.stringify(metadata, null, 2),
             },
           ],
@@ -345,7 +343,9 @@ class NotebookLMMCPServer {
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
-      const progressToken = (args as Record<string, unknown> | undefined)?._meta as { progressToken?: string } | undefined;
+      const progressToken = (args as Record<string, unknown> | undefined)?._meta as
+        | { progressToken?: string }
+        | undefined;
       const token = progressToken?.progressToken;
 
       log.info(`🔧 [MCP] Tool call: ${name}`);
@@ -357,7 +357,7 @@ class NotebookLMMCPServer {
       const sendProgress = async (message: string, progress?: number, total?: number) => {
         if (token) {
           await this.server.notification({
-            method: "notifications/progress",
+            method: 'notifications/progress',
             params: {
               progressToken: token,
               message,
@@ -373,7 +373,7 @@ class NotebookLMMCPServer {
         let result;
 
         switch (name) {
-          case "ask_question":
+          case 'ask_question':
             result = await this.toolHandlers.handleAskQuestion(
               args as {
                 question: string;
@@ -386,13 +386,11 @@ class NotebookLMMCPServer {
             );
             break;
 
-          case "auto_discover_notebook":
-            result = await this.toolHandlers.handleAutoDiscoverNotebook(
-              args as { url: string }
-            );
+          case 'auto_discover_notebook':
+            result = await this.toolHandlers.handleAutoDiscoverNotebook(args as { url: string });
             break;
 
-          case "add_notebook":
+          case 'add_notebook':
             result = await this.toolHandlers.handleAddNotebook(
               args as {
                 url: string;
@@ -406,23 +404,19 @@ class NotebookLMMCPServer {
             );
             break;
 
-          case "list_notebooks":
+          case 'list_notebooks':
             result = await this.toolHandlers.handleListNotebooks();
             break;
 
-          case "get_notebook":
-            result = await this.toolHandlers.handleGetNotebook(
-              args as { id: string }
-            );
+          case 'get_notebook':
+            result = await this.toolHandlers.handleGetNotebook(args as { id: string });
             break;
 
-          case "select_notebook":
-            result = await this.toolHandlers.handleSelectNotebook(
-              args as { id: string }
-            );
+          case 'select_notebook':
+            result = await this.toolHandlers.handleSelectNotebook(args as { id: string });
             break;
 
-          case "update_notebook":
+          case 'update_notebook':
             result = await this.toolHandlers.handleUpdateNotebook(
               args as {
                 id: string;
@@ -437,64 +431,54 @@ class NotebookLMMCPServer {
             );
             break;
 
-          case "remove_notebook":
-            result = await this.toolHandlers.handleRemoveNotebook(
-              args as { id: string }
-            );
+          case 'remove_notebook':
+            result = await this.toolHandlers.handleRemoveNotebook(args as { id: string });
             break;
 
-          case "search_notebooks":
-            result = await this.toolHandlers.handleSearchNotebooks(
-              args as { query: string }
-            );
+          case 'search_notebooks':
+            result = await this.toolHandlers.handleSearchNotebooks(args as { query: string });
             break;
 
-          case "get_library_stats":
+          case 'get_library_stats':
             result = await this.toolHandlers.handleGetLibraryStats();
             break;
 
-          case "list_sessions":
+          case 'list_sessions':
             result = await this.toolHandlers.handleListSessions();
             break;
 
-          case "close_session":
-            result = await this.toolHandlers.handleCloseSession(
-              args as { session_id: string }
-            );
+          case 'close_session':
+            result = await this.toolHandlers.handleCloseSession(args as { session_id: string });
             break;
 
-          case "reset_session":
-            result = await this.toolHandlers.handleResetSession(
-              args as { session_id: string }
-            );
+          case 'reset_session':
+            result = await this.toolHandlers.handleResetSession(args as { session_id: string });
             break;
 
-          case "get_health":
+          case 'get_health':
             result = await this.toolHandlers.handleGetHealth();
             break;
 
-          case "setup_auth":
+          case 'setup_auth':
             result = await this.toolHandlers.handleSetupAuth(
               args as { show_browser?: boolean },
               sendProgress
             );
             break;
 
-          case "de_auth":
+          case 'de_auth':
             result = await this.toolHandlers.handleDeAuth();
             break;
 
-          case "re_auth":
+          case 're_auth':
             result = await this.toolHandlers.handleReAuth(
               args as { show_browser?: boolean },
               sendProgress
             );
             break;
 
-          case "cleanup_data":
-            result = await this.toolHandlers.handleCleanupData(
-              args as { confirm: boolean }
-            );
+          case 'cleanup_data':
+            result = await this.toolHandlers.handleCleanupData(args as { confirm: boolean });
             break;
 
           default:
@@ -502,7 +486,7 @@ class NotebookLMMCPServer {
             return {
               content: [
                 {
-                  type: "text",
+                  type: 'text',
                   text: JSON.stringify(
                     {
                       success: false,
@@ -520,20 +504,19 @@ class NotebookLMMCPServer {
         return {
           content: [
             {
-              type: "text",
+              type: 'text',
               text: JSON.stringify(result, null, 2),
             },
           ],
         };
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
         log.error(`❌ [MCP] Tool execution error: ${errorMessage}`);
 
         return {
           content: [
             {
-              type: "text",
+              type: 'text',
               text: JSON.stringify(
                 {
                   success: false,
@@ -570,7 +553,7 @@ class NotebookLMMCPServer {
         // Close server
         await this.server.close();
 
-        log.success("✅ Shutdown complete");
+        log.success('✅ Shutdown complete');
         process.exit(0);
       } catch (error) {
         log.error(`❌ Error during shutdown: ${error}`);
@@ -582,19 +565,19 @@ class NotebookLMMCPServer {
       void shutdown(signal);
     };
 
-    process.on("SIGINT", () => requestShutdown("SIGINT"));
-    process.on("SIGTERM", () => requestShutdown("SIGTERM"));
+    process.on('SIGINT', () => requestShutdown('SIGINT'));
+    process.on('SIGTERM', () => requestShutdown('SIGTERM'));
 
-    process.on("uncaughtException", (error) => {
+    process.on('uncaughtException', (error) => {
       log.error(`💥 Uncaught exception: ${error}`);
-      log.error(error.stack || "");
-      requestShutdown("uncaughtException");
+      log.error(error.stack || '');
+      requestShutdown('uncaughtException');
     });
 
-    process.on("unhandledRejection", (reason, promise) => {
+    process.on('unhandledRejection', (reason, promise) => {
       log.error(`💥 Unhandled rejection at: ${promise}`);
       log.error(`Reason: ${reason}`);
-      requestShutdown("unhandledRejection");
+      requestShutdown('unhandledRejection');
     });
   }
 
@@ -602,16 +585,16 @@ class NotebookLMMCPServer {
    * Start the MCP server
    */
   async start(): Promise<void> {
-    log.info("🎯 Starting NotebookLM MCP Server...");
-    log.info("");
-    log.info("📝 Configuration:");
+    log.info('🎯 Starting NotebookLM MCP Server...');
+    log.info('');
+    log.info('📝 Configuration:');
     log.info(`  Config Dir: ${CONFIG.configDir}`);
     log.info(`  Data Dir: ${CONFIG.dataDir}`);
     log.info(`  Headless: ${CONFIG.headless}`);
     log.info(`  Max Sessions: ${CONFIG.maxSessions}`);
     log.info(`  Session Timeout: ${CONFIG.sessionTimeout}s`);
     log.info(`  Stealth: ${CONFIG.stealthEnabled}`);
-    log.info("");
+    log.info('');
 
     // Create stdio transport
     const transport = new StdioServerTransport();
@@ -619,18 +602,18 @@ class NotebookLMMCPServer {
     // Connect server to transport
     await this.server.connect(transport);
 
-    log.success("✅ MCP Server connected via stdio");
-    log.success("🎉 Ready to receive requests from Claude Code!");
-    log.info("");
-    log.info("💡 Available tools:");
+    log.success('✅ MCP Server connected via stdio');
+    log.success('🎉 Ready to receive requests from Claude Code!');
+    log.info('');
+    log.info('💡 Available tools:');
     for (const tool of this.toolDefinitions) {
       const desc = tool.description ? tool.description.split('\n')[0] : 'No description'; // First line only
       log.info(`  - ${tool.name}: ${desc.substring(0, 80)}...`);
     }
-    log.info("");
-    log.info("📖 For documentation, see: README.md");
-    log.info("📖 For MCP details, see: MCP_INFOS.md");
-    log.info("");
+    log.info('');
+    log.info('📖 For documentation, see: README.md');
+    log.info('📖 For MCP details, see: MCP_INFOS.md');
+    log.info('');
   }
 }
 
@@ -639,14 +622,14 @@ class NotebookLMMCPServer {
  */
 async function main() {
   // Print banner
-  console.error("╔══════════════════════════════════════════════════════════╗");
-  console.error("║                                                          ║");
-  console.error("║           NotebookLM MCP Server v1.3.4                   ║");
-  console.error("║                                                          ║");
-  console.error("║   Chat with Gemini 2.5 through NotebookLM via MCP       ║");
-  console.error("║                                                          ║");
-  console.error("╚══════════════════════════════════════════════════════════╝");
-  console.error("");
+  console.error('╔══════════════════════════════════════════════════════════╗');
+  console.error('║                                                          ║');
+  console.error('║           NotebookLM MCP Server v1.3.5                   ║');
+  console.error('║                                                          ║');
+  console.error('║   Chat with Gemini 2.5 through NotebookLM via MCP       ║');
+  console.error('║                                                          ║');
+  console.error('╚══════════════════════════════════════════════════════════╝');
+  console.error('');
 
   try {
     const server = new NotebookLMMCPServer();
@@ -654,7 +637,7 @@ async function main() {
   } catch (error) {
     log.error(`💥 Fatal error starting server: ${error}`);
     if (error instanceof Error) {
-      log.error(error.stack || "");
+      log.error(error.stack || '');
     }
     process.exit(1);
   }

@@ -9,23 +9,23 @@
  * No config.json file needed - all settings via ENV or tool parameters!
  */
 
-import envPaths from "env-paths";
-import fs from "fs";
-import path from "path";
+import envPaths from 'env-paths';
+import fs from 'fs';
+import path from 'path';
 
 // Cross-platform data paths (unified without -nodejs suffix)
 // Linux: ~/.local/share/notebooklm-mcp/
 // macOS: ~/Library/Application Support/notebooklm-mcp/
 // Windows: %APPDATA%\notebooklm-mcp\
 // IMPORTANT: Pass empty string suffix to disable envPaths' default '-nodejs' suffix!
-const paths = envPaths("notebooklm-mcp", {suffix: ""});
+const paths = envPaths('notebooklm-mcp', { suffix: '' });
 
 /**
  * Google NotebookLM Auth URL (used by setup_auth)
  * This is the base Google login URL that redirects to NotebookLM
  */
 export const NOTEBOOKLM_AUTH_URL =
-  "https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fnotebooklm.google.com%2F&flowName=GlifWebSignIn&flowEntry=ServiceLogin";
+  'https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fnotebooklm.google.com%2F&flowName=GlifWebSignIn&flowEntry=ServiceLogin';
 
 export interface Config {
   // NotebookLM - optional, used for legacy default notebook
@@ -70,7 +70,7 @@ export interface Config {
   notebookUseCases: string[];
 
   // Multi-instance profile strategy
-  profileStrategy: "auto" | "single" | "isolated";
+  profileStrategy: 'auto' | 'single' | 'isolated';
   cloneProfileOnIsolated: boolean;
   cleanupInstancesOnStartup: boolean;
   cleanupInstancesOnShutdown: boolean;
@@ -83,7 +83,7 @@ export interface Config {
  */
 const DEFAULTS: Config = {
   // NotebookLM
-  notebookUrl: "",
+  notebookUrl: '',
 
   // Browser Settings
   headless: true,
@@ -96,8 +96,8 @@ const DEFAULTS: Config = {
 
   // Authentication
   autoLoginEnabled: false,
-  loginEmail: "",
-  loginPassword: "",
+  loginEmail: '',
+  loginPassword: '',
   autoLoginTimeoutMs: 120000, // 2 minutes
 
   // Stealth Settings
@@ -113,18 +113,18 @@ const DEFAULTS: Config = {
   // Paths (cross-platform via env-paths)
   configDir: paths.config,
   dataDir: paths.data,
-  browserStateDir: path.join(paths.data, "browser_state"),
-  chromeProfileDir: path.join(paths.data, "chrome_profile"),
-  chromeInstancesDir: path.join(paths.data, "chrome_profile_instances"),
+  browserStateDir: path.join(paths.data, 'browser_state'),
+  chromeProfileDir: path.join(paths.data, 'chrome_profile'),
+  chromeInstancesDir: path.join(paths.data, 'chrome_profile_instances'),
 
   // Library Configuration
-  notebookDescription: "General knowledge base",
-  notebookTopics: ["General topics"],
-  notebookContentTypes: ["documentation", "examples"],
-  notebookUseCases: ["General research"],
+  notebookDescription: 'General knowledge base',
+  notebookTopics: ['General topics'],
+  notebookContentTypes: ['documentation', 'examples'],
+  notebookUseCases: ['General research'],
 
   // Multi-instance strategy
-  profileStrategy: "auto",
+  profileStrategy: 'auto',
   cloneProfileOnIsolated: false,
   cleanupInstancesOnStartup: true,
   cleanupInstancesOnShutdown: true,
@@ -132,15 +132,14 @@ const DEFAULTS: Config = {
   instanceProfileMaxCount: 20,
 };
 
-
 /**
  * Parse boolean from string (for env vars)
  */
 function parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
   if (value === undefined) return defaultValue;
   const lower = value.toLowerCase();
-  if (lower === "true" || lower === "1") return true;
-  if (lower === "false" || lower === "0") return false;
+  if (lower === 'true' || lower === '1') return true;
+  if (lower === 'false' || lower === '0') return false;
   return defaultValue;
 }
 
@@ -158,7 +157,25 @@ function parseInteger(value: string | undefined, defaultValue: number): number {
  */
 function parseArray(value: string | undefined, defaultValue: string[]): string[] {
   if (!value) return defaultValue;
-  return value.split(",").map((s) => s.trim()).filter((s) => s.length > 0);
+  return value
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+/**
+ * Parse profile strategy from string (for env vars)
+ */
+function parseProfileStrategy(
+  value: string | undefined,
+  defaultValue: Config['profileStrategy']
+): Config['profileStrategy'] {
+  if (!value) return defaultValue;
+  const lower = value.toLowerCase();
+  if (lower === 'auto' || lower === 'single' || lower === 'isolated') {
+    return lower;
+  }
+  return defaultValue;
 }
 
 /**
@@ -178,23 +195,50 @@ function applyEnvOverrides(config: Config): Config {
     loginPassword: process.env.LOGIN_PASSWORD || config.loginPassword,
     autoLoginTimeoutMs: parseInteger(process.env.AUTO_LOGIN_TIMEOUT_MS, config.autoLoginTimeoutMs),
     stealthEnabled: parseBoolean(process.env.STEALTH_ENABLED, config.stealthEnabled),
-    stealthRandomDelays: parseBoolean(process.env.STEALTH_RANDOM_DELAYS, config.stealthRandomDelays),
+    stealthRandomDelays: parseBoolean(
+      process.env.STEALTH_RANDOM_DELAYS,
+      config.stealthRandomDelays
+    ),
     stealthHumanTyping: parseBoolean(process.env.STEALTH_HUMAN_TYPING, config.stealthHumanTyping),
-    stealthMouseMovements: parseBoolean(process.env.STEALTH_MOUSE_MOVEMENTS, config.stealthMouseMovements),
+    stealthMouseMovements: parseBoolean(
+      process.env.STEALTH_MOUSE_MOVEMENTS,
+      config.stealthMouseMovements
+    ),
     typingWpmMin: parseInteger(process.env.TYPING_WPM_MIN, config.typingWpmMin),
     typingWpmMax: parseInteger(process.env.TYPING_WPM_MAX, config.typingWpmMax),
     minDelayMs: parseInteger(process.env.MIN_DELAY_MS, config.minDelayMs),
     maxDelayMs: parseInteger(process.env.MAX_DELAY_MS, config.maxDelayMs),
     notebookDescription: process.env.NOTEBOOK_DESCRIPTION || config.notebookDescription,
     notebookTopics: parseArray(process.env.NOTEBOOK_TOPICS, config.notebookTopics),
-    notebookContentTypes: parseArray(process.env.NOTEBOOK_CONTENT_TYPES, config.notebookContentTypes),
+    notebookContentTypes: parseArray(
+      process.env.NOTEBOOK_CONTENT_TYPES,
+      config.notebookContentTypes
+    ),
     notebookUseCases: parseArray(process.env.NOTEBOOK_USE_CASES, config.notebookUseCases),
-    profileStrategy: (process.env.NOTEBOOK_PROFILE_STRATEGY as any) || config.profileStrategy,
-    cloneProfileOnIsolated: parseBoolean(process.env.NOTEBOOK_CLONE_PROFILE, config.cloneProfileOnIsolated),
-    cleanupInstancesOnStartup: parseBoolean(process.env.NOTEBOOK_CLEANUP_ON_STARTUP, config.cleanupInstancesOnStartup),
-    cleanupInstancesOnShutdown: parseBoolean(process.env.NOTEBOOK_CLEANUP_ON_SHUTDOWN, config.cleanupInstancesOnShutdown),
-    instanceProfileTtlHours: parseInteger(process.env.NOTEBOOK_INSTANCE_TTL_HOURS, config.instanceProfileTtlHours),
-    instanceProfileMaxCount: parseInteger(process.env.NOTEBOOK_INSTANCE_MAX_COUNT, config.instanceProfileMaxCount),
+    profileStrategy: parseProfileStrategy(
+      process.env.NOTEBOOK_PROFILE_STRATEGY,
+      config.profileStrategy
+    ),
+    cloneProfileOnIsolated: parseBoolean(
+      process.env.NOTEBOOK_CLONE_PROFILE,
+      config.cloneProfileOnIsolated
+    ),
+    cleanupInstancesOnStartup: parseBoolean(
+      process.env.NOTEBOOK_CLEANUP_ON_STARTUP,
+      config.cleanupInstancesOnStartup
+    ),
+    cleanupInstancesOnShutdown: parseBoolean(
+      process.env.NOTEBOOK_CLEANUP_ON_SHUTDOWN,
+      config.cleanupInstancesOnShutdown
+    ),
+    instanceProfileTtlHours: parseInteger(
+      process.env.NOTEBOOK_INSTANCE_TTL_HOURS,
+      config.instanceProfileTtlHours
+    ),
+    instanceProfileMaxCount: parseInteger(
+      process.env.NOTEBOOK_INSTANCE_MAX_COUNT,
+      config.instanceProfileMaxCount
+    ),
   };
 }
 
@@ -231,7 +275,6 @@ export function ensureDirectories(): void {
   }
 }
 
-
 /**
  * Browser options that can be passed via tool parameters
  */
@@ -258,10 +301,7 @@ export interface BrowserOptions {
 /**
  * Apply browser options to CONFIG (returns modified copy, doesn't mutate global CONFIG)
  */
-export function applyBrowserOptions(
-  options?: BrowserOptions,
-  legacyShowBrowser?: boolean
-): Config {
+export function applyBrowserOptions(options?: BrowserOptions, legacyShowBrowser?: boolean): Config {
   const config = { ...CONFIG };
 
   // Handle legacy show_browser parameter

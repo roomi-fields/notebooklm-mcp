@@ -9,6 +9,7 @@ Auto-Discovery enables autonomous resource discovery for AI orchestrators. Inste
 ### Three-Level Progressive Disclosure
 
 **Level 0 - Metadata Registry (Lightweight)**
+
 ```
 library.json: 5KB for 50 notebooks
 ├── Loaded at startup
@@ -17,6 +18,7 @@ library.json: 5KB for 50 notebooks
 ```
 
 **Level 1 - Contextual Matching (Local)**
+
 ```
 User query → Tag/description matching → Relevant notebooks
 Example: "gmail automation" → Match tags: ["gmail", "n8n", "automation"]
@@ -24,6 +26,7 @@ Cost: 0 NotebookLM queries (local only)
 ```
 
 **Level 2 - Deep Query (Rate-Limited)**
+
 ```
 Selected notebook → Query NotebookLM → Precise answer
 Cost: 1 NotebookLM query (rate-limited by Google)
@@ -109,29 +112,32 @@ Analyze your complete content and respond ONLY in JSON format:
 ## Benefits
 
 ### For Users
+
 - **Zero friction**: 30 seconds to add notebook (vs 5 minutes manual)
 - **No metadata expertise**: System generates relevant tags automatically
 - **Scalable**: Works with 1 or 100 notebooks
 
 ### For Orchestrators
+
 - **Autonomous discovery**: Find relevant docs without human guidance
 - **Token efficient**: Metadata scan costs ~500 tokens (vs 50k+ full read)
 - **Rate limit preservation**: 1 query per notebook add (vs N queries per research)
 
 ### For Product
+
 - **Enhanced experience**: Auto-discovery enables frictionless notebook management
 - **Scalable architecture**: Handles growing documentation libraries efficiently
 - **Progressive disclosure**: Optimizes API usage and response times
 
 ## Comparison with Claude Skills
 
-| Aspect | Claude Skills | NotebookLM Auto-Discovery |
-|--------|---------------|---------------------------|
-| Metadata source | SKILL.md file | NotebookLM query |
-| Access cost | Free (local files) | Rate-limited (Google API) |
-| Content depth | Full docs bundled | Query on-demand |
-| Discovery pattern | Read files progressively | Match → Query if needed |
-| Update mechanism | Edit files | Re-query notebook |
+| Aspect            | Claude Skills            | NotebookLM Auto-Discovery |
+| ----------------- | ------------------------ | ------------------------- |
+| Metadata source   | SKILL.md file            | NotebookLM query          |
+| Access cost       | Free (local files)       | Rate-limited (Google API) |
+| Content depth     | Full docs bundled        | Query on-demand           |
+| Discovery pattern | Read files progressively | Match → Query if needed   |
+| Update mechanism  | Edit files               | Re-query notebook         |
 
 **Key difference**: Skills are free/local, Notebooks are rate-limited/remote
 → **Auto-Discovery optimizes for minimal queries via smart metadata matching**
@@ -141,30 +147,36 @@ Analyze your complete content and respond ONLY in JSON format:
 ### Common Issues
 
 **Invalid metadata format**:
+
 ```json
 {
   "error": "Invalid name format",
   "details": "Must be kebab-case, 3 words max"
 }
 ```
+
 → System retries with same prompt (max 2 retries)
 
 **NotebookLM timeout**:
+
 ```json
 {
   "error": "NotebookLM query timeout",
   "hint": "Try again in a few seconds"
 }
 ```
+
 → Rate limit hit, wait and retry
 
 **Notebook not accessible**:
+
 ```json
 {
   "error": "Notebook not found",
   "hint": "Check notebook URL and sharing settings"
 }
 ```
+
 → Verify notebook is shared with "Anyone with link"
 
 ## Testing
@@ -182,6 +194,7 @@ The following public notebooks are available for testing auto-discovery:
 ```
 
 **Available public notebooks**:
+
 1. `https://notebooklm.google.com/notebook/0d5cd576-2583-4835-8848-a5b7b6a97cea`
 2. `https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940`
 3. `https://notebooklm.google.com/notebook/a09e40ad-d41f-43af-a3ca-5fc82bd459e5`
@@ -191,6 +204,7 @@ The following public notebooks are available for testing auto-discovery:
 ### Expected Results
 
 Each auto-discovery test should:
+
 - ✅ Return 200 OK
 - ✅ Generate valid kebab-case name (1-3 words)
 - ✅ Generate description ≤150 chars
@@ -201,18 +215,21 @@ Each auto-discovery test should:
 ## Future Enhancements
 
 ### Phase 2: Smart Refresh
+
 ```typescript
 PATCH /notebooks/:id/refresh
 → Re-query NotebookLM to update metadata if content changed
 ```
 
 ### Phase 3: Semantic Matching
+
 ```typescript
 GET /notebooks/match?query=gmail&semantic=true
 → Use embeddings for advanced matching beyond tags
 ```
 
 ### Phase 4: Usage Analytics
+
 ```typescript
 GET /notebooks/:id/related
 → "Notebooks often queried together"

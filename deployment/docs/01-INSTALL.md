@@ -23,16 +23,19 @@
 Before starting, you need:
 
 ### Hardware
+
 - **RAM:** 2 GB minimum (4 GB recommended)
 - **Disk:** 500 MB free space
 - **Network:** Stable Internet connection
 
 ### Software
+
 - **Windows 10/11** (64-bit)
 - **PowerShell 5.1+** (included in Windows)
 - **Browser:** Chrome installed (Playwright will use it)
 
 ### Accounts
+
 - **Google Account** with access to https://notebooklm.google.com
 - At least **1 NotebookLM notebook** already created
 
@@ -101,6 +104,7 @@ npm install
 ```
 
 **What gets installed:**
+
 - `express` - HTTP server
 - `patchright` - Stealth Playwright to automate Chrome
 - `@anthropic-ai/sdk` - MCP SDK
@@ -109,6 +113,7 @@ npm install
 **Duration:** 2-5 minutes depending on your Internet connection
 
 **Expected result:**
+
 ```
 added 150 packages in 3m
 ```
@@ -124,6 +129,7 @@ npm run build
 ```
 
 **Expected result:**
+
 ```
 > notebooklm-mcp@1.1.2 build
 > tsc
@@ -135,6 +141,7 @@ npm run build
 ```
 
 **Verification:**
+
 ```powershell
 ls dist\http-wrapper.js
 ```
@@ -153,16 +160,19 @@ Authentication will be saved and valid for ~399 days.
 **Note:** The path depends on your current directory.
 
 **If you're at the project root:**
+
 ```powershell
 .\deployment\scripts\setup-auth.ps1
 ```
 
 **If you're in the deployment folder:**
+
 ```powershell
 .\scripts\setup-auth.ps1
 ```
 
 **Or use npm (works everywhere):**
+
 ```powershell
 npm run setup-auth
 ```
@@ -185,6 +195,7 @@ npm run setup-auth
 4. The script verifies that files are correctly created
 
 **Expected result:**
+
 ```
 ✅ Authentication configured successfully!
 💡 Google session valid for ~399 days
@@ -199,11 +210,13 @@ Files created:
 **IMPORTANT:** Authentication files are NOT stored in the project directory, but in the Windows user directory:
 
 **Full path:**
+
 ```
 C:\Users\<YOUR_NAME>\AppData\Local\notebooklm-mcp\Data\
 ```
 
 **File structure:**
+
 ```
 C:\Users\<YOUR_NAME>\AppData\Local\notebooklm-mcp\Data\
 ├── chrome_profile\           ← Complete Chrome profile (Google cookies)
@@ -217,6 +230,7 @@ C:\Users\<YOUR_NAME>\AppData\Local\notebooklm-mcp\Data\
 ```
 
 **To verify on your PC:**
+
 ```powershell
 # Display the path
 echo $env:LOCALAPPDATA\notebooklm-mcp\Data
@@ -228,6 +242,7 @@ dir $env:LOCALAPPDATA\notebooklm-mcp\Data\browser_state\state.json
 ```
 
 **Expected files:**
+
 - `Cookies` - SQLite database (>10 KB) - **Contains your Google cookies**
 - `state.json` - JSON file with 16 critical cookies - **Valid for 399 days**
 - `library.json` - Library of your NotebookLM notebooks (created automatically)
@@ -268,12 +283,14 @@ Invoke-RestMethod -Uri "http://localhost:3000/notebooks" `
 **⏱️ Note:** Adding takes 15-30 seconds because the server validates that the notebook actually exists.
 
 **Automatic validations:**
+
 - ✅ NotebookLM URL format
 - ✅ Notebook actually accessible (live check)
 - ✅ No duplicate name
 - ✅ Valid Google session
 
 **How to get a notebook URL:**
+
 1. Go to https://notebooklm.google.com
 2. Open your notebook
 3. Copy the URL from the address bar
@@ -349,6 +366,7 @@ Invoke-RestMethod -Uri "http://localhost:3000/notebooks"
 ---
 
 ### ⚠️ AUTHENTICATION FILES SECURITY
+
 - These files contain your **authenticated Google cookies**
 - **NEVER** share these files
 - **NEVER** commit them to Git (already protected by .gitignore)
@@ -401,6 +419,7 @@ npm run start:http
 ```
 
 **Expected result:**
+
 ```
 ✅ [14:30:15] 🌐 HTTP Wrapper listening on 0.0.0.0:3000
 ℹ️  [14:30:15]    Health check: http://localhost:3000/health
@@ -438,6 +457,7 @@ npm run daemon:stop
 ```
 
 **Expected result:**
+
 ```
 [PM2] App [notebooklm-mcp] launched (1 instances)
 ┌────┬────────────────┬──────┬─────────┬────────┐
@@ -448,6 +468,7 @@ npm run daemon:stop
 ```
 
 **Advantages of daemon mode:**
+
 - ✅ Runs in background (no terminal window)
 - ✅ Auto-restart on crash
 - ✅ Logs saved to `logs/pm2-*.log`
@@ -473,6 +494,7 @@ curl http://localhost:3000/health
 ```
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -498,6 +520,7 @@ curl -X POST http://localhost:3000/ask `
 **Wait 30-60 seconds** (NotebookLM generation time).
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -531,6 +554,7 @@ For complete validation, use the test scripts:
 ```
 
 **Expected result:**
+
 ```
 ✅ ALL TESTS PASSED!
 
@@ -553,6 +577,7 @@ Ctrl + C
 ```
 
 The server stops gracefully with:
+
 ```
 SIGINT received, shutting down gracefully...
 ```

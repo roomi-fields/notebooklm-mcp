@@ -15,26 +15,29 @@ macOS:   ~/Library/Application Support/notebooklm-mcp/chrome_profile
 ```
 
 **The problem:** Chrome can only open a profile in one instance at a time. When you try to run both:
+
 - HTTP server (via `npm run daemon:start` or `npm run start:http`)
 - MCP stdio server (via Claude Desktop, Cursor, etc.)
 
 The second instance will fail to launch Chrome with this error:
+
 ```
 Error: browserType.launchPersistentContext: Target page, context or browser has been closed
 ```
 
 ### Who Is Affected?
 
-| Scenario | Affected? | Why |
-|----------|-----------|-----|
-| **Single mode user** | ❌ No | Only runs one server at a time |
-| **HTTP-only user** | ❌ No | Only uses HTTP server for n8n/Zapier |
-| **MCP-only user** | ❌ No | Only uses Claude Desktop/Cursor |
-| **Dual mode user** | ✅ Yes | Wants both HTTP API and Claude Desktop integration |
+| Scenario             | Affected? | Why                                                |
+| -------------------- | --------- | -------------------------------------------------- |
+| **Single mode user** | ❌ No     | Only runs one server at a time                     |
+| **HTTP-only user**   | ❌ No     | Only uses HTTP server for n8n/Zapier               |
+| **MCP-only user**    | ❌ No     | Only uses Claude Desktop/Cursor                    |
+| **Dual mode user**   | ✅ Yes    | Wants both HTTP API and Claude Desktop integration |
 
 ### Current Workarounds
 
 #### Option A: Use HTTP Server Only
+
 ```bash
 # Start HTTP server
 npm run daemon:start
@@ -44,6 +47,7 @@ npm run daemon:start
 ```
 
 #### Option B: Use MCP Stdio Only
+
 ```bash
 # Stop HTTP server
 npm run daemon:stop
@@ -52,6 +56,7 @@ npm run daemon:stop
 ```
 
 #### Option C: Switch Between Modes
+
 ```bash
 # For n8n workflows
 npm run daemon:start
@@ -74,19 +79,21 @@ const getProfilePath = () => {
   const mode = process.env.MCP_MODE || (process.stdout.isTTY ? 'stdio' : 'http');
 
   return {
-    stdio: path.join(baseDir, 'chrome_profile_stdio'),  // For Claude Desktop
-    http: path.join(baseDir, 'chrome_profile_http'),     // For HTTP server
+    stdio: path.join(baseDir, 'chrome_profile_stdio'), // For Claude Desktop
+    http: path.join(baseDir, 'chrome_profile_http'), // For HTTP server
   }[mode];
 };
 ```
 
 **Benefits:**
+
 - ✅ Both modes can run simultaneously
 - ✅ No user configuration needed
 - ✅ Separate authentication per mode
 - ✅ Simple implementation
 
 **Trade-offs:**
+
 - Each mode needs separate authentication (one-time setup)
 - Two Chrome profiles consume more disk space (~100-200MB each)
 
@@ -95,10 +102,12 @@ const getProfilePath = () => {
 **Implementation:** HTTP server becomes the master, stdio clients connect to it.
 
 **Benefits:**
+
 - ✅ Single Chrome instance
 - ✅ Shared authentication
 
 **Trade-offs:**
+
 - ❌ Complex architecture
 - ❌ HTTP server must be running for stdio to work
 - ❌ Requires inter-process communication
@@ -108,9 +117,11 @@ const getProfilePath = () => {
 **Implementation:** Detect profile lock and show helpful error.
 
 **Benefits:**
+
 - ✅ Clear user guidance
 
 **Trade-offs:**
+
 - ❌ Doesn't solve the root problem
 - ❌ Users still can't run both modes
 
@@ -119,18 +130,21 @@ const getProfilePath = () => {
 ### Phase 1: Separate Chrome Profiles (v1.4.0)
 
 **Changes:**
+
 1. Add `MCP_MODE` environment variable detection
 2. Create mode-specific profile directories
 3. Update authentication flow to use correct profile
 4. Update documentation
 
 **Code locations:**
+
 - `src/auth/shared-context-manager.ts` - Profile path logic
 - `src/config.ts` - Mode detection
 - `src/index.ts` - HTTP server mode flag
 - `src/http-wrapper.ts` - HTTP mode environment
 
 **Backwards compatibility:**
+
 - Existing `chrome_profile` directory will be migrated to `chrome_profile_stdio`
 - HTTP server will create new `chrome_profile_http`
 - Users will need to re-authenticate HTTP mode once
@@ -138,6 +152,7 @@ const getProfilePath = () => {
 ### Phase 2: Migration & Testing
 
 **Migration script:**
+
 ```typescript
 // Auto-migrate existing profile to stdio mode
 if (exists('chrome_profile') && !exists('chrome_profile_stdio')) {
@@ -147,6 +162,7 @@ if (exists('chrome_profile') && !exists('chrome_profile_stdio')) {
 ```
 
 **Testing checklist:**
+
 - [ ] HTTP server starts with separate profile
 - [ ] MCP stdio starts with separate profile
 - [ ] Both can run simultaneously
@@ -157,6 +173,7 @@ if (exists('chrome_profile') && !exists('chrome_profile_stdio')) {
 ### Phase 3: Documentation Updates
 
 **Files to update:**
+
 - `README.md` - Remove limitation warning
 - `deployment/docs/01-INSTALL.md` - Update installation flow
 - `deployment/docs/05-TROUBLESHOOTING.md` - Update troubleshooting
