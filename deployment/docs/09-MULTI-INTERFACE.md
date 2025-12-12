@@ -59,7 +59,20 @@ node dist/http-wrapper.js
 Start-Process -NoNewWindow node -ArgumentList "dist/http-wrapper.js"
 ```
 
-**From WSL (launches Windows node process):**
+**From WSL (recommended - use helper script):**
+
+```bash
+# Helper script handles everything correctly
+HELPER=/mnt/d/Claude/notebooklm-mcp-http/scripts/mcp-wsl-helper.sh
+
+$HELPER start      # Start server (Windows process)
+$HELPER health     # Check health
+$HELPER auth       # Authenticate (opens Chrome)
+$HELPER ask "question" notebook-id  # Ask a question
+$HELPER stop       # Stop server
+```
+
+**From WSL (manual - launches Windows node process):**
 
 ```bash
 # This launches node.exe on Windows, NOT node in WSL
@@ -217,18 +230,34 @@ Error: Playwright cannot find Chrome at /opt/google/chrome/chrome
 The HTTP server MUST run as a Windows process to access Chrome. Fix:
 
 ```bash
-# 1. Kill the WSL server
+# Use the helper script (recommended)
+HELPER=/mnt/d/Claude/notebooklm-mcp-http/scripts/mcp-wsl-helper.sh
+
+# 1. Stop any running server
+$HELPER stop
+
+# 2. Start server (launches Windows process)
+$HELPER start
+
+# 3. Verify it works
+$HELPER health
+```
+
+**Or manually:**
+
+```bash
+# 1. Kill any WSL server
 pkill -f http-wrapper
 
-# 2. Start as Windows process (from WSL)
+# 2. Start as Windows process
 powershell.exe -Command "Start-Process -NoNewWindow -FilePath 'node' -ArgumentList 'D:/Claude/notebooklm-mcp-http/dist/http-wrapper.js' -WorkingDirectory 'D:/Claude/notebooklm-mcp-http'"
 
-# 3. Verify it works (via PowerShell, not curl from WSL)
+# 3. Verify (via PowerShell, not curl from WSL)
 powershell.exe -Command "Invoke-RestMethod -Uri 'http://localhost:3000/health'"
 ```
 
 > **Note:** `curl` from WSL may not reach Windows localhost due to network isolation.
-> Use `powershell.exe Invoke-RestMethod` to test the server.
+> Always use `powershell.exe` or the helper script.
 
 ---
 
