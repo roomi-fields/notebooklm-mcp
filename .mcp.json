@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "notebooklm": {
+      "type": "stdio",
+      "command": "node.exe",
+      "args": ["D:\\Claude\\notebooklm-mcp-http\\dist\\stdio-http-proxy.js"],
+      "env": {
+        "NOTEBOOKLM_HTTP_URL": "http://localhost:3000"
+      }
+    }
+  }
+}
