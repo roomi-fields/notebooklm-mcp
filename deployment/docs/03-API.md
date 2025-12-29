@@ -61,7 +61,6 @@ Or for network access: `http://<SERVER-IP>:3000`
 | `POST` | `/content/sources`        | Add source/document to notebook       |
 | `POST` | `/content/audio`          | Generate audio overview (podcast)     |
 | `POST` | `/content/generate`       | Generate briefing, study guide, etc.  |
-| `POST` | `/content/notes`          | Add note with research (fast/deep)    |
 | `GET`  | `/content`                | List sources and generated content    |
 | `GET`  | `/content/audio/download` | Download generated audio file         |
 

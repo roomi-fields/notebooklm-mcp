@@ -2,23 +2,24 @@
 
 This document tracks planned features, recent implementations, and future ideas for the NotebookLM MCP Server.
 
-## Current Version: v1.3.6
+## Current Version: v1.4.0
 
 ---
 
 ## Upcoming
 
-### v1.4.0 - Chrome Profile Separation
+### v1.5.0 - Note & Source Management
 
-**Priority: High** - Enables HTTP and MCP modes to run simultaneously.
+**Priority: High** - Complete NotebookLM content management.
 
-- [ ] Separate Chrome profiles by mode (`chrome_profile_http` vs `chrome_profile_stdio`)
-- [ ] Automatic profile detection - no user configuration needed
-- [ ] Solves Chrome profile locking for dual-mode users
+- [ ] Create notes (text input)
+- [ ] Edit notes
+- [ ] Delete notes
+- [ ] Delete sources
+- [ ] Save chat response to note
+- [ ] Convert note to source
 
-**Details:** [Chrome Profile Limitation](./docs/CHROME_PROFILE_LIMITATION.md)
-
-### v1.5.0+ - Smart Features
+### v1.6.0+ - Smart Features
 
 **Smart Metadata Refresh:**
 
@@ -40,6 +41,19 @@ This document tracks planned features, recent implementations, and future ideas 
 ---
 
 ## Recently Implemented
+
+### v1.4.0 - Content Management
+
+- [x] Add sources (files, URLs, text, YouTube, Google Drive)
+- [x] Generate content (Audio, Briefing, Study Guide, FAQ, Timeline)
+- [x] Download audio files
+- [x] List sources and content
+- [x] Multi-account support
+
+### v1.3.7 - Source Citation Extraction
+
+- [x] 5 citation formats: none, inline, footnotes, json, expanded
+- [x] Hover-based citation extraction from DOM
 
 ### v1.3.6 - Documentation Restructure
 

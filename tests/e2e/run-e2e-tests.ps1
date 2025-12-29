@@ -83,13 +83,6 @@ function Test-Endpoint {
             return @{ Name = $Name; Status = "PASS" }
         }
 
-        # 500 for auto-discover with placeholder URL is acceptable (notebook doesn't exist)
-        if ($Endpoint -like "*auto-discover*" -and $statusCode -eq 500) {
-            Write-Host " PASS (endpoint exists, placeholder notebook not found)" -ForegroundColor Green
-            $script:Passed++
-            return @{ Name = $Name; Status = "PASS" }
-        }
-
         Write-Host " ERROR ($errorMsg)" -ForegroundColor Red
         $script:Failed++
         return @{ Name = $Name; Status = "ERROR"; Error = $errorMsg }
@@ -151,11 +144,19 @@ $Results += Test-Endpoint -Name "PUT /notebooks/:id" -Method PUT -Endpoint "/not
 }
 $Results += Test-Endpoint -Name "PUT /notebooks/:id/activate" -Method PUT -Endpoint "/notebooks/notebook-1/activate"
 
-# Test with a placeholder URL - will fail validation but proves endpoint exists
-# Uses longer timeout as auto-discover navigates to NotebookLM
-$Results += Test-Endpoint -Name "POST /notebooks/auto-discover" -Method POST -Endpoint "/notebooks/auto-discover" -Body @{
-    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000000"
-} -TimeoutSec $Timeout -RequiresBrowser
+# Test auto-discover with a REAL notebook URL from the library
+# First get the active notebook URL
+$notebooksResponse = Invoke-RestMethod -Uri "$BaseUrl/notebooks" -Method GET -ErrorAction SilentlyContinue
+if ($notebooksResponse.data.notebooks.Count -gt 0) {
+    $realNotebookUrl = $notebooksResponse.data.notebooks[0].url
+    Write-Host "  Using real notebook for auto-discover: $($notebooksResponse.data.notebooks[0].name)"
+    $Results += Test-Endpoint -Name "POST /notebooks/auto-discover" -Method POST -Endpoint "/notebooks/auto-discover" -Body @{
+        url = $realNotebookUrl
+    } -TimeoutSec $Timeout -RequiresBrowser
+} else {
+    Write-Host "  [SKIP] POST /notebooks/auto-discover - No notebooks in library" -ForegroundColor Yellow
+    $script:Skipped++
+}
 
 # ============================================================================
 # BROWSER-BASED ENDPOINTS

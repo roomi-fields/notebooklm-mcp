@@ -209,29 +209,6 @@ describe('ContentManager', () => {
     });
   });
 
-  describe('Create Note', () => {
-    it('should attempt to create note', async () => {
-      const manager = new ContentManager(mockPage);
-
-      // Mock finding the create note button
-      mockPage.locator.mockReturnValue({
-        first: jest.fn().mockReturnValue({
-          isVisible: jest.fn().mockResolvedValue(true),
-          click: jest.fn().mockResolvedValue(undefined),
-        }),
-      });
-
-      mockPage.waitForSelector.mockResolvedValue({
-        fill: jest.fn().mockResolvedValue(undefined),
-      });
-
-      const result = await manager.addNote({ content: 'Test note content' });
-
-      // The actual result depends on UI state, but the function should run
-      expect(result).toBeDefined();
-    });
-  });
-
   describe('Download Audio', () => {
     it('should attempt audio download', async () => {
       const manager = new ContentManager(mockPage);
@@ -541,39 +518,6 @@ describe('ContentManager', () => {
         },
       });
 
-      expect(result).toBeDefined();
-    });
-  });
-
-  describe('Note Creation', () => {
-    it('should handle note creation with title', async () => {
-      const manager = new ContentManager(mockPage);
-
-      mockPage.locator.mockReturnValue({
-        first: jest.fn().mockReturnValue({
-          isVisible: jest.fn().mockResolvedValue(true),
-          click: jest.fn().mockResolvedValue(undefined),
-        }),
-      });
-
-      mockPage.waitForSelector.mockResolvedValue({
-        fill: jest.fn().mockResolvedValue(undefined),
-      });
-
-      const result = await manager.addNote({
-        content: 'Test note',
-        title: 'My Note',
-      });
-
-      expect(result).toBeDefined();
-    });
-
-    it('should require content for note addition', async () => {
-      const manager = new ContentManager(mockPage);
-
-      const result = await manager.addNote({ content: '' });
-
-      // Empty content should fail or be handled
       expect(result).toBeDefined();
     });
   });

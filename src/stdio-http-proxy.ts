@@ -347,27 +347,6 @@ function buildProxyToolDefinitions(): Tool[] {
         },
       },
     },
-    {
-      name: 'add_note',
-      description:
-        '🔌 [PROXY] Add note with AI research via HTTP server.\n' +
-        'Modes: fast (1-2 min) or deep (3-5 min thorough research)',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          topic: { type: 'string', description: 'Topic/prompt for the research note' },
-          mode: {
-            type: 'string',
-            enum: ['fast', 'deep'],
-            description: 'Research mode: fast or deep',
-          },
-          custom_instructions: { type: 'string', description: 'Optional custom instructions' },
-          notebook_url: { type: 'string', description: 'Optional notebook URL' },
-          session_id: { type: 'string', description: 'Optional session ID' },
-        },
-        required: ['topic', 'mode'],
-      },
-    },
   ];
 }
 
@@ -472,9 +451,6 @@ async function handleToolCall(
           `/content/audio/download${downloadQuery ? `?${downloadQuery}` : ''}`
         );
       }
-
-      case 'add_note':
-        return await httpRequest('POST', '/content/notes', args);
 
       default:
         return { success: false, error: `Unknown tool: ${name}` };

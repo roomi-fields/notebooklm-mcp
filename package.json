@@ -25,7 +25,9 @@
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "test:ci": "node --experimental-vm-modules node_modules/jest/bin/jest.js --ci --coverage --reporters=default",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns=unit",
-    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns=integration"
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPatterns=integration",
+    "test:e2e": "powershell -ExecutionPolicy Bypass -File tests/e2e/run-e2e-tests.ps1",
+    "test:e2e:basic": "powershell -ExecutionPolicy Bypass -File tests/e2e/run-e2e-tests.ps1 -SkipBrowserTests"
   },
   "keywords": [
     "mcp",

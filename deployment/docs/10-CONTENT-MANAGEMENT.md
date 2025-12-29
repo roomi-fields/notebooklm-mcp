@@ -49,26 +49,6 @@ curl -X POST http://localhost:3000/content/generate \
   }'
 ```
 
-### Create Note with Research
-
-```bash
-# Fast research (1-2 minutes)
-curl -X POST http://localhost:3000/content/notes \
-  -H "Content-Type: application/json" \
-  -d '{
-    "topic": "Summary of key concepts",
-    "mode": "fast"
-  }'
-
-# Deep research (3-5 minutes)
-curl -X POST http://localhost:3000/content/notes \
-  -H "Content-Type: application/json" \
-  -d '{
-    "topic": "Comprehensive analysis",
-    "mode": "deep"
-  }'
-```
-
 ---
 
 ## Source Types
@@ -201,61 +181,6 @@ curl -X POST http://localhost:3000/content/generate \
 
 ---
 
-## Research Notes (Fast & Deep)
-
-Create AI-powered research notes from your notebook sources. Two modes are available:
-
-### Research Modes
-
-| Mode   | Description                              | Time    | Use Case                   |
-| ------ | ---------------------------------------- | ------- | -------------------------- |
-| `fast` | Quick research, essential findings       | 1-2 min | Quick summaries, overviews |
-| `deep` | Thorough research, comprehensive results | 3-5 min | In-depth analysis, reports |
-
-### Fast Research
-
-Quick research for essential findings:
-
-```bash
-curl -X POST http://localhost:3000/content/notes \
-  -H "Content-Type: application/json" \
-  -d '{
-    "topic": "What are the main takeaways?",
-    "mode": "fast"
-  }'
-```
-
-### Deep Research
-
-Thorough research for comprehensive analysis:
-
-```bash
-curl -X POST http://localhost:3000/content/notes \
-  -H "Content-Type: application/json" \
-  -d '{
-    "topic": "Analyze the historical context and implications",
-    "mode": "deep",
-    "custom_instructions": "Include dates and key figures"
-  }'
-```
-
-### Response
-
-```json
-{
-  "success": true,
-  "data": {
-    "success": true,
-    "mode": "deep",
-    "status": "ready",
-    "title": "Historical Analysis",
-    "content": "## Key Findings\n\n..."
-  }
-}
-```
-
----
-
 ## Listing Content
 
 View all sources and generated content in a notebook:
@@ -357,13 +282,6 @@ list_content()
 download_audio(output_path="/path/to/save.wav")
 ```
 
-### Add Research Note
-
-```
-add_note(topic="Summary of key findings", mode="fast")
-add_note(topic="Comprehensive analysis", mode="deep", custom_instructions="Include statistics")
-```
-
 ---
 
 ## Workflow Examples
@@ -460,10 +378,9 @@ Audio generation can take 5-10 minutes. The API will wait up to 10 minutes for c
 
 ## Version History
 
-| Version | Changes                                |
-| ------- | -------------------------------------- |
-| 1.4.1   | Added research notes (fast/deep modes) |
-| 1.4.0   | Added content management module        |
+| Version | Changes                         |
+| ------- | ------------------------------- |
+| 1.4.0   | Added content management module |
 | 1.3.7   | Source citation extraction             |
 | 1.3.6   | Multi-account support                  |
 

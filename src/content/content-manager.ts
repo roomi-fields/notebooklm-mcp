@@ -27,8 +27,6 @@ import type {
   NotebookContentOverview,
   ContentDownloadResult,
   AudioGenerationOptions,
-  NoteCreationInput,
-  NoteCreationResult,
 } from './types.js';
 
 // Note: UI selectors are defined inline in methods for better maintainability
@@ -1705,80 +1703,4 @@ export class ContentManager {
     }
   }
 
-  // ============================================================================
-  // Add Note with Research
-  // ============================================================================
-
-  /**
-   * Add a new note using research mode (fast or deep)
-   *
-   * NOTE (Dec 2024): Note addition now uses the chat interface.
-   * We send a detailed research request and capture the AI response as the note.
-   */
-  async addNote(input: NoteCreationInput): Promise<NoteCreationResult> {
-    log.info(`📝 Adding note with ${input.mode} research: "${input.topic}"`);
-
-    try {
-      // Navigate to Discussion panel
-      await this.navigateToDiscussion();
-
-      // Build the research prompt based on mode
-      let prompt: string;
-
-      if (input.mode === 'deep') {
-        prompt = `Conduct thorough, in-depth research on the following topic using all available sources in this notebook:
-
-Topic: ${input.topic}
-
-Please provide:
-1. A comprehensive analysis with detailed explanations
-2. Multiple perspectives and nuances from the sources
-3. Key findings and insights
-4. Supporting evidence and citations
-5. Connections between different sources
-6. A conclusion summarizing the main points
-
-Take your time to analyze all relevant sources thoroughly.`;
-      } else {
-        // Fast mode
-        prompt = `Quickly research and summarize the following topic based on the notebook sources:
-
-Topic: ${input.topic}
-
-Provide a concise but informative summary covering the key points.`;
-      }
-
-      // Add custom instructions if provided
-      if (input.customInstructions) {
-        prompt += `\n\nAdditional requirements: ${input.customInstructions}`;
-      }
-
-      // Send the message and wait for content (checks chat + Studio)
-      await this.sendChatMessage(prompt);
-
-      // Deep mode gets more time (10 min), fast mode gets 5 min
-      const timeoutMs = input.mode === 'deep' ? 600000 : 300000;
-      const result = await this.waitForGeneratedContent('briefing_doc', timeoutMs);
-
-      if (result.content && result.content.length > 50) {
-        // Generate a title from the topic
-        const title = input.topic.length > 60 ? input.topic.substring(0, 57) + '...' : input.topic;
-
-        log.success(`  ✅ Note added with ${input.mode} research via ${result.source}!`);
-        return {
-          success: true,
-          mode: input.mode,
-          status: 'ready',
-          title: title,
-          content: result.content,
-        };
-      }
-
-      throw new Error('Response too short or empty');
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      log.error(`❌ Note addition failed: ${errorMsg}`);
-      return { success: false, mode: input.mode, error: errorMsg };
-    }
-  }
 }

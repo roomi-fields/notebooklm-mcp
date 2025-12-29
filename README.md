@@ -29,17 +29,17 @@
 ### Content Generation
 
 - **Audio Overview** — Generate podcast-style audio discussions
-- **Download audio** — Export generated audio files
 - **Briefing Doc** — Executive summaries
 - **Study Guide** — Learning cards and key concepts
 - **FAQ** — Frequently asked questions
 - **Timeline** — Chronological events
+- **Download audio** — Export generated audio files
+- Content generation is **asynchronous**: trigger generation, then retrieve later
 
-### Source & Note Management
+### Source Management
 
 - **Add sources**: Files (PDF, TXT, DOCX), URLs, Text, YouTube videos, Google Drive
-- **Add notes**: AI-powered research notes with fast/deep modes
-- **List content**: View all sources and notes in a notebook
+- **List sources**: View all sources in a notebook
 
 ### Notebook Library
 
@@ -51,7 +51,7 @@
 
 - **MCP Protocol** — Claude Code, Cursor, Codex, any MCP client
 - **HTTP REST API** — n8n, Zapier, Make.com, custom integrations
-- **28 endpoints** covering all NotebookLM features
+- **27 endpoints** covering NotebookLM features
 
 ---
 
@@ -117,10 +117,16 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 **Latest releases:**
 
-- **v1.4.1** — Add notes with fast/deep research modes
 - **v1.4.0** — Content management (sources, audio, generation) + Multi-account
 - **v1.3.7** — Source citation extraction (5 formats)
 - **v1.3.6** — Multi-interface mode via stdio-HTTP proxy
+
+**Not yet implemented:**
+
+- Create/edit/delete notes
+- Delete sources
+- Save chat response to note
+- Convert note to source
 
 ---
 

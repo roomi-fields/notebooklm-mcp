@@ -26,7 +26,6 @@
  * - Session management - Create, reset, close sessions
  * - generateContent() - FAQ, Study Guide, Briefing, Timeline, TOC (via chat)
  * - generateAudioOverview() - Podcast script (via chat)
- * - addNote() - Research notes with fast/deep modes (via chat)
  */
 
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
@@ -546,53 +545,6 @@ describeE2E('Full E2E Tests - Real NotebookLM', () => {
           expect(data.filePath).toBeTruthy();
           expect(data.size).toBeGreaterThan(0);
         }
-      },
-      TIMEOUTS.content
-    );
-  });
-
-  describe('ContentManager.addNote()', () => {
-    it(
-      'should add a note with fast research',
-      async () => {
-        if (!isAuthenticated) return;
-
-        const result = await httpRequest('/content/notes', 'POST', {
-          notebook_url: TEST_NOTEBOOK_URL,
-          topic: 'Summary of key principles of empathic listening',
-          mode: 'fast',
-        });
-
-        if (!result.success && result.error?.includes('button not found')) {
-          console.log('⚠️ Note addition: UI selectors need updating');
-          return;
-        }
-        expect(result.success).toBe(true);
-        const data = result.data as { noteId?: string; content?: string };
-        expect(data.content).toBeTruthy();
-      },
-      TIMEOUTS.content
-    );
-
-    it(
-      'should add a note with deep research',
-      async () => {
-        if (!isAuthenticated) return;
-
-        const result = await httpRequest('/content/notes', 'POST', {
-          notebook_url: TEST_NOTEBOOK_URL,
-          topic: 'Analyze the differences between empathy and sympathy',
-          mode: 'deep',
-        });
-
-        if (!result.success && result.error?.includes('button not found')) {
-          console.log('⚠️ Note creation (deep): UI selectors need updating');
-          return;
-        }
-        expect(result.success).toBe(true);
-        const data = result.data as { content?: string };
-        expect(data.content).toBeTruthy();
-        expect(data.content!.length).toBeGreaterThan(100);
       },
       TIMEOUTS.content
     );
