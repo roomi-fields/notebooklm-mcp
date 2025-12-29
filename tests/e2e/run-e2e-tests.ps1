@@ -120,6 +120,12 @@ $Results += Test-Endpoint -Name "GET /notebooks/search" -Method GET -Endpoint "/
 $Results += Test-Endpoint -Name "GET /sessions" -Method GET -Endpoint "/sessions"
 $Results += Test-Endpoint -Name "GET /notebooks/:id" -Method GET -Endpoint "/notebooks/notebook-1"
 
+# Test endpoint existence only - DO NOT actually cleanup!
+# Expect 400 (missing confirm param) or 200 with confirm=false (preview mode)
+$Results += Test-Endpoint -Name "POST /cleanup-data (preview)" -Method POST -Endpoint "/cleanup-data" -Body @{
+    confirm = $false  # Preview mode only!
+}
+
 # ============================================================================
 # NOTEBOOK OPERATIONS
 # ============================================================================
@@ -129,6 +135,11 @@ $Results += Test-Endpoint -Name "PUT /notebooks/:id" -Method PUT -Endpoint "/not
     description = "E2E test update $(Get-Date -Format 'HH:mm:ss')"
 }
 $Results += Test-Endpoint -Name "PUT /notebooks/:id/activate" -Method PUT -Endpoint "/notebooks/notebook-1/activate"
+
+# Test with a placeholder URL - will fail validation but proves endpoint exists
+$Results += Test-Endpoint -Name "POST /notebooks/auto-discover" -Method POST -Endpoint "/notebooks/auto-discover" -Body @{
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000000"
+} -TimeoutSec 60 -RequiresBrowser
 
 # ============================================================================
 # BROWSER-BASED ENDPOINTS
@@ -173,6 +184,7 @@ $sessions = Invoke-RestMethod -Uri "$BaseUrl/sessions" -Method GET -ErrorAction 
 if ($sessions.data.sessions.Count -gt 0) {
     $testSessionId = $sessions.data.sessions[0].id
     $Results += Test-Endpoint -Name "POST /sessions/:id/reset" -Method POST -Endpoint "/sessions/$testSessionId/reset"
+    $Results += Test-Endpoint -Name "DELETE /sessions/:id" -Method DELETE -Endpoint "/sessions/$testSessionId"
 }
 
 # ============================================================================
