@@ -66,7 +66,7 @@ class NotebookLMMCPServer {
     this.server = new Server(
       {
         name: 'notebooklm-mcp',
-        version: '1.4.2',
+        version: '1.4.1',
       },
       {
         capabilities: {

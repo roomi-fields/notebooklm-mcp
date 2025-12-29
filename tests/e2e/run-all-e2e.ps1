@@ -106,12 +106,6 @@ $Results += Test-Endpoint -Name "POST /content/generate (faq)" -Method POST -End
     content_type = "faq"
 } -Timeout 180
 
-# Create note
-$Results += Test-Endpoint -Name "POST /content/notes" -Method POST -Endpoint "/content/notes" -Body @{
-    topic = "Key concepts summary"
-    mode = "fast"
-} -Timeout 180
-
 # ============================================================================
 # SESSION MANAGEMENT
 # ============================================================================

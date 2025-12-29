@@ -558,7 +558,7 @@ const PORT = Number(process.env.HTTP_PORT) || 3000;
 const HOST = process.env.HTTP_HOST || '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
-  log.success(`🌐 NotebookLM MCP HTTP Server v1.4.2`);
+  log.success(`🌐 NotebookLM MCP HTTP Server v1.4.1`);
   log.success(`   Listening on ${HOST}:${PORT}`);
   log.info('');
   log.info('📊 Quick Links:');

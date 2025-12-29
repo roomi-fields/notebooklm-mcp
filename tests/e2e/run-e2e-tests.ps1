@@ -92,7 +92,7 @@ function Test-Endpoint {
 # Header
 Write-Host "`n"
 Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║     NotebookLM MCP HTTP Server - E2E Test Suite v1.4.2     ║" -ForegroundColor Cyan
+Write-Host "║     NotebookLM MCP HTTP Server - E2E Test Suite v1.4.1     ║" -ForegroundColor Cyan
 Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host "`nStarted: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Host "Base URL: $BaseUrl"
@@ -182,11 +182,6 @@ $Results += Test-Endpoint -Name "POST /content/sources (url)" -Method POST -Endp
 
 $Results += Test-Endpoint -Name "POST /content/generate (faq)" -Method POST -Endpoint "/content/generate" -Body @{
     content_type = "faq"
-} -TimeoutSec $Timeout -RequiresBrowser
-
-$Results += Test-Endpoint -Name "POST /content/notes" -Method POST -Endpoint "/content/notes" -Body @{
-    topic = "Key concepts"
-    mode = "fast"
 } -TimeoutSec $Timeout -RequiresBrowser
 
 # Audio download - may return 400/404 if no audio exists, that's OK
