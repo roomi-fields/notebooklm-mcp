@@ -123,6 +123,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 **Not yet implemented:**
 
+- Discover sources (Web/Drive search with Fast/Deep modes)
 - Create/edit/delete notes
 - Delete sources
 - Save chat response to note

@@ -160,39 +160,3 @@ export interface ContentDownloadResult {
   size?: number;
   error?: string;
 }
-
-/**
- * Research mode for note creation
- */
-export type ResearchMode = 'fast' | 'deep';
-
-/**
- * Note creation input
- */
-export interface NoteCreationInput {
-  /** Topic/prompt for the note */
-  topic: string;
-  /** Research mode: fast (quick) or deep (thorough) */
-  mode: ResearchMode;
-  /** Optional custom instructions */
-  customInstructions?: string;
-}
-
-/**
- * Note creation result
- */
-export interface NoteCreationResult {
-  success: boolean;
-  /** Note ID */
-  noteId?: string;
-  /** Note title */
-  title?: string;
-  /** Note content */
-  content?: string;
-  /** Research mode used */
-  mode?: ResearchMode;
-  /** Status */
-  status?: 'researching' | 'ready' | 'failed';
-  /** Error message if failed */
-  error?: string;
-}

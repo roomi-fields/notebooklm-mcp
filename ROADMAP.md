@@ -12,31 +12,24 @@ This document tracks planned features, recent implementations, and future ideas 
 
 **Priority: High** - Complete NotebookLM content management.
 
+**Source Discovery:**
+
+- [ ] Discover sources from Web (Fast mode)
+- [ ] Discover sources from Web (Deep mode)
+- [ ] Discover sources from Google Drive (Fast mode)
+- [ ] Discover sources from Google Drive (Deep mode)
+
+**Note Management:**
+
 - [ ] Create notes (text input)
 - [ ] Edit notes
 - [ ] Delete notes
-- [ ] Delete sources
 - [ ] Save chat response to note
 - [ ] Convert note to source
 
-### v1.6.0+ - Smart Features
+**Source Management:**
 
-**Smart Metadata Refresh:**
-
-- [ ] Auto-detect when notebook content has changed
-- [ ] Re-query NotebookLM to update metadata
-- [ ] Endpoint: `PATCH /notebooks/:id/refresh`
-
-**Semantic Matching:**
-
-- [ ] Use embeddings for advanced notebook matching beyond tags
-- [ ] Endpoint: `GET /notebooks/match?query=gmail&semantic=true`
-
-**Usage Analytics:**
-
-- [ ] Track which notebooks are queried together
-- [ ] Suggest related notebooks based on usage patterns
-- [ ] Endpoint: `GET /notebooks/:id/related`
+- [ ] Delete sources
 
 ---
 
