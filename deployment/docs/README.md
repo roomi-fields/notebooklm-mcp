@@ -72,6 +72,9 @@
 | `/notebooks/auto-discover` | POST   | Auto-generate notebook metadata  |
 | `/notebooks/:id`           | DELETE | Delete a notebook                |
 | `/notebooks/:id/activate`  | PUT    | Activate a notebook              |
+| `/content/sources`         | POST   | Add source to notebook           |
+| `/content/audio`           | POST   | Generate audio overview (podcast)|
+| `/content/audio/download`  | GET    | Download generated audio         |
 
 **👉 [Complete API reference](./03-API.md)**
 
@@ -127,27 +130,37 @@
 
 ---
 
-## 🔄 Changelog
+## Changelog
+
+### v1.4.2 (2025-12-29)
+
+**Removed fake content generation:**
+
+- Removed `generate_content` endpoint for FAQ, Study Guide, Briefing Doc, Timeline, TOC
+- These were NOT real NotebookLM features - just chat prompts
+- Only REAL content generation: Audio Overview (podcast)
+- Updated all documentation for honesty
+
+### v1.4.0 (2025-12-24)
+
+**Content Management:**
+
+- Audio Overview generation (podcast) - REAL NotebookLM feature
+- Audio download
+- Source management (files, URLs, text, YouTube)
 
 ### v1.3.1 (2025-01-24)
 
 **New features:**
 
-- ✅ MCP Auto-Discovery Tool: `auto_discover_notebook` for Claude Desktop/Cursor
-- ✅ Parity with HTTP API: MCP clients now have auto-discovery capability
-- ✅ Zero-friction notebook addition: just URL, metadata auto-generated
+- MCP Auto-Discovery Tool: `auto_discover_notebook` for Claude Desktop/Cursor
+- Parity with HTTP API: MCP clients now have auto-discovery capability
+- Zero-friction notebook addition: just URL, metadata auto-generated
 
 **Critical Fixes:**
 
-- ✅ Claude Desktop compatibility: Disabled `CompleteRequestSchema` handler
-- ✅ Fixed "Server does not support completions" error on connection
-
-**Documentation:**
-
-- ✅ Added [CHROME_PROFILE_LIMITATION.md](../../docs/CHROME_PROFILE_LIMITATION.md) documenting HTTP/stdio conflict
-- ✅ Documented workaround for Chrome profile locking
-- ✅ Added v1.4.0 roadmap for separate Chrome profiles
-- ✅ Updated tool documentation to recommend auto-discovery first
+- Claude Desktop compatibility: Disabled `CompleteRequestSchema` handler
+- Fixed "Server does not support completions" error on connection
 
 ### v1.1.2 (2025-11-22)
 
@@ -183,5 +196,5 @@ Or directly propose a PR to improve the documentation!
 
 ---
 
-**Documentation updated:** 2025-01-23
-**Version:** 1.3.4
+**Documentation updated:** 2025-12-29
+**Version:** 1.4.2

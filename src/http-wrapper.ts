@@ -475,7 +475,7 @@ app.post('/content/audio', async (req: Request, res: Response) => {
   }
 });
 
-// Generate content (briefing, study guide, FAQ, etc.)
+// Generate content (only audio_overview is currently supported)
 app.post('/content/generate', async (req: Request, res: Response) => {
   try {
     const { content_type, custom_instructions, notebook_url, session_id } = req.body;
@@ -484,6 +484,15 @@ app.post('/content/generate', async (req: Request, res: Response) => {
       return res.status(400).json({
         success: false,
         error: 'Missing required field: content_type',
+      });
+    }
+
+    // Only audio_overview is supported (other types were fake - just chat prompts)
+    if (content_type !== 'audio_overview') {
+      return res.status(400).json({
+        success: false,
+        error:
+          'Only audio_overview is supported. Other content types were removed because they only sent chat prompts instead of using real NotebookLM Studio buttons.',
       });
     }
 
@@ -558,7 +567,7 @@ const PORT = Number(process.env.HTTP_PORT) || 3000;
 const HOST = process.env.HTTP_HOST || '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
-  log.success(`🌐 NotebookLM MCP HTTP Server v1.4.1`);
+  log.success(`🌐 NotebookLM MCP HTTP Server v1.4.2`);
   log.success(`   Listening on ${HOST}:${PORT}`);
   log.info('');
   log.info('📊 Quick Links:');

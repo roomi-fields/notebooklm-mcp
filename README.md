@@ -4,7 +4,7 @@
 
 > **Forked from** [PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp)
 
-**Full automation of Google NotebookLM: Q&A, content generation, audio podcasts, and source management**
+**Full automation of Google NotebookLM: Q&A, audio podcasts, and source management**
 
 <!-- Badges -->
 
@@ -26,15 +26,11 @@
 - **Source citation extraction** with 5 formats: none, inline, footnotes, json, expanded
 - **Session management** for multi-turn conversations
 
-### Content Generation
+### Audio Overview (Podcast)
 
-- **Audio Overview** — Generate podcast-style audio discussions
-- **Briefing Doc** — Executive summaries
-- **Study Guide** — Learning cards and key concepts
-- **FAQ** — Frequently asked questions
-- **Timeline** — Chronological events
-- **Download audio** — Export generated audio files
-- Content generation is **asynchronous**: trigger generation, then retrieve later
+- **Generate Audio Overview** — Create podcast-style audio discussions from your sources
+- **Download Audio** — Export generated audio files to local storage
+- Audio generation is **asynchronous**: trigger generation (5-10 min), then download
 
 ### Source Management
 

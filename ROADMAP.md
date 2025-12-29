@@ -2,7 +2,7 @@
 
 This document tracks planned features, recent implementations, and future ideas for the NotebookLM MCP Server.
 
-## Current Version: v1.4.1
+## Current Version: v1.4.2
 
 ---
 
@@ -34,9 +34,9 @@ This document tracks planned features, recent implementations, and future ideas 
 - [ ] Expand/collapse nodes
 - [ ] Download as image (PNG/SVG)
 
-**Reports:**
+**Reports (TODO - need REAL UI automation):**
 
-- [x] Generate briefing doc (basic)
+- [ ] Generate briefing doc (basic)
 - [ ] Full report generation (2,000-3,000 words)
 - [ ] Section customization
 - [ ] Download as PDF/DOCX
@@ -55,12 +55,12 @@ This document tracks planned features, recent implementations, and future ideas 
 - [ ] Theme/style selection
 - [ ] Download as PDF/PPTX
 
-**Study Resources:**
+**Study Resources (TODO - need REAL UI automation):**
 
-- [x] Generate study guide (basic)
-- [x] Generate FAQ
-- [x] Generate timeline
-- [x] Generate table of contents
+- [ ] Generate study guide (basic)
+- [ ] Generate FAQ
+- [ ] Generate timeline
+- [ ] Generate table of contents
 - [ ] Generate quiz with questions
 - [ ] Generate flashcards
 - [ ] Key terms extraction
@@ -100,10 +100,12 @@ This document tracks planned features, recent implementations, and future ideas 
 ### v1.4.0 - Content Management
 
 - [x] Add sources (files, URLs, text, YouTube, Google Drive)
-- [x] Generate content (Audio, Briefing, Study Guide, FAQ, Timeline)
+- [x] Generate audio overview (clicks real Studio buttons)
 - [x] Download audio files
 - [x] List sources and content
 - [x] Multi-account support
+
+> **Note:** v1.4.x initially claimed support for generating Study Guide, FAQ, Timeline, Table of Contents, and Briefing Doc. These were **fake implementations** that only sent prompts to the chat interface instead of clicking the real Studio buttons. They have been removed and moved back to TODO status. Only audio overview generation uses real UI automation.
 
 ### v1.3.7 - Source Citation Extraction
 

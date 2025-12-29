@@ -1,6 +1,6 @@
 # Content Management - NotebookLM MCP
 
-> Add sources, generate audio overviews, briefings, study guides, and more
+> Add sources and generate audio overviews (podcasts)
 
 ---
 
@@ -9,10 +9,32 @@
 The Content Management module enables you to:
 
 1. **Add Sources** - Upload documents, URLs, text, YouTube videos to notebooks
-2. **Generate Audio** - Create podcast-style audio overviews
-3. **Generate Content** - Create briefings, study guides, FAQs, timelines
-4. **Create Notes with Research** - AI-powered research notes (fast or deep mode)
-5. **List & Download** - View content and download generated files
+2. **Generate Audio Overview** - Create podcast-style audio discussions (REAL NotebookLM feature)
+3. **Download Audio** - Save generated audio files locally
+4. **List Content** - View sources and generated content
+
+---
+
+## Important: What We Actually Support
+
+**REAL NotebookLM Features (fully integrated):**
+
+- Audio Overview generation - Uses NotebookLM's actual podcast feature
+- Audio download - Downloads the real generated audio file
+- Source management - Add files, URLs, text, YouTube videos
+- Q&A with citations - Uses NotebookLM's actual chat
+
+**NOT Supported (removed in v1.4.2):**
+
+The following were removed because they were NOT real NotebookLM integrations. They were just sending prompts to the chat, which you can do yourself with `ask_question`:
+
+- ~~Briefing Doc~~ - Just asked chat to generate a summary
+- ~~Study Guide~~ - Just asked chat to create study materials
+- ~~FAQ~~ - Just asked chat to generate FAQs
+- ~~Timeline~~ - Just asked chat to create a timeline
+- ~~Table of Contents~~ - Just asked chat to create a TOC
+
+If you need these, simply use `ask_question` with your own prompt like "Create a study guide" or "Generate an FAQ".
 
 ---
 
@@ -39,14 +61,10 @@ curl -X POST http://localhost:3000/content/audio \
   }'
 ```
 
-### Generate Study Guide
+### Download Audio
 
 ```bash
-curl -X POST http://localhost:3000/content/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content_type": "study_guide"
-  }'
+curl http://localhost:3000/content/audio/download
 ```
 
 ---
@@ -100,20 +118,11 @@ curl -X POST http://localhost:3000/content/sources \
 
 ---
 
-## Content Generation Types
+## Audio Overview (Podcast)
 
-| Type                | Description                     | Typical Time |
-| ------------------- | ------------------------------- | ------------ |
-| `audio_overview`    | Podcast-style audio overview    | 5-10 min     |
-| `briefing_doc`      | Executive summary / briefing    | 30-60 sec    |
-| `study_guide`       | Study guide with learning cards | 30-60 sec    |
-| `faq`               | Frequently asked questions      | 30-60 sec    |
-| `timeline`          | Chronological timeline          | 30-60 sec    |
-| `table_of_contents` | Table of contents / outline     | 30-60 sec    |
+The audio overview creates a podcast-style discussion between two AI hosts about your notebook content. This is a REAL NotebookLM feature that generates actual audio.
 
-### Audio Overview
-
-The audio overview creates a podcast-style discussion between two AI hosts about your notebook content.
+### Generate Audio
 
 ```bash
 curl -X POST http://localhost:3000/content/audio \
@@ -130,53 +139,26 @@ curl -X POST http://localhost:3000/content/audio \
 - "Make it accessible to students"
 - "Highlight the key takeaways"
 
-### Briefing Document
+**Note:** Audio generation takes 5-10 minutes. The API will wait for completion.
 
-Creates an executive summary of your sources.
+### Download Audio
 
 ```bash
-curl -X POST http://localhost:3000/content/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content_type": "briefing_doc"
-  }'
+# Get audio file
+curl http://localhost:3000/content/audio/download
+
+# Save to specific path
+curl "http://localhost:3000/content/audio/download?output_path=/downloads/podcast.wav"
 ```
 
-### Study Guide
+**Response:**
 
-Creates learning materials with key concepts and practice questions.
-
-```bash
-curl -X POST http://localhost:3000/content/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content_type": "study_guide",
-    "custom_instructions": "Include 10 practice questions"
-  }'
-```
-
-### FAQ
-
-Generates frequently asked questions based on your sources.
-
-```bash
-curl -X POST http://localhost:3000/content/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content_type": "faq"
-  }'
-```
-
-### Timeline
-
-Creates a chronological timeline of events from your sources.
-
-```bash
-curl -X POST http://localhost:3000/content/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content_type": "timeline"
-  }'
+```json
+{
+  "success": true,
+  "filePath": "/downloads/podcast.wav",
+  "mimeType": "audio/wav"
+}
 ```
 
 ---
@@ -224,30 +206,6 @@ curl http://localhost:3000/content
 
 ---
 
-## Downloading Audio
-
-Download the generated audio file:
-
-```bash
-# Get audio URL
-curl http://localhost:3000/content/audio/download
-
-# Save to specific path
-curl "http://localhost:3000/content/audio/download?output_path=/downloads/podcast.wav"
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "filePath": "/downloads/podcast.wav",
-  "mimeType": "audio/wav"
-}
-```
-
----
-
 ## MCP Tool Usage
 
 If using Claude Code or Claude Desktop:
@@ -264,12 +222,6 @@ add_source(source_type="url", url="https://example.com")
 generate_audio(custom_instructions="Focus on key points")
 ```
 
-### Generate Content
-
-```
-generate_content(content_type="study_guide")
-```
-
 ### List Content
 
 ```
@@ -284,7 +236,7 @@ download_audio(output_path="/path/to/save.wav")
 
 ---
 
-## Workflow Examples
+## Workflow Example
 
 ### Research Workflow
 
@@ -300,42 +252,16 @@ download_audio(output_path="/path/to/save.wav")
      -d '{"source_type":"file","file_path":"/docs/notes.pdf"}'
    ```
 
-2. Generate overview materials:
+2. Generate audio overview:
 
    ```bash
-   # Create briefing
-   curl -X POST http://localhost:3000/content/generate \
-     -d '{"content_type":"briefing_doc"}'
-
-   # Create FAQ
-   curl -X POST http://localhost:3000/content/generate \
-     -d '{"content_type":"faq"}'
-   ```
-
-### Learning Workflow
-
-1. Add educational content:
-
-   ```bash
-   curl -X POST http://localhost:3000/content/sources \
-     -d '{"source_type":"youtube","url":"https://youtube.com/watch?v=VIDEO"}'
-   ```
-
-2. Generate study materials:
-
-   ```bash
-   # Study guide
-   curl -X POST http://localhost:3000/content/generate \
-     -d '{"content_type":"study_guide"}'
-
-   # Audio for revision
    curl -X POST http://localhost:3000/content/audio \
-     -d '{"custom_instructions":"Explain like teaching a beginner"}'
+     -d '{"custom_instructions":"Summarize key findings for researchers"}'
    ```
 
-3. Download audio for offline study:
+3. Download for offline listening:
    ```bash
-   curl http://localhost:3000/content/audio/download?output_path=study.wav
+   curl http://localhost:3000/content/audio/download?output_path=research.wav
    ```
 
 ---
@@ -344,13 +270,12 @@ download_audio(output_path="/path/to/save.wav")
 
 ### Common Errors
 
-| Error                    | Cause                  | Solution                         |
-| ------------------------ | ---------------------- | -------------------------------- |
-| "Source type required"   | Missing `source_type`  | Add the `source_type` parameter  |
-| "File not found"         | Invalid `file_path`    | Check file path exists           |
-| "Content type required"  | Missing `content_type` | Add the `content_type` parameter |
-| "Audio not ready"        | Audio still generating | Wait and retry                   |
-| "No sources in notebook" | Empty notebook         | Add sources first                |
+| Error                    | Cause                 | Solution                        |
+| ------------------------ | --------------------- | ------------------------------- |
+| "Source type required"   | Missing `source_type` | Add the `source_type` parameter |
+| "File not found"         | Invalid `file_path`   | Check file path exists          |
+| "Audio not ready"        | Audio still generating| Wait and retry                  |
+| "No sources in notebook" | Empty notebook        | Add sources first               |
 
 ### Timeout Handling
 
@@ -364,9 +289,9 @@ Audio generation can take 5-10 minutes. The API will wait up to 10 minutes for c
 
 ## Best Practices
 
-1. **Add sources before generating content** - Ensure your notebook has sources before attempting to generate audio or documents.
+1. **Add sources before generating audio** - Ensure your notebook has sources before attempting to generate audio.
 
-2. **Use custom instructions** - Tailor generated content by providing clear custom instructions.
+2. **Use custom instructions** - Tailor the audio by providing clear custom instructions.
 
 3. **Reuse sessions** - Pass `session_id` to avoid creating new browser sessions for each request.
 
@@ -378,11 +303,11 @@ Audio generation can take 5-10 minutes. The API will wait up to 10 minutes for c
 
 ## Version History
 
-| Version | Changes                         |
-| ------- | ------------------------------- |
-| 1.4.0   | Added content management module |
-| 1.3.7   | Source citation extraction             |
-| 1.3.6   | Multi-account support                  |
+| Version | Changes                                           |
+| ------- | ------------------------------------------------- |
+| 1.4.2   | Removed fake content generation (FAQ, etc.)      |
+| 1.4.0   | Added content management module                   |
+| 1.3.7   | Source citation extraction                        |
 
 ---
 

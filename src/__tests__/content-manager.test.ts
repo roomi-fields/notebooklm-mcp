@@ -318,61 +318,17 @@ describe('ContentManager', () => {
       expect(result).toBeDefined();
     });
 
-    it('should handle study_guide type', async () => {
+    it('should reject unsupported content types', async () => {
       const manager = new ContentManager(mockPage);
 
-      mockPage.locator.mockReturnValue({
-        first: jest.fn().mockReturnValue({
-          isVisible: jest.fn().mockResolvedValue(false),
-          click: jest.fn().mockResolvedValue(undefined),
-        }),
-      });
-
+      // Test with an invalid type (TypeScript would catch this, but runtime should handle it)
       const result = await manager.generateContent({
-        type: 'study_guide',
+        type: 'study_guide' as 'audio_overview', // Force invalid type for test
       });
 
       expect(result).toBeDefined();
-    });
-
-    it('should handle briefing_doc type', async () => {
-      const manager = new ContentManager(mockPage);
-
-      const result = await manager.generateContent({
-        type: 'briefing_doc',
-      });
-
-      expect(result).toBeDefined();
-    });
-
-    it('should handle timeline type', async () => {
-      const manager = new ContentManager(mockPage);
-
-      const result = await manager.generateContent({
-        type: 'timeline',
-      });
-
-      expect(result).toBeDefined();
-    });
-
-    it('should handle faq type', async () => {
-      const manager = new ContentManager(mockPage);
-
-      const result = await manager.generateContent({
-        type: 'faq',
-      });
-
-      expect(result).toBeDefined();
-    });
-
-    it('should handle table_of_contents type', async () => {
-      const manager = new ContentManager(mockPage);
-
-      const result = await manager.generateContent({
-        type: 'table_of_contents',
-      });
-
-      expect(result).toBeDefined();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Unsupported content type');
     });
   });
 
@@ -475,7 +431,7 @@ describe('ContentManager', () => {
       });
 
       const result = await manager.generateContent({
-        type: 'study_guide',
+        type: 'audio_overview',
       });
 
       expect(result.success).toBe(false);

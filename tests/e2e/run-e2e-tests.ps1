@@ -180,10 +180,6 @@ $Results += Test-Endpoint -Name "POST /content/sources (url)" -Method POST -Endp
     url = "https://en.wikipedia.org/wiki/Test"
 } -TimeoutSec $Timeout -RequiresBrowser
 
-$Results += Test-Endpoint -Name "POST /content/generate (faq)" -Method POST -Endpoint "/content/generate" -Body @{
-    content_type = "faq"
-} -TimeoutSec $Timeout -RequiresBrowser
-
 # Audio download - may return 400/404 if no audio exists, that's OK
 $Results += Test-Endpoint -Name "GET /content/audio/download" -Method GET -Endpoint "/content/audio/download?session_id=test" -TimeoutSec 60 -RequiresBrowser
 

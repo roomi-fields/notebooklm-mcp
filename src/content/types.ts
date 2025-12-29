@@ -47,14 +47,13 @@ export interface SourceUploadResult {
 
 /**
  * Content types that NotebookLM can generate
+ *
+ * NOTE: Only 'audio_overview' is supported as it uses real Studio UI buttons.
+ * Other content types (briefing_doc, study_guide, faq, timeline, table_of_contents)
+ * were removed because they only sent chat prompts instead of clicking actual
+ * NotebookLM Studio buttons - making them "fake" implementations.
  */
-export type ContentType =
-  | 'audio_overview' // Audio podcast/overview
-  | 'briefing_doc' // Briefing document
-  | 'study_guide' // Study guide / learning cards
-  | 'timeline' // Timeline
-  | 'faq' // FAQ document
-  | 'table_of_contents'; // Table of contents
+export type ContentType = 'audio_overview'; // Audio podcast/overview (real UI interaction)
 
 /**
  * Content generation input

@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.2] - 2025-12-29
+
+### Removed
+
+**Fake Content Generation Features:**
+
+- Removed `generate_content` endpoint for FAQ, Study Guide, Briefing Doc, Timeline, and Table of Contents
+- These features were NOT real NotebookLM integrations - they were just sending prompts to the chat
+- The only REAL content generation NotebookLM supports is Audio Overview (podcast)
+- Updated all documentation to honestly reflect actual capabilities
+
+**What was fake:**
+
+- `briefing_doc` - Was just asking NotebookLM chat to generate a summary
+- `study_guide` - Was just asking NotebookLM chat to create study materials
+- `faq` - Was just asking NotebookLM chat to generate FAQs
+- `timeline` - Was just asking NotebookLM chat to create a timeline
+- `table_of_contents` - Was just asking NotebookLM chat to create a TOC
+
+**What is real:**
+
+- Audio Overview generation - Uses NotebookLM's actual podcast feature
+- Audio download - Downloads the real generated audio file
+- Q&A with citations - Uses NotebookLM's actual chat with source citations
+- Source management - Uses NotebookLM's actual source upload features
+
+---
+
 ## [1.4.1] - 2025-12-29
 
 ### Fixed
@@ -49,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ `list_notebooks`, `select_notebook`, `search_notebooks` - Library management
 - ✅ `list_content` - View sources and existing artifacts
 - ✅ `add_source` - Add files, URLs, text, YouTube (all types working)
-- ✅ `generate_content` - FAQ, Study Guide, Briefing doc (via chat fallback)
+- ~~`generate_content`~~ - Removed in v1.4.2 (was fake - just chat prompts)
 - ✅ `generate_audio` - Audio overview generation
 - ✅ Session management - Create, reset, close sessions
 - ✅ Authentication - setup_auth, re_auth, de_auth
@@ -68,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_content` - View all sources and generated content
 - Content generation:
   - `generate_audio` - Create podcast-style audio overviews
-  - `generate_content` - Create briefing docs, study guides, FAQs, timelines, TOC
+  - ~~`generate_content`~~ - Removed in v1.4.2 (was fake - just chat prompts, not real NotebookLM features)
   - `download_audio` - Download generated audio files
 - Full HTTP REST API support with 6 new endpoints
 - Complete documentation in `10-CONTENT-MANAGEMENT.md`

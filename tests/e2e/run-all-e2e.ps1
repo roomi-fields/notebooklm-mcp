@@ -101,11 +101,6 @@ $Results += Test-Endpoint -Name "POST /content/sources (url)" -Method POST -Endp
     url = "https://en.wikipedia.org/wiki/Nonviolent_Communication"
 } -Timeout 180
 
-# Generate content (FAQ)
-$Results += Test-Endpoint -Name "POST /content/generate (faq)" -Method POST -Endpoint "/content/generate" -Body @{
-    content_type = "faq"
-} -Timeout 180
-
 # ============================================================================
 # SESSION MANAGEMENT
 # ============================================================================

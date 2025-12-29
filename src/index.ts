@@ -66,7 +66,7 @@ class NotebookLMMCPServer {
     this.server = new Server(
       {
         name: 'notebooklm-mcp',
-        version: '1.4.1',
+        version: '1.4.2',
       },
       {
         capabilities: {
@@ -508,12 +508,7 @@ class NotebookLMMCPServer {
           case 'generate_content':
             result = await this.toolHandlers.handleGenerateContent(
               args as {
-                content_type:
-                  | 'briefing_doc'
-                  | 'study_guide'
-                  | 'faq'
-                  | 'timeline'
-                  | 'table_of_contents';
+                content_type: 'audio_overview';
                 custom_instructions?: string;
                 notebook_url?: string;
                 session_id?: string;

@@ -1,6 +1,6 @@
 {
   "name": "@roomi-fields/notebooklm-mcp",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "MCP server for NotebookLM API with HTTP REST API - Zero hallucinations from your notebooks",
   "type": "module",
   "bin": {

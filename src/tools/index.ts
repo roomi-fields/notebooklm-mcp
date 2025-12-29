@@ -873,21 +873,20 @@ User: "Yes" → call remove_notebook`,
     {
       name: 'generate_content',
       description:
-        'Generate various content types from your NotebookLM sources.\n\n' +
-        'Available content types:\n' +
-        '- briefing_doc: Executive briefing document\n' +
-        '- study_guide: Study guide with key concepts and questions\n' +
-        '- faq: Frequently asked questions document\n' +
-        '- timeline: Chronological timeline of events\n' +
-        '- table_of_contents: Structured table of contents\n\n' +
-        'The generated content is based on all sources in the notebook.',
+        'Generate audio overview from your NotebookLM sources.\n\n' +
+        'Supported content types:\n' +
+        '- audio_overview: Audio podcast/overview (uses real NotebookLM Studio UI buttons)\n\n' +
+        'NOTE: Other content types (faq, study_guide, briefing_doc, timeline, table_of_contents) ' +
+        'are NOT supported because they would only send chat prompts instead of clicking actual ' +
+        'NotebookLM Studio buttons. For document-style content, use the ask_question tool.\n\n' +
+        'Tip: Use the generate_audio tool for a simpler audio generation interface.',
       inputSchema: {
         type: 'object',
         properties: {
           content_type: {
             type: 'string',
-            enum: ['briefing_doc', 'study_guide', 'faq', 'timeline', 'table_of_contents'],
-            description: 'Type of content to generate',
+            enum: ['audio_overview'],
+            description: 'Type of content to generate (only audio_overview is supported)',
           },
           custom_instructions: {
             type: 'string',
@@ -911,7 +910,7 @@ User: "Yes" → call remove_notebook`,
         'List all sources and generated content in the current notebook.\n\n' +
         'Returns:\n' +
         '- Sources: Documents, URLs, and other uploaded materials\n' +
-        '- Generated content: Audio overviews, briefings, study guides, etc.',
+        '- Generated content: Audio overviews',
       inputSchema: {
         type: 'object',
         properties: {

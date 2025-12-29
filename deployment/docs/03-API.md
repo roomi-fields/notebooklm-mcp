@@ -14,7 +14,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## 📡 Available Endpoints (28 total)
+## Available Endpoints (27 total)
 
 ### Authentication
 
@@ -54,15 +54,16 @@ Or for network access: `http://<SERVER-IP>:3000`
 | `POST`   | `/sessions/:id/reset` | Reset session history |
 | `DELETE` | `/sessions/:id`       | Close a session       |
 
-### Content Management (NEW)
+### Content Management
 
 | Method | Endpoint                  | Description                           |
 | ------ | ------------------------- | ------------------------------------- |
 | `POST` | `/content/sources`        | Add source/document to notebook       |
 | `POST` | `/content/audio`          | Generate audio overview (podcast)     |
-| `POST` | `/content/generate`       | Generate briefing, study guide, etc.  |
 | `GET`  | `/content`                | List sources and generated content    |
 | `GET`  | `/content/audio/download` | Download generated audio file         |
+
+> **Note:** The `/content/generate` endpoint was removed in v1.4.2. It was not a real NotebookLM feature - it just sent prompts to the chat. Use `POST /ask` instead with your own prompts.
 
 ---
 
@@ -1081,61 +1082,43 @@ curl -X POST http://localhost:3000/content/audio \
 
 ---
 
-## 17. Generate Content
+## 17. ~~Generate Content~~ (REMOVED in v1.4.2)
 
-### `POST /content/generate`
+### `POST /content/generate` - DEPRECATED
 
-Generate various content types from notebook sources.
+> **This endpoint was removed in v1.4.2** because it was NOT a real NotebookLM feature.
+> It was just sending prompts to the chat, which you can do yourself with `POST /ask`.
 
-**Request:**
+**Alternative:** Use the `POST /ask` endpoint with your own prompts:
 
 ```bash
-# Generate briefing document
-curl -X POST http://localhost:3000/content/generate \
+# Instead of generate_content with briefing_doc
+curl -X POST http://localhost:3000/ask \
   -H "Content-Type: application/json" \
   -d '{
-    "content_type": "briefing_doc",
-    "notebook_url": "https://notebooklm.google.com/notebook/abc123"
+    "question": "Create an executive briefing document summarizing the key points from my sources",
+    "notebook_id": "my-notebook"
   }'
 
-# Generate study guide
-curl -X POST http://localhost:3000/content/generate \
+# Instead of generate_content with study_guide
+curl -X POST http://localhost:3000/ask \
   -H "Content-Type: application/json" \
   -d '{
-    "content_type": "study_guide",
-    "custom_instructions": "Include practice questions"
+    "question": "Create a study guide with key concepts and practice questions",
+    "notebook_id": "my-notebook"
+  }'
+
+# Instead of generate_content with faq
+curl -X POST http://localhost:3000/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "Generate a FAQ based on the content in my sources",
+    "notebook_id": "my-notebook"
   }'
 ```
 
-**Body Parameters:**
-
-| Parameter             | Type   | Required | Description                                                                 |
-| --------------------- | ------ | -------- | --------------------------------------------------------------------------- |
-| `content_type`        | string | ✅ Yes   | Type: `briefing_doc`, `study_guide`, `faq`, `timeline`, `table_of_contents` |
-| `custom_instructions` | string | ❌ No    | Custom instructions for generation                                          |
-| `notebook_url`        | string | ❌ No    | Target notebook URL                                                         |
-| `session_id`          | string | ❌ No    | Reuse existing session                                                      |
-
-**Content Types:**
-
-| Type                | Description                         |
-| ------------------- | ----------------------------------- |
-| `briefing_doc`      | Executive summary/briefing document |
-| `study_guide`       | Study guide with learning cards     |
-| `faq`               | Frequently asked questions          |
-| `timeline`          | Chronological timeline              |
-| `table_of_contents` | Table of contents/outline           |
-
-**Success Response (200):**
-
-```json
-{
-  "success": true,
-  "contentType": "study_guide",
-  "status": "ready",
-  "textContent": "Generated content here..."
-}
-```
+The only REAL content generation NotebookLM supports is:
+- **Audio Overview (podcast)** - Use `POST /content/audio`
 
 ---
 

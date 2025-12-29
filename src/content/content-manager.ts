@@ -1010,35 +1010,27 @@ export class ContentManager {
   // ============================================================================
 
   /**
-   * Generate content (audio, briefing, study guide, etc.)
+   * Generate content (audio overview only)
    *
-   * NOTE (Dec 2024): Content generation now uses the chat interface.
-   * We send a request in chat and NotebookLM generates the content.
+   * NOTE: Only audio_overview is supported as it uses real Studio UI buttons.
+   * Other content types (briefing_doc, study_guide, faq, timeline, table_of_contents)
+   * were removed because they only sent chat prompts instead of clicking actual
+   * NotebookLM Studio buttons - making them "fake" implementations.
    */
   async generateContent(input: ContentGenerationInput): Promise<ContentGenerationResult> {
     log.info(`🎨 Generating content: ${input.type}`);
 
     try {
-      switch (input.type) {
-        case 'audio_overview':
-          return await this.generateAudioOverview(input);
-        case 'briefing_doc':
-          return await this.generateBriefingDoc(input);
-        case 'study_guide':
-          return await this.generateStudyGuide(input);
-        case 'timeline':
-          return await this.generateTimeline(input);
-        case 'faq':
-          return await this.generateFAQ(input);
-        case 'table_of_contents':
-          return await this.generateTOC(input);
-        default:
-          return {
-            success: false,
-            contentType: input.type,
-            error: `Unsupported content type: ${input.type}`,
-          };
+      if (input.type === 'audio_overview') {
+        return await this.generateAudioOverview(input);
       }
+
+      // Only audio_overview is supported
+      return {
+        success: false,
+        contentType: input.type,
+        error: `Unsupported content type: ${input.type}. Only 'audio_overview' is supported.`,
+      };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       log.error(`❌ Content generation failed: ${errorMsg}`);
@@ -1142,147 +1134,10 @@ export class ContentManager {
     }
   }
 
-  /**
-   * Generate Briefing Document
-   */
-  private async generateBriefingDoc(
-    input: ContentGenerationInput
-  ): Promise<ContentGenerationResult> {
-    return await this.generateDocumentContent(
-      'briefing_doc',
-      [
-        'button:has-text("Briefing doc")',
-        'button:has-text("Document de briefing")',
-        '[data-action="generate-briefing"]',
-      ],
-      input
-    );
-  }
-
-  /**
-   * Generate Study Guide
-   */
-  private async generateStudyGuide(
-    input: ContentGenerationInput
-  ): Promise<ContentGenerationResult> {
-    return await this.generateDocumentContent(
-      'study_guide',
-      [
-        'button:has-text("Study guide")',
-        'button:has-text("Guide d\'étude")',
-        'button:has-text("Fiche d\'apprentissage")',
-        '[data-action="generate-study-guide"]',
-      ],
-      input
-    );
-  }
-
-  /**
-   * Generate Timeline
-   */
-  private async generateTimeline(input: ContentGenerationInput): Promise<ContentGenerationResult> {
-    return await this.generateDocumentContent(
-      'timeline',
-      [
-        'button:has-text("Timeline")',
-        'button:has-text("Chronologie")',
-        '[data-action="generate-timeline"]',
-      ],
-      input
-    );
-  }
-
-  /**
-   * Generate FAQ
-   */
-  private async generateFAQ(input: ContentGenerationInput): Promise<ContentGenerationResult> {
-    return await this.generateDocumentContent(
-      'faq',
-      ['button:has-text("FAQ")', '[data-action="generate-faq"]'],
-      input
-    );
-  }
-
-  /**
-   * Generate Table of Contents
-   */
-  private async generateTOC(input: ContentGenerationInput): Promise<ContentGenerationResult> {
-    return await this.generateDocumentContent(
-      'table_of_contents',
-      [
-        'button:has-text("Table of contents")',
-        'button:has-text("Sommaire")',
-        '[data-action="generate-toc"]',
-      ],
-      input
-    );
-  }
-
-  /**
-   * Generic document content generation via chat
-   *
-   * NOTE (Dec 2024): Now uses chat-based generation instead of clicking buttons.
-   * Polls BOTH chat responses AND Studio panel notes for generated content.
-   * NotebookLM may respond in chat OR create an artifact in Studio.
-   */
-  private async generateDocumentContent(
-    contentType: ContentType,
-    _selectors: string[], // Kept for API compatibility, but not used
-    input: ContentGenerationInput
-  ): Promise<ContentGenerationResult> {
-    log.info(`📝 Generating ${contentType} via chat...`);
-
-    try {
-      // Navigate to Discussion tab (chat)
-      await this.navigateToDiscussion();
-
-      // Build the generation prompt based on content type
-      const prompts: Record<ContentType, string> = {
-        faq: 'Generate a comprehensive FAQ (Frequently Asked Questions) based on all the sources in this notebook. Include at least 10 questions and answers.',
-        study_guide:
-          'Create a detailed study guide based on all the sources in this notebook. Include key concepts, definitions, and important points to remember.',
-        briefing_doc:
-          'Create a briefing document that summarizes the key information from all sources in this notebook. Format it as an executive summary.',
-        timeline:
-          'Create a chronological timeline of events and key dates mentioned in the sources of this notebook.',
-        table_of_contents:
-          'Generate a structured table of contents that outlines all the main topics and subtopics covered in the notebook sources.',
-        audio_overview:
-          'Create an audio overview script summarizing the main content of this notebook.',
-      };
-
-      let prompt =
-        prompts[contentType] || `Generate ${contentType} content based on the notebook sources.`;
-
-      // Add custom instructions if provided
-      if (input.customInstructions) {
-        prompt += `\n\nAdditional instructions: ${input.customInstructions}`;
-      }
-
-      // Send the message (don't wait for response here)
-      await this.sendChatMessage(prompt);
-
-      // Wait for content to appear (checks BOTH chat AND Studio panel)
-      // NotebookLM may take several minutes and can respond in either place
-      const result = await this.waitForGeneratedContent(contentType, 600000);
-
-      if (result.content && result.content.length > 50) {
-        log.success(`  ✅ ${contentType} generated via ${result.source}!`);
-        return {
-          success: true,
-          contentType,
-          status: 'ready',
-          textContent: result.content,
-        };
-      }
-
-      throw new Error('Response too short or empty');
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      log.error(`  ❌ ${contentType} generation failed: ${errorMsg}`);
-      return { success: false, contentType, error: errorMsg };
-    }
-  }
+  // NOTE: generateBriefingDoc, generateStudyGuide, generateTimeline, generateFAQ,
+  // generateTOC, and generateDocumentContent methods were removed because they
+  // only sent chat prompts instead of clicking actual NotebookLM Studio buttons.
+  // Only audio_overview uses real UI interaction.
 
   /**
    * Navigate to Discussion panel (chat)
@@ -1530,27 +1385,9 @@ export class ContentManager {
         });
       }
 
-      // Check for generated notes/documents
-      const noteElements = await this.page.$$('.generated-note, .studio-output, .saved-note');
-      for (const el of noteElements) {
-        try {
-          const name = await el.$eval(
-            '.note-title, .title',
-            (e) => e.textContent?.trim() || 'Generated Note'
-          );
-          const id = (await el.getAttribute('data-id')) || `note-${content.length}`;
-
-          content.push({
-            id,
-            type: 'briefing_doc',
-            name,
-            status: 'ready',
-            createdAt: new Date().toISOString(),
-          });
-        } catch {
-          continue;
-        }
-      }
+      // Note: We only list audio_overview content now since other content types
+      // (briefing_doc, study_guide, etc.) were removed as they were fake implementations.
+      // Any notes in the Studio panel would have been created by the user directly in NotebookLM.
     } catch (error) {
       log.warning(`  ⚠️ Could not list generated content: ${error}`);
     }

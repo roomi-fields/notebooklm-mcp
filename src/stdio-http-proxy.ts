@@ -308,14 +308,16 @@ function buildProxyToolDefinitions(): Tool[] {
     },
     {
       name: 'generate_content',
-      description: '🔌 [PROXY] Generate content (briefing, study guide, FAQ, etc.) via HTTP server',
+      description:
+        '🔌 [PROXY] Generate audio overview via HTTP server.\n' +
+        'Only audio_overview is supported (uses real NotebookLM Studio UI buttons).',
       inputSchema: {
         type: 'object',
         properties: {
           content_type: {
             type: 'string',
-            enum: ['briefing_doc', 'study_guide', 'faq', 'timeline', 'table_of_contents'],
-            description: 'Type of content to generate',
+            enum: ['audio_overview'],
+            description: 'Type of content to generate (only audio_overview is supported)',
           },
           custom_instructions: { type: 'string', description: 'Custom instructions' },
           notebook_url: { type: 'string', description: 'Optional notebook URL' },
