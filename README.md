@@ -4,7 +4,7 @@
 
 > **Forked from** [PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp)
 
-**Chat directly with NotebookLM for zero-hallucination answers based on your own notebooks**
+**Full automation of Google NotebookLM: Q&A, content generation, audio podcasts, and source management**
 
 <!-- Badges -->
 
@@ -18,16 +18,40 @@
 
 ---
 
-## Why NotebookLM?
+## Features
 
-| Approach            | Token Cost  | Hallucinations                | Answer Quality       |
-| ------------------- | ----------- | ----------------------------- | -------------------- |
-| Feed docs to Claude | Very high   | Yes - fills gaps              | Variable             |
-| Web search          | Medium      | High - unreliable sources     | Hit or miss          |
-| Local RAG           | Medium-High | Medium - retrieval gaps       | Depends on setup     |
-| **NotebookLM MCP**  | **Minimal** | **Zero** - refuses if unknown | **Expert synthesis** |
+### Q&A with Citations
 
-NotebookLM is pre-indexed by Gemini, provides citation-backed answers, and requires no infrastructure.
+- **Ask questions** to NotebookLM and get accurate, citation-backed answers
+- **Source citation extraction** with 5 formats: none, inline, footnotes, json, expanded
+- **Session management** for multi-turn conversations
+
+### Content Generation
+
+- **Audio Overview** — Generate podcast-style audio discussions
+- **Briefing Doc** — Executive summaries
+- **Study Guide** — Learning cards and key concepts
+- **FAQ** — Frequently asked questions
+- **Timeline** — Chronological events
+- **Research Notes** — AI-powered research with fast/deep modes
+
+### Source Management
+
+- **Add sources**: Files (PDF, TXT, DOCX), URLs, Text, YouTube videos, Google Drive
+- **List content**: View all sources and generated artifacts
+- **Download audio**: Export generated audio files
+
+### Notebook Library
+
+- **Multi-notebook management** with validation and smart selection
+- **Auto-discovery**: Automatically generate metadata via NotebookLM queries
+- **Search notebooks** by keyword in name, description, or topics
+
+### Integration Options
+
+- **MCP Protocol** — Claude Code, Cursor, Codex, any MCP client
+- **HTTP REST API** — n8n, Zapier, Make.com, custom integrations
+- **28 endpoints** covering all NotebookLM features
 
 ---
 
@@ -87,17 +111,6 @@ curl -X POST http://localhost:3000/ask \
 
 ---
 
-## Core Features
-
-- **Zero Hallucinations** — NotebookLM refuses to answer if info isn't in your docs
-- **Multi-Notebook Library** — Manage multiple notebooks with validation and smart selection
-- **Auto-Discovery** — Automatically generate metadata via NotebookLM queries
-- **HTTP REST API** — Use from n8n, Zapier, Make.com, or any HTTP client
-- **Daemon Mode** — Run as background process with PM2 (`npm run daemon:start`)
-- **Cross-Tool** — Works with Claude Code, Cursor, Codex, and any MCP client
-
----
-
 ## Architecture
 
 ```
@@ -112,9 +125,12 @@ Your Task → Agent/n8n → MCP/HTTP Server → Chrome Automation → NotebookLM
 
 See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
-**v1.3.6:** Multi-interface mode via stdio-HTTP proxy (run Claude Desktop + HTTP simultaneously).
+**Latest releases:**
 
-**Next up (v1.4.0):** Separate Chrome profiles for independent authentication per mode.
+- **v1.4.1** — Research notes with fast/deep modes
+- **v1.4.0** — Content management (sources, audio, generation) + Multi-account
+- **v1.3.7** — Source citation extraction (5 formats)
+- **v1.3.6** — Multi-interface mode via stdio-HTTP proxy
 
 ---
 
