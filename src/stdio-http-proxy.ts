@@ -348,9 +348,9 @@ function buildProxyToolDefinitions(): Tool[] {
       },
     },
     {
-      name: 'create_note',
+      name: 'add_note',
       description:
-        '🔌 [PROXY] Create note with AI research via HTTP server.\n' +
+        '🔌 [PROXY] Add note with AI research via HTTP server.\n' +
         'Modes: fast (1-2 min) or deep (3-5 min thorough research)',
       inputSchema: {
         type: 'object',
@@ -473,7 +473,7 @@ async function handleToolCall(
         );
       }
 
-      case 'create_note':
+      case 'add_note':
         return await httpRequest('POST', '/content/notes', args);
 
       default:

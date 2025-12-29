@@ -26,7 +26,7 @@
  * - Session management - Create, reset, close sessions
  * - generateContent() - FAQ, Study Guide, Briefing, Timeline, TOC (via chat)
  * - generateAudioOverview() - Podcast script (via chat)
- * - createNote() - Research notes with fast/deep modes (via chat)
+ * - addNote() - Research notes with fast/deep modes (via chat)
  */
 
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
@@ -551,9 +551,9 @@ describeE2E('Full E2E Tests - Real NotebookLM', () => {
     );
   });
 
-  describe('ContentManager.createNote()', () => {
+  describe('ContentManager.addNote()', () => {
     it(
-      'should create a note with fast research',
+      'should add a note with fast research',
       async () => {
         if (!isAuthenticated) return;
 
@@ -564,7 +564,7 @@ describeE2E('Full E2E Tests - Real NotebookLM', () => {
         });
 
         if (!result.success && result.error?.includes('button not found')) {
-          console.log('⚠️ Note creation: UI selectors need updating');
+          console.log('⚠️ Note addition: UI selectors need updating');
           return;
         }
         expect(result.success).toBe(true);
@@ -575,7 +575,7 @@ describeE2E('Full E2E Tests - Real NotebookLM', () => {
     );
 
     it(
-      'should create a note with deep research',
+      'should add a note with deep research',
       async () => {
         if (!isAuthenticated) return;
 

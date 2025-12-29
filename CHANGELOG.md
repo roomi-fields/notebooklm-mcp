@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ `add_source` - Add files, URLs, text, YouTube (all types working)
 - ✅ `generate_content` - FAQ, Study Guide, Briefing doc (via chat fallback)
 - ✅ `generate_audio` - Audio overview generation
-- ✅ `create_note` - Research notes with fast/deep modes
+- ✅ `add_note` - Research notes with fast/deep modes
 - ✅ Session management - Create, reset, close sessions
 - ✅ Authentication - setup_auth, re_auth, de_auth
 
@@ -61,9 +61,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-**Research Notes Feature:**
+**Add Note Feature:**
 
-- New `create_note` tool for AI-powered research notes
+- New `add_note` tool for AI-powered research notes
 - Two research modes:
   - `fast`: Quick research with essential findings (1-2 minutes)
   - `deep`: Thorough research with comprehensive analysis (3-5 minutes)

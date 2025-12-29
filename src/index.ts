@@ -540,8 +540,8 @@ class NotebookLMMCPServer {
             );
             break;
 
-          case 'create_note':
-            result = await this.toolHandlers.handleCreateNote(
+          case 'add_note':
+            result = await this.toolHandlers.handleAddNote(
               args as {
                 topic: string;
                 mode: 'fast' | 'deep';

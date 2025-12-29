@@ -1706,17 +1706,17 @@ export class ContentManager {
   }
 
   // ============================================================================
-  // Note Creation with Research
+  // Add Note with Research
   // ============================================================================
 
   /**
-   * Create a new note using research mode (fast or deep)
+   * Add a new note using research mode (fast or deep)
    *
-   * NOTE (Dec 2024): Note creation now uses the chat interface.
+   * NOTE (Dec 2024): Note addition now uses the chat interface.
    * We send a detailed research request and capture the AI response as the note.
    */
-  async createNote(input: NoteCreationInput): Promise<NoteCreationResult> {
-    log.info(`📝 Creating note with ${input.mode} research: "${input.topic}"`);
+  async addNote(input: NoteCreationInput): Promise<NoteCreationResult> {
+    log.info(`📝 Adding note with ${input.mode} research: "${input.topic}"`);
 
     try {
       // Navigate to Discussion panel
@@ -1764,7 +1764,7 @@ Provide a concise but informative summary covering the key points.`;
         // Generate a title from the topic
         const title = input.topic.length > 60 ? input.topic.substring(0, 57) + '...' : input.topic;
 
-        log.success(`  ✅ Note created with ${input.mode} research via ${result.source}!`);
+        log.success(`  ✅ Note added with ${input.mode} research via ${result.source}!`);
         return {
           success: true,
           mode: input.mode,
@@ -1777,7 +1777,7 @@ Provide a concise but informative summary covering the key points.`;
       throw new Error('Response too short or empty');
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      log.error(`❌ Note creation failed: ${errorMsg}`);
+      log.error(`❌ Note addition failed: ${errorMsg}`);
       return { success: false, mode: input.mode, error: errorMsg };
     }
   }

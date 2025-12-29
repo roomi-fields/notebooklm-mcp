@@ -952,13 +952,13 @@ User: "Yes" → call remove_notebook`,
       },
     },
     {
-      name: 'create_note',
+      name: 'add_note',
       description:
-        'Create a new note using AI research from notebook sources.\n\n' +
+        'Add a new note to the notebook using AI research from sources.\n\n' +
         'Research Modes:\n' +
         '- fast: Quick research, returns results in ~1-2 minutes\n' +
         '- deep: Thorough research, returns comprehensive results in ~3-5 minutes\n\n' +
-        'The note will be based on the sources in the notebook.',
+        'The note will be created based on the sources in the notebook.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -2359,9 +2359,9 @@ export class ToolHandlers {
   }
 
   /**
-   * Handle create_note tool
+   * Handle add_note tool
    */
-  async handleCreateNote(args: {
+  async handleAddNote(args: {
     topic: string;
     mode: ResearchMode;
     custom_instructions?: string;
@@ -2370,7 +2370,7 @@ export class ToolHandlers {
   }): Promise<ToolResult<NoteCreationResult>> {
     const { topic, mode, custom_instructions, notebook_url, session_id } = args;
 
-    log.info(`🔧 [TOOL] create_note called (mode: ${mode})`);
+    log.info(`🔧 [TOOL] add_note called (mode: ${mode})`);
 
     try {
       // Resolve notebook URL
@@ -2397,17 +2397,17 @@ export class ToolHandlers {
       // Create content manager
       const contentManager = new ContentManager(page);
 
-      // Create note with research
-      const result = await contentManager.createNote({
+      // Add note with research
+      const result = await contentManager.addNote({
         topic,
         mode,
         customInstructions: custom_instructions,
       });
 
       if (result.success) {
-        log.success(`✅ [TOOL] create_note completed (${mode} research)`);
+        log.success(`✅ [TOOL] add_note completed (${mode} research)`);
       } else {
-        log.error(`❌ [TOOL] create_note failed: ${result.error}`);
+        log.error(`❌ [TOOL] add_note failed: ${result.error}`);
       }
 
       return {
@@ -2417,7 +2417,7 @@ export class ToolHandlers {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      log.error(`❌ [TOOL] create_note failed: ${errorMessage}`);
+      log.error(`❌ [TOOL] add_note failed: ${errorMessage}`);
       return {
         success: false,
         error: errorMessage,

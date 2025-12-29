@@ -542,7 +542,7 @@ app.get('/content/audio/download', async (req: Request, res: Response) => {
   }
 });
 
-// Create note with research
+// Add note with research
 app.post('/content/notes', async (req: Request, res: Response) => {
   try {
     const { topic, mode, custom_instructions, notebook_url, session_id } = req.body;
@@ -561,7 +561,7 @@ app.post('/content/notes', async (req: Request, res: Response) => {
       });
     }
 
-    const result = await toolHandlers.handleCreateNote({
+    const result = await toolHandlers.handleAddNote({
       topic,
       mode,
       custom_instructions,
@@ -632,7 +632,7 @@ app.listen(PORT, HOST, () => {
   log.info('   POST   /content/sources        Add source to notebook');
   log.info('   POST   /content/audio          Generate audio overview');
   log.info('   POST   /content/generate       Generate content (briefing, etc.)');
-  log.info('   POST   /content/notes          Create note with research (fast/deep)');
+  log.info('   POST   /content/notes          Add note with research (fast/deep)');
   log.info('   GET    /content                List sources and content');
   log.info('   GET    /content/audio/download Download audio file');
   log.info('');

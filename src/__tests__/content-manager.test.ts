@@ -225,7 +225,7 @@ describe('ContentManager', () => {
         fill: jest.fn().mockResolvedValue(undefined),
       });
 
-      const result = await manager.createNote({ content: 'Test note content' });
+      const result = await manager.addNote({ content: 'Test note content' });
 
       // The actual result depends on UI state, but the function should run
       expect(result).toBeDefined();
@@ -560,7 +560,7 @@ describe('ContentManager', () => {
         fill: jest.fn().mockResolvedValue(undefined),
       });
 
-      const result = await manager.createNote({
+      const result = await manager.addNote({
         content: 'Test note',
         title: 'My Note',
       });
@@ -568,10 +568,10 @@ describe('ContentManager', () => {
       expect(result).toBeDefined();
     });
 
-    it('should require content for note creation', async () => {
+    it('should require content for note addition', async () => {
       const manager = new ContentManager(mockPage);
 
-      const result = await manager.createNote({ content: '' });
+      const result = await manager.addNote({ content: '' });
 
       // Empty content should fail or be handled
       expect(result).toBeDefined();

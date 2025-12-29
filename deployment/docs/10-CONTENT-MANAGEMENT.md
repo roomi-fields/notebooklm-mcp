@@ -357,11 +357,11 @@ list_content()
 download_audio(output_path="/path/to/save.wav")
 ```
 
-### Create Research Note
+### Add Research Note
 
 ```
-create_note(topic="Summary of key findings", mode="fast")
-create_note(topic="Comprehensive analysis", mode="deep", custom_instructions="Include statistics")
+add_note(topic="Summary of key findings", mode="fast")
+add_note(topic="Comprehensive analysis", mode="deep", custom_instructions="Include statistics")
 ```
 
 ---
