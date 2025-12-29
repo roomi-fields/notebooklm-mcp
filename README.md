@@ -29,6 +29,7 @@
 ### Content Generation
 
 - **Audio Overview** — Generate podcast-style audio discussions
+- **Download audio** — Export generated audio files
 - **Briefing Doc** — Executive summaries
 - **Study Guide** — Learning cards and key concepts
 - **FAQ** — Frequently asked questions
@@ -38,8 +39,7 @@
 
 - **Add sources**: Files (PDF, TXT, DOCX), URLs, Text, YouTube videos, Google Drive
 - **Add notes**: AI-powered research notes with fast/deep modes
-- **List content**: View all sources and generated artifacts
-- **Download audio**: Export generated audio files
+- **List content**: View all sources and notes in a notebook
 
 ### Notebook Library
 
