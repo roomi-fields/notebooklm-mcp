@@ -57,18 +57,25 @@
 
 ## Quick Start
 
+> ⚠️ **npm registry temporarily unavailable** - Install from GitHub instead (see below)
+
 ### Option 1: MCP Mode (Claude Code, Cursor, Codex)
 
 ```bash
+# Clone and build locally
+git clone https://github.com/roomi-fields/notebooklm-mcp.git
+cd notebooklm-mcp
+npm install && npm run build
+
 # Claude Code
-claude mcp add notebooklm npx @roomi-fields/notebooklm-mcp@latest
+claude mcp add notebooklm node /path/to/notebooklm-mcp/dist/index.js
 
 # Cursor - add to ~/.cursor/mcp.json
 {
   "mcpServers": {
     "notebooklm": {
-      "command": "npx",
-      "args": ["-y", "@roomi-fields/notebooklm-mcp@latest"]
+      "command": "node",
+      "args": ["/path/to/notebooklm-mcp/dist/index.js"]
     }
   }
 }
