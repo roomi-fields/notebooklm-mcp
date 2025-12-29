@@ -47,7 +47,6 @@
 
 - **MCP Protocol** — Claude Code, Cursor, Codex, any MCP client
 - **HTTP REST API** — n8n, Zapier, Make.com, custom integrations
-- **27 endpoints** covering NotebookLM features
 
 ---
 

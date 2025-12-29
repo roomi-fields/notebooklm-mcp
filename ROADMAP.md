@@ -34,7 +34,7 @@ This document tracks planned features, recent implementations, and future ideas 
 - [ ] Expand/collapse nodes
 - [ ] Download as image (PNG/SVG)
 
-**Reports (TODO - need REAL UI automation):**
+**Reports:**
 
 - [ ] Generate briefing doc (basic)
 - [ ] Full report generation (2,000-3,000 words)
@@ -55,7 +55,14 @@ This document tracks planned features, recent implementations, and future ideas 
 - [ ] Theme/style selection
 - [ ] Download as PDF/PPTX
 
-**Study Resources (TODO - need REAL UI automation):**
+**Data Tables (NEW):**
+
+- [ ] Generate data table from sources
+- [ ] Format: CSV, Excel
+- [ ] Column customization
+- [ ] Download as CSV/XLSX
+
+**Study Resources:**
 
 - [ ] Generate study guide (basic)
 - [ ] Generate FAQ
@@ -104,8 +111,6 @@ This document tracks planned features, recent implementations, and future ideas 
 - [x] Download audio files
 - [x] List sources and content
 - [x] Multi-account support
-
-> **Note:** v1.4.x initially claimed support for generating Study Guide, FAQ, Timeline, Table of Contents, and Briefing Doc. These were **fake implementations** that only sent prompts to the chat interface instead of clicking the real Studio buttons. They have been removed and moved back to TODO status. Only audio overview generation uses real UI automation.
 
 ### v1.3.7 - Source Citation Extraction
 
