@@ -12,29 +12,64 @@ This document tracks planned features, recent implementations, and future ideas 
 
 **Priority: High** - Complete NotebookLM Studio features.
 
-**Content Generation - Phase 1 (PRIORITY):**
+**Audio Overviews (partial - needs options):**
 
-| Type            | Status  | Options to explore                   |
-| --------------- | ------- | ------------------------------------ |
-| Audio (podcast) | ✅ Done | Voices, language, duration, style    |
-| Video           | ⬚ TODO  | Format, resolution, style, narration |
-| Infographic     | ⬚ TODO  | Style, layout, color scheme          |
-| Report          | ⬚ TODO  | Format (PDF/DOCX), sections, depth   |
-| Presentation    | ⬚ TODO  | Slides format, theme, speaker notes  |
-| Data table      | ⬚ TODO  | Format (CSV/Excel), columns, filters |
+- [x] Generate audio overview (basic)
+- [x] Download audio file
+- [ ] Audio style selection: Debate, Critique, Brief summary, Deep dive
+- [ ] Tone customization (humor, formality)
+- [ ] Length/duration control
+- [ ] Language selection (80+ languages)
 
-**Content Generation - Phase 2:**
+**Video Overviews (NEW):**
 
-| Type                        | Status | Options to explore                  |
-| --------------------------- | ------ | ----------------------------------- |
-| Mind map                    | ⬚ TODO | Layout, depth, export format        |
-| Quiz                        | ⬚ TODO | Question types, difficulty, scoring |
-| Learning cards (flashcards) | ⬚ TODO | Card format, spaced repetition      |
+- [ ] Generate video overview
+- [ ] Format selection: Brief, Explainer
+- [ ] Visual style selection (6 styles via Nano Banana AI)
+- [ ] Download video file
+
+**Mind Maps (NEW):**
+
+- [ ] Generate mind map from sources
+- [ ] Expand/collapse nodes
+- [ ] Download as image (PNG/SVG)
+
+**Reports:**
+
+- [x] Generate briefing doc (basic)
+- [ ] Full report generation (2,000-3,000 words)
+- [ ] Section customization
+- [ ] Download as PDF/DOCX
+
+**Infographics (NEW):**
+
+- [ ] Generate infographic
+- [ ] Format: Horizontal (16:9) for LinkedIn/blogs
+- [ ] Format: Vertical (9:16) for Instagram/TikTok
+- [ ] Download as image
+
+**Slide Decks / Presentations (NEW):**
+
+- [ ] Generate presentation
+- [ ] AI-generated images (Nano Banana Pro)
+- [ ] Theme/style selection
+- [ ] Download as PDF/PPTX
+
+**Study Resources:**
+
+- [x] Generate study guide (basic)
+- [x] Generate FAQ
+- [x] Generate timeline
+- [x] Generate table of contents
+- [ ] Generate quiz with questions
+- [ ] Generate flashcards
+- [ ] Key terms extraction
+- [ ] Download all formats
 
 **Download & Export (PRIORITY):**
 
-- [ ] Download ALL generated content types
-- [ ] Support all export formats offered by NotebookLM UI (dynamic detection)
+- [ ] Universal download for ALL content types
+- [ ] Dynamic format detection from UI
 - [ ] Endpoint: `GET /content/download?type=...&format=...`
 
 **Note Management:**
@@ -57,12 +92,6 @@ This document tracks planned features, recent implementations, and future ideas 
 - [ ] Discover sources from Web (Deep mode)
 - [ ] Discover sources from Google Drive (Fast mode)
 - [ ] Discover sources from Google Drive (Deep mode)
-
-**Audio Enhancements:**
-
-- [ ] Customize audio voices/hosts
-- [ ] Audio language selection
-- [ ] Re-generate audio with different parameters
 
 ---
 
