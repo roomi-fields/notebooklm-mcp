@@ -340,10 +340,10 @@ cmd.exe /c 'curl -s -X POST http://localhost:3000/ask -H "Content-Type: applicat
 
 ## Available Notebooks
 
-| ID         | Name                 | URL                                    | Topics                |
-| ---------- | -------------------- | -------------------------------------- | --------------------- |
-| notebook-1 | Example Notebook 1   | `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` | topic1, topic2        |
-| notebook-2 | Example Notebook 2   | `yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy` | topic3, topic4        |
+| ID         | Name               | URL                                    | Topics         |
+| ---------- | ------------------ | -------------------------------------- | -------------- |
+| notebook-1 | Example Notebook 1 | `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` | topic1, topic2 |
+| notebook-2 | Example Notebook 2 | `yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy` | topic3, topic4 |
 
 > **Note:** Replace these with your actual notebook UUIDs from NotebookLM.
 
