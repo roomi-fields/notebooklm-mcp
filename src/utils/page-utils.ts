@@ -49,8 +49,21 @@ const PLACEHOLDER_SNIPPETS = [
   'generating answer',
   'wird erstellt',
   'getting the context', // NotebookLM initial loading message
+  'getting the gist', // NotebookLM loading message (English)
+  'analyse en cours', // NotebookLM loading message (French)
   'loading',
   'please wait',
+  // NotebookLM English loading messages (seen in logs)
+  'looking for clues',
+  'reading full chapters',
+  'examining the specifics',
+  'checking the scope',
+  'opening your notes',
+  'analyzing your files',
+  'searching your docs',
+  'scanning sources',
+  'reviewing content',
+  'processing request',
 ];
 
 // Error messages from NotebookLM that indicate failure
@@ -67,12 +80,32 @@ const ERROR_SNIPPETS = [
   'too many requests',
 ];
 
+// Rate limit specific messages (trigger account rotation)
+const RATE_LIMIT_MESSAGES = [
+  "le système n'a pas pu répondre", // Generic error that often indicates rate limit
+  'vous avez atteint la limite quotidienne', // French: You have reached the daily limit
+  'limite quotidienne de discussions',
+  'daily limit',
+  'revenez plus tard', // Come back later
+  'query limit reached',
+  'rate limit exceeded',
+  'daily discussion limit',
+];
+
 /**
  * Check if text is an error message from NotebookLM
  */
 export function isErrorMessage(text: string): boolean {
   const lower = text.toLowerCase();
   return ERROR_SNIPPETS.some((snippet) => lower.includes(snippet));
+}
+
+/**
+ * Check if text indicates a rate limit error (should trigger account rotation)
+ */
+export function isRateLimitMessage(text: string): boolean {
+  const lower = text.toLowerCase();
+  return RATE_LIMIT_MESSAGES.some((msg) => lower.includes(msg));
 }
 
 // ============================================================================
@@ -94,10 +127,23 @@ function hashString(str: string): number {
 
 /**
  * Check if text is a placeholder/loading message
+ * Also treats short texts ending with "..." as placeholders (loading indicators)
  */
 function isPlaceholder(text: string): boolean {
   const lower = text.toLowerCase();
-  return PLACEHOLDER_SNIPPETS.some((snippet) => lower.includes(snippet));
+
+  // Known placeholder phrases
+  if (PLACEHOLDER_SNIPPETS.some((snippet) => lower.includes(snippet))) {
+    return true;
+  }
+
+  // Short text ending with "..." is likely a loading message
+  // Real responses are typically > 50 chars
+  if (text.length < 50 && text.trim().endsWith('...')) {
+    return true;
+  }
+
+  return false;
 }
 
 // ============================================================================
@@ -227,10 +273,31 @@ export async function waitForLatestAnswer(
   let pollCount = 0;
   let lastCandidate: string | null = null;
   let stableCount = 0; // Track how many times we see the same text
-  const requiredStablePolls = 8; // Text must be stable for 8 consecutive polls (~8 seconds)
+  const requiredStablePolls = 3; // Text must be stable for 3 consecutive polls (~3 seconds)
 
   while (Date.now() < deadline) {
     pollCount++;
+
+    // CHECK INPUT FIELD for rate limit message (appears there after submit)
+    try {
+      const inputField = await page.$('textarea.query-box-input');
+      if (inputField) {
+        // Check placeholder
+        const placeholder = await inputField.getAttribute('placeholder');
+        if (placeholder && isRateLimitMessage(placeholder)) {
+          log.error(`🚫 [INPUT] Rate limit in placeholder: "${placeholder.substring(0, 60)}..."`);
+          return placeholder; // Return immediately to trigger rotation
+        }
+        // Check value
+        const value = await inputField.inputValue();
+        if (value && isRateLimitMessage(value)) {
+          log.error(`🚫 [INPUT] Rate limit in input value: "${value.substring(0, 60)}..."`);
+          return value; // Return immediately to trigger rotation
+        }
+      }
+    } catch {
+      // Input check failed, continue with normal extraction
+    }
 
     // Extract latest NEW text
     const candidate = await extractLatestText(page, knownHashes, debug, pollCount);
@@ -249,6 +316,20 @@ export async function waitForLatestAnswer(
           }
           await page.waitForTimeout(250);
           continue;
+        }
+
+        // IMMEDIATE RETURN: Error messages don't need stability check
+        if (isErrorMessage(normalized)) {
+          log.warning(
+            `⚠️ [RESPONSE] NotebookLM error detected: "${normalized.substring(0, 60)}..."`
+          );
+          return normalized; // Return immediately, no need to wait for stability
+        }
+
+        // IMMEDIATE RETURN: Rate limit messages trigger immediate return
+        if (isRateLimitMessage(normalized)) {
+          log.error(`🚫 [RESPONSE] Rate limit detected: "${normalized.substring(0, 60)}..."`);
+          return normalized; // Return immediately to trigger account rotation
         }
 
         // DEBUG: Log the candidate text to see what we're getting

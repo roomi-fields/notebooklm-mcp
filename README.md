@@ -26,11 +26,27 @@
 - **Source citation extraction** with 5 formats: none, inline, footnotes, json, expanded
 - **Session management** for multi-turn conversations
 
-### Audio Overview (Podcast)
+### Content Generation
 
-- **Generate Audio Overview** — Create podcast-style audio discussions from your sources
-- **Download Audio** — Export generated audio files to local storage
-- Audio generation is **asynchronous**: trigger generation (5-10 min), then download
+Generate multiple content types from your notebook sources:
+
+| Content Type       | Formats                  | Options                                        |
+| ------------------ | ------------------------ | ---------------------------------------------- |
+| **Audio Overview** | Podcast-style discussion | Language (80+), custom instructions            |
+| **Video**          | Brief, Explainer         | 6 visual styles, language, custom instructions |
+| **Infographic**    | Horizontal, Vertical     | Language, custom instructions                  |
+| **Report**         | Summary, Detailed        | Language, custom instructions                  |
+| **Presentation**   | Overview, Detailed       | Language, custom instructions                  |
+| **Data Table**     | Simple, Detailed         | Language, custom instructions                  |
+
+**Video Visual Styles**: classroom, documentary, animated, corporate, cinematic, minimalist
+
+### Content Download
+
+- **Download Audio** — WAV audio files
+- **Download Video** — MP4 video files
+- **Download Infographic** — PNG image files
+- Text-based content (report, presentation, data_table) is returned in the API response
 
 ### Source Management
 
@@ -119,17 +135,14 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 **Latest releases:**
 
+- **v1.5.0** — Complete Studio content generation (video, infographic, presentation, data_table) + Notes management + Delete sources
 - **v1.4.0** — Content management (sources, audio, generation) + Multi-account
 - **v1.3.7** — Source citation extraction (5 formats)
-- **v1.3.6** — Multi-interface mode via stdio-HTTP proxy
 
 **Not yet implemented:**
 
 - Discover sources (Web/Drive search with Fast/Deep modes)
-- Create/edit/delete notes
-- Delete sources
-- Save chat response to note
-- Convert note to source
+- Edit notes (create, delete, and convert are implemented)
 
 ---
 

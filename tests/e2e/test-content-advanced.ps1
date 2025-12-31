@@ -261,19 +261,19 @@ if ($SkipAudio) {
     Write-Host "  [SKIP] Audio generation skipped (use -SkipAudio:$false to enable)" -ForegroundColor Yellow
     $Skipped++
     $Results += @{
-        Name = "POST /content/audio/generate"
+        Name = "POST /content/generate (audio_overview)"
         Status = "SKIPPED"
         Duration = 0
         Details = "Skipped by user"
     }
 } else {
-    Write-Host "  Testing: POST /content/audio/generate..."
+    Write-Host "  Testing: POST /content/generate (audio_overview)..."
     Write-Host "    Timeout: ${AudioTimeout}s ($(($AudioTimeout / 60)) minutes)"
     Write-Host "    This operation typically takes 3-5 minutes!" -ForegroundColor Yellow
     Write-Host "    Please wait..." -ForegroundColor Cyan
 
     $audioResult = @{
-        Name = "POST /content/audio/generate"
+        Name = "POST /content/generate (audio_overview)"
         Status = "PENDING"
         Duration = 0
         Details = ""
@@ -283,6 +283,7 @@ if ($SkipAudio) {
 
     try {
         $audioBody = @{
+            content_type = "audio_overview"
             custom_instructions = "Create a brief 2-minute summary focusing on key points"
         }
 
@@ -291,7 +292,7 @@ if ($SkipAudio) {
         }
 
         $response = Invoke-RestMethod `
-            -Uri "$BaseUrl/content/audio/generate" `
+            -Uri "$BaseUrl/content/generate" `
             -Method POST `
             -ContentType "application/json" `
             -Body ($audioBody | ConvertTo-Json) `
@@ -368,22 +369,22 @@ if ($SkipAudio) {
 
 Write-TestHeader "AUDIO DOWNLOAD"
 
-$audioGenerated = ($Results | Where-Object { $_.Name -eq "POST /content/audio/generate" -and $_.Status -eq "PASS" }).Count -gt 0
+$audioGenerated = ($Results | Where-Object { $_.Name -eq "POST /content/generate (audio_overview)" -and $_.Status -eq "PASS" }).Count -gt 0
 
 if (-not $audioGenerated) {
     Write-Host "  [SKIP] Audio download skipped (no audio was generated)" -ForegroundColor Yellow
     $Skipped++
     $Results += @{
-        Name = "GET /content/audio/download"
+        Name = "GET /content/download (audio_overview)"
         Status = "SKIPPED"
         Duration = 0
         Details = "No audio generated to download"
     }
 } else {
-    Write-Host "  Testing: GET /content/audio/download..."
+    Write-Host "  Testing: GET /content/download (audio_overview)..."
 
     $downloadResult = @{
-        Name = "GET /content/audio/download"
+        Name = "GET /content/download (audio_overview)"
         Status = "PENDING"
         Duration = 0
         Details = ""
@@ -392,9 +393,9 @@ if (-not $audioGenerated) {
     $startTime = Get-Date
 
     try {
-        $downloadUrl = "$BaseUrl/content/audio/download"
+        $downloadUrl = "$BaseUrl/content/download?content_type=audio_overview"
         if ($sessionId) {
-            $downloadUrl += "?session_id=$sessionId"
+            $downloadUrl += "&session_id=$sessionId"
         }
 
         # First check if audio is available (HEAD-like check via GET with short timeout)

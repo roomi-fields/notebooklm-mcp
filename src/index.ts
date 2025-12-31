@@ -495,10 +495,11 @@ class NotebookLMMCPServer {
             );
             break;
 
-          case 'generate_audio':
-            result = await this.toolHandlers.handleGenerateAudio(
+          case 'delete_source':
+            result = await this.toolHandlers.handleDeleteSource(
               args as {
-                custom_instructions?: string;
+                source_id?: string;
+                source_name?: string;
                 notebook_url?: string;
                 session_id?: string;
               }
@@ -525,10 +526,47 @@ class NotebookLMMCPServer {
             );
             break;
 
-          case 'download_audio':
-            result = await this.toolHandlers.handleDownloadAudio(
+          case 'download_content':
+            result = await this.toolHandlers.handleDownloadContent(
               args as {
+                content_type:
+                  | 'audio_overview'
+                  | 'video'
+                  | 'infographic'
+                  | 'presentation'
+                  | 'data_table';
                 output_path?: string;
+                notebook_url?: string;
+                session_id?: string;
+              }
+            );
+            break;
+
+          case 'create_note':
+            result = await this.toolHandlers.handleCreateNote(
+              args as {
+                title: string;
+                content: string;
+                notebook_url?: string;
+                session_id?: string;
+              }
+            );
+            break;
+
+          case 'save_chat_to_note':
+            result = await this.toolHandlers.handleSaveChatToNote(
+              args as {
+                title?: string;
+                notebook_url?: string;
+                session_id?: string;
+              }
+            );
+            break;
+
+          case 'convert_note_to_source':
+            result = await this.toolHandlers.handleConvertNoteToSource(
+              args as {
+                note_title: string;
                 notebook_url?: string;
                 session_id?: string;
               }

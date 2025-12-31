@@ -360,14 +360,23 @@ export class AccountManager {
 
   /**
    * Get the best available account based on rotation strategy
+   * @param excludeAccountId Optional account ID to exclude (e.g., rate-limited account)
    */
-  async getBestAccount(): Promise<AccountSelection | null> {
+  async getBestAccount(excludeAccountId?: string): Promise<AccountSelection | null> {
     if (!this.config || this.accounts.size === 0) {
       return null;
     }
 
     const strategy = this.config.rotationStrategy;
-    const availableAccounts = this.getAvailableAccounts();
+    let availableAccounts = this.getAvailableAccounts();
+
+    // Exclude specific account if requested (e.g., the one that hit rate limit)
+    if (excludeAccountId) {
+      availableAccounts = availableAccounts.filter((a) => a.config.id !== excludeAccountId);
+      log.info(
+        `  🔄 Excluding ${excludeAccountId} from selection (${availableAccounts.length} remaining)`
+      );
+    }
 
     if (availableAccounts.length === 0) {
       log.warning('⚠️  No available accounts (all disabled, quota exhausted, or failed)');
@@ -476,6 +485,51 @@ export class AccountManager {
 
     const remaining = account.quota.limit - account.quota.used;
     log.dim(`  📊 Quota: ${account.quota.used}/${account.quota.limit} (${remaining} remaining)`);
+  }
+
+  /**
+   * Mark account as rate-limited (quota exhausted)
+   * This ensures the account won't be selected again until quota resets
+   */
+  async markRateLimited(accountId: string): Promise<void> {
+    const account = this.accounts.get(accountId);
+    if (!account) return;
+
+    log.warning(`🚫 Marking account ${maskEmail(account.config.email)} as rate-limited`);
+
+    // Set quota to exhausted
+    account.quota.used = account.quota.limit;
+    account.quota.lastUpdated = new Date().toISOString();
+
+    // Save quota
+    const quotaPath = path.join(this.accountsDir, accountId, 'quota.json');
+    await fs.writeFile(quotaPath, JSON.stringify(account.quota, null, 2));
+
+    log.info(`  📊 Account quota exhausted: ${account.quota.used}/${account.quota.limit}`);
+  }
+
+  /**
+   * Save the ID of the currently active account
+   * This is used to identify which account is currently loaded in the main profile
+   */
+  async saveCurrentAccountId(accountId: string): Promise<void> {
+    const currentAccountPath = path.join(CONFIG.dataDir, 'current-account.txt');
+    await fs.writeFile(currentAccountPath, accountId, 'utf-8');
+    log.info(`  📋 Current account set: ${accountId}`);
+  }
+
+  /**
+   * Get the ID of the currently active account
+   * Returns null if no account is set or file doesn't exist
+   */
+  async getCurrentAccountId(): Promise<string | null> {
+    const currentAccountPath = path.join(CONFIG.dataDir, 'current-account.txt');
+    try {
+      const id = await fs.readFile(currentAccountPath, 'utf-8');
+      return id.trim() || null;
+    } catch {
+      return null;
+    }
   }
 
   /**

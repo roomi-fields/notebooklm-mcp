@@ -2,7 +2,7 @@
 
 This document tracks planned features, recent implementations, and future ideas for the NotebookLM MCP Server.
 
-## Current Version: v1.4.2
+## Current Version: v1.5.0
 
 ---
 
@@ -37,10 +37,13 @@ This document tracks planned features, recent implementations, and future ideas 
 - [ ] Format: Vertical (9:16) for Instagram/TikTok
 - [ ] Download as image
 
-**4. Reports:**
+**4. Reports (Enhanced):**
 
-- [ ] Generate briefing doc (basic)
-- [ ] Full report generation (2,000-3,000 words)
+- [x] Generate report (basic via `report_format`: summary, detailed)
+- [ ] Report types: Briefing doc, FAQ, Study guide, Timeline
+- [ ] Calculated report types (take longer to generate based on content analysis)
+- [ ] Language selection for reports
+- [ ] Custom instructions/prompt support for reports
 - [ ] Section customization
 - [ ] Download as PDF/DOCX
 
@@ -81,7 +84,6 @@ This document tracks planned features, recent implementations, and future ideas 
 - [ ] Export as Anki/Quizlet
 
 #### Phase 3 - Additional Features
-
 
 **Note Management:**
 

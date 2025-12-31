@@ -14,7 +14,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## Available Endpoints (27 total)
+## Available Endpoints (31 total)
 
 ### Authentication
 
@@ -38,6 +38,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 | -------- | -------------------------- | ------------------------------------ |
 | `GET`    | `/notebooks`               | List all notebooks                   |
 | `POST`   | `/notebooks`               | Add a notebook manually              |
+| `POST`   | `/notebooks/create`        | Create a new notebook in NotebookLM  |
 | `POST`   | `/notebooks/auto-discover` | Auto-generate notebook metadata      |
 | `GET`    | `/notebooks/search`        | Search notebooks by query            |
 | `GET`    | `/notebooks/stats`         | Get library statistics               |
@@ -56,14 +57,19 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ### Content Management
 
-| Method | Endpoint                  | Description                           |
-| ------ | ------------------------- | ------------------------------------- |
-| `POST` | `/content/sources`        | Add source/document to notebook       |
-| `POST` | `/content/audio`          | Generate audio overview (podcast)     |
-| `GET`  | `/content`                | List sources and generated content    |
-| `GET`  | `/content/audio/download` | Download generated audio file         |
+| Method   | Endpoint                          | Description                                   |
+| -------- | --------------------------------- | --------------------------------------------- |
+| `POST`   | `/content/sources`                | Add source/document to notebook               |
+| `DELETE` | `/content/sources/:id`            | Delete source by ID                           |
+| `DELETE` | `/content/sources`                | Delete source by name (query param)           |
+| `POST`   | `/content/generate`               | Generate content (audio, video, report, etc.) |
+| `GET`    | `/content/download`               | Download/export content                       |
+| `POST`   | `/content/notes`                  | Create a note in the notebook                 |
+| `POST`   | `/content/chat-to-note`           | Save chat discussion to a note                |
+| `POST`   | `/content/notes/:title/to-source` | Convert note to source                        |
+| `GET`    | `/content`                        | List sources and generated content            |
 
-> **Note:** The `/content/generate` endpoint was removed in v1.4.2. It was not a real NotebookLM feature - it just sent prompts to the chat. Use `POST /ask` instead with your own prompts.
+> **Note:** v1.5.0 consolidated content generation into `/content/generate` with all NotebookLM Studio features (audio_overview, video, infographic, report, presentation, data_table).
 
 ---
 
@@ -434,13 +440,7 @@ Automatically generate notebook metadata by querying NotebookLM itself.
     "url": "https://notebooklm.google.com/notebook/abc123",
     "name": "auto-generated-notebook",
     "description": "Comprehensive guide covering key concepts. Includes practical exercises and examples.",
-    "tags": [
-      "topic1",
-      "topic2",
-      "learning",
-      "examples",
-      "exercises"
-    ],
+    "tags": ["topic1", "topic2", "learning", "examples", "exercises"],
     "auto_generated": true,
     "created_at": "2025-01-23T10:00:00Z"
   },
@@ -481,6 +481,45 @@ This endpoint enables the **Level 0** of progressive disclosure:
 - Deep queries to NotebookLM only when notebook is selected
 
 Orchestrators (Claude Code, n8n, Cursor) can scan all notebook metadata without rate limit concerns, then query NotebookLM only for the most relevant notebook.
+
+---
+
+## 6b. Create Notebook
+
+### `POST /notebooks/create`
+
+Create a new empty notebook directly in NotebookLM.
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/notebooks/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My New Notebook"
+  }'
+```
+
+**Body Parameters:**
+
+| Parameter      | Type    | Required | Description                                    |
+| -------------- | ------- | -------- | ---------------------------------------------- |
+| `name`         | string  | ❌ No    | Notebook name (auto-generated if not provided) |
+| `show_browser` | boolean | ❌ No    | Show browser during creation                   |
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "notebook_url": "https://notebooklm.google.com/notebook/abc123-def456",
+    "name": "My New Notebook"
+  }
+}
+```
+
+**Note:** This creates the notebook in NotebookLM but does NOT add it to the local library. Use `POST /notebooks` or `POST /notebooks/auto-discover` to add it to the library after creation.
 
 ---
 
@@ -1043,82 +1082,298 @@ curl -X POST http://localhost:3000/content/sources \
 
 ---
 
-## 16. Generate Audio Overview
+## 15b. Delete Source from Notebook
 
-### `POST /content/audio`
+### `DELETE /content/sources/:id`
 
-Generate an audio overview (podcast-style) from notebook sources.
+Delete a source from a notebook by its ID.
 
 **Request:**
 
 ```bash
-curl -X POST http://localhost:3000/content/audio \
-  -H "Content-Type: application/json" \
-  -d '{
-    "custom_instructions": "Focus on key concepts for beginners",
-    "notebook_url": "https://notebooklm.google.com/notebook/abc123"
-  }'
+curl -X DELETE "http://localhost:3000/content/sources/source-123?notebook_url=https://notebooklm.google.com/notebook/abc123"
 ```
 
-**Body Parameters:**
+**Path Parameters:**
 
-| Parameter             | Type   | Required | Description                         |
-| --------------------- | ------ | -------- | ----------------------------------- |
-| `custom_instructions` | string | ❌ No    | Custom focus/instructions for audio |
-| `notebook_url`        | string | ❌ No    | Target notebook URL                 |
-| `session_id`          | string | ❌ No    | Reuse existing session              |
+| Parameter | Type   | Required | Description                 |
+| --------- | ------ | -------- | --------------------------- |
+| `id`      | string | Yes      | The unique ID of the source |
+
+**Query Parameters:**
+
+| Parameter      | Type   | Required | Description            |
+| -------------- | ------ | -------- | ---------------------- |
+| `notebook_url` | string | No       | Target notebook URL    |
+| `session_id`   | string | No       | Reuse existing session |
 
 **Success Response (200):**
 
 ```json
 {
   "success": true,
-  "contentType": "audio_overview",
-  "status": "ready"
+  "data": {
+    "success": true,
+    "sourceId": "source-123",
+    "sourceName": "My Document"
+  }
 }
 ```
 
-**Note:** Audio generation can take several minutes (5-10 min typically).
+**Error Response (404):**
+
+```json
+{
+  "success": false,
+  "error": "Source not found: source-123"
+}
+```
+
+### `DELETE /content/sources` (Alternative)
+
+Delete a source by name using query parameters. Useful when you know the source name but not the ID.
+
+**Request:**
+
+```bash
+curl -X DELETE "http://localhost:3000/content/sources?source_name=My%20Document"
+```
+
+**Query Parameters:**
+
+| Parameter      | Type   | Required | Description                            |
+| -------------- | ------ | -------- | -------------------------------------- |
+| `source_id`    | string | No\*     | The unique ID of the source            |
+| `source_name`  | string | No\*     | The name of the source (partial match) |
+| `notebook_url` | string | No       | Target notebook URL                    |
+| `session_id`   | string | No       | Reuse existing session                 |
+
+\*At least one of `source_id` or `source_name` is required.
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "sourceId": "source-123",
+    "sourceName": "My Document"
+  }
+}
+```
+
+**Notes:**
+
+- The `source_name` parameter supports partial matching (case-insensitive)
+- Use `list_content` first to find source IDs and names
+- This action is irreversible - the source will be permanently removed
 
 ---
 
-## 17. ~~Generate Content~~ (REMOVED in v1.4.2)
+## 16. Generate Content
 
-### `POST /content/generate` - DEPRECATED
+### `POST /content/generate`
 
-> **This endpoint was removed in v1.4.2** because it was NOT a real NotebookLM feature.
-> It was just sending prompts to the chat, which you can do yourself with `POST /ask`.
+Generate content using NotebookLM Studio features. Supports audio overview, video, infographic, report, presentation, and data table generation.
 
-**Alternative:** Use the `POST /ask` endpoint with your own prompts:
+> **Note:** v1.5.0 consolidated all content generation into this single endpoint.
+
+**Request:**
 
 ```bash
-# Instead of generate_content with briefing_doc
-curl -X POST http://localhost:3000/ask \
+# Generate a video (brief format)
+curl -X POST http://localhost:3000/content/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "question": "Create an executive briefing document summarizing the key points from my sources",
-    "notebook_id": "my-notebook"
+    "content_type": "video",
+    "video_format": "brief",
+    "video_style": "documentary",
+    "language": "French",
+    "custom_instructions": "Focus on key takeaways"
   }'
 
-# Instead of generate_content with study_guide
-curl -X POST http://localhost:3000/ask \
+# Generate a presentation (detailed slideshow, short length)
+curl -X POST http://localhost:3000/content/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "question": "Create a study guide with key concepts and practice questions",
-    "notebook_id": "my-notebook"
+    "content_type": "presentation",
+    "presentation_style": "detailed_slideshow",
+    "presentation_length": "short",
+    "language": "English"
   }'
 
-# Instead of generate_content with faq
-curl -X POST http://localhost:3000/ask \
+# Generate a data table (exports to Google Sheets)
+curl -X POST http://localhost:3000/content/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "question": "Generate a FAQ based on the content in my sources",
-    "notebook_id": "my-notebook"
+    "content_type": "data_table",
+    "language": "English"
   }'
 ```
 
-The only REAL content generation NotebookLM supports is:
-- **Audio Overview (podcast)** - Use `POST /content/audio`
+**Body Parameters:**
+
+| Parameter             | Type   | Required | Description                                                                            |
+| --------------------- | ------ | -------- | -------------------------------------------------------------------------------------- |
+| `content_type`        | string | ✅ Yes   | Type: `audio_overview`, `video`, `infographic`, `report`, `presentation`, `data_table` |
+| `custom_instructions` | string | ❌ No    | Custom focus/prompt (not available for `report`)                                       |
+| `language`            | string | ❌ No    | Output language (80+ supported)                                                        |
+| `video_style`         | string | ❌ No    | Visual style for video (see below)                                                     |
+| `video_format`        | string | ❌ No    | Video format: `brief` (default), `explainer`                                           |
+| `infographic_format`  | string | ❌ No    | Infographic format: `horizontal` (default), `vertical`                                 |
+| `report_format`       | string | ❌ No    | Report format: `summary` (default), `detailed`                                         |
+| `presentation_style`  | string | ❌ No    | Style: `detailed_slideshow` (default), `presenter_notes`                               |
+| `presentation_length` | string | ❌ No    | Length: `short`, `default`                                                             |
+| `notebook_url`        | string | ❌ No    | Target notebook URL                                                                    |
+| `session_id`          | string | ❌ No    | Reuse existing session                                                                 |
+
+**Content Types and Export Options:**
+
+| Content Type     | Options                               | Custom Prompt | Export Type        |
+| ---------------- | ------------------------------------- | ------------- | ------------------ |
+| `audio_overview` | language only                         | ✅ Yes        | WAV file           |
+| `video`          | `brief`/`explainer` + 6 visual styles | ✅ Yes        | MP4 file           |
+| `infographic`    | `horizontal`/`vertical`               | ✅ Yes        | PNG file           |
+| `report`         | `summary`/`detailed`                  | ❌ No         | Text (in response) |
+| `presentation`   | style + length options                | ✅ Yes        | Google Slides      |
+| `data_table`     | language only                         | ✅ Yes        | Google Sheets      |
+
+> **Note:** `report` does not support custom prompts - only format and language options are available.
+
+**Presentation Style Options:**
+
+| Style                | Description                          |
+| -------------------- | ------------------------------------ |
+| `detailed_slideshow` | Full slides with visuals and content |
+| `presenter_notes`    | Slides with speaker notes            |
+
+**Presentation Length Options:**
+
+| Length    | Description             |
+| --------- | ----------------------- |
+| `short`   | Condensed (5-8 slides)  |
+| `default` | Standard length (10-15) |
+
+**Video Visual Styles:**
+
+| Style         | Description                    |
+| ------------- | ------------------------------ |
+| `classroom`   | Educational whiteboard style   |
+| `documentary` | Professional documentary style |
+| `animated`    | Motion graphics and animations |
+| `corporate`   | Business presentation style    |
+| `cinematic`   | Film-quality dramatic style    |
+| `minimalist`  | Clean, simple visuals          |
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "type": "video",
+    "status": "ready",
+    "message": "Video generated successfully"
+  }
+}
+```
+
+**Note:** Media generation can take several minutes. Use `/content/download` to retrieve files or export URLs.
+
+---
+
+## 17b. Download/Export Content
+
+### `GET /content/download`
+
+Download or export generated content. Supports file downloads (audio, video, infographic) and Google exports (presentation, data_table).
+
+**Request:**
+
+```bash
+# Download video file
+curl "http://localhost:3000/content/download?content_type=video&output_path=/path/to/video.mp4"
+
+# Download infographic
+curl "http://localhost:3000/content/download?content_type=infographic&output_path=/path/to/image.png"
+
+# Export presentation to Google Slides (returns URL)
+curl "http://localhost:3000/content/download?content_type=presentation"
+
+# Export data table to Google Sheets (returns URL)
+curl "http://localhost:3000/content/download?content_type=data_table"
+```
+
+**Query Parameters:**
+
+| Parameter      | Type   | Required | Description                                                                  |
+| -------------- | ------ | -------- | ---------------------------------------------------------------------------- |
+| `content_type` | string | ✅ Yes   | Type: `audio_overview`, `video`, `infographic`, `presentation`, `data_table` |
+| `output_path`  | string | ❌ No    | Local path to save file (for downloadable types)                             |
+| `notebook_url` | string | ❌ No    | Target notebook URL                                                          |
+| `session_id`   | string | ❌ No    | Reuse existing session                                                       |
+
+**Export Types:**
+
+| Content Type     | Export Type   | Output                        |
+| ---------------- | ------------- | ----------------------------- |
+| `audio_overview` | File download | WAV file                      |
+| `video`          | File download | MP4 file                      |
+| `infographic`    | File download | PNG file                      |
+| `presentation`   | Google Slides | `googleSlidesUrl` in response |
+| `data_table`     | Google Sheets | `googleSheetsUrl` in response |
+
+**Note:** `report` is text-only and returned in the `/content/generate` response (no export option).
+
+**Success Response - File Download (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "filePath": "/path/to/video.mp4",
+    "mimeType": "video/mp4"
+  }
+}
+```
+
+**Success Response - Google Slides Export (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "googleSlidesUrl": "https://docs.google.com/presentation/d/abc123",
+    "mimeType": "application/vnd.google-apps.presentation"
+  }
+}
+```
+
+**Success Response - Google Sheets Export (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "googleSheetsUrl": "https://docs.google.com/spreadsheets/d/xyz789",
+    "mimeType": "application/vnd.google-apps.spreadsheet"
+  }
+}
+```
+
+**Error Response (400):**
+
+```json
+{
+  "success": false,
+  "error": "Content type 'report' is not exportable. Report content is text-based and returned in the generation response."
+}
+```
 
 ---
 
@@ -1170,81 +1425,87 @@ curl "http://localhost:3000/content?notebook_url=https://notebooklm.google.com/n
 
 ---
 
-## 19. Download Audio
+## 19. Download/Export Content
 
-### `GET /content/audio/download`
+### `GET /content/download`
 
-Download the generated audio overview file.
+Download or export generated content from NotebookLM.
 
 **Request:**
 
 ```bash
-curl "http://localhost:3000/content/audio/download?output_path=/path/to/save/audio.wav"
+# Download audio
+curl "http://localhost:3000/content/download?content_type=audio_overview&output_path=/path/to/audio.mp3"
+
+# Download video
+curl "http://localhost:3000/content/download?content_type=video&output_path=/path/to/video.mp4"
+
+# Export presentation (returns Google Slides URL)
+curl "http://localhost:3000/content/download?content_type=presentation"
+
+# Export data table (returns Google Sheets URL)
+curl "http://localhost:3000/content/download?content_type=data_table"
 ```
 
 **Query Parameters:**
 
-| Parameter      | Type   | Required | Description                   |
-| -------------- | ------ | -------- | ----------------------------- |
-| `output_path`  | string | ❌ No    | Local path to save audio file |
-| `notebook_url` | string | ❌ No    | Target notebook URL           |
-| `session_id`   | string | ❌ No    | Reuse existing session        |
+| Parameter      | Type   | Required | Description                                                                  |
+| -------------- | ------ | -------- | ---------------------------------------------------------------------------- |
+| `content_type` | string | ✅ Yes   | Type: `audio_overview`, `video`, `infographic`, `presentation`, `data_table` |
+| `output_path`  | string | ❌ No    | Local path to save file (for audio, video, infographic)                      |
+| `notebook_url` | string | ❌ No    | Target notebook URL                                                          |
+| `session_id`   | string | ❌ No    | Reuse existing session                                                       |
 
-**Success Response (200):**
+**Success Response - File Download (200):**
 
 ```json
 {
   "success": true,
-  "filePath": "/path/to/save/audio.wav",
-  "mimeType": "audio/wav"
+  "filePath": "/path/to/audio.mp3",
+  "mimeType": "audio/mpeg",
+  "size": 1234567
 }
 ```
 
+**Success Response - Export (200):**
+
+```json
+{
+  "success": true,
+  "googleSlidesUrl": "https://docs.google.com/presentation/d/...",
+  "googleSheetsUrl": "https://docs.google.com/spreadsheets/d/..."
+}
+```
+
+**Note:** Report content is text-based and returned directly in the `/content/generate` response.
+
 ---
 
-## 20. Create Note with Research
+## 20. Create Note
 
 ### `POST /content/notes`
 
-Create a new note using AI research from notebook sources.
+Create a note in the NotebookLM Studio panel. Notes are user-created annotations that appear in your notebook alongside sources, allowing you to save research findings, summaries, key insights, or any custom content.
 
 **Request:**
 
 ```bash
-# Fast research (1-2 minutes)
 curl -X POST http://localhost:3000/content/notes \
   -H "Content-Type: application/json" \
   -d '{
-    "topic": "Summary of key findings",
-    "mode": "fast"
-  }'
-
-# Deep research (3-5 minutes, more thorough)
-curl -X POST http://localhost:3000/content/notes \
-  -H "Content-Type: application/json" \
-  -d '{
-    "topic": "Comprehensive analysis of market trends",
-    "mode": "deep",
-    "custom_instructions": "Include statistical data and comparisons"
+    "title": "Key Findings Summary",
+    "content": "## Main Points\n\n1. First important finding\n2. Second key insight\n3. Conclusion and next steps"
   }'
 ```
 
 **Body Parameters:**
 
-| Parameter             | Type   | Required | Description                      |
-| --------------------- | ------ | -------- | -------------------------------- |
-| `topic`               | string | ✅ Yes   | Topic or prompt for the research |
-| `mode`                | string | ✅ Yes   | Research mode: `fast` or `deep`  |
-| `custom_instructions` | string | ❌ No    | Custom instructions for research |
-| `notebook_url`        | string | ❌ No    | Target notebook URL              |
-| `session_id`          | string | ❌ No    | Reuse existing session           |
-
-**Research Modes:**
-
-| Mode   | Description                        | Typical Time |
-| ------ | ---------------------------------- | ------------ |
-| `fast` | Quick research, essential findings | 1-2 minutes  |
-| `deep` | Thorough research, comprehensive   | 3-5 minutes  |
+| Parameter      | Type   | Required | Description                                  |
+| -------------- | ------ | -------- | -------------------------------------------- |
+| `title`        | string | ✅ Yes   | Title of the note                            |
+| `content`      | string | ✅ Yes   | Content/body of the note (supports markdown) |
+| `notebook_url` | string | ❌ No    | Target notebook URL                          |
+| `session_id`   | string | ❌ No    | Reuse existing session                       |
 
 **Success Response (200):**
 
@@ -1253,13 +1514,129 @@ curl -X POST http://localhost:3000/content/notes \
   "success": true,
   "data": {
     "success": true,
-    "mode": "deep",
-    "status": "ready",
-    "title": "Market Trends Analysis",
-    "content": "Generated research content here..."
+    "noteTitle": "Key Findings Summary",
+    "status": "created"
   }
 }
 ```
+
+**Error Response (400):**
+
+```json
+{
+  "success": false,
+  "error": "Missing required field: title"
+}
+```
+
+**Use Cases:**
+
+- Save research summaries from NotebookLM conversations
+- Create custom annotations for specific sections
+- Store key quotes and references
+- Build a structured outline from notebook content
+
+---
+
+## 21. Save Chat to Note
+
+### `POST /content/chat-to-note`
+
+Save the current chat discussion to a note. This captures the last response from NotebookLM and saves it as a note in the Studio panel.
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/content/chat-to-note \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Summary of Key Points"
+  }'
+```
+
+**Body Parameters:**
+
+| Parameter      | Type   | Required | Description              |
+| -------------- | ------ | -------- | ------------------------ |
+| `title`        | string | ✅ Yes   | Title for the saved note |
+| `notebook_url` | string | ❌ No    | Target notebook URL      |
+| `session_id`   | string | ❌ No    | Reuse existing session   |
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "noteTitle": "Summary of Key Points",
+    "status": "saved"
+  }
+}
+```
+
+**Use Cases:**
+
+- Capture important NotebookLM responses for later reference
+- Build a collection of insights from multiple questions
+- Create study notes from Q&A sessions
+
+---
+
+## 22. Convert Note to Source
+
+### `POST /content/notes/:noteTitle/to-source`
+
+Convert an existing note into a source. This makes the note content available as a citable source in the notebook.
+
+**Request:**
+
+```bash
+curl -X POST "http://localhost:3000/content/notes/My%20Research%20Note/to-source" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**Path Parameters:**
+
+| Parameter   | Type   | Required | Description                   |
+| ----------- | ------ | -------- | ----------------------------- |
+| `noteTitle` | string | ✅ Yes   | URL-encoded title of the note |
+
+**Body Parameters:**
+
+| Parameter      | Type   | Required | Description            |
+| -------------- | ------ | -------- | ---------------------- |
+| `notebook_url` | string | ❌ No    | Target notebook URL    |
+| `session_id`   | string | ❌ No    | Reuse existing session |
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "noteTitle": "My Research Note",
+    "status": "converted"
+  }
+}
+```
+
+**Error Response (404):**
+
+```json
+{
+  "success": false,
+  "error": "Note not found: My Research Note"
+}
+```
+
+**Use Cases:**
+
+- Promote important notes to be citable sources
+- Include your own research as part of the notebook's knowledge base
+- Make aggregated insights available for citation in future responses
 
 ---
 

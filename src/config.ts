@@ -182,8 +182,18 @@ function parseProfileStrategy(
  * Apply environment variable overrides (legacy support)
  */
 function applyEnvOverrides(config: Config): Config {
+  // Support custom DATA_DIR for multiple instances
+  // IMPORTANT: trim() to remove trailing spaces from Windows env vars
+  const customDataDir = process.env.DATA_DIR?.trim();
+  const dataDir = customDataDir || config.dataDir;
+
   return {
     ...config,
+    // Data paths (recalculate if DATA_DIR is set)
+    dataDir,
+    browserStateDir: path.join(dataDir, 'browser_state'),
+    chromeProfileDir: path.join(dataDir, 'chrome_profile'),
+    chromeInstancesDir: path.join(dataDir, 'chrome_profile_instances'),
     // Override with env vars if present
     notebookUrl: process.env.NOTEBOOK_URL || config.notebookUrl,
     headless: parseBoolean(process.env.HEADLESS, config.headless),

@@ -60,7 +60,7 @@ export class SharedContextManager {
    * Note: Auth expiry does NOT recreate context - we reuse the SAME
    * fingerprint and just re-login!
    *
-   * @param overrideHeadless Optional override for headless mode (true = show browser)
+   * @param overrideHeadless Optional override for headless mode (true = headless, false = visible)
    */
   async getOrCreateContext(overrideHeadless?: boolean): Promise<BrowserContext> {
     // Check if headless mode needs to be changed (e.g., show_browser=true)
@@ -119,7 +119,7 @@ export class SharedContextManager {
    * - SAME fingerprint as before! ✅
    * - Google sees: "Same browser since day 1"
    *
-   * @param overrideHeadless Optional override for headless mode (true = show browser)
+   * @param overrideHeadless Optional override for headless mode (true = headless, false = visible)
    */
   private async recreateContext(overrideHeadless?: boolean): Promise<void> {
     // Close old context if exists
@@ -144,10 +144,11 @@ export class SharedContextManager {
     }
 
     // Determine headless mode: use override if provided, otherwise use CONFIG
-    const shouldBeHeadless = overrideHeadless !== undefined ? !overrideHeadless : CONFIG.headless;
+    // overrideHeadless=true means "be headless", overrideHeadless=false means "be visible"
+    const shouldBeHeadless = overrideHeadless !== undefined ? overrideHeadless : CONFIG.headless;
 
     if (overrideHeadless !== undefined) {
-      log.info(`  Browser visibility override: ${overrideHeadless ? 'VISIBLE' : 'HEADLESS'}`);
+      log.info(`  Browser visibility override: ${overrideHeadless ? 'HEADLESS' : 'VISIBLE'}`);
     }
 
     // Build launch options for persistent context
@@ -444,7 +445,7 @@ export class SharedContextManager {
   /**
    * Check if the browser context needs to be recreated due to headless mode change
    *
-   * @param overrideHeadless - Optional override for headless mode (true = show browser)
+   * @param overrideHeadless - Optional override for headless mode (true = headless, false = visible)
    * @returns boolean - true if context needs to be recreated with new mode
    */
   needsHeadlessModeChange(overrideHeadless?: boolean): boolean {
@@ -454,9 +455,9 @@ export class SharedContextManager {
     }
 
     // Calculate target headless mode
-    // If override is specified, use it (!overrideHeadless because true = show browser = headless false)
+    // If override is specified, use it (true = headless, false = visible)
     // Otherwise, use CONFIG.headless (which may have been temporarily modified by browser_options)
-    const targetHeadless = overrideHeadless !== undefined ? !overrideHeadless : CONFIG.headless;
+    const targetHeadless = overrideHeadless !== undefined ? overrideHeadless : CONFIG.headless;
 
     // Compare with current mode
     const needsChange = this.currentHeadlessMode !== targetHeadless;

@@ -46,14 +46,92 @@ export interface SourceUploadResult {
 }
 
 /**
+ * Source delete input
+ */
+export interface SourceDeleteInput {
+  /** Source ID to delete */
+  sourceId?: string;
+  /** Source name to delete (alternative to sourceId) */
+  sourceName?: string;
+}
+
+/**
+ * Source delete result
+ */
+export interface SourceDeleteResult {
+  success: boolean;
+  /** ID of the deleted source */
+  sourceId?: string;
+  /** Name of the deleted source */
+  sourceName?: string;
+  error?: string;
+}
+
+/**
  * Content types that NotebookLM can generate
  *
- * NOTE: Only 'audio_overview' is supported as it uses real Studio UI buttons.
- * Other content types (briefing_doc, study_guide, faq, timeline, table_of_contents)
- * were removed because they only sent chat prompts instead of clicking actual
- * NotebookLM Studio buttons - making them "fake" implementations.
+ * Phase 1 Content Types (using real NotebookLM Studio UI buttons):
+ * - audio_overview: Audio podcast/overview (Deep Dive conversation)
+ * - video: Video content generation
+ * - infographic: Visual infographic generation
+ * - report: Briefing document/report generation
+ * - presentation: Slides/presentation generation
+ * - data_table: Data table generation
  */
-export type ContentType = 'audio_overview'; // Audio podcast/overview (real UI interaction)
+export type ContentType =
+  | 'audio_overview'
+  | 'video'
+  | 'infographic'
+  | 'report'
+  | 'presentation'
+  | 'data_table';
+
+/**
+ * Video format options
+ */
+export type VideoFormat = 'brief' | 'explainer';
+
+/**
+ * Infographic format options
+ */
+export type InfographicFormat = 'horizontal' | 'vertical';
+
+/**
+ * Report format options
+ */
+export type ReportFormat = 'summary' | 'detailed';
+
+/**
+ * Presentation style options
+ * - detailed_slideshow: Full slides with visuals and content
+ * - presenter_notes: Slides with speaker notes
+ */
+export type PresentationStyle = 'detailed_slideshow' | 'presenter_notes';
+
+/**
+ * Presentation length options
+ * - short: Condensed version
+ * - default: Standard length
+ */
+export type PresentationLength = 'short' | 'default';
+
+/**
+ * Data table export format
+ * NotebookLM exports data tables to Google Sheets
+ */
+export type DataTableExport = 'google_sheets';
+
+/**
+ * Video visual style options (via Nano Banana AI)
+ * NotebookLM video supports 6 visual styles for video generation
+ */
+export type VideoStyle =
+  | 'classroom' // Educational, whiteboard-style
+  | 'documentary' // News/documentary style
+  | 'animated' // Colorful animated graphics
+  | 'corporate' // Professional business style
+  | 'cinematic' // Film-like visual style
+  | 'minimalist'; // Clean, simple visuals
 
 /**
  * Content generation input
@@ -67,6 +145,28 @@ export interface ContentGenerationInput {
   sources?: string[];
   /** Language for generated content */
   language?: string;
+
+  // ============================================================================
+  // Type-specific options
+  // ============================================================================
+
+  /** Video format: 'brief' for short summary, 'explainer' for detailed explanation */
+  videoFormat?: VideoFormat;
+
+  /** Video visual style: 'classroom', 'documentary', 'animated', 'corporate', 'cinematic', 'minimalist' */
+  videoStyle?: VideoStyle;
+
+  /** Infographic format: 'horizontal' for landscape, 'vertical' for portrait */
+  infographicFormat?: InfographicFormat;
+
+  /** Report format: 'summary' for brief, 'detailed' for comprehensive */
+  reportFormat?: ReportFormat;
+
+  /** Presentation style: 'detailed_slideshow' for full slides, 'presenter_notes' for speaker notes */
+  presentationStyle?: PresentationStyle;
+
+  /** Presentation length: 'short' for condensed, 'default' for standard */
+  presentationLength?: PresentationLength;
 }
 
 /**
@@ -87,6 +187,10 @@ export interface ContentGenerationResult {
   contentUrl?: string;
   /** Text content (for documents) */
   textContent?: string;
+  /** Google Sheets URL (for data_table export) */
+  googleSheetsUrl?: string;
+  /** Google Slides URL (for presentation export) */
+  googleSlidesUrl?: string;
 }
 
 /**
@@ -132,19 +236,6 @@ export interface NotebookContentOverview {
 }
 
 /**
- * Audio generation options
- */
-export interface AudioGenerationOptions {
-  /** Custom focus/instructions for the audio */
-  customInstructions?: string;
-  /** Voices configuration (if supported) */
-  voices?: {
-    host1?: string;
-    host2?: string;
-  };
-}
-
-/**
  * Download result
  */
 export interface ContentDownloadResult {
@@ -157,5 +248,101 @@ export interface ContentDownloadResult {
   mimeType?: string;
   /** File size in bytes */
   size?: number;
+  /** Google Sheets URL (for data_table) */
+  googleSheetsUrl?: string;
+  /** Google Slides URL (for presentation) */
+  googleSlidesUrl?: string;
+  /** PDF download URL (for presentation) */
+  pdfUrl?: string;
+  error?: string;
+}
+
+// ============================================================================
+// Notes Types
+// ============================================================================
+
+/**
+ * Note creation input
+ *
+ * Notes are user-created annotations in NotebookLM's Studio panel.
+ * They allow you to save research findings, summaries, or key insights
+ * directly within the notebook.
+ */
+export interface NoteInput {
+  /** Title of the note */
+  title: string;
+  /** Content/body of the note (supports markdown formatting) */
+  content: string;
+}
+
+/**
+ * Note creation result
+ */
+export interface NoteResult {
+  success: boolean;
+  /** Title of the created note */
+  noteTitle?: string;
+  /** ID of the created note (if available) */
+  noteId?: string;
+  /** Status of the note */
+  status?: 'created' | 'failed';
+  /** Error message if failed */
+  error?: string;
+}
+
+// ============================================================================
+// Save Chat to Note Types
+// ============================================================================
+
+/**
+ * Input for saving chat/discussion to a note
+ */
+export interface SaveChatToNoteInput {
+  /** Custom title for the note (default: "Chat Summary") */
+  title?: string;
+}
+
+/**
+ * Result of saving chat to note
+ */
+export interface SaveChatToNoteResult {
+  success: boolean;
+  /** Title of the created note */
+  noteTitle: string;
+  /** Status of the operation */
+  status: 'created' | 'failed';
+  /** Number of messages extracted from chat */
+  messageCount?: number;
+  /** Error message if failed */
+  error?: string;
+}
+
+// ============================================================================
+// Note to Source Conversion Types
+// ============================================================================
+
+/**
+ * Input for converting a note to a source
+ *
+ * This feature allows users to convert an existing note into a source document
+ * in NotebookLM, making the note content available for RAG queries.
+ */
+export interface NoteToSourceInput {
+  /** Title of the note to convert (used to find the note) */
+  noteTitle: string;
+  /** Optional: ID of the note to convert (preferred over title if provided) */
+  noteId?: string;
+}
+
+/**
+ * Result of converting a note to a source
+ */
+export interface NoteToSourceResult {
+  success: boolean;
+  /** ID of the created source */
+  sourceId?: string;
+  /** Name of the created source */
+  sourceName?: string;
+  /** Error message if failed */
   error?: string;
 }

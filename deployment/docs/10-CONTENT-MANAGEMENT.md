@@ -9,9 +9,11 @@
 The Content Management module enables you to:
 
 1. **Add Sources** - Upload documents, URLs, text, YouTube videos to notebooks
-2. **Generate Audio Overview** - Create podcast-style audio discussions (REAL NotebookLM feature)
-3. **Download Audio** - Save generated audio files locally
-4. **List Content** - View sources and generated content
+2. **Delete Sources** - Remove sources from notebooks
+3. **Generate Audio Overview** - Create podcast-style audio discussions (REAL NotebookLM feature)
+4. **Download Audio** - Save generated audio files locally
+5. **Create Notes** - Add user-created annotations to notebooks
+6. **List Content** - View sources and generated content
 
 ---
 
@@ -54,9 +56,10 @@ curl -X POST http://localhost:3000/content/sources \
 ### Generate Audio Overview
 
 ```bash
-curl -X POST http://localhost:3000/content/audio \
+curl -X POST http://localhost:3000/content/generate \
   -H "Content-Type: application/json" \
   -d '{
+    "content_type": "audio_overview",
     "custom_instructions": "Focus on practical tips"
   }'
 ```
@@ -64,7 +67,7 @@ curl -X POST http://localhost:3000/content/audio \
 ### Download Audio
 
 ```bash
-curl http://localhost:3000/content/audio/download
+curl "http://localhost:3000/content/download?content_type=audio_overview"
 ```
 
 ---
@@ -118,6 +121,43 @@ curl -X POST http://localhost:3000/content/sources \
 
 ---
 
+## Deleting Sources
+
+Remove sources from notebooks using the delete endpoint.
+
+### Delete by ID
+
+```bash
+curl -X DELETE "http://localhost:3000/content/sources/source-123"
+```
+
+### Delete by Name
+
+```bash
+curl -X DELETE "http://localhost:3000/content/sources?source_name=My%20Document"
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "sourceId": "source-123",
+    "sourceName": "My Document"
+  }
+}
+```
+
+**Notes:**
+
+- Use `list_content` first to find source IDs and names
+- Source names support partial matching (case-insensitive)
+- This action is irreversible - sources are permanently deleted
+
+---
+
 ## Audio Overview (Podcast)
 
 The audio overview creates a podcast-style discussion between two AI hosts about your notebook content. This is a REAL NotebookLM feature that generates actual audio.
@@ -125,9 +165,10 @@ The audio overview creates a podcast-style discussion between two AI hosts about
 ### Generate Audio
 
 ```bash
-curl -X POST http://localhost:3000/content/audio \
+curl -X POST http://localhost:3000/content/generate \
   -H "Content-Type: application/json" \
   -d '{
+    "content_type": "audio_overview",
     "custom_instructions": "Focus on key concepts for beginners, use simple language"
   }'
 ```
@@ -145,10 +186,10 @@ curl -X POST http://localhost:3000/content/audio \
 
 ```bash
 # Get audio file
-curl http://localhost:3000/content/audio/download
+curl "http://localhost:3000/content/download?content_type=audio_overview"
 
 # Save to specific path
-curl "http://localhost:3000/content/audio/download?output_path=/downloads/podcast.wav"
+curl "http://localhost:3000/content/download?content_type=audio_overview&output_path=/downloads/podcast.mp3"
 ```
 
 **Response:**
@@ -159,6 +200,60 @@ curl "http://localhost:3000/content/audio/download?output_path=/downloads/podcas
   "filePath": "/downloads/podcast.wav",
   "mimeType": "audio/wav"
 }
+```
+
+---
+
+## Create Notes
+
+Notes are user-created annotations that appear in the NotebookLM Studio panel. They allow you to save research findings, summaries, key insights, or any custom content alongside your sources.
+
+### Create a Note
+
+```bash
+curl -X POST http://localhost:3000/content/notes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Key Findings Summary",
+    "content": "## Main Points\n\n1. First important finding\n2. Second key insight\n3. Conclusion and next steps"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "noteTitle": "Key Findings Summary",
+    "status": "created"
+  }
+}
+```
+
+**Parameters:**
+
+| Parameter      | Type   | Required | Description                                  |
+| -------------- | ------ | -------- | -------------------------------------------- |
+| `title`        | string | Yes      | Title of the note                            |
+| `content`      | string | Yes      | Content/body of the note (supports markdown) |
+| `notebook_url` | string | No       | Target notebook URL                          |
+| `session_id`   | string | No       | Reuse existing session                       |
+
+**Use Cases:**
+
+- Save research summaries from NotebookLM conversations
+- Create custom annotations for specific sections
+- Store key quotes and references
+- Build a structured outline from notebook content
+
+### MCP Tool Usage
+
+If using Claude Code or Claude Desktop:
+
+```
+create_note(title="My Research Note", content="Key findings from the analysis...")
 ```
 
 ---
@@ -216,10 +311,22 @@ If using Claude Code or Claude Desktop:
 add_source(source_type="url", url="https://example.com")
 ```
 
+### Delete Source
+
+```
+delete_source(source_name="My Document")
+```
+
+or
+
+```
+delete_source(source_id="source-123")
+```
+
 ### Generate Audio
 
 ```
-generate_audio(custom_instructions="Focus on key points")
+generate_content(content_type="audio_overview", custom_instructions="Focus on key points")
 ```
 
 ### List Content
@@ -231,7 +338,7 @@ list_content()
 ### Download Audio
 
 ```
-download_audio(output_path="/path/to/save.wav")
+download_content(content_type="audio_overview", output_path="/path/to/save.mp3")
 ```
 
 ---
@@ -255,13 +362,13 @@ download_audio(output_path="/path/to/save.wav")
 2. Generate audio overview:
 
    ```bash
-   curl -X POST http://localhost:3000/content/audio \
-     -d '{"custom_instructions":"Summarize key findings for researchers"}'
+   curl -X POST http://localhost:3000/content/generate \
+     -d '{"content_type":"audio_overview","custom_instructions":"Summarize key findings for researchers"}'
    ```
 
 3. Download for offline listening:
    ```bash
-   curl http://localhost:3000/content/audio/download?output_path=research.wav
+   curl "http://localhost:3000/content/download?content_type=audio_overview&output_path=research.mp3"
    ```
 
 ---
@@ -270,12 +377,12 @@ download_audio(output_path="/path/to/save.wav")
 
 ### Common Errors
 
-| Error                    | Cause                 | Solution                        |
-| ------------------------ | --------------------- | ------------------------------- |
-| "Source type required"   | Missing `source_type` | Add the `source_type` parameter |
-| "File not found"         | Invalid `file_path`   | Check file path exists          |
-| "Audio not ready"        | Audio still generating| Wait and retry                  |
-| "No sources in notebook" | Empty notebook        | Add sources first               |
+| Error                    | Cause                  | Solution                        |
+| ------------------------ | ---------------------- | ------------------------------- |
+| "Source type required"   | Missing `source_type`  | Add the `source_type` parameter |
+| "File not found"         | Invalid `file_path`    | Check file path exists          |
+| "Audio not ready"        | Audio still generating | Wait and retry                  |
+| "No sources in notebook" | Empty notebook         | Add sources first               |
 
 ### Timeout Handling
 
@@ -303,11 +410,11 @@ Audio generation can take 5-10 minutes. The API will wait up to 10 minutes for c
 
 ## Version History
 
-| Version | Changes                                           |
-| ------- | ------------------------------------------------- |
-| 1.4.2   | Removed fake content generation (FAQ, etc.)      |
-| 1.4.0   | Added content management module                   |
-| 1.3.7   | Source citation extraction                        |
+| Version | Changes                                     |
+| ------- | ------------------------------------------- |
+| 1.4.2   | Removed fake content generation (FAQ, etc.) |
+| 1.4.0   | Added content management module             |
+| 1.3.7   | Source citation extraction                  |
 
 ---
 

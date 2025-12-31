@@ -23,6 +23,7 @@
 | [**05-TROUBLESHOOTING.md**](./05-TROUBLESHOOTING.md)   | Solutions to common problems                | Debugging, errors       |
 | [**06-NOTEBOOK-LIBRARY.md**](./06-NOTEBOOK-LIBRARY.md) | Multi-notebook library management           | Notebook management     |
 | [**07-AUTO-DISCOVERY.md**](./07-AUTO-DISCOVERY.md)     | Autonomous resource discovery pattern       | Auto-discovery feature  |
+| [**11-MULTI-ACCOUNT.md**](./11-MULTI-ACCOUNT.md)       | Multi-account management and rotation       | Rate limit handling     |
 | [**Test Scripts**](../scripts/README.md)               | PowerShell validation scripts               | Testing, CI/CD          |
 
 ---
@@ -57,24 +58,30 @@
 2. [Quick test](../scripts/README.md#-test-serverps1) — Validation in 30 seconds
 3. [Complete tests](../scripts/README.md#-test-apips1) — Full suite (10 tests)
 
+### I'm hitting rate limits
+
+1. [Multi-account setup](./11-MULTI-ACCOUNT.md) — Configure multiple accounts
+2. [Automatic rotation](./11-MULTI-ACCOUNT.md#automatic-rotation-flow) — How rotation works
+3. [Quota management](./11-MULTI-ACCOUNT.md#troubleshooting) — Reset and monitor quotas
+
 ---
 
 ## 📖 Quick Reference
 
 ### Main Endpoints
 
-| Endpoint                   | Method | Description                      |
-| -------------------------- | ------ | -------------------------------- |
-| `/health`                  | GET    | Check server status              |
-| `/ask`                     | POST   | Ask a question to NotebookLM     |
-| `/notebooks`               | GET    | List notebooks                   |
-| `/notebooks`               | POST   | Add a notebook (with validation) |
-| `/notebooks/auto-discover` | POST   | Auto-generate notebook metadata  |
-| `/notebooks/:id`           | DELETE | Delete a notebook                |
-| `/notebooks/:id/activate`  | PUT    | Activate a notebook              |
-| `/content/sources`         | POST   | Add source to notebook           |
-| `/content/audio`           | POST   | Generate audio overview (podcast)|
-| `/content/audio/download`  | GET    | Download generated audio         |
+| Endpoint                   | Method | Description                           |
+| -------------------------- | ------ | ------------------------------------- |
+| `/health`                  | GET    | Check server status                   |
+| `/ask`                     | POST   | Ask a question to NotebookLM          |
+| `/notebooks`               | GET    | List notebooks                        |
+| `/notebooks`               | POST   | Add a notebook (with validation)      |
+| `/notebooks/auto-discover` | POST   | Auto-generate notebook metadata       |
+| `/notebooks/:id`           | DELETE | Delete a notebook                     |
+| `/notebooks/:id/activate`  | PUT    | Activate a notebook                   |
+| `/content/sources`         | POST   | Add source to notebook                |
+| `/content/generate`        | POST   | Generate content (audio, video, etc.) |
+| `/content/download`        | GET    | Download/export generated content     |
 
 **👉 [Complete API reference](./03-API.md)**
 

@@ -18,6 +18,7 @@ jest.unstable_mockModule('../utils/logger.js', () => ({
 jest.unstable_mockModule('../utils/stealth-utils.js', () => ({
   randomDelay: jest.fn().mockResolvedValue(undefined),
   realisticClick: jest.fn().mockResolvedValue(undefined),
+  humanType: jest.fn().mockResolvedValue(undefined),
 }));
 
 // Mock CONFIG
@@ -439,25 +440,6 @@ describe('ContentManager', () => {
   });
 
   describe('Audio Generation Options', () => {
-    it('should handle audio generation with voices', async () => {
-      const manager = new ContentManager(mockPage);
-
-      mockPage.locator.mockReturnValue({
-        first: jest.fn().mockReturnValue({
-          isVisible: jest.fn().mockResolvedValue(false),
-        }),
-      });
-
-      const result = await manager.generateContent({
-        type: 'audio_overview',
-        audioOptions: {
-          voices: ['casual'],
-        },
-      });
-
-      expect(result).toBeDefined();
-    });
-
     it('should handle audio generation with custom instructions', async () => {
       const manager = new ContentManager(mockPage);
 
@@ -469,9 +451,7 @@ describe('ContentManager', () => {
 
       const result = await manager.generateContent({
         type: 'audio_overview',
-        audioOptions: {
-          customInstructions: 'Focus on key concepts',
-        },
+        customInstructions: 'Focus on key concepts',
       });
 
       expect(result).toBeDefined();

@@ -15,9 +15,13 @@
  * Based on the Python implementation from tools/*.py
  */
 
+import fs from 'fs';
+import path from 'path';
 import { SessionManager } from '../session/session-manager.js';
 import { AuthManager } from '../auth/auth-manager.js';
 import { NotebookLibrary } from '../library/notebook-library.js';
+import { getAccountManager } from '../accounts/account-manager.js';
+import { AutoLoginManager } from '../accounts/auto-login-manager.js';
 import type {
   AddNotebookInput,
   UpdateNotebookInput,
@@ -37,14 +41,25 @@ import type {
 } from '../types.js';
 import { RateLimitError } from '../errors.js';
 import { CleanupManager } from '../utils/cleanup-manager.js';
+import { randomDelay } from '../utils/stealth-utils.js';
 import { ContentManager } from '../content/content-manager.js';
 import type {
   SourceUploadResult,
+  SourceDeleteResult,
   ContentGenerationResult,
   NotebookContentOverview,
   ContentDownloadResult,
   ContentType,
   SourceType,
+  VideoStyle,
+  VideoFormat,
+  InfographicFormat,
+  ReportFormat,
+  PresentationStyle,
+  PresentationLength,
+  NoteResult,
+  SaveChatToNoteResult,
+  NoteToSourceResult,
 } from '../content/types.js';
 
 /**
@@ -845,19 +860,24 @@ User: "Yes" → call remove_notebook`,
       },
     },
     {
-      name: 'generate_audio',
+      name: 'delete_source',
       description:
-        'Generate an Audio Overview (podcast-style summary) for the current notebook.\n\n' +
-        'NotebookLM will create a conversational audio summary of your sources with two AI hosts.\n' +
-        'Generation typically takes 2-5 minutes depending on source size.\n\n' +
-        'You can optionally provide custom instructions to focus the audio on specific topics.',
+        'Delete a source from the current NotebookLM notebook.\n\n' +
+        'You can identify the source to delete by either:\n' +
+        '- source_id: The unique identifier of the source\n' +
+        '- source_name: The name/title of the source (partial match supported)\n\n' +
+        'Use list_content first to see available sources and their IDs/names.\n\n' +
+        'WARNING: This action is irreversible. The source will be permanently removed from the notebook.',
       inputSchema: {
         type: 'object',
         properties: {
-          custom_instructions: {
+          source_id: {
             type: 'string',
-            description:
-              'Optional instructions to guide the audio content (e.g., "Focus on the technical architecture")',
+            description: 'The unique ID of the source to delete',
+          },
+          source_name: {
+            type: 'string',
+            description: 'The name/title of the source to delete (partial match supported)',
           },
           notebook_url: {
             type: 'string',
@@ -873,24 +893,51 @@ User: "Yes" → call remove_notebook`,
     {
       name: 'generate_content',
       description:
-        'Generate audio overview from your NotebookLM sources.\n\n' +
+        'Generate content from your NotebookLM sources.\n\n' +
         'Supported content types:\n' +
-        '- audio_overview: Audio podcast/overview (uses real NotebookLM Studio UI buttons)\n\n' +
-        'NOTE: Other content types (faq, study_guide, briefing_doc, timeline, table_of_contents) ' +
-        'are NOT supported because they would only send chat prompts instead of clicking actual ' +
-        'NotebookLM Studio buttons. For document-style content, use the ask_question tool.\n\n' +
-        'Tip: Use the generate_audio tool for a simpler audio generation interface.',
+        '- audio_overview: Audio podcast/overview (Deep Dive conversation with two AI hosts)\n' +
+        '- video: Video summary that visually explains main topics (brief or explainer format)\n' +
+        '- presentation: Slides/presentation with AI-generated content and images\n' +
+        '- report: Briefing document (2,000-3,000 words) summarizing key findings, exportable as PDF/DOCX\n' +
+        '- infographic: Visual infographic in horizontal (16:9) or vertical (9:16) format\n' +
+        '- data_table: Structured table organizing key information (exportable as CSV/Excel)\n\n' +
+        'Language support: All content types support 80+ languages via the language parameter.\n\n' +
+        'Video styles: Video content supports 6 visual styles via the video_style parameter:\n' +
+        'classroom, documentary, animated, corporate, cinematic, minimalist.\n\n' +
+        'These content types use real NotebookLM Studio UI buttons or the generic ContentGenerator ' +
+        'architecture that navigates the Studio panel and falls back to chat-based generation.\n\n' +
+        'NOTE: Other content types (faq, study_guide, timeline, table_of_contents) ' +
+        'are NOT currently implemented. For document-style content, use the ask_question tool.',
       inputSchema: {
         type: 'object',
         properties: {
           content_type: {
             type: 'string',
-            enum: ['audio_overview'],
-            description: 'Type of content to generate (only audio_overview is supported)',
+            enum: [
+              'audio_overview',
+              'video',
+              'presentation',
+              'report',
+              'infographic',
+              'data_table',
+            ],
+            description:
+              'Type of content to generate: audio_overview (podcast), video (brief or explainer), presentation (slides), report (briefing doc 2,000-3,000 words, PDF/DOCX export), infographic (horizontal 16:9 or vertical 9:16), or data_table (CSV/Excel export)',
           },
           custom_instructions: {
             type: 'string',
             description: 'Optional instructions to customize the generated content',
+          },
+          language: {
+            type: 'string',
+            description:
+              'Language for the generated content (e.g., "French", "Spanish", "Japanese"). NotebookLM supports 80+ languages.',
+          },
+          video_style: {
+            type: 'string',
+            enum: ['classroom', 'documentary', 'animated', 'corporate', 'cinematic', 'minimalist'],
+            description:
+              'Visual style for video content (only valid for content_type="video"). Powered by Nano Banana AI.',
           },
           notebook_url: {
             type: 'string',
@@ -926,16 +973,27 @@ User: "Yes" → call remove_notebook`,
       },
     },
     {
-      name: 'download_audio',
+      name: 'download_content',
       description:
-        'Download the generated Audio Overview from the current notebook.\n\n' +
-        'Returns the audio file path or URL for the generated podcast.',
+        'Download or export generated content from NotebookLM.\n\n' +
+        'Supported content types:\n' +
+        '- audio_overview: Downloads as audio file (MP3)\n' +
+        '- video: Downloads as video file\n' +
+        '- infographic: Downloads as image file\n' +
+        '- presentation: Exports to Google Slides (returns URL)\n' +
+        '- data_table: Exports to Google Sheets (returns URL)\n\n' +
+        'Note: Report content is text-based and returned in the generation response.',
       inputSchema: {
         type: 'object',
         properties: {
+          content_type: {
+            type: 'string',
+            enum: ['audio_overview', 'video', 'infographic', 'presentation', 'data_table'],
+            description: 'Type of content to download/export',
+          },
           output_path: {
             type: 'string',
-            description: 'Optional local path to save the audio file',
+            description: 'Optional local path to save the file (for audio, video, infographic)',
           },
           notebook_url: {
             type: 'string',
@@ -946,6 +1004,98 @@ User: "Yes" → call remove_notebook`,
             description: 'Session ID to reuse an existing session',
           },
         },
+        required: ['content_type'],
+      },
+    },
+    {
+      name: 'create_note',
+      description:
+        'Create a note in the NotebookLM Studio panel.\n\n' +
+        'Notes are user-created annotations that appear in your notebook. ' +
+        'Use them to save research findings, summaries, key insights, or any ' +
+        'custom content you want to keep alongside your sources.\n\n' +
+        'Notes support markdown formatting for rich text content.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          title: {
+            type: 'string',
+            description: 'Title of the note (required)',
+          },
+          content: {
+            type: 'string',
+            description: 'Content/body of the note. Supports markdown formatting.',
+          },
+          notebook_url: {
+            type: 'string',
+            description: 'Notebook URL. If not provided, uses the active notebook.',
+          },
+          session_id: {
+            type: 'string',
+            description: 'Session ID to reuse an existing session',
+          },
+        },
+        required: ['title', 'content'],
+      },
+    },
+    {
+      name: 'save_chat_to_note',
+      description:
+        'Save the current NotebookLM chat/discussion to a note.\n\n' +
+        'This tool extracts all messages from the current conversation (both user questions ' +
+        'and NotebookLM AI responses) and saves them as a formatted note in the Studio panel.\n\n' +
+        'Use this to:\n' +
+        '- Preserve important research conversations\n' +
+        '- Create a summary of your discussion with NotebookLM\n' +
+        '- Save chat history before starting a new topic\n\n' +
+        'The note will include timestamps and message attribution (User/NotebookLM).',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          title: {
+            type: 'string',
+            description: 'Custom title for the note (default: "Chat Summary")',
+          },
+          notebook_url: {
+            type: 'string',
+            description: 'Notebook URL. If not provided, uses the active notebook.',
+          },
+          session_id: {
+            type: 'string',
+            description: 'Session ID to reuse an existing session',
+          },
+        },
+      },
+    },
+    {
+      name: 'convert_note_to_source',
+      description:
+        'Convert a note to a source document in NotebookLM.\n\n' +
+        'This feature allows you to convert an existing note into a source, ' +
+        'making the note content available for RAG queries and research.\n\n' +
+        'The method:\n' +
+        '1. Finds the note by title in the Studio panel\n' +
+        '2. Attempts to use NotebookLM\'s native "Convert to source" feature if available\n' +
+        '3. Falls back to extracting note content and creating a text source if not\n\n' +
+        "Use this when you want your note content to be included in NotebookLM's " +
+        'knowledge base for answering questions.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          note_title: {
+            type: 'string',
+            description: 'Title of the note to convert (required)',
+          },
+          notebook_url: {
+            type: 'string',
+            description: 'Notebook URL. If not provided, uses the active notebook.',
+          },
+          session_id: {
+            type: 'string',
+            description: 'Session ID to reuse an existing session',
+          },
+        },
+        required: ['note_title'],
       },
     },
   ];
@@ -1153,13 +1303,115 @@ export class ToolHandlers {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
 
-      // Special handling for rate limit errors
-      if (error instanceof RateLimitError || errorMessage.toLowerCase().includes('rate limit')) {
-        log.error(`🚫 [TOOL] Rate limit detected`);
+      // Special handling for rate limit errors - try automatic account rotation
+      if (
+        error instanceof RateLimitError ||
+        errorMessage.toLowerCase().includes('rate limit') ||
+        errorMessage.toLowerCase().includes('limite quotidienne')
+      ) {
+        log.warning(`🚫 [TOOL] Rate limit detected - attempting account rotation...`);
+
+        try {
+          const accountManager = await getAccountManager();
+
+          // First, identify and mark the current rate-limited account
+          const currentAccountId = await accountManager.getCurrentAccountId();
+          if (currentAccountId) {
+            log.info(`  🚫 Marking current account as rate-limited: ${currentAccountId}`);
+            await accountManager.markRateLimited(currentAccountId);
+          } else {
+            log.warning(
+              `  ⚠️ No current account ID stored - marking best available as rate-limited`
+            );
+            const currentAccount = await accountManager.getBestAccount();
+            if (currentAccount?.account) {
+              await accountManager.markRateLimited(currentAccount.account.config.id);
+            }
+          }
+
+          // Now get the next available account (current one is now excluded due to quota)
+          const nextAccount = await accountManager.getBestAccount(currentAccountId || undefined);
+
+          if (nextAccount && nextAccount.account) {
+            const accountId = nextAccount.account.config.id;
+            const email = nextAccount.account.config.email;
+            log.info(`  🔄 Switching to account: ${email} (${accountId})`);
+
+            // FIRST: Close all existing sessions AND shared context to release Chrome profile lock
+            log.info(`  🛑 Closing sessions and browser context to release profile lock...`);
+            await this.sessionManager.closeAllSessions();
+
+            // Wait for Chrome to fully release the profile
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            // NOW perform auto-login with the new account (profile is unlocked)
+            const autoLogin = new AutoLoginManager(accountManager);
+            const loginResult = await autoLogin.performAutoLogin(accountId, { showBrowser: false });
+
+            if (loginResult.success) {
+              log.success(`  ✅ Switched to new account successfully`);
+
+              // CRITICAL: Sync the new account's profile to the main profile
+              const account = accountManager.getAccount(accountId);
+              if (account) {
+                const mainStateFile = path.join(CONFIG.dataDir, 'browser_state', 'state.json');
+                const mainProfileDir = path.join(CONFIG.dataDir, 'chrome_profile');
+                const accountStateFile = account.stateFilePath;
+                const accountProfileDir = account.profileDir;
+
+                log.info(`  📋 Syncing account profile to main profile...`);
+
+                // Sync state.json
+                try {
+                  await fs.promises.copyFile(accountStateFile, mainStateFile);
+                  log.success(`  ✅ State synced: ${accountStateFile} → ${mainStateFile}`);
+                } catch (e) {
+                  log.warning(`  ⚠️ Could not sync state: ${e}`);
+                }
+
+                // Sync Chrome profile (delete old, copy new)
+                try {
+                  await fs.promises.rm(mainProfileDir, { recursive: true, force: true });
+                  await fs.promises.cp(accountProfileDir, mainProfileDir, { recursive: true });
+                  log.success(
+                    `  ✅ Chrome profile synced: ${accountProfileDir} → ${mainProfileDir}`
+                  );
+                } catch (e) {
+                  log.warning(`  ⚠️ Could not sync profile: ${e}`);
+                }
+
+                // Save the current account ID for future reference
+                await accountManager.saveCurrentAccountId(accountId);
+              }
+
+              log.info(`  🔄 Retrying question with new account...`);
+
+              // Retry the question with new account (only once to avoid infinite loops)
+              const retryArgs = {
+                ...args,
+                _retryCount: (((args as Record<string, unknown>)._retryCount as number) || 0) + 1,
+              };
+              if (retryArgs._retryCount <= 3) {
+                return this.handleAskQuestion(retryArgs, sendProgress);
+              } else {
+                log.warning(`  ⚠️ Max retry count reached (${retryArgs._retryCount})`);
+              }
+            } else {
+              log.error(`  ❌ Failed to switch account: ${loginResult.error}`);
+            }
+          } else {
+            log.warning(`  ⚠️ No other accounts available for rotation`);
+          }
+        } catch (rotationError) {
+          log.error(`  ❌ Account rotation failed: ${rotationError}`);
+        }
+
+        // If rotation failed, return the original error
         return {
           success: false,
           error:
             'NotebookLM rate limit reached (50 queries/day for free accounts).\n\n' +
+            'Automatic account rotation failed or no other accounts available.\n\n' +
             'You can:\n' +
             "1. Use the 're_auth' tool to login with a different Google account\n" +
             '2. Wait until tomorrow for the quota to reset\n' +
@@ -2012,11 +2264,19 @@ export class ToolHandlers {
     title?: string;
     notebook_url?: string;
     session_id?: string;
+    show_browser?: boolean;
   }): Promise<ToolResult<SourceUploadResult>> {
-    const { source_type, file_path, url, text, title, notebook_url, session_id } = args;
+    const { source_type, file_path, url, text, title, notebook_url, session_id, show_browser } =
+      args;
 
     log.info(`🔧 [TOOL] add_source called`);
     log.info(`  Source type: ${source_type}`);
+
+    // Apply show_browser option
+    // show_browser=true → overrideHeadless=false (visible browser)
+    // show_browser=false → overrideHeadless=true (headless)
+    // show_browser=undefined → overrideHeadless=undefined (use config default)
+    const overrideHeadless = show_browser !== undefined ? !show_browser : undefined;
 
     try {
       // Resolve notebook URL
@@ -2030,7 +2290,11 @@ export class ToolHandlers {
       }
 
       // Get or create session
-      const session = await this.sessionManager.getOrCreateSession(session_id, resolvedNotebookUrl);
+      const session = await this.sessionManager.getOrCreateSession(
+        session_id,
+        resolvedNotebookUrl,
+        overrideHeadless
+      );
       const page = session.getPage();
 
       if (!page) {
@@ -2074,16 +2338,31 @@ export class ToolHandlers {
   }
 
   /**
-   * Handle generate_audio tool
+   * Handle delete_source tool
    */
-  async handleGenerateAudio(args: {
-    custom_instructions?: string;
+  async handleDeleteSource(args: {
+    source_id?: string;
+    source_name?: string;
     notebook_url?: string;
     session_id?: string;
-  }): Promise<ToolResult<ContentGenerationResult>> {
-    const { custom_instructions, notebook_url, session_id } = args;
+  }): Promise<ToolResult<SourceDeleteResult>> {
+    const { source_id, source_name, notebook_url, session_id } = args;
 
-    log.info(`🔧 [TOOL] generate_audio called`);
+    log.info(`🔧 [TOOL] delete_source called`);
+    if (source_id) {
+      log.info(`  Source ID: ${source_id}`);
+    }
+    if (source_name) {
+      log.info(`  Source name: ${source_name}`);
+    }
+
+    // Validate that at least one identifier is provided
+    if (!source_id && !source_name) {
+      return {
+        success: false,
+        error: 'Either source_id or source_name is required to identify the source to delete',
+      };
+    }
 
     try {
       // Resolve notebook URL
@@ -2103,23 +2382,23 @@ export class ToolHandlers {
       if (!page) {
         return {
           success: false,
-          error: 'Could not access browser page',
+          error: 'Could not access browser page - session may not be initialized',
         };
       }
 
       // Create content manager
       const contentManager = new ContentManager(page);
 
-      // Generate audio
-      const result = await contentManager.generateAudioOverview(
-        { type: 'audio_overview', customInstructions: custom_instructions },
-        { customInstructions: custom_instructions }
-      );
+      // Delete source
+      const result = await contentManager.deleteSource({
+        sourceId: source_id,
+        sourceName: source_name,
+      });
 
       if (result.success) {
-        log.success(`✅ [TOOL] generate_audio completed`);
+        log.success(`✅ [TOOL] delete_source completed: ${result.sourceName || result.sourceId}`);
       } else {
-        log.error(`❌ [TOOL] generate_audio failed: ${result.error}`);
+        log.error(`❌ [TOOL] delete_source failed: ${result.error}`);
       }
 
       return {
@@ -2129,7 +2408,7 @@ export class ToolHandlers {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      log.error(`❌ [TOOL] generate_audio failed: ${errorMessage}`);
+      log.error(`❌ [TOOL] delete_source failed: ${errorMessage}`);
       return {
         success: false,
         error: errorMessage,
@@ -2145,11 +2424,39 @@ export class ToolHandlers {
     custom_instructions?: string;
     notebook_url?: string;
     session_id?: string;
+    language?: string;
+    video_style?: VideoStyle;
+    video_format?: VideoFormat;
+    infographic_format?: InfographicFormat;
+    report_format?: ReportFormat;
+    presentation_style?: PresentationStyle;
+    presentation_length?: PresentationLength;
   }): Promise<ToolResult<ContentGenerationResult>> {
-    const { content_type, custom_instructions, notebook_url, session_id } = args;
+    const {
+      content_type,
+      custom_instructions,
+      notebook_url,
+      session_id,
+      language,
+      video_style,
+      video_format,
+      infographic_format,
+      report_format,
+      presentation_style,
+      presentation_length,
+    } = args;
 
     log.info(`🔧 [TOOL] generate_content called`);
     log.info(`  Content type: ${content_type}`);
+    if (language) {
+      log.info(`  Language: ${language}`);
+    }
+    if (video_style) {
+      log.info(`  Video style: ${video_style}`);
+    }
+    if (video_format) {
+      log.info(`  Video format: ${video_format}`);
+    }
 
     try {
       // Resolve notebook URL
@@ -2176,10 +2483,17 @@ export class ToolHandlers {
       // Create content manager
       const contentManager = new ContentManager(page);
 
-      // Generate content
+      // Generate content with all options
       const result = await contentManager.generateContent({
         type: content_type,
         customInstructions: custom_instructions,
+        language,
+        videoStyle: video_style,
+        videoFormat: video_format,
+        infographicFormat: infographic_format,
+        reportFormat: report_format,
+        presentationStyle: presentation_style,
+        presentationLength: presentation_length,
       });
 
       if (result.success) {
@@ -2259,16 +2573,18 @@ export class ToolHandlers {
   }
 
   /**
-   * Handle download_audio tool
+   * Handle download_content tool (generic download for audio, video, infographic)
    */
-  async handleDownloadAudio(args: {
+  async handleDownloadContent(args: {
+    content_type: ContentType;
     output_path?: string;
     notebook_url?: string;
     session_id?: string;
   }): Promise<ToolResult<ContentDownloadResult>> {
-    const { output_path, notebook_url, session_id } = args;
+    const { content_type, output_path, notebook_url, session_id } = args;
 
-    log.info(`🔧 [TOOL] download_audio called`);
+    log.info(`🔧 [TOOL] download_content called`);
+    log.info(`  Content type: ${content_type}`);
 
     try {
       // Resolve notebook URL
@@ -2295,13 +2611,22 @@ export class ToolHandlers {
       // Create content manager
       const contentManager = new ContentManager(page);
 
-      // Download audio
-      const result = await contentManager.downloadAudio(output_path);
+      // Download/export content
+      const result = await contentManager.downloadContent(content_type, output_path);
 
       if (result.success) {
-        log.success(`✅ [TOOL] download_audio completed: ${result.filePath}`);
+        // Log appropriate message based on export type
+        if (result.googleSlidesUrl) {
+          log.success(`✅ [TOOL] download_content completed: Google Slides URL exported`);
+        } else if (result.googleSheetsUrl) {
+          log.success(`✅ [TOOL] download_content completed: Google Sheets URL exported`);
+        } else if (result.filePath) {
+          log.success(`✅ [TOOL] download_content completed: ${result.filePath}`);
+        } else {
+          log.success(`✅ [TOOL] download_content completed`);
+        }
       } else {
-        log.error(`❌ [TOOL] download_audio failed: ${result.error}`);
+        log.error(`❌ [TOOL] download_content failed: ${result.error}`);
       }
 
       return {
@@ -2311,7 +2636,394 @@ export class ToolHandlers {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      log.error(`❌ [TOOL] download_audio failed: ${errorMessage}`);
+      log.error(`❌ [TOOL] download_content failed: ${errorMessage}`);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+
+  /**
+   * Handle create_note tool
+   *
+   * Creates a note in the NotebookLM Studio panel with the specified title and content.
+   */
+  async handleCreateNote(args: {
+    title: string;
+    content: string;
+    notebook_url?: string;
+    session_id?: string;
+  }): Promise<ToolResult<NoteResult>> {
+    const { title, content, notebook_url, session_id } = args;
+
+    log.info(`🔧 [TOOL] create_note called`);
+    log.info(`  Title: "${title}"`);
+    log.info(`  Content length: ${content.length} chars`);
+
+    try {
+      // Validate required fields
+      if (!title || title.trim().length === 0) {
+        return {
+          success: false,
+          error: 'Note title is required',
+        };
+      }
+
+      if (!content || content.trim().length === 0) {
+        return {
+          success: false,
+          error: 'Note content is required',
+        };
+      }
+
+      // Resolve notebook URL
+      const resolvedNotebookUrl =
+        notebook_url || this.library.getActiveNotebook()?.url || CONFIG.notebookUrl;
+      if (!resolvedNotebookUrl) {
+        return {
+          success: false,
+          error: 'No notebook URL provided and no active notebook set',
+        };
+      }
+
+      // Get or create session
+      const session = await this.sessionManager.getOrCreateSession(session_id, resolvedNotebookUrl);
+      const page = session.getPage();
+
+      if (!page) {
+        return {
+          success: false,
+          error: 'Could not access browser page',
+        };
+      }
+
+      // Create content manager
+      const contentManager = new ContentManager(page);
+
+      // Create the note
+      const result = await contentManager.createNote({
+        title: title.trim(),
+        content: content.trim(),
+      });
+
+      if (result.success) {
+        log.success(`✅ [TOOL] create_note completed: "${title}"`);
+      } else {
+        log.error(`❌ [TOOL] create_note failed: ${result.error}`);
+      }
+
+      return {
+        success: result.success,
+        data: result,
+        error: result.error,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] create_note failed: ${errorMessage}`);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+
+  /**
+   * Handle save_chat_to_note tool
+   *
+   * Extracts chat messages from the Discussion panel and saves them as a note.
+   */
+  async handleSaveChatToNote(args: {
+    title?: string;
+    notebook_url?: string;
+    session_id?: string;
+  }): Promise<ToolResult<SaveChatToNoteResult>> {
+    const { title, notebook_url, session_id } = args;
+
+    log.info(`🔧 [TOOL] save_chat_to_note called`);
+    if (title) {
+      log.info(`  Title: "${title}"`);
+    }
+
+    try {
+      // Resolve notebook URL
+      const resolvedNotebookUrl =
+        notebook_url || this.library.getActiveNotebook()?.url || CONFIG.notebookUrl;
+      if (!resolvedNotebookUrl) {
+        return {
+          success: false,
+          error: 'No notebook URL provided and no active notebook set',
+        };
+      }
+
+      // Get or create session
+      const session = await this.sessionManager.getOrCreateSession(session_id, resolvedNotebookUrl);
+      const page = session.getPage();
+
+      if (!page) {
+        return {
+          success: false,
+          error: 'Could not access browser page',
+        };
+      }
+
+      // Create content manager
+      const contentManager = new ContentManager(page);
+
+      // Save chat to note
+      const result = await contentManager.saveChatToNote({
+        title,
+      });
+
+      if (result.success) {
+        log.success(
+          `✅ [TOOL] save_chat_to_note completed: "${result.noteTitle}" (${result.messageCount} messages)`
+        );
+      } else {
+        log.error(`❌ [TOOL] save_chat_to_note failed: ${result.error}`);
+      }
+
+      return {
+        success: result.success,
+        data: result,
+        error: result.error,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] save_chat_to_note failed: ${errorMessage}`);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+
+  /**
+   * Handle convert_note_to_source tool
+   *
+   * Converts an existing note to a source document in NotebookLM.
+   * This makes the note content available for RAG queries.
+   */
+  async handleConvertNoteToSource(args: {
+    note_title: string;
+    notebook_url?: string;
+    session_id?: string;
+  }): Promise<ToolResult<NoteToSourceResult>> {
+    const { note_title, notebook_url, session_id } = args;
+
+    log.info(`🔧 [TOOL] convert_note_to_source called`);
+    log.info(`  Note title: "${note_title}"`);
+
+    try {
+      // Validate required fields
+      if (!note_title || note_title.trim().length === 0) {
+        return {
+          success: false,
+          error: 'Note title is required',
+        };
+      }
+
+      // Resolve notebook URL
+      const resolvedNotebookUrl =
+        notebook_url || this.library.getActiveNotebook()?.url || CONFIG.notebookUrl;
+      if (!resolvedNotebookUrl) {
+        return {
+          success: false,
+          error: 'No notebook URL provided and no active notebook set',
+        };
+      }
+
+      // Get or create session
+      const session = await this.sessionManager.getOrCreateSession(session_id, resolvedNotebookUrl);
+      const page = session.getPage();
+
+      if (!page) {
+        return {
+          success: false,
+          error: 'Could not access browser page',
+        };
+      }
+
+      // Create content manager
+      const contentManager = new ContentManager(page);
+
+      // Convert the note to source
+      const result = await contentManager.convertNoteToSource({
+        noteTitle: note_title.trim(),
+      });
+
+      if (result.success) {
+        log.success(
+          `✅ [TOOL] convert_note_to_source completed: "${note_title}" -> "${result.sourceName}"`
+        );
+      } else {
+        log.error(`❌ [TOOL] convert_note_to_source failed: ${result.error}`);
+      }
+
+      return {
+        success: result.success,
+        data: result,
+        error: result.error,
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] convert_note_to_source failed: ${errorMessage}`);
+      return {
+        success: false,
+        error: errorMessage,
+      };
+    }
+  }
+
+  /**
+   * Handle create_notebook tool
+   *
+   * Creates a new empty notebook in NotebookLM via browser automation.
+   * Returns the URL of the newly created notebook.
+   */
+  async handleCreateNotebook(
+    args: {
+      name?: string;
+      show_browser?: boolean;
+    },
+    sendProgress?: ProgressCallback
+  ): Promise<
+    ToolResult<{
+      notebook_url: string;
+      notebook_id: string;
+      message: string;
+    }>
+  > {
+    const { name, show_browser } = args;
+
+    await sendProgress?.('Creating new notebook...', 0, 5);
+    log.info(`🔧 [TOOL] create_notebook called`);
+
+    try {
+      // Apply show_browser option
+      const originalHeadless = CONFIG.headless;
+      if (show_browser !== undefined) {
+        CONFIG.headless = !show_browser;
+      }
+
+      // Get shared context manager
+      const sharedContextManager = this.sessionManager.getSharedContextManager();
+      const context = await sharedContextManager.getOrCreateContext();
+      const page = await context.newPage();
+
+      try {
+        await sendProgress?.('Navigating to NotebookLM...', 1, 5);
+        log.info('  📄 Navigating to NotebookLM homepage...');
+
+        // Navigate to NotebookLM homepage
+        await page.goto('https://notebooklm.google.com/', {
+          waitUntil: 'networkidle',
+          timeout: 30000,
+        });
+        await randomDelay(1500, 2500);
+
+        await sendProgress?.('Clicking create button...', 2, 5);
+        log.info('  🖱️  Looking for Create notebook button...');
+
+        // Look for "Create" or "Créer" button
+        const createButtonSelectors = [
+          'button:has-text("Create")',
+          'button:has-text("Créer")',
+          'button:has-text("New notebook")',
+          'button:has-text("Nouveau")',
+          '[aria-label*="Create"]',
+          '[aria-label*="Créer"]',
+          '.create-notebook-button',
+          'button.mdc-button:has-text("Create")',
+        ];
+
+        let clicked = false;
+        for (const selector of createButtonSelectors) {
+          try {
+            const btn = page.locator(selector).first();
+            if (await btn.isVisible({ timeout: 2000 })) {
+              await btn.click();
+              clicked = true;
+              log.success(`  ✅ Clicked: ${selector}`);
+              break;
+            }
+          } catch {
+            // Try next selector
+          }
+        }
+
+        if (!clicked) {
+          // Try finding any button with "+" icon or create text
+          const allButtons = await page.locator('button').all();
+          for (const btn of allButtons) {
+            const text = await btn.textContent();
+            if (text && (text.includes('Create') || text.includes('Créer') || text.includes('+'))) {
+              await btn.click();
+              clicked = true;
+              log.success(`  ✅ Clicked button with text: ${text}`);
+              break;
+            }
+          }
+        }
+
+        if (!clicked) {
+          throw new Error('Could not find Create notebook button');
+        }
+
+        await sendProgress?.('Waiting for notebook creation...', 3, 5);
+        log.info('  ⏳ Waiting for new notebook to be created...');
+
+        // Wait for navigation to new notebook
+        await page.waitForURL(/notebooklm\.google\.com\/notebook\//, { timeout: 30000 });
+        await randomDelay(2000, 3000);
+
+        // Get the new notebook URL
+        const notebookUrl = page.url();
+        const notebookIdMatch = notebookUrl.match(/notebook\/([a-f0-9-]+)/);
+        const notebookId = notebookIdMatch ? notebookIdMatch[1] : 'unknown';
+
+        await sendProgress?.('Notebook created!', 4, 5);
+        log.success(`  ✅ New notebook created: ${notebookUrl}`);
+
+        // If name provided, try to rename the notebook
+        if (name) {
+          log.info(`  📝 Renaming notebook to: ${name}`);
+          try {
+            // Click on notebook title to edit
+            const titleSelector = '[contenteditable="true"], .notebook-title, h1';
+            const titleEl = page.locator(titleSelector).first();
+            if (await titleEl.isVisible({ timeout: 3000 })) {
+              await titleEl.click();
+              await page.keyboard.press('Control+a');
+              await page.keyboard.type(name, { delay: 50 });
+              await page.keyboard.press('Escape');
+              log.success(`  ✅ Notebook renamed to: ${name}`);
+            }
+          } catch (e) {
+            log.warning(`  ⚠️ Could not rename notebook: ${e}`);
+          }
+        }
+
+        await sendProgress?.('Done!', 5, 5);
+
+        // Restore headless config
+        CONFIG.headless = originalHeadless;
+
+        return {
+          success: true,
+          data: {
+            notebook_url: notebookUrl,
+            notebook_id: notebookId,
+            message: `Successfully created new notebook${name ? ` "${name}"` : ''}`,
+          },
+        };
+      } finally {
+        // Close the page we created (but keep the context)
+        await page.close();
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] create_notebook failed: ${errorMessage}`);
       return {
         success: false,
         error: errorMessage,

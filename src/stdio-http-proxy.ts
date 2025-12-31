@@ -309,15 +309,29 @@ function buildProxyToolDefinitions(): Tool[] {
     {
       name: 'generate_content',
       description:
-        '🔌 [PROXY] Generate audio overview via HTTP server.\n' +
-        'Only audio_overview is supported (uses real NotebookLM Studio UI buttons).',
+        '🔌 [PROXY] Generate content via HTTP server.\n' +
+        'Supported content types:\n' +
+        '- audio_overview: Audio podcast/overview (Deep Dive conversation)\n' +
+        '- video: Video summary that visually explains main topics (brief or explainer format)\n' +
+        '- presentation: Slides/presentation with AI-generated content and images\n' +
+        '- report: Briefing document (2,000-3,000 words) summarizing key findings, PDF/DOCX export\n' +
+        '- infographic: Visual infographic in horizontal (16:9) or vertical (9:16) format\n' +
+        '- data_table: Structured table organizing key information (CSV/Excel export)',
       inputSchema: {
         type: 'object',
         properties: {
           content_type: {
             type: 'string',
-            enum: ['audio_overview'],
-            description: 'Type of content to generate (only audio_overview is supported)',
+            enum: [
+              'audio_overview',
+              'video',
+              'presentation',
+              'report',
+              'infographic',
+              'data_table',
+            ],
+            description:
+              'Type of content to generate: audio_overview (podcast), video (brief or explainer), presentation (slides), report (briefing doc 2,000-3,000 words, PDF/DOCX export), infographic (horizontal 16:9 or vertical 9:16), or data_table (CSV/Excel export)',
           },
           custom_instructions: { type: 'string', description: 'Custom instructions' },
           notebook_url: { type: 'string', description: 'Optional notebook URL' },
@@ -427,6 +441,28 @@ async function handleToolCall(
       // Content Management endpoints
       case 'add_source':
         return await httpRequest('POST', '/content/sources', args);
+
+      case 'delete_source': {
+        // Use source_id in path if provided, otherwise use query params for source_name
+        const deleteParams = new URLSearchParams();
+        if (args.notebook_url) deleteParams.set('notebook_url', String(args.notebook_url));
+        if (args.session_id) deleteParams.set('session_id', String(args.session_id));
+        const deleteQuery = deleteParams.toString();
+
+        if (args.source_id) {
+          return await httpRequest(
+            'DELETE',
+            `/content/sources/${encodeURIComponent(String(args.source_id))}${deleteQuery ? `?${deleteQuery}` : ''}`
+          );
+        } else {
+          if (args.source_name) deleteParams.set('source_name', String(args.source_name));
+          const deleteByNameQuery = deleteParams.toString();
+          return await httpRequest(
+            'DELETE',
+            `/content/sources${deleteByNameQuery ? `?${deleteByNameQuery}` : ''}`
+          );
+        }
+      }
 
       case 'generate_audio':
         return await httpRequest('POST', '/content/audio', args);

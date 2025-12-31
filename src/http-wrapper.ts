@@ -368,6 +368,27 @@ app.post('/notebooks/auto-discover', async (req: Request, res: Response) => {
   }
 });
 
+// Create a new notebook in NotebookLM (via browser automation)
+app.post('/notebooks/create', async (req: Request, res: Response) => {
+  try {
+    const { name, show_browser } = req.body;
+
+    const result = await toolHandlers.handleCreateNotebook(
+      { name, show_browser },
+      async (message, progress, total) => {
+        log.info(`Progress: ${message} (${progress}/${total})`);
+      }
+    );
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
 // Activate notebook (set as active)
 app.put('/notebooks/:id/activate', async (req: Request, res: Response) => {
   try {
@@ -427,7 +448,8 @@ app.post('/sessions/:id/reset', async (req: Request, res: Response) => {
 // Add source to notebook
 app.post('/content/sources', async (req: Request, res: Response) => {
   try {
-    const { source_type, file_path, url, text, title, notebook_url, session_id } = req.body;
+    const { source_type, file_path, url, text, title, notebook_url, session_id, show_browser } =
+      req.body;
 
     if (!source_type) {
       return res.status(400).json({
@@ -444,6 +466,7 @@ app.post('/content/sources', async (req: Request, res: Response) => {
       title,
       notebook_url,
       session_id,
+      show_browser,
     });
 
     res.json(result);
@@ -455,30 +478,94 @@ app.post('/content/sources', async (req: Request, res: Response) => {
   }
 });
 
-// Generate audio overview
-app.post('/content/audio', async (req: Request, res: Response) => {
+// Delete source from notebook
+app.delete('/content/sources/:id', async (req: Request, res: Response) => {
   try {
-    const { custom_instructions, notebook_url, session_id } = req.body;
+    const { notebook_url, session_id } = req.query;
+    const sourceId = req.params.id;
 
-    const result = await toolHandlers.handleGenerateAudio({
+    if (!sourceId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing source ID in URL path',
+      });
+    }
+
+    const result = await toolHandlers.handleDeleteSource({
+      source_id: sourceId,
+      notebook_url: typeof notebook_url === 'string' ? notebook_url : undefined,
+      session_id: typeof session_id === 'string' ? session_id : undefined,
+    });
+
+    if (!result.success) {
+      // Return 404 if source not found
+      if (result.error?.includes('not found')) {
+        return res.status(404).json(result);
+      }
+      return res.status(500).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+// Delete source by name (alternative endpoint)
+app.delete('/content/sources', async (req: Request, res: Response) => {
+  try {
+    const { source_name, source_id, notebook_url, session_id } = req.query;
+
+    if (!source_name && !source_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required query parameter: source_name or source_id',
+      });
+    }
+
+    const result = await toolHandlers.handleDeleteSource({
+      source_id: typeof source_id === 'string' ? source_id : undefined,
+      source_name: typeof source_name === 'string' ? source_name : undefined,
+      notebook_url: typeof notebook_url === 'string' ? notebook_url : undefined,
+      session_id: typeof session_id === 'string' ? session_id : undefined,
+    });
+
+    if (!result.success) {
+      // Return 404 if source not found
+      if (result.error?.includes('not found')) {
+        return res.status(404).json(result);
+      }
+      return res.status(500).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+// Generate content (audio_overview, presentation, report, data_table, infographic, and video are supported)
+app.post('/content/generate', async (req: Request, res: Response) => {
+  try {
+    const {
+      content_type,
       custom_instructions,
       notebook_url,
       session_id,
-    });
-
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
-});
-
-// Generate content (only audio_overview is currently supported)
-app.post('/content/generate', async (req: Request, res: Response) => {
-  try {
-    const { content_type, custom_instructions, notebook_url, session_id } = req.body;
+      language,
+      video_style,
+      video_format,
+      infographic_format,
+      report_format,
+      presentation_style,
+      presentation_length,
+    } = req.body;
 
     if (!content_type) {
       return res.status(400).json({
@@ -487,20 +574,115 @@ app.post('/content/generate', async (req: Request, res: Response) => {
       });
     }
 
-    // Only audio_overview is supported (other types were fake - just chat prompts)
-    if (content_type !== 'audio_overview') {
+    // Validate content_type is supported
+    const supportedTypes = [
+      'audio_overview',
+      'presentation',
+      'report',
+      'infographic',
+      'data_table',
+      'video',
+    ];
+    if (!supportedTypes.includes(content_type)) {
       return res.status(400).json({
         success: false,
         error:
-          'Only audio_overview is supported. Other content types were removed because they only sent chat prompts instead of using real NotebookLM Studio buttons.',
+          `Content type '${content_type}' is not supported. Supported types: ${supportedTypes.join(', ')}. ` +
+          'These use real NotebookLM Studio UI buttons or the generic ContentGenerator.',
       });
     }
+
+    // Warn if custom_instructions provided for content types that don't support it
+    const noCustomInstructionsTypes = ['report']; // report and mindmap (when implemented) don't support prompts
+    if (custom_instructions && noCustomInstructionsTypes.includes(content_type)) {
+      return res.status(400).json({
+        success: false,
+        error:
+          `Content type '${content_type}' does not support custom_instructions. ` +
+          `Only format/language options are available for this type.`,
+      });
+    }
+
+    // Validate video_style if provided (only valid for video content type)
+    const validVideoStyles = [
+      'classroom',
+      'documentary',
+      'animated',
+      'corporate',
+      'cinematic',
+      'minimalist',
+    ];
+    if (video_style && !validVideoStyles.includes(video_style)) {
+      return res.status(400).json({
+        success: false,
+        error: `Video style '${video_style}' is not supported. Supported styles: ${validVideoStyles.join(', ')}.`,
+      });
+    }
+
+    if (video_style && content_type !== 'video') {
+      return res.status(400).json({
+        success: false,
+        error: `video_style is only valid for content_type 'video', not '${content_type}'.`,
+      });
+    }
+
+    // Validate video_format if provided
+    if (video_format && !['brief', 'explainer'].includes(video_format)) {
+      return res.status(400).json({
+        success: false,
+        error: `Video format '${video_format}' is not supported. Supported formats: brief, explainer.`,
+      });
+    }
+
+    // Validate infographic_format if provided
+    if (infographic_format && !['horizontal', 'vertical'].includes(infographic_format)) {
+      return res.status(400).json({
+        success: false,
+        error: `Infographic format '${infographic_format}' is not supported. Supported formats: horizontal, vertical.`,
+      });
+    }
+
+    // Validate report_format if provided
+    if (report_format && !['summary', 'detailed'].includes(report_format)) {
+      return res.status(400).json({
+        success: false,
+        error: `Report format '${report_format}' is not supported. Supported formats: summary, detailed.`,
+      });
+    }
+
+    // Validate presentation_style if provided
+    if (
+      presentation_style &&
+      !['detailed_slideshow', 'presenter_notes'].includes(presentation_style)
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: `Presentation style '${presentation_style}' is not supported. Supported styles: detailed_slideshow, presenter_notes.`,
+      });
+    }
+
+    // Validate presentation_length if provided
+    if (presentation_length && !['short', 'default'].includes(presentation_length)) {
+      return res.status(400).json({
+        success: false,
+        error: `Presentation length '${presentation_length}' is not supported. Supported lengths: short, default.`,
+      });
+    }
+
+    // Note: data_table has no format options - it exports to Google Sheets
 
     const result = await toolHandlers.handleGenerateContent({
       content_type,
       custom_instructions,
       notebook_url,
       session_id,
+      language,
+      video_style,
+      video_format,
+      infographic_format,
+      report_format,
+      presentation_style,
+      presentation_length,
     });
 
     res.json(result);
@@ -531,15 +713,132 @@ app.get('/content', async (req: Request, res: Response) => {
   }
 });
 
-// Download audio file
-app.get('/content/audio/download', async (req: Request, res: Response) => {
+// Download/export content (audio, video, infographic, presentation, data_table)
+app.get('/content/download', async (req: Request, res: Response) => {
   try {
-    const { output_path, notebook_url, session_id } = req.query;
+    const { content_type, output_path, notebook_url, session_id } = req.query;
 
-    const result = await toolHandlers.handleDownloadAudio({
+    if (!content_type) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: content_type',
+      });
+    }
+
+    // Validate content_type is downloadable/exportable
+    // - audio_overview, video, infographic: downloadable as files
+    // - presentation: exports to Google Slides
+    // - data_table: exports to Google Sheets
+    // - report: text-based only (no export)
+    const exportableTypes = [
+      'audio_overview',
+      'video',
+      'infographic',
+      'presentation',
+      'data_table',
+    ];
+    if (!exportableTypes.includes(content_type as string)) {
+      return res.status(400).json({
+        success: false,
+        error:
+          `Content type '${content_type}' is not exportable. Exportable types: ${exportableTypes.join(', ')}. ` +
+          'Report content is text-based and returned in the generation response.',
+      });
+    }
+
+    const result = await toolHandlers.handleDownloadContent({
+      content_type: content_type as
+        | 'audio_overview'
+        | 'video'
+        | 'infographic'
+        | 'presentation'
+        | 'data_table',
       output_path: typeof output_path === 'string' ? output_path : undefined,
       notebook_url: typeof notebook_url === 'string' ? notebook_url : undefined,
       session_id: typeof session_id === 'string' ? session_id : undefined,
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+// Create a note in the notebook
+app.post('/content/notes', async (req: Request, res: Response) => {
+  try {
+    const { title, content, notebook_url, session_id } = req.body;
+
+    if (!title) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: title',
+      });
+    }
+
+    if (!content) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: content',
+      });
+    }
+
+    const result = await toolHandlers.handleCreateNote({
+      title,
+      content,
+      notebook_url,
+      session_id,
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+// Save chat/discussion to a note
+app.post('/content/chat-to-note', async (req: Request, res: Response) => {
+  try {
+    const { title, notebook_url, session_id } = req.body;
+
+    const result = await toolHandlers.handleSaveChatToNote({
+      title,
+      notebook_url,
+      session_id,
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+// Convert a note to a source
+app.post('/content/notes/:noteTitle/to-source', async (req: Request, res: Response) => {
+  try {
+    const { noteTitle } = req.params;
+    const { notebook_url, session_id } = req.body;
+
+    if (!noteTitle) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required parameter: noteTitle',
+      });
+    }
+
+    const result = await toolHandlers.handleConvertNoteToSource({
+      note_title: decodeURIComponent(noteTitle),
+      notebook_url,
+      session_id,
     });
 
     res.json(result);
@@ -603,10 +902,14 @@ app.listen(PORT, HOST, () => {
   log.info('');
   log.info('   Content Management:');
   log.info('   POST   /content/sources        Add source to notebook');
-  log.info('   POST   /content/audio          Generate audio overview');
-  log.info('   POST   /content/generate       Generate content (briefing, etc.)');
+  log.info('   DELETE /content/sources/:id    Delete source by ID');
+  log.info('   DELETE /content/sources        Delete source by name (query param)');
+  log.info('   POST   /content/generate       Generate content (audio, video, etc.)');
+  log.info('   GET    /content/download       Download/export generated content');
+  log.info('   POST   /content/notes          Create a note in the notebook');
+  log.info('   POST   /content/chat-to-note   Save chat/discussion to a note');
+  log.info('   POST   /content/notes/:title/to-source  Convert note to source');
   log.info('   GET    /content                List sources and content');
-  log.info('   GET    /content/audio/download Download audio file');
   log.info('');
   log.info('💡 Configuration:');
   log.info(

@@ -91,8 +91,9 @@ export class SessionManager {
           `🔄 Browser visibility changed - closing all sessions to recreate browser context...`
         );
         const currentMode = this.sharedContextManager.getCurrentHeadlessMode();
+        // Fix: overrideHeadless=true means headless, false means visible
         log.info(
-          `  Switching from ${currentMode ? 'HEADLESS' : 'VISIBLE'} to ${overrideHeadless ? 'VISIBLE' : 'HEADLESS'}`
+          `  Switching from ${currentMode ? 'HEADLESS' : 'VISIBLE'} to ${overrideHeadless ? 'HEADLESS' : 'VISIBLE'}`
         );
 
         // Close all sessions (they all use the same context)
@@ -151,18 +152,20 @@ export class SessionManager {
       // Create new session
       log.info(`🆕 Creating new session ${sessionId}...`);
       if (overrideHeadless !== undefined) {
-        log.info(`  Show browser: ${overrideHeadless}`);
+        // overrideHeadless=false means visible browser, true means headless
+        log.info(`  Browser mode: ${overrideHeadless ? 'headless' : 'visible'}`);
       }
 
       // Ensure the shared context exists (ONE fingerprint for all sessions!)
       await this.sharedContextManager.getOrCreateContext(overrideHeadless);
 
-      // Create and initialize session
+      // Create and initialize session (pass overrideHeadless so init() uses the same mode)
       const session = new BrowserSession(
         sessionId,
         this.sharedContextManager,
         this.authManager,
-        targetUrl
+        targetUrl,
+        overrideHeadless
       );
       await session.init();
 
@@ -348,6 +351,13 @@ export class SessionManager {
    */
   getAllSessionsInfo(): SessionInfo[] {
     return Array.from(this.sessions.values()).map((session) => session.getInfo());
+  }
+
+  /**
+   * Get the shared context manager (for direct browser access)
+   */
+  getSharedContextManager(): SharedContextManager {
+    return this.sharedContextManager;
   }
 
   /**

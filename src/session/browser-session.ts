@@ -17,7 +17,11 @@ import type { BrowserContext, Page } from 'patchright';
 import { SharedContextManager } from './shared-context-manager.js';
 import { AuthManager } from '../auth/auth-manager.js';
 import { humanType, randomDelay } from '../utils/stealth-utils.js';
-import { waitForLatestAnswer, snapshotAllResponses } from '../utils/page-utils.js';
+import {
+  waitForLatestAnswer,
+  snapshotAllResponses,
+  isRateLimitMessage,
+} from '../utils/page-utils.js';
 import {
   extractCitations,
   type SourceFormat,
@@ -52,17 +56,21 @@ export class BrowserSession {
   private authManager: AuthManager;
   private page: Page | null = null;
   private initialized: boolean = false;
+  /** Headless mode override - true=headless, false=visible, undefined=use config default */
+  private overrideHeadless?: boolean;
 
   constructor(
     sessionId: string,
     sharedContextManager: SharedContextManager,
     authManager: AuthManager,
-    notebookUrl: string
+    notebookUrl: string,
+    overrideHeadless?: boolean
   ) {
     this.sessionId = sessionId;
     this.sharedContextManager = sharedContextManager;
     this.authManager = authManager;
     this.notebookUrl = notebookUrl;
+    this.overrideHeadless = overrideHeadless;
     this.createdAt = Date.now();
     this.lastActivity = Date.now();
     this.messageCount = 0;
@@ -82,8 +90,8 @@ export class BrowserSession {
     log.info(`🚀 Initializing session ${this.sessionId}...`);
 
     try {
-      // Ensure a valid shared context
-      this.context = await this.sharedContextManager.getOrCreateContext();
+      // Ensure a valid shared context (pass overrideHeadless to maintain visibility mode)
+      this.context = await this.sharedContextManager.getOrCreateContext(this.overrideHeadless);
 
       // Create new page (tab) in the shared context (with auto-recovery)
       try {
@@ -94,7 +102,7 @@ export class BrowserSession {
           /has been closed|Target .* closed|Browser has been closed|Context .* closed/i.test(msg)
         ) {
           log.warning('  ♻️  Context was closed. Recreating and retrying newPage...');
-          this.context = await this.sharedContextManager.getOrCreateContext();
+          this.context = await this.sharedContextManager.getOrCreateContext(this.overrideHeadless);
           this.page = await this.context.newPage();
         } else {
           throw e;
@@ -160,12 +168,9 @@ export class BrowserSession {
   /**
    * Wait for NotebookLM interface to be ready
    *
-   * IMPORTANT: Matches Python implementation EXACTLY!
-   * - Uses SPECIFIC selectors (textarea.query-box-input)
-   * - Checks ONLY for "visible" state (NOT disabled!)
-   * - NO placeholder checks (let NotebookLM handle that!)
-   *
-   * Based on Python _wait_for_ready() from browser_session.py:104-113
+   * IMPORTANT: Wait for BOTH:
+   * 1. Chat input to be visible
+   * 2. Page content to be fully loaded (no skeleton UI)
    */
   private async waitForNotebookLMReady(): Promise<void> {
     if (!this.page) {
@@ -173,19 +178,24 @@ export class BrowserSession {
     }
 
     try {
-      // PRIMARY: Exact Python selector - textarea.query-box-input
+      // PRIMARY: Wait for chat input
       log.info('  ⏳ Waiting for chat input (textarea.query-box-input)...');
       await this.page.waitForSelector('textarea.query-box-input', {
-        timeout: 10000, // Python uses 10s timeout
-        state: 'visible', // ONLY check visibility (NO disabled check!)
+        timeout: 15000,
+        state: 'visible',
       });
       log.success('  ✅ Chat input ready!');
+
+      // CRITICAL: Wait for page content to load (no skeleton UI)
+      log.info('  ⏳ Waiting for page content to load...');
+      await this.waitForContentLoaded();
+      log.success('  ✅ Page content loaded!');
     } catch {
-      // FALLBACK: Python alternative selector
+      // FALLBACK: Try alternative selector
       try {
         log.info('  ⏳ Trying fallback selector (aria-label)...');
         await this.page.waitForSelector('textarea[aria-label="Feld für Anfragen"]', {
-          timeout: 5000, // Python uses 5s for fallback
+          timeout: 5000,
           state: 'visible',
         });
         log.success('  ✅ Chat input ready (fallback)!');
@@ -206,6 +216,62 @@ export class BrowserSession {
         );
       }
     }
+  }
+
+  /**
+   * Wait for page content to be fully loaded (no skeleton/loading UI)
+   * This ensures NotebookLM has finished loading sources and is ready to answer
+   */
+  private async waitForContentLoaded(): Promise<void> {
+    if (!this.page) return;
+
+    const maxWaitMs = 15000;
+    const pollIntervalMs = 500;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < maxWaitMs) {
+      // Check if skeleton UI is still visible
+      const hasSkeletonUI = await this.page.evaluate(`
+        (() => {
+          // Look for skeleton/loading indicators
+          const skeletonSelectors = [
+            '.skeleton',
+            '[class*="skeleton"]',
+            '[class*="loading"]',
+            '.mat-progress-bar',
+            '.loading-indicator',
+            '.shimmer',
+            '[class*="shimmer"]',
+          ];
+
+          for (const selector of skeletonSelectors) {
+            const elements = document.querySelectorAll(selector);
+            for (const el of elements) {
+              const style = window.getComputedStyle(el);
+              if (style.display !== 'none' && style.visibility !== 'hidden') {
+                return true;
+              }
+            }
+          }
+
+          // Also check for placeholder bars (common in loading states)
+          const placeholderBars = document.querySelectorAll('[style*="background"][style*="animate"]');
+          if (placeholderBars.length > 0) return true;
+
+          return false;
+        })()
+      `);
+
+      if (!hasSkeletonUI) {
+        // Also wait a small additional delay to be safe
+        await randomDelay(500, 800);
+        return;
+      }
+
+      await this.page.waitForTimeout(pollIntervalMs);
+    }
+
+    log.warning('  ⚠️ Timeout waiting for content to load, proceeding anyway...');
   }
 
   private isPageClosedSafe(): boolean {
@@ -413,6 +479,25 @@ export class BrowserSession {
       const existingResponses = await snapshotAllResponses(page);
       log.success(`  ✅ Captured ${existingResponses.length} existing responses`);
 
+      // Ensure sources are selected before asking
+      await this.ensureSourcesSelected();
+
+      // Check for rate limit BEFORE trying to submit a question
+      log.info(`  🔍 Checking for rate limit before asking...`);
+      if (await this.detectRateLimitError()) {
+        throw new RateLimitError('NotebookLM daily limit reached - switching to another account');
+      }
+
+      // DEBUG: Take screenshot before asking to see UI state
+      try {
+        const debugPath = process.env.LOCALAPPDATA || 'C:\\Users\\romai\\AppData\\Local';
+        const screenshotPath = `${debugPath}\\notebooklm-mcp\\Data\\debug-before-ask.png`;
+        await page.screenshot({ path: screenshotPath, fullPage: true });
+        log.info(`  📸 Debug screenshot saved: ${screenshotPath}`);
+      } catch (e) {
+        log.warning(`  ⚠️ Could not save debug screenshot: ${e}`);
+      }
+
       // Find the chat input
       const inputSelector = await this.findChatInput();
       if (!inputSelector) {
@@ -440,6 +525,16 @@ export class BrowserSession {
       // Small pause after submit
       await randomDelay(1000, 1500);
 
+      // DEBUG: Take screenshot after submitting question
+      try {
+        const debugPath = process.env.LOCALAPPDATA || 'C:\\Users\\romai\\AppData\\Local';
+        const screenshotPath = `${debugPath}\\notebooklm-mcp\\Data\\debug-after-submit.png`;
+        await page.screenshot({ path: screenshotPath, fullPage: true });
+        log.info(`  📸 Debug screenshot (after submit) saved: ${screenshotPath}`);
+      } catch (e) {
+        log.warning(`  ⚠️ Could not save debug screenshot: ${e}`);
+      }
+
       // Wait for the response with streaming detection
       log.info(`  ⏳ Waiting for response (with streaming detection)...`);
       await sendProgress?.('Waiting for NotebookLM response (streaming detection active)...', 3, 5);
@@ -455,7 +550,13 @@ export class BrowserSession {
         throw new Error('Timeout waiting for response from NotebookLM');
       }
 
-      // Check for rate limit errors AFTER receiving answer
+      // Check if the answer itself is a rate limit message
+      if (isRateLimitMessage(answer)) {
+        log.warning(`  ⚠️ Rate limit detected in response: "${answer.substring(0, 50)}..."`);
+        throw new RateLimitError('NotebookLM daily limit reached - switching to another account');
+      }
+
+      // Check for rate limit errors in page elements AFTER receiving answer
       log.info(`  🔍 Checking for rate limit errors...`);
       if (await this.detectRateLimitError()) {
         throw new RateLimitError(
@@ -591,19 +692,35 @@ export class BrowserSession {
       '.toast-error',
     ];
 
-    // Keywords that indicate rate limiting
+    // Keywords that indicate rate limiting (English + French)
+    // IMPORTANT: Be specific! Generic terms like "quota" can appear anywhere on the page
     const keywords = [
       'rate limit',
       'limit exceeded',
       'quota exhausted',
-      'daily limit',
-      'limit reached',
+      'daily limit reached',
+      'daily discussion limit',
       'too many requests',
-      'ratenlimit',
-      'quota',
-      'query limit',
-      'request limit',
+      'query limit reached',
+      'request limit reached',
+      // French keywords - SPECIFIC phrases only
+      'limite quotidienne de discussions',
+      'atteint la limite quotidienne',
+      'vous avez atteint la limite',
+      'revenez plus tard',
     ];
+
+    // FIRST: Check entire page body for rate limit messages (most reliable)
+    try {
+      const bodyText = await this.page.evaluate(`document.body.innerText`);
+      const bodyLower = (bodyText as string).toLowerCase();
+      if (keywords.some((k) => bodyLower.includes(k))) {
+        log.error(`🚫 Rate limit detected in page body!`);
+        return true;
+      }
+    } catch {
+      // Continue with specific selectors
+    }
 
     // Check error containers for rate limit messages
     for (const selector of errorSelectors) {
@@ -627,11 +744,34 @@ export class BrowserSession {
       }
     }
 
-    // Also check if chat input is disabled (sometimes NotebookLM disables input when rate limited)
+    // Check chat input for rate limit messages (placeholder, value, or disabled state)
     try {
       const inputSelector = 'textarea.query-box-input';
       const input = await this.page.$(inputSelector);
       if (input) {
+        // Check placeholder text (rate limit message often appears here)
+        const placeholder = await input.getAttribute('placeholder');
+        if (placeholder) {
+          const placeholderLower = placeholder.toLowerCase();
+          if (keywords.some((k) => placeholderLower.includes(k))) {
+            log.error(
+              `🚫 Rate limit detected in input placeholder: "${placeholder.substring(0, 80)}..."`
+            );
+            return true;
+          }
+        }
+
+        // Check input value (sometimes the message is in the field itself)
+        const inputValue = await input.inputValue();
+        if (inputValue) {
+          const valueLower = inputValue.toLowerCase();
+          if (keywords.some((k) => valueLower.includes(k))) {
+            log.error(`🚫 Rate limit detected in input value: "${inputValue.substring(0, 80)}..."`);
+            return true;
+          }
+        }
+
+        // Check if input is disabled
         const isDisabled = await input.evaluate((el) => {
           return (el as { disabled?: boolean }).disabled || el.hasAttribute('disabled');
         });
@@ -659,6 +799,68 @@ export class BrowserSession {
     }
 
     return false;
+  }
+
+  /**
+   * Ensure all sources are selected (checkbox checked)
+   * NotebookLM requires sources to be selected to answer questions
+   */
+  private async ensureSourcesSelected(): Promise<void> {
+    if (!this.page) return;
+
+    try {
+      log.info(`  📋 Ensuring sources are selected...`);
+
+      // Look for "Select all sources" checkbox (French: "Sélectionner toutes les sources")
+      const selectAllSelectors = [
+        'text=/Sélectionner toutes les sources/i',
+        'text=/Select all sources/i',
+        'text=/Select all/i',
+        'text=/Tout sélectionner/i',
+        // Checkbox before the "Select all" text
+        'mat-checkbox:near(:text("Sélectionner"))',
+        'mat-checkbox:near(:text("Select all"))',
+        // First checkbox in sources panel (usually "select all")
+        '.sources-list mat-checkbox:first-child',
+        '[class*="source"] mat-checkbox:first-of-type',
+      ];
+
+      for (const selector of selectAllSelectors) {
+        try {
+          const checkbox = this.page.locator(selector).first();
+          if (await checkbox.isVisible({ timeout: 2000 })) {
+            // Check if already selected
+            const isChecked = await checkbox
+              .evaluate((el: any) => {
+                // Check various ways to determine if checked
+                const checkboxEl = el.querySelector('input[type="checkbox"]') || el;
+                return (
+                  checkboxEl.checked ||
+                  el.classList?.contains('mat-mdc-checkbox-checked') ||
+                  el.getAttribute('aria-checked') === 'true'
+                );
+              })
+              .catch(() => false);
+
+            if (!isChecked) {
+              log.info(`  ☑️ Clicking "Select all sources"...`);
+              await checkbox.click();
+              await randomDelay(500, 800);
+            } else {
+              log.info(`  ✅ Sources already selected`);
+            }
+            return;
+          }
+        } catch {
+          continue;
+        }
+      }
+
+      // Fallback: Try clicking on the sources panel header to select all
+      log.info(`  🔍 "Select all" not found, trying to verify sources manually...`);
+    } catch (error) {
+      log.warning(`  ⚠️ Could not ensure sources selected: ${error}`);
+    }
   }
 
   /**
@@ -737,8 +939,12 @@ export class BrowserSession {
 
   /**
    * Check if session has expired (inactive for too long)
+   * @param timeoutSeconds - Timeout in seconds. 0 means never expires.
    */
   isExpired(timeoutSeconds: number): boolean {
+    if (timeoutSeconds <= 0) {
+      return false; // 0 or negative timeout means never expires
+    }
     const inactiveSeconds = (Date.now() - this.lastActivity) / 1000;
     return inactiveSeconds > timeoutSeconds;
   }
