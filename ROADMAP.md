@@ -2,102 +2,43 @@
 
 This document tracks planned features, recent implementations, and future ideas for the NotebookLM MCP Server.
 
-## Current Version: v1.5.0
+## Current Version: v1.5.1
 
 ---
 
 ## Upcoming
 
-### v1.5.0 - Studio Complete
+### v1.6.0 - Study & Learning Features
 
-**Priority: High** - Complete NotebookLM Studio features.
+**Priority: Medium** - Add study-focused content types.
 
-#### Phase 1 - Core Content Generation
-
-**1. Audio Overviews (partial - needs options):**
-
-- [x] Generate audio overview (basic)
-- [x] Download audio file
-- [ ] Audio style selection: Debate, Critique, Brief summary, Deep dive
-- [ ] Tone customization (humor, formality)
-- [ ] Length/duration control
-- [ ] Language selection (80+ languages)
-
-**2. Video Overviews:**
-
-- [ ] Generate video overview
-- [ ] Format selection: Brief, Explainer
-- [ ] Visual style selection (6 styles via Nano Banana AI)
-- [ ] Download video file
-
-**3. Infographics:**
-
-- [ ] Generate infographic
-- [ ] Format: Horizontal (16:9) for LinkedIn/blogs
-- [ ] Format: Vertical (9:16) for Instagram/TikTok
-- [ ] Download as image
-
-**4. Reports (Enhanced):**
-
-- [x] Generate report (basic via `report_format`: summary, detailed)
-- [ ] Report types: Briefing doc, FAQ, Study guide, Timeline
-- [ ] Calculated report types (take longer to generate based on content analysis)
-- [ ] Language selection for reports
-- [ ] Custom instructions/prompt support for reports
-- [ ] Section customization
-- [ ] Download as PDF/DOCX
-
-**5. Slide Decks / Presentations:**
-
-- [ ] Generate presentation
-- [ ] AI-generated images (Nano Banana Pro)
-- [ ] Theme/style selection
-- [ ] Download as PDF/PPTX
-
-**6. Data Tables:**
-
-- [ ] Generate data table from sources
-- [ ] Format: CSV, Excel
-- [ ] Column customization
-- [ ] Download as CSV/XLSX
-
-#### Phase 2 - Study & Learning
-
-**7. Mind Maps:**
+**Mind Maps:**
 
 - [ ] Generate mind map from sources
 - [ ] Expand/collapse nodes
 - [ ] Download as image (PNG/SVG)
 
-**8. Quiz:**
+**Quiz:**
 
 - [ ] Generate quiz with questions
 - [ ] Question types (MCQ, true/false, open)
 - [ ] Difficulty levels
 - [ ] Export quiz
 
-**9. Learning Cards (Flashcards):**
+**Learning Cards (Flashcards):**
 
 - [ ] Generate flashcards from sources
 - [ ] Card format customization
 - [ ] Spaced repetition support
 - [ ] Export as Anki/Quizlet
 
-#### Phase 3 - Additional Features
+### Future Enhancements
 
-**Note Management:**
+**Audio Overviews (advanced options):**
 
-- [ ] Create notes (text input)
-- [ ] Edit notes
-- [ ] Delete notes
-- [ ] Save chat response to note
-- [ ] Convert note to source
-
-**Source Management:**
-
-- [ ] Delete individual sources
-- [ ] Bulk delete sources
-- [ ] Edit source metadata
+- [ ] Audio style selection: Debate, Critique, Brief summary, Deep dive
+- [ ] Tone customization (humor, formality)
+- [ ] Length/duration control
 
 **Source Discovery:**
 
@@ -106,9 +47,42 @@ This document tracks planned features, recent implementations, and future ideas 
 - [ ] Discover sources from Google Drive (Fast mode)
 - [ ] Discover sources from Google Drive (Deep mode)
 
+**Export Formats:**
+
+- [ ] Download reports as PDF/DOCX
+- [ ] Download presentations as PDF/PPTX
+- [ ] Download data tables as CSV/XLSX
+
+**Note Management:**
+
+- [ ] Edit notes
+- [ ] Delete notes
+
 ---
 
 ## Recently Implemented
+
+### v1.5.1 - Multilingual UI Support
+
+- [x] i18n system for NotebookLM UI selectors (French and English)
+- [x] `NOTEBOOKLM_UI_LOCALE` environment variable
+- [x] Language switching script (`scripts/switch-account-language.sh`)
+- [x] Complete E2E test suite (76 tests)
+- [x] Documentation for adding new languages
+
+### v1.5.0 - Studio Complete
+
+- [x] Video overviews (Brief, Explainer formats + 6 visual styles)
+- [x] Infographics (Horizontal 16:9, Vertical 9:16)
+- [x] Presentations (styles: detailed_slideshow, presenter_notes + length options)
+- [x] Data tables generation
+- [x] Reports with format options (summary, detailed)
+- [x] Download video, infographic, audio files
+- [x] Export to Google Slides/Sheets
+- [x] Notes management (create, chat-to-note, note-to-source)
+- [x] Delete sources by name or ID
+- [x] Language selection for generated content (80+ languages)
+- [x] Custom instructions support for all content types
 
 ### v1.4.0 - Content Management
 
