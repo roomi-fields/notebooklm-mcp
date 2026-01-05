@@ -79,6 +79,9 @@ export interface Config {
 
   // UI Locale (NotebookLM follows Google Account language)
   uiLocale: 'fr' | 'en';
+
+  // Browser channel: 'chromium' (default, Docker compatible) or 'chrome' (local install)
+  browserChannel: 'chromium' | 'chrome';
 }
 
 /**
@@ -136,6 +139,9 @@ const DEFAULTS: Config = {
 
   // UI Locale (default: French - matches most common Google Account language)
   uiLocale: 'fr',
+
+  // Browser channel: 'chromium' works in Docker, 'chrome' for local with Google Chrome installed
+  browserChannel: 'chromium',
 };
 
 /**
@@ -271,7 +277,21 @@ function applyEnvOverrides(config: Config): Config {
       config.instanceProfileMaxCount
     ),
     uiLocale: parseLocale(process.env.NOTEBOOKLM_UI_LOCALE, config.uiLocale),
+    browserChannel: parseBrowserChannel(process.env.BROWSER_CHANNEL, config.browserChannel),
   };
+}
+
+/**
+ * Parse browser channel from string (chromium or chrome)
+ */
+function parseBrowserChannel(
+  value: string | undefined,
+  defaultValue: Config['browserChannel']
+): Config['browserChannel'] {
+  if (!value) return defaultValue;
+  const lower = value.toLowerCase();
+  if (lower === 'chrome') return 'chrome';
+  return 'chromium'; // Default to chromium (Docker compatible)
 }
 
 /**

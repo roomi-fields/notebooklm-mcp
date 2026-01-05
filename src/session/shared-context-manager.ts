@@ -153,12 +153,16 @@ export class SharedContextManager {
 
     // Build launch options for persistent context
     // NOTE: userDataDir is passed as first parameter, NOT in options!
+    // Map uiLocale to browser locale
+    const browserLocale = CONFIG.uiLocale === 'fr' ? 'fr-FR' : 'en-US';
+    const browserTimezone = CONFIG.uiLocale === 'fr' ? 'Europe/Paris' : 'America/New_York';
+
     const launchOptions = {
       headless: shouldBeHeadless,
-      channel: 'chrome' as const,
+      ...(CONFIG.browserChannel === 'chrome' && { channel: 'chrome' as const }),
       viewport: CONFIG.viewport,
-      locale: 'en-US',
-      timezoneId: 'Europe/Berlin',
+      locale: browserLocale,
+      timezoneId: browserTimezone,
       // ✅ CRITICAL FIX: Pass storageState directly at launch!
       // This is the PROPER way to handle session cookies (Playwright bug workaround)
       // Benefits:
@@ -171,6 +175,16 @@ export class SharedContextManager {
         '--disable-dev-shm-usage',
         '--no-first-run',
         '--no-default-browser-check',
+        // Docker-specific flags
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--disable-features=VizDisplayCompositor',
+        // Suppress warnings
+        '--disable-infobars',
+        '--disable-sync',
+        '--log-level=3',
       ],
     };
 

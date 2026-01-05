@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  notebooklm-mcp:
+    image: notebooklm-mcp:latest
+    container_name: notebooklm-mcp
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./data:/data
+    environment:
+      - NODE_ENV=production
+      - HTTP_PORT=3000
+      - HTTP_HOST=0.0.0.0
+      - HEADLESS=true
+      - STEALTH_ENABLED=true
+      - NOTEBOOKLM_DATA_DIR=/data
+      - NOTEBOOKLM_UI_LOCALE=fr
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

@@ -356,7 +356,10 @@ export class AuthManager {
       await sendProgress?.('Navigating to Google login...', 3, 10);
 
       // Navigate to Google login (redirects to NotebookLM after auth)
-      await page.goto(NOTEBOOKLM_AUTH_URL, { timeout: 60000 });
+      await page.goto(NOTEBOOKLM_AUTH_URL, {
+        timeout: 60000,
+        waitUntil: 'domcontentloaded', // Don't wait for all resources (faster in Docker)
+      });
 
       // Progress: Waiting for login
       await sendProgress?.('Waiting for manual login (up to 10 minutes)...', 4, 10);
@@ -1019,17 +1022,30 @@ export class AuthManager {
 
       // ✅ CRITICAL FIX: Use launchPersistentContext (same as runtime!)
       // This ensures session cookies persist correctly
+      // Map uiLocale to browser locale
+      const browserLocale = CONFIG.uiLocale === 'fr' ? 'fr-FR' : 'en-US';
+
       const context = await chromium.launchPersistentContext(CONFIG.chromeProfileDir, {
         headless: !shouldShowBrowser, // Use override or default to visible for setup
-        channel: 'chrome' as const,
+        ...(CONFIG.browserChannel === 'chrome' && { channel: 'chrome' as const }),
         viewport: CONFIG.viewport,
-        locale: 'en-US',
-        timezoneId: 'Europe/Berlin',
+        locale: browserLocale,
+        timezoneId: CONFIG.uiLocale === 'fr' ? 'Europe/Paris' : 'America/New_York',
         args: [
           '--disable-blink-features=AutomationControlled',
           '--disable-dev-shm-usage',
           '--no-first-run',
           '--no-default-browser-check',
+          // Docker-specific flags
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-gpu',
+          '--disable-software-rasterizer',
+          '--disable-features=VizDisplayCompositor',
+          // Suppress warnings
+          '--disable-infobars',
+          '--disable-sync',
+          '--log-level=3',
         ],
       });
 

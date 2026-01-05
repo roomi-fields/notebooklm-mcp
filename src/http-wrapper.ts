@@ -54,6 +54,22 @@ const sessionManager = new SessionManager(authManager);
 const library = new NotebookLibrary(sessionManager);
 const toolHandlers = new ToolHandlers(sessionManager, authManager, library);
 
+// Root endpoint - API info
+app.get('/', (_req: Request, res: Response) => {
+  res.json({
+    name: 'NotebookLM MCP HTTP Server',
+    version: process.env.npm_package_version || '1.5.2',
+    endpoints: {
+      health: 'GET /health',
+      ask: 'POST /ask',
+      setup_auth: 'POST /setup-auth',
+      notebooks: 'GET /notebooks',
+      sessions: 'GET /sessions',
+    },
+    docs: 'https://github.com/carterlasalle/notebooklm-mcp',
+  });
+});
+
 // Health check
 app.get('/health', async (_req: Request, res: Response) => {
   try {

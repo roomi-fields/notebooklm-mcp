@@ -78,17 +78,31 @@ export class AutoLoginManager {
       }
 
       // Launch persistent browser for this account
+      // Map uiLocale to browser locale
+      const browserLocale = CONFIG.uiLocale === 'fr' ? 'fr-FR' : 'en-US';
+      const browserTimezone = CONFIG.uiLocale === 'fr' ? 'Europe/Paris' : 'America/New_York';
+
       context = await chromium.launchPersistentContext(account.profileDir, {
         headless: !options.showBrowser,
-        channel: 'chrome',
+        ...(CONFIG.browserChannel === 'chrome' && { channel: 'chrome' }),
         viewport: CONFIG.viewport,
-        locale: 'en-US',
-        timezoneId: 'Europe/Berlin',
+        locale: browserLocale,
+        timezoneId: browserTimezone,
         args: [
           '--disable-blink-features=AutomationControlled',
           '--disable-dev-shm-usage',
           '--no-first-run',
           '--no-default-browser-check',
+          // Docker-specific flags
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-gpu',
+          '--disable-software-rasterizer',
+          '--disable-features=VizDisplayCompositor',
+          // Suppress warnings
+          '--disable-infobars',
+          '--disable-sync',
+          '--log-level=3',
         ],
       });
 
