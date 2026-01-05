@@ -23,6 +23,7 @@
 | [**05-TROUBLESHOOTING.md**](./05-TROUBLESHOOTING.md)   | Solutions to common problems                | Debugging, errors       |
 | [**06-NOTEBOOK-LIBRARY.md**](./06-NOTEBOOK-LIBRARY.md) | Multi-notebook library management           | Notebook management     |
 | [**07-AUTO-DISCOVERY.md**](./07-AUTO-DISCOVERY.md)     | Autonomous resource discovery pattern       | Auto-discovery feature  |
+| [**08-DOCKER.md**](./08-DOCKER.md)                     | Docker deployment with noVNC                | Docker, NAS users       |
 | [**11-MULTI-ACCOUNT.md**](./11-MULTI-ACCOUNT.md)       | Multi-account management and rotation       | Rate limit handling     |
 | [**Test Scripts**](../scripts/README.md)               | PowerShell validation scripts               | Testing, CI/CD          |
 
@@ -63,6 +64,12 @@
 1. [Multi-account setup](./11-MULTI-ACCOUNT.md) — Configure multiple accounts
 2. [Automatic rotation](./11-MULTI-ACCOUNT.md#automatic-rotation-flow) — How rotation works
 3. [Quota management](./11-MULTI-ACCOUNT.md#troubleshooting) — Reset and monitor quotas
+
+### I want to deploy on Docker/NAS
+
+1. [Docker guide](./08-DOCKER.md) — Complete Docker deployment
+2. [noVNC authentication](./08-DOCKER.md#first-time-authentication-via-novnc) — Visual auth in browser
+3. [NAS deployment](./08-DOCKER.md#nas-deployment-synology-qnap) — Synology, QNAP setup
 
 ---
 
@@ -203,5 +210,5 @@ Or directly propose a PR to improve the documentation!
 
 ---
 
-**Documentation updated:** 2025-12-29
-**Version:** 1.4.2
+**Documentation updated:** 2026-01-05
+**Version:** 1.5.3

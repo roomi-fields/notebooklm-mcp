@@ -7,6 +7,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.3] - 2026-01-05
+
+### Added
+
+**Docker Deployment with noVNC:**
+
+- noVNC integration for visual browser authentication in Docker
+- Xvfb + x11vnc + websockify for headless display server
+- Port 6080 for web-based VNC access
+- `scripts/start-vnc.sh` - VNC services startup script
+- `scripts/docker-entrypoint.sh` - Container entrypoint combining VNC + Node.js
+- NAS deployment support (Synology, QNAP) with export/import workflow
+
+**New Configuration Options:**
+
+- `browserChannel` config: `chromium` (default) or `chrome`
+- `ENABLE_VNC` environment variable for Docker
+- `NOVNC_PORT` environment variable (default: 6080)
+
+### Fixed
+
+**Docker Compatibility:**
+
+- Fixed locale configuration to use `CONFIG.uiLocale` instead of hardcoded `en-US`
+- Fixed browser channel for Docker (chromium vs chrome)
+- Fixed patchright browser installation in Dockerfile
+- Fixed `show_browser` parameter passing to `performSetup`
+- Added Docker-specific Chrome flags (`--no-sandbox`, `--disable-setuid-sandbox`, etc.)
+- Fixed `page.goto` timeouts with `waitUntil: 'domcontentloaded'`
+
+**HTTP Server:**
+
+- Added root endpoint (`/`) returning API info
+
+---
+
+## [1.5.3] - 2026-01-05
+
+### Added
+
+**Docker Deployment with noVNC:**
+
+- noVNC integration for visual browser authentication in Docker
+- Xvfb + x11vnc + websockify for headless display server
+- Port 6080 for web-based VNC access
+- `scripts/start-vnc.sh` - VNC services startup script
+- `scripts/docker-entrypoint.sh` - Container entrypoint combining VNC + Node.js
+- NAS deployment support (Synology, QNAP) with export/import workflow
+
+**New Configuration Options:**
+
+- `browserChannel` config: `chromium` (default) or `chrome`
+- `ENABLE_VNC` environment variable for Docker
+- `NOVNC_PORT` environment variable (default: 6080)
+
+### Fixed
+
+**Docker Compatibility:**
+
+- Fixed locale configuration to use `CONFIG.uiLocale` instead of hardcoded `en-US`
+- Fixed browser channel for Docker (chromium vs chrome)
+- Fixed patchright browser installation in Dockerfile
+- Fixed `show_browser` parameter passing to `performSetup`
+- Added Docker-specific Chrome flags (`--no-sandbox`, `--disable-setuid-sandbox`, etc.)
+- Fixed `page.goto` timeouts with `waitUntil: 'domcontentloaded'`
+
+**HTTP Server:**
+
+- Added root endpoint (`/`) returning API info
+
+---
+
 ## [1.5.2] - 2026-01-01
 
 ### Added
