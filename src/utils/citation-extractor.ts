@@ -3,7 +3,7 @@
  *
  * Extracts source citations from NotebookLM responses:
  * - Source names from citation button aria-labels (instant, 100% reliable)
- * - Source excerpts by clicking citations to open the source panel (reads i.highlighted)
+ * - Source excerpts by clicking citations to open the source panel (reads .highlighted)
  * - All done via page.evaluate() — no ElementHandle references that can go stale
  *
  * Multiple output formats: inline, footnotes, json, expanded
@@ -108,9 +108,17 @@ export async function extractCitations(
     //
     // For source excerpts, we click each citation to open the source panel.
     // ================================================================
+    // IMPORTANT: Scope to the LAST response container only!
+    // After multiple questions, the page has citation buttons from ALL previous answers.
+    // If we querySelectorAll('button.citation-marker') globally, we click old citations
+    // from previous responses → wrong source panel → no highlights for current answer.
     const rawCitations: Array<{ number: number; sourceName: string }> = await page.evaluate(`
       (() => {
-        const buttons = document.querySelectorAll('button.citation-marker');
+        // Find the last response container (most recent answer)
+        const containers = document.querySelectorAll('.to-user-container .message-text-content');
+        const lastContainer = containers.length > 0 ? containers[containers.length - 1] : document;
+
+        const buttons = lastContainer.querySelectorAll('button.citation-marker');
         const seen = new Set();
         const results = [];
 
@@ -151,23 +159,25 @@ export async function extractCitations(
     log.info(`📚 [CITATIONS] Found ${rawCitations.length} citation markers`);
 
     // Extract source excerpts by CLICKING each citation button.
-    // Clicking opens the source panel with i.highlighted marking the cited passage.
-    // We read the parent .paragraph for the full passage context.
-    // Escape between each click to dismiss the panel and get fresh highlights.
+    // Click opens the source panel with .highlighted marking the cited passage.
+    // Use JS .click() — real mouse clicks and hover don't work reliably in headless.
     for (const { number, sourceName } of rawCitations) {
       const marker = `[${number}]`;
       let sourceText = '';
 
       try {
-        // Step 1: Click the citation button via evaluate
+        // Step 1: Click the citation button (scoped to LAST response container)
         const clicked = await page.evaluate(`
           (() => {
+            const containers = document.querySelectorAll('.to-user-container .message-text-content');
+            const scope = containers.length > 0 ? containers[containers.length - 1] : document;
             const num = ${number};
-            const buttons = document.querySelectorAll('button.citation-marker');
+            const buttons = scope.querySelectorAll('button.citation-marker');
             for (const btn of buttons) {
               const text = btn.textContent || '';
               const match = text.match(/(\\d+)/);
               if (match && parseInt(match[1], 10) === num) {
+                btn.scrollIntoView({ block: 'center' });
                 btn.click();
                 return true;
               }
@@ -177,32 +187,36 @@ export async function extractCitations(
         `);
 
         if (clicked) {
-          await randomDelay(800, 1200);
+          // Step 2: Wait for .highlighted to appear (poll with timeout)
+          const maxWaitMs = 3000;
+          const pollMs = 200;
+          const startTime = Date.now();
+          while (Date.now() - startTime < maxWaitMs) {
+            sourceText = await page.evaluate(`
+              (() => {
+                const highlights = document.querySelectorAll('.highlighted');
+                if (highlights.length === 0) return '';
 
-          // Step 2: Read i.highlighted + parent paragraph from source panel
-          sourceText = await page.evaluate(`
-            (() => {
-              const highlights = document.querySelectorAll('i.highlighted');
-              if (highlights.length === 0) return '';
+                const hTexts = Array.from(highlights).map(el => el.innerText?.trim()).filter(Boolean);
+                if (hTexts.length === 0) return '';
 
-              const hTexts = Array.from(highlights).map(el => el.innerText?.trim()).filter(Boolean);
-              if (hTexts.length === 0) return '';
+                const parent = highlights[0].closest('.paragraph') || highlights[0].parentElement;
+                const pText = parent?.innerText?.trim() || '';
+                const hText = hTexts.join(' ');
 
-              // Get the parent paragraph for full context
-              const parent = highlights[0].closest('.paragraph') || highlights[0].parentElement;
-              const pText = parent?.innerText?.trim() || '';
-              const hText = hTexts.join(' ');
-
-              return pText.length > hText.length ? pText : hText;
-            })()
-          `);
+                return pText.length > hText.length ? pText : hText;
+              })()
+            `);
+            if (sourceText) break;
+            await new Promise((r) => setTimeout(r, pollMs));
+          }
 
           // Step 3: Dismiss the source panel
           await page.keyboard.press('Escape');
           await randomDelay(200, 400);
         }
       } catch (error) {
-        log.warning(`  ⚠️  [${marker}] Hover/extract failed: ${error}`);
+        log.warning(`  ⚠️  [${marker}] Click/extract failed: ${error}`);
       }
 
       // Always add the citation (with excerpt or just source name)
@@ -220,10 +234,30 @@ export async function extractCitations(
       }
     }
 
+    // Dismiss any leftover source panel to ensure chat input is accessible for next question
+    try {
+      await page.keyboard.press('Escape');
+      await randomDelay(300, 500);
+      // Click on the chat area to ensure focus returns there
+      await page.evaluate(`
+        (() => {
+          const input = document.querySelector('textarea.query-box-input');
+          if (input) input.focus();
+        })()
+      `);
+    } catch {
+      // Best effort
+    }
+
     // Format the answer based on requested format
     const formattedAnswer = formatAnswerWithSources(answerText, citations, format);
 
-    log.success(`📚 [CITATIONS] Extracted ${citations.length}/${rawCitations.length} sources`);
+    const withExcerpt = citations.filter(
+      (c) => c.sourceText && c.sourceText !== c.sourceName
+    ).length;
+    log.success(
+      `📚 [CITATIONS] Extracted ${citations.length}/${rawCitations.length} sources (${withExcerpt} with excerpts)`
+    );
 
     return {
       originalAnswer: answerText,

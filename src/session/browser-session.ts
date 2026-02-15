@@ -685,7 +685,7 @@ export class BrowserSession {
         timeoutMs: 120000, // 2 minutes
         pollIntervalMs: 1000,
         ignoreTexts: existingResponses,
-        debug: false,
+        debug: true,
       });
 
       if (!answer) {
@@ -701,9 +701,7 @@ export class BrowserSession {
       // Check for rate limit errors in page elements AFTER receiving answer
       log.info(`  🔍 Checking for rate limit errors...`);
       if (await this.detectRateLimitError()) {
-        throw new RateLimitError(
-          'NotebookLM rate limit reached (50 queries/day for free accounts)'
-        );
+        throw new RateLimitError('NotebookLM daily limit reached - switching to another account');
       }
 
       // Update session stats
@@ -835,36 +833,21 @@ export class BrowserSession {
     ];
 
     // Keywords that indicate rate limiting (English + French)
-    // IMPORTANT: Be specific! Generic terms like "quota" can appear anywhere on the page
+    // IMPORTANT: Must be VERY specific — generic phrases like "limit exceeded", "revenez plus tard",
+    // or "too many requests" can appear in academic text and cause false positives.
     const keywords = [
-      'rate limit',
-      'limit exceeded',
-      'quota exhausted',
+      'rate limit exceeded',
       'daily limit reached',
       'daily discussion limit',
-      'too many requests',
       'query limit reached',
       'request limit reached',
       // French keywords - SPECIFIC phrases only
       'limite quotidienne de discussions',
       'atteint la limite quotidienne',
-      'vous avez atteint la limite',
-      'revenez plus tard',
+      'vous avez atteint la limite quotidienne',
     ];
 
-    // FIRST: Check entire page body for rate limit messages (most reliable)
-    try {
-      const bodyText = await this.page.evaluate(`document.body.innerText`);
-      const bodyLower = (bodyText as string).toLowerCase();
-      if (keywords.some((k) => bodyLower.includes(k))) {
-        log.error(`🚫 Rate limit detected in page body!`);
-        return true;
-      }
-    } catch {
-      // Continue with specific selectors
-    }
-
-    // Check error containers for rate limit messages
+    // Check error containers for rate limit messages (NOT full body — too many false positives)
     for (const selector of errorSelectors) {
       try {
         const elements = await this.page.$$(selector);

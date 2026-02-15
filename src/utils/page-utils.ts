@@ -67,6 +67,7 @@ const PLACEHOLDER_SNIPPETS = [
 ];
 
 // Error messages from NotebookLM that indicate failure
+// These trigger immediate return (no stability wait) but NOT account rotation.
 const ERROR_SNIPPETS = [
   "le système n'a pas pu répondre", // French: The system could not respond
   'the system could not respond',
@@ -76,20 +77,18 @@ const ERROR_SNIPPETS = [
   'une erreur est survenue',
   'try again later',
   'réessayez plus tard',
-  'rate limit',
-  'too many requests',
 ];
 
 // Rate limit specific messages (trigger account rotation)
+// IMPORTANT: Must be VERY specific — generic phrases like "daily limit" or "revenez plus tard"
+// can appear in academic answers and cause false positives.
 const RATE_LIMIT_MESSAGES = [
-  "le système n'a pas pu répondre", // Generic error that often indicates rate limit
   'vous avez atteint la limite quotidienne', // French: You have reached the daily limit
-  'limite quotidienne de discussions',
-  'daily limit',
-  'revenez plus tard', // Come back later
+  'limite quotidienne de discussions', // French: Daily discussion limit
+  'daily discussion limit',
+  'daily limit reached',
   'query limit reached',
   'rate limit exceeded',
-  'daily discussion limit',
 ];
 
 /**
