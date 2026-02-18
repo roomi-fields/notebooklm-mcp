@@ -25,5 +25,11 @@ fi
 echo "[Entrypoint] Starting Node.js HTTP server on port ${HTTP_PORT:-3000}..."
 echo ""
 
+# Render injecte PORT, on l'utilise en priorité
+export HTTP_PORT=${PORT:-${HTTP_PORT:-3000}}
+
+echo "[Entrypoint] Starting Node.js HTTP server on port ${HTTP_PORT}..."
+echo ""
+
 # Start the Node.js server (foreground)
 exec node dist/http-wrapper.js
