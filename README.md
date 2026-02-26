@@ -184,9 +184,18 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 MIT — Use freely in your projects. See [LICENSE](./LICENSE).
 
-## Author
+## Contributors
 
-**Romain Peyrichou** — [@roomi-fields](https://github.com/roomi-fields)
+<a href="https://github.com/roomi-fields/notebooklm-mcp/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=roomi-fields/notebooklm-mcp" />
+</a>
+
+|                                                             | Name                                                                      | Role                |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------- |
+| <img src="https://github.com/PleasePrompto.png" width="30"> | **Gérôme Dexheimer** — [@PleasePrompto](https://github.com/PleasePrompto) | Original creator    |
+| <img src="https://github.com/roomi-fields.png" width="30">  | **Romain Peyrichou** — [@roomi-fields](https://github.com/roomi-fields)   | Fork maintainer     |
+| <img src="https://github.com/JulienCANTONI.png" width="30"> | **Julien Cantoni** — [@JulienCANTONI](https://github.com/JulienCANTONI)   | Docker improvements |
+| <img src="https://github.com/NiamorV.png" width="30">       | **NiamorV** — [@NiamorV](https://github.com/NiamorV)                      | Contributor         |
 
 ---
 
