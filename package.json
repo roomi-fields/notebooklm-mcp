@@ -1,6 +1,6 @@
 {
   "name": "@roomi-fields/notebooklm-mcp",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "description": "MCP server for NotebookLM API with HTTP REST API - Zero hallucinations from your notebooks",
   "type": "module",
   "bin": {
@@ -44,7 +44,8 @@
   ],
   "author": "Romain Peyrichou (https://github.com/roomi-fields)",
   "contributors": [
-    "Gérôme Dexheimer <hello@geromedexheimer.de> (https://github.com/PleasePrompto)"
+    "Gérôme Dexheimer <hello@geromedexheimer.de> (https://github.com/PleasePrompto)",
+    "Julien Cantoni (https://github.com/JulienCANTONI)"
   ],
   "license": "MIT",
   "repository": {

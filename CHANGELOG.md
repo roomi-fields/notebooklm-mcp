@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.7] - 2026-02-26
+
+### Fixed
+
+**Citation Extraction:**
+
+- Fixed `.highlighted` selector: use `.highlighted` class (not `i.highlighted`) for citation excerpt extraction
+- Scoped citation button detection to last `.to-user-container .message-text-content` container — fixes multi-question sessions picking up buttons from all previous answers
+
+### Changed
+
+**Docker (PR #1 by @JulienCANTONI):**
+
+- Dockerfile now builds TypeScript from source inside the container instead of copying pre-built `dist/`
+- Multi-stage: install all deps → build → prune devDeps → install browser (cleaner CI/CD)
+- `.dockerignore` updated to allow `src/` and `tsconfig*.json` for in-container build
+- `docker-entrypoint.sh` now supports `PORT` env var (Render PaaS compatibility)
+
+### Security
+
+- Updated `@modelcontextprotocol/sdk` to fix vulnerabilities
+- Updated `qs` dependency to fix prototype pollution vulnerability
+
+---
+
 ## [1.5.6] - 2026-02-15
 
 ### Fixed
