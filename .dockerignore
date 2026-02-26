@@ -5,11 +5,6 @@
 # Dependencies (will be installed in container)
 node_modules
 
-# Source files (only dist is needed)
-src
-*.ts
-tsconfig*.json
-
 # Tests
 tests
 *.test.ts
