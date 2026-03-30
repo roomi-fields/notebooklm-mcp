@@ -69,6 +69,10 @@ Generate multiple content types from your notebook sources:
 
 ---
 
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/roomi-fields-notebooklm-mcp).
+
 ## Quick Start
 
 ### Option 1: MCP Mode (Claude Code, Cursor, Codex)
