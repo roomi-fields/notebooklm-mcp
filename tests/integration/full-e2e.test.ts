@@ -61,7 +61,7 @@ const TEST_NOTEBOOK_URL = testConfig.notebooks.primary.url;
 const E2E_NOTEBOOK_ID = testConfig.notebooks.e2eTest?.id || 'e2e-test-notebook';
 const E2E_NOTEBOOK_URL =
   testConfig.notebooks.e2eTest?.url ||
-  'https://notebooklm.google.com/notebook/abd21688-02a6-4459-953b-30f0612a984e';
+  'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000108';
 const INTEGRATION_ENABLED = process.env.NBLM_INTEGRATION_TESTS === 'true';
 
 // Timeouts for real operations

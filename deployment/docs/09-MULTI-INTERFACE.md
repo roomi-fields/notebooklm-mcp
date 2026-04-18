@@ -47,7 +47,7 @@ The **Stdio-HTTP Proxy** enables Claude Desktop to communicate with the HTTP ser
 **From PowerShell (recommended):**
 
 ```powershell
-cd D:\Claude\notebooklm-mcp-http
+cd D:\path\to\notebooklm-mcp
 
 # Build if needed
 npm run build
@@ -63,7 +63,7 @@ Start-Process -NoNewWindow node -ArgumentList "dist/http-wrapper.js"
 
 ```bash
 # Helper script handles everything correctly
-HELPER=/mnt/d/Claude/notebooklm-mcp-http/scripts/mcp-wsl-helper.sh
+HELPER=/absolute/path/to/notebooklm-mcp/scripts/mcp-wsl-helper.sh
 
 $HELPER start      # Start server (Windows process)
 $HELPER health     # Check health
@@ -76,7 +76,7 @@ $HELPER stop       # Stop server
 
 ```bash
 # This launches node.exe on Windows, NOT node in WSL
-powershell.exe -Command "Start-Process -NoNewWindow -FilePath 'node' -ArgumentList 'D:/Claude/notebooklm-mcp-http/dist/http-wrapper.js' -WorkingDirectory 'D:/Claude/notebooklm-mcp-http'"
+powershell.exe -Command "Start-Process -NoNewWindow -FilePath 'node' -ArgumentList 'D:/path/to/notebooklm-mcp/dist/http-wrapper.js' -WorkingDirectory 'D:/path/to/notebooklm-mcp'"
 ```
 
 ### Step 2: Configure Claude Desktop
@@ -92,7 +92,7 @@ Edit your Claude Desktop config file:
   "mcpServers": {
     "notebooklm": {
       "command": "node",
-      "args": ["D:/Claude/notebooklm-mcp-http/dist/stdio-http-proxy.js"],
+      "args": ["D:/path/to/notebooklm-mcp/dist/stdio-http-proxy.js"],
       "env": {
         "MCP_HTTP_URL": "http://localhost:3000"
       }
@@ -231,7 +231,7 @@ The HTTP server MUST run as a Windows process to access Chrome. Fix:
 
 ```bash
 # Use the helper script (recommended)
-HELPER=/mnt/d/Claude/notebooklm-mcp-http/scripts/mcp-wsl-helper.sh
+HELPER=/absolute/path/to/notebooklm-mcp/scripts/mcp-wsl-helper.sh
 
 # 1. Stop any running server
 $HELPER stop
@@ -250,7 +250,7 @@ $HELPER health
 pkill -f http-wrapper
 
 # 2. Start as Windows process
-powershell.exe -Command "Start-Process -NoNewWindow -FilePath 'node' -ArgumentList 'D:/Claude/notebooklm-mcp-http/dist/http-wrapper.js' -WorkingDirectory 'D:/Claude/notebooklm-mcp-http'"
+powershell.exe -Command "Start-Process -NoNewWindow -FilePath 'node' -ArgumentList 'D:/path/to/notebooklm-mcp/dist/http-wrapper.js' -WorkingDirectory 'D:/path/to/notebooklm-mcp'"
 
 # 3. Verify (via PowerShell, not curl from WSL)
 powershell.exe -Command "Invoke-RestMethod -Uri 'http://localhost:3000/health'"

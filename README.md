@@ -18,6 +18,150 @@
 
 ---
 
+## Short Value Proposition
+
+This repository gives AI agents and local automation tools a stable way to use NotebookLM without relying on made-up APIs.
+
+It supports:
+
+- MCP clients such as Codex, Claude Code, Claude Desktop, Cursor, and other MCP-compatible tools
+- a local HTTP server for n8n, Zapier, Make, and custom integrations
+- manual Google authentication with saved local browser state
+- notebook management, source operations, and NotebookLM Studio generation flows
+
+## Start Here If You Are An AI Agent Or Using One
+
+Use these files first:
+
+1. [AGENTS.md](./AGENTS.md)
+2. [deployment/docs/00-AI-ONBOARDING.md](./deployment/docs/00-AI-ONBOARDING.md)
+3. [CODEX.md](./CODEX.md) or [CLAUDE.md](./CLAUDE.md)
+
+Important defaults:
+
+- The recommended path is a local source install.
+- Google sign-in is a required manual step.
+- Do not overwrite an existing MCP client config unless the user explicitly asks for that change.
+- Use `scripts/doctor.mjs` for deterministic verification instead of guessing from partial output.
+
+## Quick Install For Local MCP Mode
+
+```bash
+git clone https://github.com/roomi-fields/notebooklm-mcp.git
+cd notebooklm-mcp
+npm install
+npm run build
+npm run setup-auth
+```
+
+When the browser opens, a human must:
+
+1. sign in to Google,
+2. open NotebookLM,
+3. wait until notebooks are visible,
+4. close the browser window.
+
+Then register `dist/index.js` in the MCP client.
+
+Generic MCP JSON:
+
+```json
+{
+  "mcpServers": {
+    "notebooklm": {
+      "command": "node",
+      "args": ["/absolute/path/to/notebooklm-mcp/dist/index.js"]
+    }
+  }
+}
+```
+
+Client-specific wrappers:
+
+- [CODEX.md](./CODEX.md)
+- [CLAUDE.md](./CLAUDE.md)
+
+## Google Auth Reality Check
+
+Auth is not fully automatic.
+
+`npm run setup-auth` launches the browser automation, but a human still needs to complete the Google login flow. If that step never finishes, the server will usually report `authenticated: false` and notebook access will stay blocked.
+
+## Verification Checklist
+
+Start with repo and build checks:
+
+```bash
+npm run doctor:basic
+```
+
+If you want HTTP verification:
+
+```bash
+npm run start:http
+```
+
+In a second shell:
+
+```bash
+npm run doctor:http
+```
+
+If you also have a real notebook URL:
+
+```bash
+npm run doctor:http -- --notebook-url "https://notebooklm.google.com/notebook/<your-notebook-id>"
+```
+
+What these checks cover:
+
+- Node version compatibility
+- required build artifacts
+- HTTP server reachability
+- `/health`
+- optional `/content`
+- optional `/ask`
+
+## Links To Deeper Docs
+
+| Guide | Description |
+| --- | --- |
+| [AGENTS.md](./AGENTS.md) | Canonical AI-agent install and verification rules |
+| [deployment/docs/00-AI-ONBOARDING.md](./deployment/docs/00-AI-ONBOARDING.md) | Detailed AI-first install guide |
+| [deployment/docs/01-INSTALL.md](./deployment/docs/01-INSTALL.md) | Step-by-step local installation |
+| [deployment/docs/02-CONFIGURATION.md](./deployment/docs/02-CONFIGURATION.md) | Environment variables and deployment config |
+| [deployment/docs/03-API.md](./deployment/docs/03-API.md) | HTTP API reference |
+| [deployment/docs/05-TROUBLESHOOTING.md](./deployment/docs/05-TROUBLESHOOTING.md) | Common failure signatures and fixes |
+| [deployment/docs/06-NOTEBOOK-LIBRARY.md](./deployment/docs/06-NOTEBOOK-LIBRARY.md) | Notebook library management |
+| [deployment/docs/07-AUTO-DISCOVERY.md](./deployment/docs/07-AUTO-DISCOVERY.md) | Auto-discovery workflow |
+
+## Alternative Modes
+
+### HTTP Server
+
+Use this when an orchestrator wants REST instead of MCP:
+
+```bash
+npm install
+npm run build
+npm run setup-auth
+npm run start:http
+```
+
+Quick check:
+
+```bash
+curl http://127.0.0.1:3000/health
+```
+
+### Docker / noVNC
+
+Use Docker when you want a self-contained browser/auth environment or remote deployment. Start with [deployment/docs/08-DOCKER.md](./deployment/docs/08-DOCKER.md).
+
+### WSL
+
+Use WSL when you want a Linux shell on Windows but still need the Windows-side browser/auth workflow. Start with [deployment/docs/08-WSL-USAGE.md](./deployment/docs/08-WSL-USAGE.md).
+
 ## Features
 
 ### Q&A with Citations
@@ -69,7 +213,7 @@ Generate multiple content types from your notebook sources:
 
 ---
 
-## Quick Start
+## Legacy Quick Start
 
 ### Option 1: MCP Mode (Claude Code, Cursor, Codex)
 
@@ -129,7 +273,7 @@ See [Docker Guide](./deployment/docs/08-DOCKER.md) for NAS deployment (Synology,
 
 ---
 
-## Documentation
+## Documentation Library
 
 | Guide                                                        | Description                               |
 | ------------------------------------------------------------ | ----------------------------------------- |

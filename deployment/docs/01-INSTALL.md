@@ -1,611 +1,261 @@
-# Installation Guide - NotebookLM MCP HTTP Server
+# Installation Guide
 
-> Complete installation from scratch on Windows 10/11
+> Local source installation for MCP clients and the optional HTTP server
 
----
-
-## 📋 Table of Contents
-
-1. [Prerequisites](#-prerequisites)
-2. [Node.js Installation](#-nodejs-installation)
-3. [Project Cloning](#-project-cloning)
-4. [Dependencies Installation](#-dependencies-installation)
-5. [Compilation](#-compilation)
-6. [Authentication Configuration](#-authentication-configuration)
-7. [Notebooks Configuration](#-notebooks-configuration)
-8. [Verification](#-verification)
-9. [Startup](#-startup)
+Start with [00-AI-ONBOARDING.md](./00-AI-ONBOARDING.md) if you are an AI agent or working with one.
 
 ---
 
-## 📌 Prerequisites
+## Recommended Default
 
-Before starting, you need:
+Use the local source install path first:
 
-### Hardware
+1. install dependencies
+2. build the project
+3. complete manual Google auth
+4. register `dist/index.js` in the MCP client
+5. verify with the doctor script
 
-- **RAM:** 2 GB minimum (4 GB recommended)
-- **Disk:** 500 MB free space
-- **Network:** Stable Internet connection
-
-### Software
-
-- **Windows 10/11** (64-bit)
-- **PowerShell 5.1+** (included in Windows)
-- **Browser:** Chrome installed (Playwright will use it)
-
-### Accounts
-
-- **Google Account** with access to https://notebooklm.google.com
-- At least **1 NotebookLM notebook** already created
+This is the fastest supported path for Codex, Claude, Cursor, and most MCP workflows.
 
 ---
 
-## 📥 Node.js Installation
+## Prerequisites
 
-### Check if Node.js is already installed
+You need:
 
-```powershell
+- Node.js `18+`
+- npm
+- Google Chrome
+- a Google account with NotebookLM access
+- at least one notebook if you want to run `/content` and `/ask` verification
+
+Check Node:
+
+```bash
 node --version
 npm --version
 ```
 
-If you see version numbers (e.g., `v20.9.0` and `10.1.0`), Node.js is installed. ✅
-If not, continue below. ⬇️
+---
 
-### Download Node.js
+## Clone The Repository
 
-1. Go to https://nodejs.org/
-2. Download the **LTS** (Long Term Support) version for Windows
-3. Run the `.msi` installer
-4. Follow the installation wizard:
-   - ✅ Accept the license
-   - ✅ Standard installation (default path: `C:\Program Files\nodejs\`)
-   - ✅ Check "Automatically install the necessary tools" if offered
-
-5. Restart PowerShell and verify:
-
-```powershell
-node --version   # Should display: v20.x.x or higher
-npm --version    # Should display: 10.x.x or higher
+```bash
+git clone https://github.com/roomi-fields/notebooklm-mcp.git
+cd notebooklm-mcp
 ```
+
+If you downloaded a ZIP instead, open a shell in the extracted folder before continuing.
 
 ---
 
-## 📂 Project Cloning
+## Install Dependencies
 
-### Method 1: With Git
-
-```powershell
-# Install Git if not already done: https://git-scm.com/download/win
-
-# Clone the repository
-cd D:\
-git clone https://github.com/PleasePrompto/notebooklm-mcp.git notebooklm-http
-cd notebooklm-http
-```
-
-### Method 2: ZIP Download
-
-1. Download the ZIP from GitHub
-2. Extract to `D:\notebooklm-http\`
-3. Open PowerShell in this folder
-
----
-
-## 📦 Dependencies Installation
-
-```powershell
-# Make sure you're in the right directory
-cd D:\notebooklm-http
-
-# Install all npm dependencies
+```bash
 npm install
 ```
 
-**What gets installed:**
+Expected outcome:
 
-- `express` - HTTP server
-- `patchright` - Stealth Playwright to automate Chrome
-- `@anthropic-ai/sdk` - MCP SDK
-- And ~50 other necessary packages
-
-**Duration:** 2-5 minutes depending on your Internet connection
-
-**Expected result:**
-
-```
-added 150 packages in 3m
-```
+- `node_modules/` is created
+- the install finishes without dependency errors
 
 ---
 
-## 🔨 Compilation
+## Build The Runtime
 
-The project is written in TypeScript and must be compiled to JavaScript:
-
-```powershell
+```bash
 npm run build
 ```
 
-**Expected result:**
+Required output files after build:
 
+- `dist/index.js`
+- `dist/http-wrapper.js`
+
+Quick check:
+
+```bash
+npm run doctor:basic
 ```
-> notebooklm-mcp@1.1.2 build
-> tsc
-
-> notebooklm-mcp@1.1.2 postbuild
-> chmod +x dist/index.js
-
-✓ Compilation successful
-```
-
-**Verification:**
-
-```powershell
-ls dist\http-wrapper.js
-```
-
-If the file exists, compilation is OK! ✅
 
 ---
 
-## 🔐 Authentication Configuration
+## Optional `.env` Setup
 
-**IMPORTANT:** This step is done **ONLY ONCE**.
-Authentication will be saved and valid for ~399 days.
+This repo ships `.env.example` for local configuration.
 
-### PowerShell Script (Recommended)
+Create a local `.env` only if you need it:
 
-**Note:** The path depends on your current directory.
-
-**If you're at the project root:**
-
-```powershell
-.\deployment\scripts\setup-auth.ps1
+```bash
+cp .env.example .env
 ```
 
-**If you're in the deployment folder:**
+Useful fields:
 
-```powershell
-.\scripts\setup-auth.ps1
-```
+- `NOTEBOOK_URL=https://notebooklm.google.com/notebook/<your-notebook-id>`
+- `NOTEBOOKLM_UI_LOCALE=en`
+- `HTTP_HOST=127.0.0.1`
+- `HTTP_PORT=3000`
 
-**Or use npm (works everywhere):**
+Important:
 
-```powershell
+- `.env` helps with configuration
+- `.env` does not replace the manual auth step
+- do not commit real notebook URLs or local auth data
+
+---
+
+## Manual Google Authentication
+
+Run:
+
+```bash
 npm run setup-auth
 ```
 
-**What will happen:**
+What happens:
 
-1. The script checks if authentication already exists
-   - If yes: asks for confirmation to reset
-   - If no: continues directly
+1. the auth flow launches a visible browser
+2. a human must sign in to Google
+3. the human must open NotebookLM
+4. the human should wait until notebooks are visible
+5. the human closes the browser window
 
-2. Chrome opens (visible window)
+If this step is skipped or times out, later health checks will usually report `authenticated: false`.
 
-3. **Actions to do in Chrome:**
-   - Sign in to your Google account
-   - Go to https://notebooklm.google.com
-   - Wait for the page to load completely
-   - You should see your notebooks
-   - **Close Chrome** (click the red X)
+Auth data is stored in the local application data directory, not in the repo.
 
-4. The script verifies that files are correctly created
+Typical Windows path:
 
-**Expected result:**
-
+```text
+%LOCALAPPDATA%\notebooklm-mcp\Data\
 ```
-✅ Authentication configured successfully!
-💡 Google session valid for ~399 days
-
-Files created:
-  ✅ state.json created (X KB)
-  ✅ Cookies created (XXX KB)
-```
-
-### 📁 Authentication Files Location
-
-**IMPORTANT:** Authentication files are NOT stored in the project directory, but in the Windows user directory:
-
-**Full path:**
-
-```
-C:\Users\<YOUR_NAME>\AppData\Local\notebooklm-mcp\Data\
-```
-
-**File structure:**
-
-```
-C:\Users\<YOUR_NAME>\AppData\Local\notebooklm-mcp\Data\
-├── chrome_profile\           ← Complete Chrome profile (Google cookies)
-│   └── Default\
-│       └── Cookies           ← Cookies file (must be >10KB)
-│
-├── browser_state\
-│   └── state.json            ← Authentication state (16 critical cookies)
-│
-└── library.json              ← Library of configured notebooks
-```
-
-**To verify on your PC:**
-
-```powershell
-# Display the path
-echo $env:LOCALAPPDATA\notebooklm-mcp\Data
-
-# List files
-dir $env:LOCALAPPDATA\notebooklm-mcp\Data
-dir $env:LOCALAPPDATA\notebooklm-mcp\Data\chrome_profile\Default\Cookies
-dir $env:LOCALAPPDATA\notebooklm-mcp\Data\browser_state\state.json
-```
-
-**Expected files:**
-
-- `Cookies` - SQLite database (>10 KB) - **Contains your Google cookies**
-- `state.json` - JSON file with 16 critical cookies - **Valid for 399 days**
-- `library.json` - Library of your NotebookLM notebooks (created automatically)
 
 ---
 
-## 📚 Notebooks Configuration
+## Register The MCP Server
 
-Once authentication is configured, you must add at least one notebook to your library.
+Use `dist/index.js` in the client configuration.
 
-### Option 1: Via HTTP API (Recommended)
-
-**Prerequisite:** Start the HTTP server first
-
-```powershell
-# In a first terminal
-npm run start:http
-```
-
-**In a second PowerShell terminal:**
-
-```powershell
-# Prepare notebook data
-$body = @{
-    url = "https://notebooklm.google.com/notebook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-    name = "My Notebook"
-    description = "A sample notebook"
-    topics = @("topic1", "topic2", "topic3")
-} | ConvertTo-Json
-
-# Add the notebook (automatic validation)
-Invoke-RestMethod -Uri "http://localhost:3000/notebooks" `
-    -Method Post `
-    -Body $body `
-    -ContentType "application/json"
-```
-
-**⏱️ Note:** Adding takes 15-30 seconds because the server validates that the notebook actually exists.
-
-**Automatic validations:**
-
-- ✅ NotebookLM URL format
-- ✅ Notebook actually accessible (live check)
-- ✅ No duplicate name
-- ✅ Valid Google session
-
-**How to get a notebook URL:**
-
-1. Go to https://notebooklm.google.com
-2. Open your notebook
-3. Copy the URL from the address bar
-
-Expected format: `https://notebooklm.google.com/notebook/[id]`
-
-### Option 2: Manual Modification (Advanced)
-
-Edit `library.json` directly:
-
-```powershell
-# Open the file
-code "$env:LOCALAPPDATA\notebooklm-mcp\Data\library.json"
-```
-
-**⚠️ Warning:** This method bypasses automatic validations.
-
-**Example structure:**
+Generic MCP JSON:
 
 ```json
 {
-  "notebooks": [
-    {
-      "id": "my-notebook",
-      "url": "https://notebooklm.google.com/notebook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-      "name": "My Notebook",
-      "description": "A sample notebook",
-      "topics": ["topic1", "topic2", "topic3"],
-      "content_types": ["documentation", "examples"],
-      "use_cases": ["Learning about the topic"],
-      "added_at": "2025-11-22T08:49:16.735Z",
-      "last_used": "2025-11-22T08:49:16.735Z",
-      "use_count": 0,
-      "tags": []
-    }
-  ],
-  "active_notebook_id": "my-notebook",
-  "last_modified": "2025-11-22T08:49:16.735Z",
-  "version": "1.0.0"
-}
-```
-
-**Restart the server after manual modification.**
-
-### Verify Configuration
-
-```powershell
-# List configured notebooks
-Invoke-RestMethod -Uri "http://localhost:3000/notebooks"
-```
-
-**Expected result:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "notebooks": [
-      {
-        "id": "my-notebook",
-        "name": "My Notebook",
-        "url": "https://notebooklm.google.com/notebook/xxx",
-        "active": true
-      }
-    ],
-    "count": 1
-  }
-}
-```
-
-**📖 For more details on notebook management, see [06-NOTEBOOK-LIBRARY.md](./06-NOTEBOOK-LIBRARY.md)**
-
----
-
-### ⚠️ AUTHENTICATION FILES SECURITY
-
-- These files contain your **authenticated Google cookies**
-- **NEVER** share these files
-- **NEVER** commit them to Git (already protected by .gitignore)
-- To reset auth: delete the `Data\` folder and run `npm run setup-auth` again
-
-If all files are present and not empty, authentication is configured! ✅
-
----
-
-## ✅ Verification
-
-Before starting the server, let's verify that everything is OK:
-
-### Complete Checklist
-
-```powershell
-# 1. Node.js installed
-node --version
-# ✅ Should display v20.x.x or higher
-
-# 2. Dependencies installed
-ls node_modules\express
-# ✅ The folder must exist
-
-# 3. Code compiled
-ls dist\http-wrapper.js
-# ✅ The file must exist
-
-# 4. Authentication configured
-ls Data\chrome_profile\Default\Cookies
-ls Data\browser_state\state.json
-# ✅ Both files must exist and not be empty
-
-# 5. Port 3000 free
-netstat -ano | findstr :3000
-# ✅ No result = port free
-# ❌ A result = port occupied (see TROUBLESHOOTING.md)
-```
-
-If all checks are ✅, you're ready! 🎉
-
----
-
-## ▶️ Startup
-
-### Method 1: Foreground Mode (Development)
-
-```powershell
-npm run start:http
-```
-
-**Expected result:**
-
-```
-✅ [14:30:15] 🌐 HTTP Wrapper listening on 0.0.0.0:3000
-ℹ️  [14:30:15]    Health check: http://localhost:3000/health
-ℹ️  [14:30:15]    Ask question: POST http://localhost:3000/ask
-ℹ️  [14:30:15]    List notebooks: GET http://localhost:3000/notebooks
-
-ℹ️  [14:30:15] 📖 API Documentation:
-ℹ️  [14:30:15]    POST /ask - Ask a question to NotebookLM
-ℹ️  [14:30:15]    GET /health - Check server health
-ℹ️  [14:30:15]    GET /notebooks - List all notebooks
-```
-
-**The server is started!** 🚀
-
-⚠️ **Note:** The terminal must stay open. Press `Ctrl+C` to stop.
-
----
-
-### Method 2: Background Daemon Mode (Production) ⭐
-
-**For production use, run the server in background without keeping the terminal open:**
-
-```powershell
-# Start server in background
-npm run daemon:start
-
-# Check status
-npm run daemon:status
-
-# View logs in real-time
-npm run daemon:logs
-
-# Stop server
-npm run daemon:stop
-```
-
-**Expected result:**
-
-```
-[PM2] App [notebooklm-mcp] launched (1 instances)
-┌────┬────────────────┬──────┬─────────┬────────┐
-│ id │ name           │ mode │ status  │ uptime │
-├────┼────────────────┼──────┼─────────┼────────┤
-│ 0  │ notebooklm-mcp │ fork │ online  │ 0s     │
-└────┴────────────────┴──────┴─────────┴────────┘
-```
-
-**Advantages of daemon mode:**
-
-- ✅ Runs in background (no terminal window)
-- ✅ Auto-restart on crash
-- ✅ Logs saved to `logs/pm2-*.log`
-- ✅ Survives terminal close
-
-**Daemon management commands:**
-
-```powershell
-npm run daemon:start    # Start server
-npm run daemon:stop     # Stop server
-npm run daemon:restart  # Restart server
-npm run daemon:logs     # View logs (Ctrl+C to exit)
-npm run daemon:status   # Check status
-npm run daemon:delete   # Remove from PM2 list
-```
-
-### Health Test
-
-Open a **new PowerShell terminal** and test:
-
-```powershell
-curl http://localhost:3000/health
-```
-
-**Expected response:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "authenticated": true,
-    "sessions": 0,
-    "library_notebooks": 1,
-    "context_age_hours": 0.0
-  }
-}
-```
-
-If `"authenticated": true`, everything works! ✅
-
-### Complete Test with Question
-
-```powershell
-curl -X POST http://localhost:3000/ask `
-  -H "Content-Type: application/json" `
-  -d '{"question":"What is the main topic?","notebook_id":"my-notebook"}'
-```
-
-**Wait 30-60 seconds** (NotebookLM generation time).
-
-**Expected response:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "status": "success",
-    "question": "What is the main topic?",
-    "answer": "Based on the sources, the main topic is...",
-    "session_id": "abc123",
-    "notebook_url": "https://notebooklm.google.com/notebook/...",
-    "session_info": {
-      "age_seconds": 35,
-      "message_count": 1
+  "mcpServers": {
+    "notebooklm": {
+      "command": "node",
+      "args": ["/absolute/path/to/notebooklm-mcp/dist/index.js"]
     }
   }
 }
 ```
 
-If you receive a JSON response with `"success": true` and an `"answer"`, **congratulations!** 🎉
-Your NotebookLM HTTP server is operational!
+Client-specific guides:
 
-### Automated Tests (Recommended)
+- [../../CODEX.md](../../CODEX.md)
+- [../../CLAUDE.md](../../CLAUDE.md)
 
-For complete validation, use the test scripts:
+Do not silently overwrite an existing client config unless the user explicitly asks for it.
+
+---
+
+## Verify The Install
+
+### Basic verification
+
+```bash
+npm run doctor:basic
+```
+
+### HTTP verification
+
+Start the local HTTP server:
+
+```bash
+npm run start:http
+```
+
+In a second shell:
+
+```bash
+npm run doctor:http
+```
+
+### Notebook-aware verification
+
+If you have a notebook URL:
+
+```bash
+npm run doctor:http -- --notebook-url "https://notebooklm.google.com/notebook/<your-notebook-id>"
+```
+
+That last check exercises:
+
+- `/health`
+- `/content`
+- `/ask`
+
+---
+
+## MCP vs HTTP
+
+### Use MCP when
+
+- you want direct tool use from Codex, Claude, Cursor, or another MCP client
+- you do not need an HTTP endpoint
+
+### Use HTTP when
+
+- you want REST integration for n8n, Zapier, Make, or custom tooling
+- you want to test `/health`, `/content`, and `/ask` directly
+
+HTTP startup:
+
+```bash
+npm run start:http
+```
+
+Quick health check:
+
+```bash
+curl http://127.0.0.1:3000/health
+```
+
+---
+
+## Platform Notes
+
+### Windows PowerShell
 
 ```powershell
-# Quick test (30 seconds)
-.\deployment\scripts\test-server.ps1
-
-# Complete tests (5-10 minutes)
-.\deployment\scripts\test-api.ps1
+git clone https://github.com/roomi-fields/notebooklm-mcp.git
+cd notebooklm-mcp
+npm install
+npm run build
+npm run setup-auth
 ```
 
-**Expected result:**
+### macOS / Linux
 
+```bash
+git clone https://github.com/roomi-fields/notebooklm-mcp.git
+cd notebooklm-mcp
+npm install
+npm run build
+npm run setup-auth
 ```
-✅ ALL TESTS PASSED!
 
-Total tests: 10
-Successful tests: 10
-Failed tests: 0
-Success rate: 100%
-```
+### WSL
 
-**👉 Complete test documentation:** [Test Scripts](../scripts/README.md)
+Use the dedicated notes in [08-WSL-USAGE.md](./08-WSL-USAGE.md) if the shell is Linux but the browser/auth flow needs the Windows side.
 
 ---
 
-## 🚪 Stop the Server
+## Next Docs
 
-In the terminal where the server is running, press:
-
-```
-Ctrl + C
-```
-
-The server stops gracefully with:
-
-```
-SIGINT received, shutting down gracefully...
-```
-
----
-
-## ➡️ Next Steps
-
-✅ Installation complete!
-
-**Now you can:**
-
-1. **[Advanced Configuration](./02-CONFIGURATION.md)** - Environment variables, firewall, security
-2. **[API Documentation](./03-API.md)** - All available endpoints
-3. **[n8n Integration](./04-N8N-INTEGRATION.md)** - Connect with n8n step-by-step
-4. **[Troubleshooting](./05-TROUBLESHOOTING.md)** - Solutions to common problems
-
----
-
-## 🆘 Problems?
-
-If something doesn't work:
-
-1. Consult **[05-TROUBLESHOOTING.md](./05-TROUBLESHOOTING.md)**
-2. Check server logs
-3. Test with `npm run setup-auth` again
-4. Open a GitHub issue with the logs
-
----
-
-**Congratulations! Your NotebookLM HTTP server is installed and operational! 🎉**
+- [02-CONFIGURATION.md](./02-CONFIGURATION.md)
+- [05-TROUBLESHOOTING.md](./05-TROUBLESHOOTING.md)
+- [08-DOCKER.md](./08-DOCKER.md)
+- [08-WSL-USAGE.md](./08-WSL-USAGE.md)

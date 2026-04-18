@@ -3,7 +3,7 @@ $body = @{
     source_type = "text"
     text = "Debug test content - testing selectors"
     title = "Debug Test"
-    notebook_url = "https://notebooklm.google.com/notebook/abd21688-02a6-4459-953b-30f0612a984e"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000108"
     show_browser = $true
 } | ConvertTo-Json
 

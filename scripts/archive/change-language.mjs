@@ -5,7 +5,7 @@ import { chromium } from 'patchright';
 import path from 'path';
 import readline from 'readline';
 
-const ACCOUNT_ID = 'account-1767079146601'; // rom1pey@gmail.com
+const ACCOUNT_ID = 'account-0000000000003'; // agent-tertiary@example.com
 const DATA_DIR = 'C:\\Users\\romai\\AppData\\Local\\notebooklm-mcp\\Data';
 const PROFILE_DIR = path.join(DATA_DIR, 'accounts', ACCOUNT_ID, 'profile');
 

@@ -2,7 +2,7 @@
 Write-Host "Step 1: Adding rom1pey notebook to library..."
 $addBody = @{
     name = "rom1pey-english-test"
-    url = "https://notebooklm.google.com/notebook/258f62a1-8658-4f96-8333-a9e16224f602"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000110"
     description = "Test notebook for English UI"
     topics = @("test", "english")
 } | ConvertTo-Json

@@ -35,32 +35,32 @@ export const config = {
 // Account configurations
 export const accounts: Record<TestAccount, { id: string; email: string }> = {
   mathieu: {
-    id: 'account-1766565732376',
-    email: 'mathieudumont31@gmail.com',
+    id: 'account-0000000000001',
+    email: 'agent-primary@example.com',
   },
   rpmonster: {
-    id: 'account-1767078713573',
-    email: 'rpmonster@gmail.com',
+    id: 'account-0000000000002',
+    email: 'agent-secondary@example.com',
   },
   rom1pey: {
-    id: 'account-1767079146601',
-    email: 'rom1pey@gmail.com',
+    id: 'account-0000000000003',
+    email: 'agent-tertiary@example.com',
   },
 };
 
 // Notebook URLs per account
 export const notebooks: Record<TestAccount, { readOnly: string; e2eTest: string }> = {
   mathieu: {
-    readOnly: 'https://notebooklm.google.com/notebook/74912e55-34a4-4027-bdcc-8e89badd0efd', // CNV
-    e2eTest: 'https://notebooklm.google.com/notebook/abd21688-02a6-4459-953b-30f0612a984e', // E2E-Test-Notebook
+    readOnly: 'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000112', // CNV
+    e2eTest: 'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000108', // E2E-Test-Notebook
   },
   rpmonster: {
     readOnly: '',
     e2eTest: '',
   },
   rom1pey: {
-    readOnly: 'https://notebooklm.google.com/notebook/258f62a1-8658-4f96-8333-a9e16224f602',
-    e2eTest: 'https://notebooklm.google.com/notebook/258f62a1-8658-4f96-8333-a9e16224f602', // rom1pey-english-test
+    readOnly: 'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000110',
+    e2eTest: 'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000110', // rom1pey-english-test
   },
 };
 

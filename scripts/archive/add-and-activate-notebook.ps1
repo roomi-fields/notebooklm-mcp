@@ -4,7 +4,7 @@ Write-Host "=== Adding and activating new notebook ===" -ForegroundColor Cyan
 # Add the notebook
 $addBody = @{
     name = "e2e-rom1pey-test"
-    url = "https://notebooklm.google.com/notebook/725d28e1-4284-4f36-99a2-b6693c2ebf13"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000107"
     description = "E2E test notebook owned by rom1pey"
 } | ConvertTo-Json
 

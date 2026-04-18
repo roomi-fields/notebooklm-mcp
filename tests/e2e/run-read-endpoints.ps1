@@ -79,7 +79,7 @@ Write-Host "`n[POST] /ask (CNV notebook)" -ForegroundColor Cyan
 try {
     $askBody = @{
         question = "What is the main topic of this notebook?"
-        notebook_url = "https://notebooklm.google.com/notebook/74912e55-34a4-4027-bdcc-8e89badd0efd"
+        notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000112"
     } | ConvertTo-Json
 
     $response = Invoke-RestMethod -Uri "$baseUrl/ask" -Method POST -ContentType "application/json" -Body $askBody -TimeoutSec 120
@@ -115,7 +115,7 @@ try {
 Write-Host "`n[GET] /content (list sources)" -ForegroundColor Cyan
 try {
     $contentBody = @{
-        notebook_url = "https://notebooklm.google.com/notebook/74912e55-34a4-4027-bdcc-8e89badd0efd"
+        notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000112"
     } | ConvertTo-Json
 
     # Note: This might need a session, let's try with notebook_url

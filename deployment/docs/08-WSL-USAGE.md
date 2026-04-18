@@ -37,7 +37,7 @@ Due to browser requirements (Playwright needs Chrome), the HTTP server must run 
 Open a **Windows terminal** (PowerShell or CMD, not WSL):
 
 ```powershell
-cd D:\Claude\notebooklm-mcp-http
+cd D:\path\to\notebooklm-mcp
 npm run start:http
 ```
 
@@ -129,7 +129,7 @@ mcp__notebooklm__ask_question(question="...", notebook_id="my-notebook")
 ```powershell
 # From Windows (not WSL):
 taskkill /F /IM node.exe
-cd D:\Claude\notebooklm-mcp-http
+cd D:\path\to\notebooklm-mcp
 npm run start:http
 ```
 
@@ -165,7 +165,7 @@ Kill all node processes and restart:
 
 ```powershell
 taskkill /F /IM node.exe
-cd D:\Claude\notebooklm-mcp-http
+cd D:\path\to\notebooklm-mcp
 npm run start:http
 ```
 
@@ -209,7 +209,7 @@ Shareable via git, stored in project root:
 Private to you, per-project settings in the `projects` section:
 
 ```json
-"/mnt/d/Claude/your-project": {
+"/absolute/path/to/your-project": {
   "mcpServers": {
     "notebooklm": {
       "type": "stdio",
@@ -265,7 +265,7 @@ The project includes PowerShell scripts for managing the server:
 ### Run in Background (Hidden Window)
 
 ```powershell
-Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File D:\Claude\notebooklm-mcp-http\scripts\start-server.ps1" -WindowStyle Hidden
+Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File D:\path\to\notebooklm-mcp\scripts\start-server.ps1" -WindowStyle Hidden
 ```
 
 ### Windows Task Scheduler (Auto-start on Login)
@@ -275,7 +275,7 @@ Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File D:\Claude\
 3. Trigger: "When I log on"
 4. Action: Start a program
    - Program: `powershell.exe`
-   - Arguments: `-ExecutionPolicy Bypass -WindowStyle Hidden -File "D:\Claude\notebooklm-mcp-http\scripts\start-server.ps1"`
+   - Arguments: `-ExecutionPolicy Bypass -WindowStyle Hidden -File "D:\path\to\notebooklm-mcp\scripts\start-server.ps1"`
 5. Check "Open Properties dialog" and set "Run whether user is logged on or not"
 
 ## Authentication Procedure (TOTP/2FA)
@@ -292,7 +292,7 @@ taskkill /F /IM node.exe
 ### Step 2: Run accounts test with visible browser
 
 ```powershell
-cd D:\Claude\notebooklm-mcp-http
+cd D:\path\to\notebooklm-mcp
 npm run accounts test account-XXXXXXXXXXXXX -- --show
 ```
 
@@ -321,7 +321,7 @@ cp /mnt/c/Users/USERNAME/AppData/Local/notebooklm-mcp/Data/accounts/account-*/br
 ### Step 4: Start HTTP server
 
 ```powershell
-cd D:\Claude\notebooklm-mcp-http
+cd D:\path\to\notebooklm-mcp
 npm run start:http
 ```
 

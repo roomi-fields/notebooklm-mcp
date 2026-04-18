@@ -1,404 +1,239 @@
-# Configuration Guide - NotebookLM MCP HTTP Server
+# Configuration Guide
 
-> Advanced configuration, environment variables, security
+> Environment variables, `.env` usage, and deployment-safe defaults
 
----
-
-## 📋 Environment Variables
-
-### HTTP Configuration
-
-| Variable    | Default       | Description                                                      |
-| ----------- | ------------- | ---------------------------------------------------------------- |
-| `HTTP_HOST` | `0.0.0.0`     | Listen IP address (`0.0.0.0` = network, `127.0.0.1` = localhost) |
-| `HTTP_PORT` | `3000`        | HTTP listen port                                                 |
-| `NODE_ENV`  | `development` | Environment (`development`, `production`)                        |
-
-**Examples:**
-
-```powershell
-# Localhost only (maximum security)
-$env:HTTP_HOST="127.0.0.1"
-$env:HTTP_PORT="3000"
-node dist/http-wrapper.js
-
-# Local network (for n8n)
-$env:HTTP_HOST="0.0.0.0"
-$env:HTTP_PORT="3000"
-node dist/http-wrapper.js
-
-# Custom port
-$env:HTTP_PORT="8080"
-node dist/http-wrapper.js
-```
-
-### Browser Configuration
-
-| Variable               | Default | Description                                             |
-| ---------------------- | ------- | ------------------------------------------------------- |
-| `HEADLESS`             | `true`  | Chrome headless (`true` = invisible, `false` = visible) |
-| `STEALTH_ENABLED`      | `true`  | Stealth anti-detection mode                             |
-| `NOTEBOOKLM_UI_LOCALE` | `fr`    | UI language for selectors (`fr` or `en`)                |
-
-**Examples:**
-
-```powershell
-# Debug: see Chrome
-$env:HEADLESS="false"
-node dist/http-wrapper.js
-
-# Use English UI selectors (for English Google Account)
-$env:NOTEBOOKLM_UI_LOCALE="en"
-node dist/http-wrapper.js
-```
-
-### Session Configuration
-
-| Variable          | Default | Description                           |
-| ----------------- | ------- | ------------------------------------- |
-| `MAX_SESSIONS`    | `10`    | Maximum number of concurrent sessions |
-| `SESSION_TIMEOUT` | `900`   | Session timeout in seconds (15 min)   |
-
-**Examples:**
-
-```powershell
-# More simultaneous sessions
-$env:MAX_SESSIONS="20"
-node dist/http-wrapper.js
-```
-
-### Data Configuration
-
-| Variable             | Default                 | Description               |
-| -------------------- | ----------------------- | ------------------------- |
-| `DATA_DIR`           | `./Data`                | Persistent data directory |
-| `CHROME_PROFILE_DIR` | `./Data/chrome_profile` | Chrome profile            |
-| `BROWSER_STATE_DIR`  | `./Data/browser_state`  | Browser state             |
+This repo supports both MCP and HTTP usage. The safest default is a local source install plus manual Google auth.
 
 ---
 
-## 🔒 Security
+## Start From `.env.example`
 
-### 1. Restrict to Localhost
-
-**For local use only:**
-
-```powershell
-$env:HTTP_HOST="127.0.0.1"
-node dist/http-wrapper.js
-```
-
-**Advantages:**
-
-- ✅ No network access possible
-- ✅ Maximum security
-- ❌ n8n must be on the same machine
-
-### 2. Windows Firewall
-
-**For n8n on local network, allow only the n8n server IP:**
-
-```powershell
-# Replace 192.168.1.100 with your n8n server IP
-New-NetFirewallRule `
-  -DisplayName "NotebookLM MCP (n8n only)" `
-  -Direction Inbound `
-  -LocalPort 3000 `
-  -Protocol TCP `
-  -Action Allow `
-  -RemoteAddress 192.168.1.100
-```
-
-### 3. Add API Authentication (Optional)
-
-Modify `src/http-wrapper.ts` after line 27:
-
-```typescript
-// Authentication middleware
-const API_KEY = process.env.API_KEY || 'change-me';
-
-app.use((req, res, next) => {
-  // Skip auth for health check
-  if (req.path === '/health') {
-    return next();
-  }
-
-  const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${API_KEY}`) {
-    return res.status(401).json({
-      success: false,
-      error: 'Unauthorized',
-    });
-  }
-  next();
-});
-```
-
-**Usage:**
-
-```powershell
-# Start with API key
-$env:API_KEY="my-super-secure-secret-token"
-node dist/http-wrapper.js
-```
-
-**In n8n, add the header:**
-
-```
-Authorization: Bearer my-super-secure-secret-token
-```
-
-### 4. HTTPS with Reverse Proxy (Production)
-
-**Option A: Nginx**
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name notebooklm.mydomain.com;
-
-    ssl_certificate /path/to/cert.pem;
-    ssl_certificate_key /path/to/key.pem;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-**Option B: Caddy** (simpler)
-
-```
-notebooklm.mydomain.com {
-    reverse_proxy localhost:3000
-}
-```
-
----
-
-## ⚙️ Advanced Configuration
-
-### .env File (Recommended)
-
-Create `.env` at the root:
+Copy the example file only if you need local overrides:
 
 ```bash
-# HTTP Configuration
-HTTP_HOST=0.0.0.0
+cp .env.example .env
+```
+
+Important:
+
+- `.env` configures runtime behavior
+- `.env` does not complete Google login for you
+- `.env` should stay local and must not contain committed secrets or real notebook URLs in public examples
+
+---
+
+## Common Variables
+
+### Notebook settings
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `NOTEBOOK_URL` | empty | Optional default notebook URL for local HTTP checks |
+| `NOTEBOOKLM_UI_LOCALE` | `fr` or repo default | NotebookLM UI language selectors |
+
+### HTTP settings
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `HTTP_HOST` | `0.0.0.0` | HTTP listen address |
+| `HTTP_PORT` | `3000` | HTTP listen port |
+| `NODE_ENV` | `development` | Runtime mode |
+
+### Browser settings
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `HEADLESS` | `true` | Run browser headless or visible |
+| `STEALTH_ENABLED` | `true` | Enable stealth mode |
+
+### Session settings
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `MAX_SESSIONS` | `10` | Maximum concurrent sessions |
+| `SESSION_TIMEOUT` | `900` | Session timeout in seconds |
+
+### Data locations
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `DATA_DIR` | `./Data` | Persistent runtime data directory |
+| `CHROME_PROFILE_DIR` | `./Data/chrome_profile` | Chrome profile directory |
+| `BROWSER_STATE_DIR` | `./Data/browser_state` | Saved browser state directory |
+
+---
+
+## Example `.env`
+
+```dotenv
+# Optional default notebook for local verification
+NOTEBOOK_URL=https://notebooklm.google.com/notebook/<your-notebook-id>
+
+# HTTP server
+HTTP_HOST=127.0.0.1
 HTTP_PORT=3000
 NODE_ENV=production
 
-# Browser Configuration
+# Browser automation
 HEADLESS=true
 STEALTH_ENABLED=true
-NOTEBOOKLM_UI_LOCALE=fr  # or 'en' for English
+NOTEBOOKLM_UI_LOCALE=en
 
-# Session Configuration
+# Session handling
 MAX_SESSIONS=10
 SESSION_TIMEOUT=900
 
-# Security
-API_KEY=your-secret-token
-
-# Data Paths (optional)
+# Persistent data
 DATA_DIR=./Data
 CHROME_PROFILE_DIR=./Data/chrome_profile
 BROWSER_STATE_DIR=./Data/browser_state
 ```
 
-**Load with:**
+---
 
-```powershell
-# Install dotenv
-npm install dotenv
+## Recommended Defaults
 
-# Modify http-wrapper.ts (first line):
-import 'dotenv/config';
+### For local MCP use
 
-# Start
-node dist/http-wrapper.js
+Use these defaults:
+
+- no HTTP host change needed unless you also want REST
+- `HEADLESS=true` for normal operation
+- `NOTEBOOKLM_UI_LOCALE` must match the Google/NotebookLM UI language actually in use
+
+### For local HTTP use
+
+Recommended local-only settings:
+
+```dotenv
+HTTP_HOST=127.0.0.1
+HTTP_PORT=3000
 ```
 
-### Logging
+This avoids exposing the server to the local network by default.
 
-The server uses the `utils/logger.ts` module with 4 levels:
+### For network use
 
-- `log.success()` - Success messages (green)
-- `log.info()` - Information (cyan)
-- `log.warning()` - Warnings (yellow)
-- `log.error()` - Errors (red)
-- `log.dim()` - Secondary messages (gray)
+If you intentionally want LAN access:
 
-**Disable debug logs:**
+```dotenv
+HTTP_HOST=0.0.0.0
+HTTP_PORT=3000
+```
 
-Modify `src/session/browser-session.ts` line 415:
+Use firewall rules or a reverse proxy before exposing the endpoint beyond your machine.
 
-```typescript
-debug: false,  // Disable debug logs
+---
+
+## Auth Reality Check
+
+Config and auth are different things.
+
+Even with a complete `.env`, you still need:
+
+```bash
+npm run setup-auth
+```
+
+Then a human must finish Google login in the browser window.
+
+If auth was never completed, `/health` will usually show `authenticated: false`.
+
+---
+
+## Typical Startup Commands
+
+### MCP build only
+
+```bash
+npm run build
+```
+
+### HTTP server
+
+```bash
+npm run start:http
+```
+
+### Basic verification
+
+```bash
+npm run doctor:basic
+```
+
+### HTTP verification
+
+```bash
+npm run doctor:http
+```
+
+### Notebook-aware verification
+
+```bash
+npm run doctor:http -- --notebook-url "https://notebooklm.google.com/notebook/<your-notebook-id>"
 ```
 
 ---
 
-## 🚀 Deployment Modes
+## Security Notes
 
-### Development Mode
+### Keep local data local
 
-```powershell
-npm run dev:http
-```
+Do not publish:
 
-- Auto-reload on code changes
-- Debug logs enabled
-- Chrome visible (`HEADLESS=false`)
+- `.env`
+- browser profile data
+- cookies
+- saved auth state
+- machine-specific log files
+- real notebook URLs tied to private work
 
-### Production Mode
+### Prefer copy-paste config snippets
 
-```powershell
-$env:NODE_ENV="production"
-$env:HEADLESS="true"
-node dist/http-wrapper.js
-```
+When helping a user or AI client:
 
-- No auto-reload
-- Minimal logs
-- Chrome headless
+- provide JSON or CLI snippets
+- do not silently overwrite existing MCP client config unless explicitly asked
 
-### Background Mode (Windows)
+### Keep HTTP private by default
 
-```powershell
-# Start
-Start-Process node -ArgumentList "dist/http-wrapper.js" -WindowStyle Hidden
-
-# Stop
-Get-Process node | Where-Object {$_.Path -like "*node.exe*"} | Stop-Process
-```
-
-### With PM2 (Recommended for Production)
-
-```bash
-# Start (PM2 is included as dev dependency)
-npm run daemon:start
-
-# Auto-restart on boot
-pm2 startup
-pm2 save
-
-# Manage
-npm run daemon:status    # View status
-npm run daemon:logs      # View logs
-npm run daemon:restart   # Restart
-npm run daemon:stop      # Stop
-```
+Use `127.0.0.1` unless you intentionally need network access.
 
 ---
 
-## 📊 Monitoring
+## Reverse Proxy Example
 
-### Health Check Endpoint
+If you need HTTPS in front of the HTTP server, terminate TLS with a reverse proxy and forward to the local port.
 
-```bash
-curl http://localhost:3000/health
-```
+Nginx example:
 
-**Response:**
+```nginx
+server {
+    listen 443 ssl;
+    server_name notebooklm.example.com;
 
-```json
-{
-  "success": true,
-  "data": {
-    "authenticated": true,
-    "sessions": 2,
-    "library_notebooks": 1,
-    "context_age_hours": 0.5
-  }
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+    }
 }
 ```
 
-**Automatic monitoring (cron):**
-
-```bash
-# Check every 5 minutes
-*/5 * * * * curl -s http://localhost:3000/health | jq -e '.success == true' || echo "Server down!"
-```
-
 ---
 
-## 🔧 Configuration Troubleshooting
+## Troubleshooting Configuration
 
-### Problem: "EADDRINUSE: address already in use"
+If config looks right but behavior is still wrong:
 
-**Cause:** Port already in use
+1. run `npm run doctor:basic`
+2. run `npm run doctor:http`
+3. confirm the UI locale matches NotebookLM
+4. rerun `npm run setup-auth` if auth is stale
 
-**Solution:**
-
-```powershell
-# Change the port
-$env:HTTP_PORT="3001"
-node dist/http-wrapper.js
-```
-
-### Problem: n8n cannot connect
-
-**Cause:** Firewall or HOST misconfigured
-
-**Solution:**
-
-```powershell
-# Check config
-$env:HTTP_HOST="0.0.0.0"  # Not 127.0.0.1!
-node dist/http-wrapper.js
-
-# Check firewall
-Test-NetConnection -ComputerName localhost -Port 3000
-```
-
-### Problem: "Cannot find module 'dotenv'"
-
-**Cause:** .env used but dotenv not installed
-
-**Solution:**
-
-```powershell
-npm install dotenv
-```
-
----
-
-## 📝 Complete Example
-
-**Production startup script (`start-prod.ps1`):**
-
-```powershell
-#!/usr/bin/env pwsh
-
-# Configuration
-$env:NODE_ENV="production"
-$env:HTTP_HOST="0.0.0.0"
-$env:HTTP_PORT="3000"
-$env:HEADLESS="true"
-$env:MAX_SESSIONS="15"
-$env:SESSION_TIMEOUT="1800"  # 30 min
-
-# Checks
-if (-not (Test-Path "dist/http-wrapper.js")) {
-    Write-Error "Build missing. Run: npm run build"
-    exit 1
-}
-
-if (-not (Test-Path "Data/browser_state/state.json")) {
-    Write-Warning "Authentication not configured. Run: npm run setup-auth"
-}
-
-# Start
-Write-Host "🚀 Starting in production mode..." -ForegroundColor Green
-node dist/http-wrapper.js
-```
-
----
-
-**Configuration validated!** ✅
+See [05-TROUBLESHOOTING.md](./05-TROUBLESHOOTING.md) for failure-specific fixes.

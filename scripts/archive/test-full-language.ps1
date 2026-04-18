@@ -1,5 +1,5 @@
 # Test FULL: Language option (1 test)
-$notebookUrl = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+$notebookUrl = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 
 Write-Host "`n=== Testing language = fr ===" -ForegroundColor Cyan
 

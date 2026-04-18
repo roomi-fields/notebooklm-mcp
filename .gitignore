@@ -22,6 +22,7 @@ chrome_profile/
 .notebooklm-mcp/
 .claude/
 CLAUDE.md
+!CLAUDE.md
 
 # IDE
 .vscode/

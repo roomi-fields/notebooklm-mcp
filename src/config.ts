@@ -9,6 +9,7 @@
  * No config.json file needed - all settings via ENV or tool parameters!
  */
 
+import 'dotenv/config';
 import envPaths from 'env-paths';
 import fs from 'fs';
 import path from 'path';

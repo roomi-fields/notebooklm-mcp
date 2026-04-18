@@ -1,13 +1,16 @@
-' NotebookLM MCP Server - Démarrage silencieux
-' Lance le serveur HTTP sans fenêtre visible
-' Pour démarrage automatique : ajouter au dossier Démarrage Windows
+' NotebookLM MCP Server - hidden startup helper
+' Starts the HTTP server without opening a visible console window.
 
-Set WshShell = CreateObject("WScript.Shell")
-WshShell.CurrentDirectory = "D:\Claude\notebooklm-mcp-http"
+Dim fso
+Dim shell
+Dim scriptDir
+Dim projectDir
 
-' Définir les variables d'environnement
-Set WshEnv = WshShell.Environment("Process")
-WshEnv("DATA_DIR") = "C:\Users\romai\AppData\Local\notebooklm-mcp\Data"
+Set fso = CreateObject("Scripting.FileSystemObject")
+Set shell = CreateObject("WScript.Shell")
 
-' Lancer le serveur en mode caché (0 = hidden)
-WshShell.Run "node dist/http-wrapper.js", 0, False
+scriptDir = fso.GetParentFolderName(WScript.ScriptFullName)
+projectDir = fso.GetParentFolderName(scriptDir)
+
+shell.CurrentDirectory = projectDir
+shell.Run "node dist/http-wrapper.js", 0, False

@@ -88,19 +88,19 @@ Categories:
 
 ## Account Notebooks Status
 
-### mathieudumont31@gmail.com
+### agent-primary@example.com
 
 - Language: French (need to change to English)
 - Notebooks: TBD (need to check in NotebookLM UI)
 - Role: Primary test account
 
-### rpmonster@gmail.com
+### agent-secondary@example.com
 
 - Language: French
 - Notebooks: TBD
 - Role: Secondary test account
 
-### rom1pey@gmail.com
+### agent-tertiary@example.com
 
 - Language: French
 - Notebooks: TBD

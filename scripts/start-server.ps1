@@ -11,7 +11,7 @@
 
 .EXAMPLE
     # Run in background (hidden window)
-    Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File D:\Claude\notebooklm-mcp-http\scripts\start-server.ps1" -WindowStyle Hidden
+    Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File D:\path\to\notebooklm-mcp\scripts\start-server.ps1" -WindowStyle Hidden
 #>
 
 param(

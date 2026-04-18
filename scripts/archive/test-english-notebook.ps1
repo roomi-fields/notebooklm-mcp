@@ -9,7 +9,7 @@ $body = @{
 # First add the notebook
 $addBody = @{
     name = "english-test"
-    url = "https://notebooklm.google.com/notebook/258f62a1-8658-4f96-8333-a9e16224f602"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000110"
 } | ConvertTo-Json
 
 Write-Host "Adding notebook owned by rom1pey..."

@@ -113,7 +113,7 @@ $results += Test-Endpoint -Category "Notebooks" -Name "Get Notebook by ID" -Meth
 
 # Create test notebook
 $testNotebookData = @{
-    url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
     name = "E2E-Test-Notebook-$(Get-Date -Format 'HHmmss')"
     description = "Created by E2E test at $(Get-Date)"
     topics = @("test", "e2e", "automation")
@@ -145,7 +145,7 @@ Write-Host "4. ASK QUESTION ENDPOINT" -ForegroundColor Yellow
 
 $askBody = @{
     question = "Qu'est-ce que l'IFS en une phrase?"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Ask" -Name "Ask Question" -Method "POST" -Endpoint "/ask" -Body $askBody -TimeoutSec 180
 
@@ -156,14 +156,14 @@ Write-Host ""
 Write-Host "5. CONTENT MANAGEMENT - SOURCES" -ForegroundColor Yellow
 
 # List content
-$results += Test-Endpoint -Category "Content" -Name "List Content" -Method "GET" -Endpoint "/content" -Query @{ notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f" }
+$results += Test-Endpoint -Category "Content" -Name "List Content" -Method "GET" -Endpoint "/content" -Query @{ notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109" }
 
 # Add text source
 $sourceBody = @{
     source_type = "text"
     text = "Ceci est un texte de test pour les E2E tests. L'IFS est une approche therapeutique."
     title = "E2E-Test-Source-$(Get-Date -Format 'HHmmss')"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Content" -Name "Add Text Source" -Method "POST" -Endpoint "/content/sources" -Body $sourceBody -TimeoutSec 60
 
@@ -177,14 +177,14 @@ Write-Host "6. CONTENT MANAGEMENT - NOTES" -ForegroundColor Yellow
 $noteBody = @{
     title = "E2E-Test-Note-$(Get-Date -Format 'HHmmss')"
     content = "This is a test note created by E2E tests at $(Get-Date). It contains test content for validation."
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Notes" -Name "Create Note" -Method "POST" -Endpoint "/content/notes" -Body $noteBody -TimeoutSec 60
 
 # Save chat to note (requires existing chat)
 $chatNoteBody = @{
     title = "E2E-Chat-Note-$(Get-Date -Format 'HHmmss')"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Notes" -Name "Save Chat to Note" -Method "POST" -Endpoint "/content/chat-to-note" -Body $chatNoteBody -TimeoutSec 60
 
@@ -197,7 +197,7 @@ Write-Host "7. CONTENT GENERATION (Studio Features)" -ForegroundColor Yellow
 # Generate Audio Overview
 $audioBody = @{
     content_type = "audio_overview"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Generate" -Name "Audio Overview" -Method "POST" -Endpoint "/content/generate" -Body $audioBody -TimeoutSec 300
 
@@ -205,7 +205,7 @@ $results += Test-Endpoint -Category "Generate" -Name "Audio Overview" -Method "P
 $reportBody = @{
     content_type = "report"
     report_format = "summary"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Generate" -Name "Report (Summary)" -Method "POST" -Endpoint "/content/generate" -Body $reportBody -TimeoutSec 180
 
@@ -213,14 +213,14 @@ $results += Test-Endpoint -Category "Generate" -Name "Report (Summary)" -Method 
 $presentationBody = @{
     content_type = "presentation"
     presentation_style = "detailed_slideshow"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Generate" -Name "Presentation" -Method "POST" -Endpoint "/content/generate" -Body $presentationBody -TimeoutSec 180
 
 # Generate Data Table
 $dataTableBody = @{
     content_type = "data_table"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Generate" -Name "Data Table" -Method "POST" -Endpoint "/content/generate" -Body $dataTableBody -TimeoutSec 180
 
@@ -228,7 +228,7 @@ $results += Test-Endpoint -Category "Generate" -Name "Data Table" -Method "POST"
 $infographicBody = @{
     content_type = "infographic"
     infographic_format = "vertical"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Generate" -Name "Infographic" -Method "POST" -Endpoint "/content/generate" -Body $infographicBody -TimeoutSec 180
 
@@ -237,7 +237,7 @@ $videoBody = @{
     content_type = "video"
     video_style = "classroom"
     video_format = "brief"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 }
 $results += Test-Endpoint -Category "Generate" -Name "Video" -Method "POST" -Endpoint "/content/generate" -Body $videoBody -TimeoutSec 300
 
@@ -247,7 +247,7 @@ $results += Test-Endpoint -Category "Generate" -Name "Video" -Method "POST" -End
 Write-Host ""
 Write-Host "8. CONTENT DOWNLOAD/EXPORT" -ForegroundColor Yellow
 
-$results += Test-Endpoint -Category "Download" -Name "Download Audio" -Method "GET" -Endpoint "/content/download" -Query @{ content_type = "audio_overview"; notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f" } -TimeoutSec 60
+$results += Test-Endpoint -Category "Download" -Name "Download Audio" -Method "GET" -Endpoint "/content/download" -Query @{ content_type = "audio_overview"; notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109" } -TimeoutSec 60
 
 # ============================================
 # GENERATE REPORT

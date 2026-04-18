@@ -9,7 +9,7 @@
  * Uses Playwright to interact with NotebookLM's web interface.
  */
 
-import type { Page, Locator } from 'patchright';
+import type { Page, Locator, ElementHandle } from 'patchright';
 import path from 'path';
 import { existsSync } from 'fs';
 import { randomDelay, realisticClick, humanType } from '../utils/stealth-utils.js';
@@ -92,8 +92,16 @@ export class ContentManager {
     log.info(`  🎯 Target notebook UUID: ${expectedNotebookUuid || 'NOT FOUND'}`);
 
     try {
+      const existingSourceNames = await this.getAllSourceLabels();
+
       // Click "Add source" button
       await this.clickAddSource();
+
+      // DEBUG: Screenshot after clicking add source to see what UI appeared
+      try {
+        await this.page.screenshot({ path: path.join(CONFIG.dataDir, 'debug-after-add-click.png') });
+        log.info(`  📸 Debug screenshot saved: debug-after-add-click.png`);
+      } catch { /* ignore */ }
 
       // Wait for upload dialog
       await this.waitForUploadDialog();
@@ -101,15 +109,15 @@ export class ContentManager {
       // Select upload type and upload (pass expectedNotebookUuid for redirect detection)
       switch (input.type) {
         case 'file':
-          return await this.uploadFile(input, expectedNotebookUuid);
+          return await this.uploadFile(input, expectedNotebookUuid, existingSourceNames);
         case 'url':
-          return await this.uploadUrl(input, expectedNotebookUuid);
+          return await this.uploadUrl(input, expectedNotebookUuid, existingSourceNames);
         case 'text':
-          return await this.uploadText(input, expectedNotebookUuid);
+          return await this.uploadText(input, expectedNotebookUuid, existingSourceNames);
         case 'google_drive':
-          return await this.uploadGoogleDrive(input, expectedNotebookUuid);
+          return await this.uploadGoogleDrive(input, expectedNotebookUuid, existingSourceNames);
         case 'youtube':
-          return await this.uploadYouTube(input, expectedNotebookUuid);
+          return await this.uploadYouTube(input, expectedNotebookUuid, existingSourceNames);
         default:
           return { success: false, error: `Unsupported source type: ${input.type}` };
       }
@@ -335,14 +343,15 @@ export class ContentManager {
    */
   private async uploadFile(
     input: SourceUploadInput,
-    expectedNotebookUuid?: string
+    expectedNotebookUuid?: string,
+    previousSourceNames: string[] = []
   ): Promise<SourceUploadResult> {
     if (!input.filePath) {
       return { success: false, error: 'File path is required' };
     }
 
-    // Path traversal protection: resolve and validate the path
-    const resolvedPath = path.resolve(input.filePath);
+    // Path traversal protection: resolve first, then validate startsWith(allowedDir)
+    const resolvedPath = path.resolve(input.filePath); // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal
     const allowedDir = path.resolve(CONFIG.dataDir);
 
     // Allow files from dataDir or current working directory
@@ -407,7 +416,8 @@ export class ContentManager {
       const result = await this.waitForSourceProcessing(
         input.title || path.basename(input.filePath),
         undefined,
-        expectedNotebookUuid
+        expectedNotebookUuid,
+        previousSourceNames
       );
 
       return result;
@@ -422,7 +432,8 @@ export class ContentManager {
    */
   private async uploadUrl(
     input: SourceUploadInput,
-    expectedNotebookUuid?: string
+    expectedNotebookUuid?: string,
+    previousSourceNames: string[] = []
   ): Promise<SourceUploadResult> {
     if (!input.url) {
       return { success: false, error: 'URL is required' };
@@ -432,13 +443,24 @@ export class ContentManager {
 
     try {
       // Click on URL/Website option (bilingual selectors)
+      // NotebookLM UI may show source types as buttons, spans, divs, or list items
       const urlTypeSelectors = [
+        // Button-based (original dialog UI)
         ...i18nSelectors('button:has-text("{text}")', 'sourceTypes', 'website'),
         ...i18nSelectors('button:has-text("{text}")', 'sourceTypes', 'link'),
         ...i18nSelectors('button:has-text("{text}")', 'sourceTypes', 'url'),
+        // New UI (2025+): source types may be spans, divs, or clickable list items
+        ...i18nSelectors('span:has-text("{text}")', 'sourceTypes', 'website'),
+        ...i18nSelectors('div:has-text("{text}")', 'sourceTypes', 'website'),
+        ...i18nSelectors('[role="menuitem"]:has-text("{text}")', 'sourceTypes', 'website'),
+        ...i18nSelectors('[role="option"]:has-text("{text}")', 'sourceTypes', 'website'),
+        ...i18nSelectors('span:has-text("{text}")', 'sourceTypes', 'link'),
+        ...i18nSelectors('[role="menuitem"]:has-text("{text}")', 'sourceTypes', 'link'),
+        // Aria-label patterns
         '[data-type="url"]',
-        '[aria-label*="website"]',
+        '[aria-label*="website" i]',
         '[aria-label*="URL"]',
+        '[aria-label*="link" i]:not([aria-label*="unlink"])',
       ];
 
       log.info(`  🔍 Looking for URL option...`);
@@ -482,6 +504,7 @@ export class ContentManager {
       await randomDelay(500, 1000);
 
       // Find URL input (can be input OR textarea) - bilingual selectors
+      // IMPORTANT: Exclude the "Search the web" search bar which is always visible
       log.info(`  🔍 Looking for URL input...`);
       const urlInputSelectors = [
         // i18n placeholder selectors
@@ -500,7 +523,7 @@ export class ContentManager {
         'textarea[placeholder*="http"]',
         'input[name="url"]',
         'input[type="url"]',
-        // Fallback dialog selectors
+        // Dialog-based selectors (old UI)
         '[role="dialog"] input[type="text"]',
         '[role="dialog"] input:not([type="hidden"])',
         '[role="dialog"] textarea',
@@ -508,6 +531,14 @@ export class ContentManager {
         '.mat-dialog-content textarea',
         '.mdc-dialog__content input',
         '.mdc-dialog__content textarea',
+        // New UI (2025+): overlay/panel/popover selectors (not [role="dialog"])
+        '[role="menu"] input[type="text"]',
+        '[role="menu"] textarea',
+        '.cdk-overlay-pane input[type="text"]',
+        '.cdk-overlay-pane textarea',
+        '.cdk-overlay-pane input:not([type="hidden"])',
+        '.mat-menu-panel input',
+        '.mat-menu-panel textarea',
       ];
 
       let urlInput = null;
@@ -524,29 +555,39 @@ export class ContentManager {
         }
       }
 
-      // Fallback: find any visible input or textarea in the dialog
+      // Fallback: find any visible input or textarea in dialog or overlay
       if (!urlInput) {
-        log.info(`  🔍 Trying fallback: any visible input/textarea in dialog...`);
+        log.info(`  🔍 Trying fallback: any visible input/textarea in dialog or overlay...`);
+        // Search in multiple container types (dialog, overlay, menu, panel)
+        const containerSelectors = [
+          '[role="dialog"]',
+          '.cdk-overlay-pane',
+          '[role="menu"]',
+          '.mat-menu-panel',
+        ];
         try {
-          // Try inputs first
-          const allInputs = await this.page.locator('[role="dialog"] input').all();
-          for (const input of allInputs) {
-            if (await input.isVisible()) {
-              urlInput = input;
-              const placeholder = await input.getAttribute('placeholder');
-              log.info(`  ✅ Found input via fallback: placeholder="${placeholder}"`);
-              break;
-            }
-          }
-          // Try textareas if no input found
-          if (!urlInput) {
-            const allTextareas = await this.page.locator('[role="dialog"] textarea').all();
-            for (const textarea of allTextareas) {
-              if (await textarea.isVisible()) {
-                urlInput = textarea;
-                const placeholder = await textarea.getAttribute('placeholder');
-                log.info(`  ✅ Found textarea via fallback: placeholder="${placeholder}"`);
+          for (const container of containerSelectors) {
+            if (urlInput) break;
+            // Try inputs first
+            const allInputs = await this.page.locator(`${container} input`).all();
+            for (const input of allInputs) {
+              if (await input.isVisible()) {
+                urlInput = input;
+                const placeholder = await input.getAttribute('placeholder');
+                log.info(`  ✅ Found input via fallback (${container}): placeholder="${placeholder}"`);
                 break;
+              }
+            }
+            // Try textareas if no input found
+            if (!urlInput) {
+              const allTextareas = await this.page.locator(`${container} textarea`).all();
+              for (const textarea of allTextareas) {
+                if (await textarea.isVisible()) {
+                  urlInput = textarea;
+                  const placeholder = await textarea.getAttribute('placeholder');
+                  log.info(`  ✅ Found textarea via fallback (${container}): placeholder="${placeholder}"`);
+                  break;
+                }
               }
             }
           }
@@ -555,14 +596,38 @@ export class ContentManager {
         }
       }
 
+      // Last resort: find ANY visible input/textarea on page, excluding the search bar
+      if (!urlInput) {
+        log.info(`  🔍 Last resort: scanning ALL visible inputs (excluding search bar)...`);
+        try {
+          const allPageInputs = await this.page.locator('input, textarea').all();
+          for (const input of allPageInputs) {
+            if (!(await input.isVisible())) continue;
+            const placeholder = (await input.getAttribute('placeholder')) || '';
+            // Skip the "Search the web" search bar and other non-URL inputs
+            if (placeholder.toLowerCase().includes('search')) continue;
+            if (placeholder.toLowerCase().includes('ask')) continue;
+            if (placeholder.toLowerCase().includes('chat')) continue;
+            // Prefer inputs that look URL-related
+            const type = (await input.getAttribute('type')) || '';
+            if (type === 'search') continue;
+            urlInput = input;
+            log.info(`  ✅ Found input via last resort: placeholder="${placeholder}", type="${type}"`);
+            break;
+          }
+        } catch {
+          /* ignore */
+        }
+      }
+
       // Debug: list all inputs/textareas if still not found
       if (!urlInput) {
-        log.warning(`  ⚠️ URL input not found, listing dialog elements...`);
+        log.warning(`  ⚠️ URL input not found, listing ALL page inputs for debug...`);
         try {
           const inputs = await this.page
-            .locator('[role="dialog"] input, [role="dialog"] textarea')
+            .locator('input, textarea')
             .all();
-          for (let i = 0; i < inputs.length; i++) {
+          for (let i = 0; i < Math.min(inputs.length, 20); i++) {
             const el = inputs[i];
             const tag = await el.evaluate((e) => e.tagName?.toLowerCase() || 'unknown');
             const type = await el.getAttribute('type');
@@ -573,7 +638,7 @@ export class ContentManager {
             );
           }
         } catch (e) {
-          log.warning(`  ⚠️ Could not list dialog elements: ${e}`);
+          log.warning(`  ⚠️ Could not list page elements: ${e}`);
         }
         throw new Error('URL input not found');
       }
@@ -591,7 +656,8 @@ export class ContentManager {
       const result = await this.waitForSourceProcessing(
         input.title || input.url,
         undefined,
-        expectedNotebookUuid
+        expectedNotebookUuid,
+        previousSourceNames
       );
 
       return result;
@@ -606,7 +672,8 @@ export class ContentManager {
    */
   private async uploadText(
     input: SourceUploadInput,
-    expectedNotebookUuid?: string
+    expectedNotebookUuid?: string,
+    previousSourceNames: string[] = []
   ): Promise<SourceUploadResult> {
     if (!input.text) {
       return { success: false, error: 'Text content is required' };
@@ -718,8 +785,9 @@ export class ContentManager {
         throw new Error('Text input not found in dialog');
       }
 
-      await textInput.fill(input.text);
-      log.info(`  ✅ Text entered (${input.text.length} chars)`);
+      let textToInsert = input.text;
+      await textInput.fill(textToInsert);
+      log.info(`  ✅ Text entered (${textToInsert.length} chars)`);
 
       // Set title if provided
       log.info(`  🔍 Looking for title input...`);
@@ -750,6 +818,9 @@ export class ContentManager {
 
         if (!titleSet) {
           log.warning(`  ⚠️ Title input NOT found - source will have default name`);
+          textToInsert = `${input.title}\n\n${input.text}`;
+          await textInput.fill(textToInsert);
+          log.info(`  ✅ Fallback title injected into pasted text: ${input.title}`);
           // Debug: list all inputs in dialog
           try {
             const allInputs = await this.page.locator('[role="dialog"] input').all();
@@ -798,7 +869,7 @@ export class ContentManager {
       }
 
       // Get first few words of text for later verification (NotebookLM uses text content as title)
-      const textPreview = input.text.slice(0, 30).trim();
+      const textPreview = textToInsert.slice(0, 30).trim();
       log.info(`  📝 Text preview for verification: "${textPreview}..."`);
 
       // Click add button
@@ -811,7 +882,8 @@ export class ContentManager {
       const result = await this.waitForSourceProcessing(
         input.title || 'Texte collé',
         textPreview,
-        expectedNotebookUuid
+        expectedNotebookUuid,
+        previousSourceNames
       );
 
       return result;
@@ -826,7 +898,8 @@ export class ContentManager {
    */
   private async uploadGoogleDrive(
     input: SourceUploadInput,
-    expectedNotebookUuid?: string
+    expectedNotebookUuid?: string,
+    previousSourceNames: string[] = []
   ): Promise<SourceUploadResult> {
     if (!input.url) {
       return { success: false, error: 'Google Drive URL is required' };
@@ -835,7 +908,7 @@ export class ContentManager {
     log.info(`  📂 Adding Google Drive source: ${input.url}`);
 
     // Similar to URL upload but with Google Drive specific handling
-    return await this.uploadUrl({ ...input, type: 'url' }, expectedNotebookUuid);
+    return await this.uploadUrl({ ...input, type: 'url' }, expectedNotebookUuid, previousSourceNames);
   }
 
   /**
@@ -843,7 +916,8 @@ export class ContentManager {
    */
   private async uploadYouTube(
     input: SourceUploadInput,
-    expectedNotebookUuid?: string
+    expectedNotebookUuid?: string,
+    previousSourceNames: string[] = []
   ): Promise<SourceUploadResult> {
     if (!input.url) {
       return { success: false, error: 'YouTube URL is required' };
@@ -961,7 +1035,8 @@ export class ContentManager {
       const result = await this.waitForSourceProcessing(
         input.title || 'YouTube video',
         undefined,
-        expectedNotebookUuid
+        expectedNotebookUuid,
+        previousSourceNames
       );
 
       return result;
@@ -1009,13 +1084,19 @@ export class ContentManager {
       }
     }
 
-    // Debug: list all buttons in dialog
-    log.warning(`  ⚠️ No upload button found, listing dialog buttons...`);
+    // Debug: list all buttons in dialog or overlay
+    log.warning(`  ⚠️ No upload button found, listing buttons...`);
     try {
-      const dialogButtons = await this.page.locator('[role="dialog"] button').all();
-      for (let i = 0; i < Math.min(dialogButtons.length, 5); i++) {
-        const text = await dialogButtons[i].textContent();
-        log.info(`  🔍 Dialog button[${i}]: "${text?.trim()}"`);
+      const containers = ['[role="dialog"]', '.cdk-overlay-pane', '[role="menu"]'];
+      for (const container of containers) {
+        const containerButtons = await this.page.locator(`${container} button`).all();
+        if (containerButtons.length > 0) {
+          log.info(`  🔍 Buttons in ${container}:`);
+          for (let i = 0; i < Math.min(containerButtons.length, 5); i++) {
+            const text = await containerButtons[i].textContent();
+            log.info(`  🔍 Button[${i}]: "${text?.trim()}"`);
+          }
+        }
       }
     } catch {
       // ignore
@@ -1035,32 +1116,51 @@ export class ContentManager {
   private async waitForSourceProcessing(
     sourceName: string,
     _textPreview?: string,
-    expectedNotebookUuid?: string
+    expectedNotebookUuid?: string,
+    previousSourceNames: string[] = []
   ): Promise<SourceUploadResult> {
     log.info(`  ⏳ Waiting for source processing: ${sourceName}`);
 
     const timeout = 90000; // 1.5 minutes (sources can take time)
     const startTime = Date.now();
 
+    // COUNT-BASED DETECTION (primary method for 2025 UI):
+    // Capture source count NOW — dialog is still open, source not yet added to DOM.
+    // Later, if count increases, we know a source was successfully added.
+    let initialSourceCount = -1;
+    let initialSourceLabels: string[] = [];
+    try {
+      initialSourceCount = await this.page.locator('.single-source-container').count();
+      log.info(`  📊 Source count before processing: ${initialSourceCount}`);
+      initialSourceLabels = await this.getAllSourceLabels();
+    } catch { /* ignore */ }
+
     // First, wait a bit for the dialog to close (indicates upload started)
     await randomDelay(2000, 3000);
 
     while (Date.now() - startTime < timeout) {
       // Check for errors in the dialog or page
+      // NOTE: Avoid overly broad selectors like [class*="error"] which match
+      // random page elements and produce garbage error messages
       const errorSelectors = [
         '.error-message',
         '[role="alert"]:has-text("error")',
         '[role="alert"]:has-text("Error")',
         '.mdc-snackbar--error',
-        '[class*="error"]',
+        '.mdc-snackbar--open:has-text("error")',
+        '[role="dialog"] [class*="error"]',
+        '.cdk-overlay-pane [class*="error"]',
       ];
 
       for (const errorSelector of errorSelectors) {
         try {
           const errorEl = this.page.locator(errorSelector).first();
           if (await errorEl.isVisible({ timeout: 500 })) {
-            const errorText = await errorEl.textContent();
-            return { success: false, error: errorText || 'Upload failed', status: 'failed' };
+            const errorText = (await errorEl.textContent())?.trim();
+            // Skip garbage text that contains icon names (more_vert, etc.)
+            if (errorText && errorText.length < 200 && !errorText.includes('more_vert') && !errorText.includes('more_horiz')) {
+              return { success: false, error: errorText || 'Upload failed', status: 'failed' };
+            }
           }
         } catch {
           continue;
@@ -1085,6 +1185,64 @@ export class ContentManager {
       // If dialog closed, check if source appears in the sources list
       if (!dialogVisible) {
         log.info(`  ℹ️ Dialog closed, checking for source in list...`);
+
+        // PRIMARY: Count-based detection (most reliable for 2025 UI)
+        // NotebookLM shows page titles (not URLs) in the source list, so name-based
+        // detection fails for URL sources. Count-based detection works regardless.
+        try {
+          const currentCount = await this.page.locator('.single-source-container').count();
+          log.info(`  📊 Source count: ${initialSourceCount} → ${currentCount}`);
+          if (initialSourceCount >= 0 && currentCount > initialSourceCount) {
+            let detectedSourceName: string | undefined;
+            let detectedSourceId: string | undefined;
+
+            try {
+              const currentLabels = await this.getAllSourceLabels();
+              detectedSourceName =
+                this.findAddedSourceName(initialSourceLabels, currentLabels) ||
+                this.findAddedSourceName(previousSourceNames, currentLabels);
+
+              if (detectedSourceName) {
+                let detectedIndex = -1;
+                for (let i = currentLabels.length - 1; i >= 0; i--) {
+                  if (
+                    this.normalizeSourceName(currentLabels[i]) ===
+                    this.normalizeSourceName(detectedSourceName)
+                  ) {
+                    detectedIndex = i;
+                    break;
+                  }
+                }
+                if (detectedIndex >= 0) {
+                  detectedSourceId = `source-${detectedIndex}`;
+                }
+              }
+            } catch {
+              // Continue below and fall back if needed
+            }
+
+            if (!detectedSourceName) {
+              log.info('  ℹ️  Source count increased, but a stable source name is not available yet');
+            } else {
+              log.info(`  ℹ️  Detected new source: ${detectedSourceName}`);
+              log.success(`  ✅ Source added! Count increased from ${initialSourceCount} to ${currentCount}`);
+              return {
+                success: true,
+                sourceId: detectedSourceId,
+                sourceName: detectedSourceName,
+                status: 'ready',
+              };
+            }
+          }
+        } catch { /* ignore */ }
+
+        try {
+          const currentNames = await this.getVisibleSourceNames();
+          if (currentNames.some((name) => this.normalizeSourceName(name) === this.normalizeSourceName(sourceName))) {
+            log.success(`  ✅ Source added and matched requested source name: ${sourceName}`);
+            return { success: true, sourceName, status: 'ready' };
+          }
+        } catch { /* ignore */ }
 
         // CRITICAL: Verify we're still on the correct notebook after dialog closes
         // NotebookLM sometimes redirects to a NEW notebook when adding text sources!
@@ -2045,6 +2203,194 @@ export class ContentManager {
     };
   }
 
+  private normalizeSourceName(name: string): string {
+    return name.replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  private extractSourceName(rawText: string): string | null {
+    const lines = rawText
+      .replace(/\r/g, '')
+      .split('\n')
+      .map((line) => line.replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
+
+    const ignoredExact = new Set([
+      'sources',
+      'chat',
+      'studio',
+      'add sources',
+      'add source',
+      'select all sources',
+      'web',
+      'fast research',
+      'description',
+    ]);
+
+    for (const line of lines) {
+      const lower = line.toLowerCase();
+      if (ignoredExact.has(lower)) continue;
+      if (lower.includes('search the web for new sources')) continue;
+      if (/^(check|drive_pdf|markdown|description|more_vert|more_horiz)$/i.test(line)) continue;
+      return line;
+    }
+
+    return null;
+  }
+
+  private async getVisibleSourceRows(
+    dedupe = true
+  ): Promise<Array<{ name: string; element: ElementHandle }>> {
+    await this.ensureSourcesPanel();
+
+    const rowReadySelectors = [
+      '.single-source-container',
+      'mat-checkbox.select-checkbox',
+      '.source-stretched-button',
+    ];
+
+    for (const selector of rowReadySelectors) {
+      try {
+        await this.page.waitForSelector(selector, { state: 'attached', timeout: 2000 });
+        break;
+      } catch {
+        continue;
+      }
+    }
+
+    await randomDelay(1200, 1800);
+
+    const rows: Array<{ name: string; element: ElementHandle }> = [];
+    const seen = new Set<string>();
+    const selectors = ['.single-source-container', 'mat-checkbox', '[class*="source-item"]'];
+
+    for (const selector of selectors) {
+      try {
+        const elements = await this.page.$$(selector);
+        if (elements.length === 0) continue;
+
+        for (const element of elements) {
+          try {
+            const buttonLabel =
+              (await element
+                .$eval('.source-stretched-button', (node) => node.getAttribute('aria-label') || '')
+                .catch(() => '')) || '';
+            const checkboxLabel =
+              (await element
+                .$eval('input[type="checkbox"]', (node) => node.getAttribute('aria-label') || '')
+                .catch(() => '')) || '';
+            const text = (await element.textContent()) || '';
+            const name =
+              this.extractSourceName(buttonLabel) ||
+              this.extractSourceName(checkboxLabel) ||
+              this.extractSourceName(text);
+            if (!name) continue;
+
+            const normalized = this.normalizeSourceName(name);
+            if (dedupe && seen.has(normalized)) continue;
+
+            seen.add(normalized);
+            rows.push({ name, element });
+          } catch {
+            continue;
+          }
+        }
+
+        if (rows.length > 0) {
+          break;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    if (rows.length === 0) {
+      log.warning('  ⚠️  No visible source rows parsed from current NotebookLM UI');
+    }
+
+    return rows;
+  }
+
+  private async getVisibleSourceNames(): Promise<string[]> {
+    const rows = await this.getVisibleSourceRows();
+    return rows.map((row) => row.name);
+  }
+
+  private async getAllSourceLabels(): Promise<string[]> {
+    const rows = await this.getVisibleSourceRows(false);
+    return rows.map((row) => row.name);
+  }
+
+  private findAddedSourceName(previousLabels: string[], currentLabels: string[]): string | undefined {
+    const counts = new Map<string, number>();
+
+    for (const label of previousLabels) {
+      const normalized = this.normalizeSourceName(label);
+      counts.set(normalized, (counts.get(normalized) || 0) + 1);
+    }
+
+    for (const label of currentLabels) {
+      const normalized = this.normalizeSourceName(label);
+      const count = counts.get(normalized) || 0;
+      if (count === 0) {
+        return label;
+      }
+      counts.set(normalized, count - 1);
+    }
+
+    return undefined;
+  }
+
+  private async findVisibleSourceRow(
+    sourceId?: string,
+    sourceName?: string
+  ): Promise<{ name: string; element: ElementHandle } | null> {
+    const rows = await this.getVisibleSourceRows(false);
+    if (rows.length === 0) {
+      return null;
+    }
+
+    const normalizedTargetName = sourceName ? this.normalizeSourceName(sourceName) : null;
+
+    for (const [index, row] of rows.entries()) {
+      if (sourceId && sourceId === `source-${index}`) {
+        return row;
+      }
+
+      if (!normalizedTargetName) {
+        continue;
+      }
+
+      const normalizedRowName = this.normalizeSourceName(row.name);
+      if (
+        normalizedRowName === normalizedTargetName ||
+        normalizedRowName.includes(normalizedTargetName) ||
+        normalizedTargetName.includes(normalizedRowName)
+      ) {
+        return row;
+      }
+    }
+
+    return null;
+  }
+
+  private async dismissBlockingOverlays(): Promise<void> {
+    const backdrop = this.page.locator('.cdk-overlay-backdrop.cdk-overlay-backdrop-showing').first();
+    try {
+      if (await backdrop.isVisible({ timeout: 300 })) {
+        log.info('  ℹ️  Dismissing blocking overlay backdrop');
+        await this.page.keyboard.press('Escape').catch(() => {});
+        await randomDelay(200, 400);
+
+        if (await backdrop.isVisible({ timeout: 300 }).catch(() => false)) {
+          await backdrop.click({ force: true }).catch(() => {});
+          await randomDelay(200, 400);
+        }
+      }
+    } catch {
+      // Ignore missing/backdrop timing issues
+    }
+  }
+
   /**
    * List all sources in the notebook
    */
@@ -2052,6 +2398,17 @@ export class ContentManager {
     const sources: NotebookSource[] = [];
 
     try {
+      const rows = await this.getVisibleSourceRows(false);
+      if (rows.length > 0) {
+        log.info(`  📚 Parsed ${rows.length} visible source rows`);
+        return rows.map((row, index) => ({
+          id: `source-${index}`,
+          name: row.name,
+          type: 'document',
+          status: 'ready',
+        }));
+      }
+
       // First ensure Sources panel is active
       await this.ensureSourcesPanel();
       await randomDelay(500, 800);
@@ -2178,9 +2535,12 @@ export class ContentManager {
       // First, ensure we're on the Sources panel
       await this.ensureSourcesPanel();
       await randomDelay(500, 800);
+      await this.dismissBlockingOverlays();
+
+      const matchedRow = await this.findVisibleSourceRow(sourceId, sourceName);
 
       // Find the source element
-      const sourceElement = await this.findSourceElement(sourceId, sourceName);
+      const sourceElement = matchedRow?.element ?? await this.findSourceElement(sourceId, sourceName);
 
       if (!sourceElement) {
         return {
@@ -2190,7 +2550,7 @@ export class ContentManager {
       }
 
       // Get the source name for logging before deletion
-      let deletedSourceName = sourceName;
+      let deletedSourceName = sourceName || matchedRow?.name;
       if (!deletedSourceName) {
         try {
           deletedSourceName = await sourceElement.$eval(
@@ -2202,17 +2562,13 @@ export class ContentManager {
         }
       }
 
-      // Click on the source to select it
-      await sourceElement.click();
-      await randomDelay(300, 500);
-
       // Open the source menu (3-dot menu or right-click)
       const menuOpened = await this.openSourceMenu(sourceElement);
 
       if (!menuOpened) {
         // Try right-click as fallback
         log.info(`  🔍 Trying right-click on source...`);
-        await sourceElement.click({ button: 'right' });
+        await sourceElement.click({ button: 'right', force: true });
         await randomDelay(300, 500);
       }
 
@@ -2233,7 +2589,9 @@ export class ContentManager {
       await randomDelay(1000, 2000);
 
       // Verify deletion by checking if source is still present
-      const stillExists = await this.findSourceElement(sourceId, sourceName);
+      const stillExists = deletedSourceName
+        ? await this.findSourceElement(undefined, deletedSourceName)
+        : await this.findSourceElement(sourceId, sourceName);
       if (stillExists) {
         return {
           success: false,
@@ -2263,6 +2621,12 @@ export class ContentManager {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<import('patchright').ElementHandle<any> | null> {
     log.info(`  🔍 Finding source: id="${sourceId}", name="${sourceName}"`);
+
+    const visibleRow = await this.findVisibleSourceRow(sourceId, sourceName);
+    if (visibleRow) {
+      log.info(`  ✅ Found source via visible source rows: "${visibleRow.name}"`);
+      return visibleRow.element;
+    }
 
     // METHOD 1: Direct text search (most reliable for NotebookLM)
     if (sourceName) {
@@ -2365,6 +2729,8 @@ export class ContentManager {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sourceElement: import('patchright').ElementHandle<any>
   ): Promise<boolean> {
+    await this.dismissBlockingOverlays();
+
     const menuButtonSelectors = [
       // Material Design 3-dot menu button
       'button:has(mat-icon:has-text("more_vert"))',
@@ -2391,7 +2757,7 @@ export class ContentManager {
           const isVisible = await menuBtn.isVisible();
           if (isVisible) {
             log.info(`  ✅ Found menu button: ${selector}`);
-            await menuBtn.click();
+            await menuBtn.click({ force: true });
             await randomDelay(300, 500);
             return true;
           }
@@ -2403,7 +2769,12 @@ export class ContentManager {
 
     // Hover over the source to reveal hidden menu button
     log.info(`  🔍 Hovering to reveal menu button...`);
-    await sourceElement.hover();
+    try {
+      await sourceElement.hover();
+    } catch {
+      log.warning('  ⚠️  Could not hover source row to reveal menu button');
+      return false;
+    }
     await randomDelay(500, 800);
 
     // Try again after hover
@@ -2414,7 +2785,7 @@ export class ContentManager {
           const isVisible = await menuBtn.isVisible();
           if (isVisible) {
             log.info(`  ✅ Found menu button after hover: ${selector}`);
-            await menuBtn.click();
+            await menuBtn.click({ force: true });
             await randomDelay(300, 500);
             return true;
           }
@@ -3242,7 +3613,8 @@ export class ContentManager {
           const btn = this.page.locator(selector).first();
           if (await btn.isVisible({ timeout: 1000 })) {
             log.info(`  ✅ Found Add note button: ${selector}`);
-            await realisticClick(this.page, selector, true);
+            await btn.scrollIntoViewIfNeeded();
+            await btn.click({ force: true, timeout: 5000 });
             addButtonFound = true;
             await randomDelay(500, 1000);
             break;

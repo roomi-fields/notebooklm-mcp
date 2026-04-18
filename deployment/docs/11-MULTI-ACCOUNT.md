@@ -56,7 +56,7 @@ DATA_DIR/
 
 ```json
 {
-  "id": "account-1766565732376",
+  "id": "account-0000000000001",
   "email": "user@gmail.com",
   "enabled": true,
   "priority": 1,
@@ -259,7 +259,7 @@ Each account may have a different Google Account language setting. The server us
 Use the provided script to switch an account's language:
 
 ```bash
-./scripts/switch-account-language.sh --account=mathieu --lang=fr --show
+./scripts/switch-account-language.sh --account-id=account-0000000000001 --lang=fr --repo-root=/absolute/path/to/notebooklm-mcp --show
 ```
 
 **What it does:**

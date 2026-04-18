@@ -1,8 +1,8 @@
 # E2E Tests - rom1pey Account (English UI)
 
 **Date:** 2025-12-31
-**Account:** rom1pey@gmail.com (English UI)
-**Notebook:** e2e-rom1pey-test (725d28e1-4284-4f36-99a2-b6693c2ebf13)
+**Account:** agent-tertiary@example.com (English UI)
+**Notebook:** e2e-rom1pey-test (00000000-0000-0000-0000-000000000107)
 **Server Version:** 1.4.2
 
 ---

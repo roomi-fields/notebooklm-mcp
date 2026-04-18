@@ -1,5 +1,5 @@
 # E2E Tests v2 - Better order: add sources first, then ask questions
-# Notebook: e2e-rom1pey-test (725d28e1-4284-4f36-99a2-b6693c2ebf13)
+# Notebook: e2e-rom1pey-test (00000000-0000-0000-0000-000000000107)
 
 $ErrorActionPreference = "Continue"
 

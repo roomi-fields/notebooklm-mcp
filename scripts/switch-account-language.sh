@@ -1,191 +1,150 @@
 #!/bin/bash
 # Switch Account Language Script
 #
-# This script automates the process of switching an account to a new language.
-# It deletes the Chrome profile cache and re-authenticates to get a fresh profile
-# with the new language settings from Google Account.
-#
-# PREREQUISITE: You must first change the language in Google Account settings:
-# https://myaccount.google.com/language
-#
-# Usage:
-#   ./switch-account-language.sh --account=rom1pey --lang=en
-#   ./switch-account-language.sh --account=mathieu --lang=fr
-#   ./switch-account-language.sh --account=rpmonster --lang=en --show
+# Refreshes one account profile after the user changes the Google Account
+# language. This script is intentionally generic: you provide the account ID,
+# repo root, and optionally the NotebookLM data directory.
 
-set -e
+set -euo pipefail
 
-# Default values
-ACCOUNT=""
+ACCOUNT_ID=""
 LANG=""
 SHOW_BROWSER=""
+REPO_ROOT=""
+DATA_PATH="${NOTEBOOKLM_DATA_PATH:-}"
 
-# Account configurations
-declare -A ACCOUNT_IDS=(
-  ["mathieu"]="account-1766565732376"
-  ["rpmonster"]="account-1767078713573"
-  ["rom1pey"]="account-1767079146601"
-)
+usage() {
+  echo "Switch Account Language Script"
+  echo ""
+  echo "Prerequisite:"
+  echo "  Change the Google Account language first:"
+  echo "  https://myaccount.google.com/language"
+  echo ""
+  echo "Usage:"
+  echo "  ./scripts/switch-account-language.sh --account-id=account-0000000000001 --lang=en --repo-root=/absolute/path/to/notebooklm-mcp"
+  echo ""
+  echo "Options:"
+  echo "  --account-id=ID   Account directory ID under Data/accounts/ (required)"
+  echo "  --lang=LANG       Target UI locale: en|fr (required)"
+  echo "  --repo-root=PATH  Repo root containing package.json (required unless run there)"
+  echo "  --data-path=PATH  NotebookLM data directory override"
+  echo "  --show            Show browser during re-authentication"
+  echo "  --help            Show this help"
+}
 
-declare -A ACCOUNT_EMAILS=(
-  ["mathieu"]="mathieudumont31@gmail.com"
-  ["rpmonster"]="rpmonster@gmail.com"
-  ["rom1pey"]="rom1pey@gmail.com"
-)
-
-# Data path
-DATA_PATH="/mnt/c/Users/romai/AppData/Local/notebooklm-mcp/Data"
-
-# Parse arguments
 for arg in "$@"; do
   case $arg in
-    --account=*)
-      ACCOUNT="${arg#*=}"
+    --account-id=*)
+      ACCOUNT_ID="${arg#*=}"
       ;;
     --lang=*)
       LANG="${arg#*=}"
+      ;;
+    --repo-root=*)
+      REPO_ROOT="${arg#*=}"
+      ;;
+    --data-path=*)
+      DATA_PATH="${arg#*=}"
       ;;
     --show)
       SHOW_BROWSER="--show"
       ;;
     --help)
-      echo "Switch Account Language Script"
-      echo ""
-      echo "PREREQUISITE: Change language in Google Account first:"
-      echo "  https://myaccount.google.com/language"
-      echo ""
-      echo "Usage: ./switch-account-language.sh [options]"
-      echo ""
-      echo "Options:"
-      echo "  --account=NAME    Account: mathieu|rpmonster|rom1pey (required)"
-      echo "  --lang=LANG       Target language: en|fr (required)"
-      echo "  --show            Show browser during re-authentication"
-      echo "  --help            Show this help"
-      echo ""
-      echo "Examples:"
-      echo "  ./switch-account-language.sh --account=rom1pey --lang=en"
-      echo "  ./switch-account-language.sh --account=mathieu --lang=fr --show"
+      usage
       exit 0
+      ;;
+    *)
+      echo "ERROR: Unknown argument: $arg"
+      usage
+      exit 1
       ;;
   esac
 done
 
-# Validate arguments
-if [ -z "$ACCOUNT" ]; then
-  echo "ERROR: --account is required"
-  echo "Use --help for usage information"
+if [ -z "$ACCOUNT_ID" ]; then
+  echo "ERROR: --account-id is required"
+  usage
   exit 1
 fi
 
 if [ -z "$LANG" ]; then
   echo "ERROR: --lang is required"
-  echo "Use --help for usage information"
-  exit 1
-fi
-
-if [ -z "${ACCOUNT_IDS[$ACCOUNT]}" ]; then
-  echo "ERROR: Unknown account '$ACCOUNT'"
-  echo "Valid accounts: mathieu, rpmonster, rom1pey"
+  usage
   exit 1
 fi
 
 if [ "$LANG" != "en" ] && [ "$LANG" != "fr" ]; then
-  echo "ERROR: Invalid language '$LANG'"
-  echo "Valid languages: en, fr"
+  echo "ERROR: --lang must be en or fr"
   exit 1
 fi
 
-ACCOUNT_ID="${ACCOUNT_IDS[$ACCOUNT]}"
-ACCOUNT_EMAIL="${ACCOUNT_EMAILS[$ACCOUNT]}"
+if [ -z "$REPO_ROOT" ]; then
+  if [ -f "./package.json" ]; then
+    REPO_ROOT="$(pwd)"
+  else
+    echo "ERROR: --repo-root is required unless you run the script from the repo root"
+    exit 1
+  fi
+fi
 
-echo "╔════════════════════════════════════════════════════════════╗"
-echo "║  Switch Account Language                                    ║"
-echo "╠════════════════════════════════════════════════════════════╣"
-echo "║  Account: $ACCOUNT ($ACCOUNT_EMAIL)"
-echo "║  Target:  $LANG"
-echo "╚════════════════════════════════════════════════════════════╝"
+if [ ! -f "$REPO_ROOT/package.json" ]; then
+  echo "ERROR: package.json not found in repo root: $REPO_ROOT"
+  exit 1
+fi
+
+if [ -z "$DATA_PATH" ]; then
+  if [ -n "${LOCALAPPDATA:-}" ]; then
+    DATA_PATH="${LOCALAPPDATA}/notebooklm-mcp/Data"
+  else
+    echo "ERROR: data path not set. Use --data-path or NOTEBOOKLM_DATA_PATH."
+    exit 1
+  fi
+fi
+
+echo "Switching account language"
+echo "  account-id: $ACCOUNT_ID"
+echo "  locale:     $LANG"
+echo "  repo-root:  $REPO_ROOT"
+echo "  data-path:  $DATA_PATH"
 echo ""
 
-# Step 1: Stop server and Chrome
-echo "Step 1/5: Stopping server and Chrome..."
+echo "Step 1/5: Stopping repo-related Node processes..."
 cmd.exe /c "taskkill /F /IM node.exe" 2>/dev/null || true
 sleep 1
-# Only kill Chrome if profile is locked (don't kill user's personal browser)
-if [ -f "$DATA_PATH/chrome_profile/lockfile" ] 2>/dev/null; then
-  echo "  Chrome profile locked, killing Chrome..."
-  cmd.exe /c "taskkill /F /IM chrome.exe" 2>/dev/null || true
-  sleep 2
-fi
-echo "  Done."
 
-# Step 2: Delete account's Chrome profile (to clear language cache)
-echo ""
-echo "Step 2/5: Deleting Chrome profile cache for $ACCOUNT..."
+echo "Step 2/5: Removing cached profile for the selected account..."
 ACCOUNT_PROFILE="$DATA_PATH/accounts/$ACCOUNT_ID/profile"
 if [ -d "$ACCOUNT_PROFILE" ]; then
   rm -rf "$ACCOUNT_PROFILE"
-  echo "  Deleted: $ACCOUNT_PROFILE"
+  echo "  Removed $ACCOUNT_PROFILE"
 else
-  echo "  Profile not found (already clean)"
+  echo "  No account profile found to remove"
 fi
-echo "  Done."
 
-# Step 3: Re-authenticate to create fresh profile
-echo ""
-echo "Step 3/5: Re-authenticating $ACCOUNT..."
-echo "  This will open a browser to log in with the new language settings."
-echo ""
+echo "Step 3/5: Re-authenticating the selected account..."
+cmd.exe /c "cd /d $REPO_ROOT && npm run accounts test $ACCOUNT_ID -- $SHOW_BROWSER"
 
-cd /mnt/d/Claude/notebooklm-mcp-http
-cmd.exe /c "cd /d D:\\Claude\\notebooklm-mcp-http && npm run accounts test $ACCOUNT_ID -- $SHOW_BROWSER"
-
-echo "  Done."
-
-# Step 4: Sync new profile to main
-echo ""
-echo "Step 4/5: Syncing new profile to main..."
-
-# Sync state.json
+echo "Step 4/5: Syncing the refreshed profile into the active data path..."
 if [ -f "$DATA_PATH/accounts/$ACCOUNT_ID/browser_state/state.json" ]; then
-  cp "$DATA_PATH/accounts/$ACCOUNT_ID/browser_state/state.json" "$DATA_PATH/browser_state/"
-  echo "  Synced state.json"
+  mkdir -p "$DATA_PATH/browser_state"
+  cp "$DATA_PATH/accounts/$ACCOUNT_ID/browser_state/state.json" "$DATA_PATH/browser_state/state.json"
+  echo "  Synced browser_state/state.json"
 else
-  echo "  WARNING: state.json not found"
+  echo "  WARNING: browser_state/state.json not found for $ACCOUNT_ID"
 fi
 
-# Sync Chrome profile
 rm -rf "$DATA_PATH/chrome_profile" 2>/dev/null || true
 if [ -d "$DATA_PATH/accounts/$ACCOUNT_ID/profile" ]; then
   cp -r "$DATA_PATH/accounts/$ACCOUNT_ID/profile" "$DATA_PATH/chrome_profile"
-  echo "  Synced Chrome profile"
+  echo "  Synced chrome_profile/"
 else
-  echo "  WARNING: Chrome profile not found"
+  echo "  WARNING: refreshed profile not found for $ACCOUNT_ID"
 fi
-echo "  Done."
 
-# Step 5: Restart server with correct locale
-echo ""
-echo "Step 5/5: Starting server with UI locale '$LANG'..."
-
-# Convert lang to uppercase for display
-LANG_UPPER=$(echo "$LANG" | tr '[:lower:]' '[:upper:]')
-
-cmd.exe /c "cd /d D:\\Claude\\notebooklm-mcp-http && set NOTEBOOKLM_UI_LOCALE=$LANG&& start /B node dist/http-wrapper.js" &
+echo "Step 5/5: Restarting the HTTP server with the requested locale..."
+cmd.exe /c "cd /d $REPO_ROOT && set NOTEBOOKLM_UI_LOCALE=$LANG&& start /B node dist/http-wrapper.js" >/dev/null
 sleep 4
 
-# Verify
 echo ""
-echo "Verifying server..."
-HEALTH=$(cmd.exe /c "curl -s http://localhost:3000/health" 2>/dev/null || echo '{"error":"failed"}')
-echo "$HEALTH" | head -c 200
-
-echo ""
-echo ""
-echo "╔════════════════════════════════════════════════════════════╗"
-echo "║  COMPLETED                                                  ║"
-echo "╠════════════════════════════════════════════════════════════╣"
-echo "║  Account '$ACCOUNT' is now configured for '$LANG_UPPER'."
-echo "║                                                             ║"
-echo "║  IMPORTANT: Verify visually that NotebookLM UI is in $LANG_UPPER    ║"
-echo "║  by running a test with show_browser:true                   ║"
-echo "╚════════════════════════════════════════════════════════════╝"
+echo "Health check:"
+cmd.exe /c "curl -s http://127.0.0.1:3000/health" || true
