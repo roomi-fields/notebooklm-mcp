@@ -1,7 +1,7 @@
-# E2E Tests Tracking - account-c Account (English)
+# E2E Tests Tracking - test-account-c (English)
 
-**Account:** your-account-c@example.com
-**Notebook:** e2e-account-c-test (725d28e1-4284-4f36-99a2-b6693c2ebf13)
+**Account:** test-account-c@example.com
+**Notebook:** e2e-test-notebook-c (00000000-0000-0000-0000-000000000107)
 **Started:** 2025-12-31
 
 ## Test Status

@@ -1,6 +1,6 @@
 # Test access to personal notebook on port 3001
 $body = @{
-    url = "https://notebooklm.google.com/notebook/ce42b898-330e-45cc-96ad-ff748c1576d8"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000113"
     name = "Mon Notebook Perso"
     description = "Test notebook personnel"
     topics = @("test")

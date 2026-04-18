@@ -307,7 +307,7 @@ curl http://localhost:3000/notebooks
         "id": "parents-numerique",
         "name": "Parents and Digital",
         "description": "Advice for parents in the digital age",
-        "url": "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940",
+        "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101",
         "topics": ["parenting", "digital", "education"],
         "use_cases": [
           "Educational advice in the digital age",
@@ -342,7 +342,7 @@ Add a new notebook to the library.
 curl -X POST http://localhost:3000/notebooks \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940",
+    "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101",
     "name": "Parents and Digital",
     "description": "Advice for parents in the digital age",
     "topics": ["parenting", "digital", "education"]
@@ -371,7 +371,7 @@ curl -X POST http://localhost:3000/notebooks \
       "id": "parents-numerique",
       "name": "Parents and Digital",
       "description": "Advice for parents in the digital age",
-      "url": "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940",
+      "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101",
       "topics": ["parenting", "digital", "education"],
       "content_types": ["documentation", "examples"],
       "use_cases": ["Educational advice", "Digital parenting"],
@@ -392,7 +392,7 @@ curl -X POST http://localhost:3000/notebooks \
 ```json
 {
   "success": false,
-  "error": "A notebook with the name 'Parents and Digital' already exists.\n\nExisting notebook ID: parents-numerique\nURL: https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940\n\nPlease use a different name, or update the existing notebook instead.\nTo update: PUT /notebooks/parents-numerique with new data\nTo delete: DELETE /notebooks/parents-numerique"
+  "error": "A notebook with the name 'Parents and Digital' already exists.\n\nExisting notebook ID: parents-numerique\nURL: https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101\n\nPlease use a different name, or update the existing notebook instead.\nTo update: PUT /notebooks/parents-numerique with new data\nTo delete: DELETE /notebooks/parents-numerique"
 }
 ```
 
@@ -547,7 +547,7 @@ curl http://localhost:3000/notebooks/parents-numerique
       "id": "parents-numerique",
       "name": "Parents and Digital",
       "description": "Advice for parents in the digital age",
-      "url": "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940",
+      "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101",
       "topics": ["parenting", "digital", "education"],
       "active": true
     }
@@ -630,7 +630,7 @@ curl -X PUT http://localhost:3000/notebooks/shakespeare/activate
       "id": "shakespeare",
       "name": "Shakespeare",
       "description": "William Shakespeare - Complete Works",
-      "url": "https://notebooklm.google.com/notebook/19bde485-a9c1-4809-8884-e872b2b67b44",
+      "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000102",
       "topics": ["literature", "theater", "Shakespeare"],
       "active": true,
       "last_used": "2025-11-22T10:30:45.123Z"
@@ -676,7 +676,7 @@ curl http://localhost:3000/sessions
   "data": {
     "sessions": [
       {
-        "id": "9a580eee",
+        "id": "session-00000001",
         "notebook_url": "https://notebooklm.google.com/notebook/xxx",
         "message_count": 3,
         "age_seconds": 245,
@@ -1668,9 +1668,9 @@ curl "http://localhost:3000/notebooks/scrape?show_browser=true"
   "data": {
     "notebooks": [
       {
-        "id": "89e31c61-63f9-480d-b0ad-92ed60bd1834",
+        "id": "00000000-0000-0000-0000-000000000103",
         "name": "Internal Family Systems",
-        "url": "https://notebooklm.google.com/notebook/89e31c61-63f9-480d-b0ad-92ed60bd1834"
+        "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000103"
       }
     ],
     "total": 16,
@@ -1709,7 +1709,13 @@ curl -X POST http://localhost:3000/notebooks/import-from-scrape \
 {
   "success": true,
   "data": {
-    "imported": [{ "id": "89e31c61-...", "name": "Internal Family Systems", "status": "imported" }],
+    "imported": [
+      {
+        "id": "00000000-0000-0000-0000-000000000103",
+        "name": "Internal Family Systems",
+        "status": "imported"
+      }
+    ],
     "errors": [],
     "total_scraped": 16,
     "total_imported": 16,

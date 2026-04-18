@@ -2,7 +2,7 @@
 # This tests whether show_browser=true makes the browser visible
 
 $baseUrl = "http://localhost:3000"
-$notebookUrl = "https://notebooklm.google.com/notebook/abd21688-02a6-4459-953b-30f0612a984e"
+$notebookUrl = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000108"
 
 Write-Host "=== Testing show_browser parameter ===" -ForegroundColor Cyan
 

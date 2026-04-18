@@ -1,7 +1,7 @@
-# E2E Tests FULL - account-a Account (English UI)
+# E2E Tests FULL - test-account-a (English UI)
 
 **Date:** 2025-12-31
-**Account:** your-account-a@example.com (English UI)
+**Account:** test-account-a@example.com (English UI)
 **Notebook:** A CREER
 **Mode:** FULL (76 tests)
 

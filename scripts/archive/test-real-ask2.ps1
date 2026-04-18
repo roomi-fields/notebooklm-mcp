@@ -4,7 +4,7 @@ Write-Host ""
 
 $body = @{
     question = "What is this notebook about?"
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 } | ConvertTo-Json
 
 Write-Host "Asking question with direct notebook URL..."

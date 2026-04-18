@@ -30,7 +30,7 @@ Location: `%LOCALAPPDATA%\notebooklm-mcp\Data\library.json`
   "notebooks": [
     {
       "id": "parents-numerique",
-      "url": "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940",
+      "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101",
       "name": "Parents et Numérique",
       "description": "Conseils pour parents à l'ère du numérique",
       "topics": ["parentalité", "numérique", "éducation"],
@@ -46,7 +46,7 @@ Location: `%LOCALAPPDATA%\notebooklm-mcp\Data\library.json`
     },
     {
       "id": "shakespeare",
-      "url": "https://notebooklm.google.com/notebook/19bde485-a9c1-4809-8884-e872b2b67b44",
+      "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000102",
       "name": "Shakespeare",
       "description": "William Shakespeare - L'intégrale des pièces",
       "topics": ["littérature", "théâtre", "Shakespeare"],
@@ -113,7 +113,7 @@ Expected format: `https://notebooklm.google.com/notebook/[id]`
 curl -X POST http://localhost:3000/notebooks \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940",
+    "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101",
     "name": "Parents et Numérique",
     "description": "Conseils pour parents à l'ère du numérique",
     "topics": ["parentalité", "numérique", "éducation"]
@@ -124,7 +124,7 @@ curl -X POST http://localhost:3000/notebooks \
 
 ```powershell
 $body = @{
-    url = "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101"
     name = "Parents et Numérique"
     description = "Conseils pour parents à l'ère du numérique"
     topics = @("parentalité", "numérique", "éducation")
@@ -145,7 +145,7 @@ Repeat the operation for each notebook:
 ```powershell
 # Shakespeare Notebook
 $body = @{
-    url = "https://notebooklm.google.com/notebook/19bde485-a9c1-4809-8884-e872b2b67b44"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000102"
     name = "Shakespeare"
     description = "William Shakespeare - L'intégrale des pièces"
     topics = @("littérature", "théâtre", "Shakespeare")
@@ -277,7 +277,7 @@ POST /notebooks {"name": "parents et numérique", ...}  # ❌ (case-insensitive)
 ```json
 {
   "success": false,
-  "error": "A notebook with the name 'Parents et Numérique' already exists.\n\nExisting notebook ID: parents-numerique\nURL: https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940\n\nPlease use a different name, or update the existing notebook instead.\nTo update: PUT /notebooks/parents-numerique with new data\nTo delete: DELETE /notebooks/parents-numerique"
+  "error": "A notebook with the name 'Parents et Numérique' already exists.\n\nExisting notebook ID: parents-numerique\nURL: https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101\n\nPlease use a different name, or update the existing notebook instead.\nTo update: PUT /notebooks/parents-numerique with new data\nTo delete: DELETE /notebooks/parents-numerique"
 }
 ```
 
@@ -365,7 +365,7 @@ Returns all metadata:
   "data": {
     "notebook": {
       "id": "parents-numerique",
-      "url": "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940",
+      "url": "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101",
       "name": "Parents et Numérique",
       "description": "Conseils pour parents à l'ère du numérique",
       "topics": ["parentalité", "numérique", "éducation"],
@@ -613,13 +613,13 @@ $baseUrl = "http://localhost:3000"
 # List of notebooks to add
 $notebooks = @(
     @{
-        url = "https://notebooklm.google.com/notebook/505ee4b1-ad05-4673-a06b-1ec106c2b940"
+        url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000101"
         name = "Parents et Numérique"
         description = "Conseils pour parents à l'ère du numérique"
         topics = @("parentalité", "numérique", "éducation")
     },
     @{
-        url = "https://notebooklm.google.com/notebook/19bde485-a9c1-4809-8884-e872b2b67b44"
+        url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000102"
         name = "Shakespeare"
         description = "William Shakespeare - L'intégrale des pièces"
         topics = @("littérature", "théâtre", "Shakespeare")

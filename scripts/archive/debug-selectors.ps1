@@ -2,7 +2,7 @@
 # Runs with show_browser=true so we can see what's happening
 
 $baseUrl = "http://localhost:3000"
-$testNotebook = "https://notebooklm.google.com/notebook/abd21688-02a6-4459-953b-30f0612a984e"
+$testNotebook = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000108"
 
 Write-Host "=== Debug NotebookLM Selectors ===" -ForegroundColor Cyan
 

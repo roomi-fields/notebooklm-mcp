@@ -1,8 +1,8 @@
-# E2E Tests - account-c Account (English UI)
+# E2E Tests - test-account-c (English UI)
 
 **Date:** 2025-12-31
-**Account:** your-account-c@example.com (English UI)
-**Notebook:** e2e-account-c-test (725d28e1-4284-4f36-99a2-b6693c2ebf13)
+**Account:** test-account-c@example.com (English UI)
+**Notebook:** e2e-test-notebook-c (00000000-0000-0000-0000-000000000107)
 **Server Version:** 1.4.2
 
 ---

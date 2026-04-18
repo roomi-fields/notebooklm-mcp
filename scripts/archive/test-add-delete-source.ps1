@@ -1,12 +1,12 @@
 # Complete test: Add source, verify, delete, verify
 Write-Host "=== Complete Add/Delete Source Test ===" -ForegroundColor Cyan
-Write-Host "Notebook: 3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f" -ForegroundColor Gray
+Write-Host "Notebook: 00000000-0000-0000-0000-000000000109" -ForegroundColor Gray
 
 # Step 1: Add a text source
 Write-Host "`n--- Step 1: Adding text source ---" -ForegroundColor Yellow
 $uniqueId = Get-Date -Format "HHmmss"
 $body = @{
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
     source_type = "text"
     text = "Test source for add/delete verification. Unique ID: $uniqueId. This is test content."
     title = "TEST-DELETE-$uniqueId"
@@ -29,7 +29,7 @@ Write-Host "`nSource added with name: $sourceName" -ForegroundColor Green
 Write-Host "`n--- Step 2: Waiting 5 seconds and verifying source exists ---" -ForegroundColor Yellow
 Start-Sleep -Seconds 5
 
-$listResult = Invoke-RestMethod -Uri "http://localhost:3000/content?notebook_url=https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f" -Method GET
+$listResult = Invoke-RestMethod -Uri "http://localhost:3000/content?notebook_url=https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109" -Method GET
 $sourceCount = $listResult.data.sources.Count
 Write-Host "Total sources in notebook: $sourceCount" -ForegroundColor Gray
 
@@ -44,7 +44,7 @@ if ($foundSource) {
 
 # Step 3: Delete the source
 Write-Host "`n--- Step 3: Deleting source by name '$sourceName' ---" -ForegroundColor Yellow
-$deleteUrl = "http://localhost:3000/content/sources?source_name=$([System.Web.HttpUtility]::UrlEncode($sourceName))&notebook_url=https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f&show_browser=true"
+$deleteUrl = "http://localhost:3000/content/sources?source_name=$([System.Web.HttpUtility]::UrlEncode($sourceName))&notebook_url=https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109&show_browser=true"
 Write-Host "DELETE URL: $deleteUrl" -ForegroundColor Gray
 
 try {

@@ -1,7 +1,7 @@
 # Test add source with visible browser
 Write-Host "=== Testing add source with VISIBLE browser ===" -ForegroundColor Cyan
 $body = @{
-    notebook_url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
     source_type = "text"
     text = "Test content for debugging the text upload issue."
     title = "DEBUG-TEST-SOURCE"
