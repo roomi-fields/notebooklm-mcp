@@ -10,7 +10,7 @@
 **Date:** 2026-01-01
 **Mode:** FULL
 **Language:** EN
-**Account:** rom1pey
+**Account:** account-c
 **Duration:** 3224.805 s (~54 minutes)
 
 ```
@@ -40,13 +40,13 @@ Tests:       1 skipped, 75 passed, 76 total
 ./tests/e2e/run-e2e.sh --lang=en
 
 # Specific account
-./tests/e2e/run-e2e.sh --account=rom1pey
+./tests/e2e/run-e2e.sh --account=account-c
 
 # Specific test file
 ./tests/e2e/run-e2e.sh --test=03
 
 # Combined
-./tests/e2e/run-e2e.sh --mode=full --lang=en --account=rom1pey
+./tests/e2e/run-e2e.sh --mode=full --lang=en --account=account-c
 ```
 
 ---
@@ -232,7 +232,7 @@ Tests:       1 skipped, 75 passed, 76 total
 
 ## Execution Log
 
-### 2026-01-01 - FULL EN rom1pey
+### 2026-01-01 - FULL EN account-c
 
 - **Result:** 75 passed, 1 skipped
 - **Duration:** 54 minutes

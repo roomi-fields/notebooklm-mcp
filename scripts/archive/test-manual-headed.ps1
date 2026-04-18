@@ -6,7 +6,7 @@ Start-Sleep -Seconds 2
 # Set headed mode and start server
 $env:HEADLESS = "false"
 Write-Host "Starting server in HEADED mode (you'll see the browser)..."
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d D:\Claude\notebooklm-mcp-http && set HEADLESS=false && node dist/http-wrapper.js" -NoNewWindow
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d D:\path\to\notebooklm-mcp && set HEADLESS=false && node dist/http-wrapper.js" -NoNewWindow
 
 Write-Host "Waiting for server..."
 Start-Sleep -Seconds 6

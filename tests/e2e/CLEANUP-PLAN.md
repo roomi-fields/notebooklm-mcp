@@ -39,16 +39,16 @@ Categories:
 
 ### 4. Notebooks in Local Library (15)
 
-| ID                   | Name                            | Type                       |
-| -------------------- | ------------------------------- | -------------------------- |
-| notebook-1           | CNV - Communication NonViolente | PRODUCTION (DO NOT DELETE) |
-| notebook-2           | Test Notebook Updated           | Test                       |
-| e2e-test-notebook    | E2E-Test-Notebook               | Test                       |
-| e2e-rom1pey-test     | e2e-rom1pey-test                | Test                       |
-| rom1pey-english-test | rom1pey-english-test            | Test                       |
-| e2e-rom1pey-english  | e2e-rom1pey-english             | Test (new)                 |
-| Various nvc-\*       | Auto-generated CNV notebooks    | PRODUCTION                 |
-| guide-therapie-ifs   | IFS therapy guide               | PRODUCTION                 |
+| ID                     | Name                            | Type                       |
+| ---------------------- | ------------------------------- | -------------------------- |
+| notebook-1             | CNV - Communication NonViolente | PRODUCTION (DO NOT DELETE) |
+| notebook-2             | Test Notebook Updated           | Test                       |
+| e2e-test-notebook      | E2E-Test-Notebook               | Test                       |
+| e2e-account-c-test     | e2e-account-c-test              | Test                       |
+| account-c-english-test | account-c-english-test          | Test                       |
+| e2e-account-c-english  | e2e-account-c-english           | Test (new)                 |
+| Various nvc-\*         | Auto-generated CNV notebooks    | PRODUCTION                 |
+| guide-therapie-ifs     | IFS therapy guide               | PRODUCTION                 |
 
 ---
 
@@ -88,19 +88,19 @@ Categories:
 
 ## Account Notebooks Status
 
-### mathieudumont31@gmail.com
+### your-account-a@example.com
 
 - Language: French (need to change to English)
 - Notebooks: TBD (need to check in NotebookLM UI)
 - Role: Primary test account
 
-### rpmonster@gmail.com
+### your-account-b@example.com
 
 - Language: French
 - Notebooks: TBD
 - Role: Secondary test account
 
-### rom1pey@gmail.com
+### your-account-c@example.com
 
 - Language: French
 - Notebooks: TBD

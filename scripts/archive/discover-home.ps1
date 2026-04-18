@@ -5,9 +5,9 @@ Write-Host "=== Creating a fresh test notebook ===" -ForegroundColor Cyan
 # We'll use POST /notebooks with just a name to create a new one
 
 $body = @{
-    name = "e2e-rom1pey-test"
+    name = "e2e-account-c-test"
     url = "https://notebooklm.google.com"
-    description = "E2E test notebook for rom1pey account"
+    description = "E2E test notebook for account-c account"
 } | ConvertTo-Json
 
 Write-Host "`nAdding notebook entry..."

@@ -7,7 +7,7 @@
 
 export type TestMode = 'quick' | 'full';
 export type TestLang = 'fr' | 'en';
-export type TestAccount = 'mathieu' | 'rpmonster' | 'rom1pey';
+export type TestAccount = 'primary' | 'secondary' | 'tertiary';
 
 // Parse CLI arguments or environment variables
 export const config = {
@@ -18,7 +18,7 @@ export const config = {
   lang: (process.env.TEST_LANG || 'fr').toLowerCase() as TestLang,
 
   // Account to use
-  account: (process.env.TEST_ACCOUNT || 'mathieu').toLowerCase() as TestAccount,
+  account: (process.env.TEST_ACCOUNT || 'primary').toLowerCase() as TestAccount,
 
   // Server URL
   serverUrl: process.env.SERVER_URL || 'http://localhost:3000',
@@ -32,35 +32,43 @@ export const config = {
   },
 };
 
-// Account configurations
+// Account configurations — override IDs/emails via env vars for your own test accounts
 export const accounts: Record<TestAccount, { id: string; email: string }> = {
-  mathieu: {
-    id: 'account-1766565732376',
-    email: 'mathieudumont31@gmail.com',
+  primary: {
+    id: process.env.TEST_ACCOUNT_PRIMARY_ID || 'account-0000000000001',
+    email: process.env.TEST_ACCOUNT_PRIMARY_EMAIL || 'your-account-a@example.com',
   },
-  rpmonster: {
-    id: 'account-1767078713573',
-    email: 'rpmonster@gmail.com',
+  secondary: {
+    id: process.env.TEST_ACCOUNT_SECONDARY_ID || 'account-0000000000002',
+    email: process.env.TEST_ACCOUNT_SECONDARY_EMAIL || 'your-account-b@example.com',
   },
-  rom1pey: {
-    id: 'account-1767079146601',
-    email: 'rom1pey@gmail.com',
+  tertiary: {
+    id: process.env.TEST_ACCOUNT_TERTIARY_ID || 'account-0000000000003',
+    email: process.env.TEST_ACCOUNT_TERTIARY_EMAIL || 'your-account-c@example.com',
   },
 };
 
-// Notebook URLs per account
+// Notebook URLs per account — override via env vars to point at your own notebooks
 export const notebooks: Record<TestAccount, { readOnly: string; e2eTest: string }> = {
-  mathieu: {
-    readOnly: 'https://notebooklm.google.com/notebook/74912e55-34a4-4027-bdcc-8e89badd0efd', // CNV
-    e2eTest: 'https://notebooklm.google.com/notebook/abd21688-02a6-4459-953b-30f0612a984e', // E2E-Test-Notebook
+  primary: {
+    readOnly:
+      process.env.TEST_NOTEBOOK_PRIMARY_READONLY ||
+      'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000001',
+    e2eTest:
+      process.env.TEST_NOTEBOOK_PRIMARY_E2E ||
+      'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000002',
   },
-  rpmonster: {
-    readOnly: '',
-    e2eTest: '',
+  secondary: {
+    readOnly: process.env.TEST_NOTEBOOK_SECONDARY_READONLY || '',
+    e2eTest: process.env.TEST_NOTEBOOK_SECONDARY_E2E || '',
   },
-  rom1pey: {
-    readOnly: 'https://notebooklm.google.com/notebook/258f62a1-8658-4f96-8333-a9e16224f602',
-    e2eTest: 'https://notebooklm.google.com/notebook/258f62a1-8658-4f96-8333-a9e16224f602', // rom1pey-english-test
+  tertiary: {
+    readOnly:
+      process.env.TEST_NOTEBOOK_TERTIARY_READONLY ||
+      'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000003',
+    e2eTest:
+      process.env.TEST_NOTEBOOK_TERTIARY_E2E ||
+      'https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000003',
   },
 };
 

@@ -14,7 +14,7 @@ Start-Sleep -Seconds 2
 
 # Start server in background with headed mode
 $env:HEADLESS = "false"
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d D:\Claude\notebooklm-mcp-http && set HEADLESS=false && node dist/http-wrapper.js" -WindowStyle Normal
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c cd /d D:\path\to\notebooklm-mcp && set HEADLESS=false && node dist/http-wrapper.js" -WindowStyle Normal
 
 Write-Host "Waiting for server to start..."
 Start-Sleep -Seconds 5

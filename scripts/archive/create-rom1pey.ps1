@@ -1,6 +1,6 @@
 $body = @{
-    name = "e2e-rom1pey-english"
-    description = "Test notebook for rom1pey English E2E tests"
+    name = "e2e-account-c-english"
+    description = "Test notebook for account-c English E2E tests"
     topics = @("test", "e2e", "english")
 } | ConvertTo-Json
 

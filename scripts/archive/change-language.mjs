@@ -5,12 +5,13 @@ import { chromium } from 'patchright';
 import path from 'path';
 import readline from 'readline';
 
-const ACCOUNT_ID = 'account-1767079146601'; // rom1pey@gmail.com
-const DATA_DIR = 'C:\\Users\\romai\\AppData\\Local\\notebooklm-mcp\\Data';
+const ACCOUNT_ID = process.env.NOTEBOOKLM_ACCOUNT_ID || 'account-0000000000001';
+const DATA_DIR = process.env.NOTEBOOKLM_DATA_DIR
+  || `${process.env.LOCALAPPDATA || `${process.env.HOME || ''}/AppData/Local`}\\notebooklm-mcp\\Data`;
 const PROFILE_DIR = path.join(DATA_DIR, 'accounts', ACCOUNT_ID, 'profile');
 
 async function changeLanguage() {
-  console.log('🌐 Opening browser with rom1pey profile...');
+  console.log(`🌐 Opening browser with account profile ${ACCOUNT_ID}...`);
   console.log(`📁 Profile: ${PROFILE_DIR}`);
 
   const browser = await chromium.launchPersistentContext(PROFILE_DIR, {

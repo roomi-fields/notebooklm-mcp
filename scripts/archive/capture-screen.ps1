@@ -5,7 +5,7 @@ Write-Host "Activated"
 
 # The server should have taken debug screenshots - check the data folder
 Write-Host "`nChecking for debug screenshots..."
-$debugPath = "C:\Users\romai\AppData\Local\notebooklm-mcp\Data"
+$debugPath = "$env:LOCALAPPDATA\notebooklm-mcp\Data"
 Get-ChildItem $debugPath -Filter "*.png" | Sort-Object LastWriteTime -Descending | Select-Object -First 5 | ForEach-Object {
     Write-Host "  $($_.Name) - $($_.LastWriteTime)"
 }

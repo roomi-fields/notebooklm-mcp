@@ -1,4 +1,4 @@
-# Test access to e2e-test-notebook with rom1pey
+# Test access to e2e-test-notebook with account-c
 Write-Host "=== Testing e2e-test-notebook with visible browser ===" -ForegroundColor Cyan
 
 # Activate it
@@ -17,5 +17,5 @@ try {
     Write-Host "SUCCESS! Answer: $($response.data.answer.Substring(0, [Math]::Min(200, $response.data.answer.Length)))..." -ForegroundColor Green
 } catch {
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "This notebook is probably not accessible to rom1pey" -ForegroundColor Yellow
+    Write-Host "This notebook is probably not accessible to account-c" -ForegroundColor Yellow
 }

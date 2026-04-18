@@ -1,5 +1,5 @@
 # Test 53: Missing question - should fail
-$body = @{ notebook_id = "e2e-rom1pey-test" } | ConvertTo-Json
+$body = @{ notebook_id = "e2e-account-c-test" } | ConvertTo-Json
 try {
     $response = Invoke-RestMethod -Uri "http://localhost:3000/ask" -Method POST -ContentType "application/json" -Body $body -TimeoutSec 10
     Write-Host "FAIL: Should have returned error"

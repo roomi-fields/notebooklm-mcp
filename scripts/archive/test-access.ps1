@@ -1,5 +1,5 @@
 # Test access to e2e-test-notebook (which should have been created by tests)
-Write-Host "=== Testing notebook access with rom1pey ===" -ForegroundColor Cyan
+Write-Host "=== Testing notebook access with account-c ===" -ForegroundColor Cyan
 
 # First activate e2e-test-notebook
 Write-Host "`nActivating e2e-test-notebook..."

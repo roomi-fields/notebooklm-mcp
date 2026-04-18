@@ -4,6 +4,6 @@ $body = @{
     show_browser = $true
 } | ConvertTo-Json
 
-Write-Host "Lancement test HEADED avec mathieudumont31..."
+Write-Host "Lancement test HEADED avec account-b..."
 $response = Invoke-RestMethod -Uri "http://localhost:3000/ask" -Method POST -ContentType "application/json" -Body $body -TimeoutSec 300
 $response | ConvertTo-Json -Depth 3

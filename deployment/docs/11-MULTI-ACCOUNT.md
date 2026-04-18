@@ -259,7 +259,7 @@ Each account may have a different Google Account language setting. The server us
 Use the provided script to switch an account's language:
 
 ```bash
-./scripts/switch-account-language.sh --account=mathieu --lang=fr --show
+./scripts/switch-account-language.sh --account=account-b --lang=fr --show
 ```
 
 **What it does:**

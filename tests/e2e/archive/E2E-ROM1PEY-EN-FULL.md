@@ -1,8 +1,8 @@
-# E2E Tests FULL - rom1pey Account (English UI)
+# E2E Tests FULL - account-c Account (English UI)
 
 **Date:** 2025-12-31
-**Account:** rom1pey@gmail.com (English UI)
-**Notebook:** e2e-rom1pey-test (725d28e1-4284-4f36-99a2-b6693c2ebf13)
+**Account:** your-account-c@example.com (English UI)
+**Notebook:** e2e-account-c-test (725d28e1-4284-4f36-99a2-b6693c2ebf13)
 **Mode:** FULL (76 tests)
 
 ---

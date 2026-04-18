@@ -9,9 +9,9 @@
 # https://myaccount.google.com/language
 #
 # Usage:
-#   ./switch-account-language.sh --account=rom1pey --lang=en
-#   ./switch-account-language.sh --account=mathieu --lang=fr
-#   ./switch-account-language.sh --account=rpmonster --lang=en --show
+#   ./switch-account-language.sh --account=account-a --lang=en
+#   ./switch-account-language.sh --account=account-b --lang=fr
+#   ./switch-account-language.sh --account=account-c --lang=en --show
 
 set -e
 
@@ -20,21 +20,21 @@ ACCOUNT=""
 LANG=""
 SHOW_BROWSER=""
 
-# Account configurations
+# Account configurations — edit for your own accounts
 declare -A ACCOUNT_IDS=(
-  ["mathieu"]="account-1766565732376"
-  ["rpmonster"]="account-1767078713573"
-  ["rom1pey"]="account-1767079146601"
+  ["account-a"]="account-0000000000001"
+  ["account-b"]="account-0000000000002"
+  ["account-c"]="account-0000000000003"
 )
 
 declare -A ACCOUNT_EMAILS=(
-  ["mathieu"]="mathieudumont31@gmail.com"
-  ["rpmonster"]="rpmonster@gmail.com"
-  ["rom1pey"]="rom1pey@gmail.com"
+  ["account-a"]="your-account-a@example.com"
+  ["account-b"]="your-account-b@example.com"
+  ["account-c"]="your-account-c@example.com"
 )
 
-# Data path
-DATA_PATH="/mnt/c/Users/romai/AppData/Local/notebooklm-mcp/Data"
+# Data path — override via NOTEBOOKLM_DATA_PATH env var
+DATA_PATH="${NOTEBOOKLM_DATA_PATH:-/mnt/c/Users/$USER/AppData/Local/notebooklm-mcp/Data}"
 
 # Parse arguments
 for arg in "$@"; do
@@ -57,14 +57,14 @@ for arg in "$@"; do
       echo "Usage: ./switch-account-language.sh [options]"
       echo ""
       echo "Options:"
-      echo "  --account=NAME    Account: mathieu|rpmonster|rom1pey (required)"
+      echo "  --account=NAME    Account key from ACCOUNT_IDS (required)"
       echo "  --lang=LANG       Target language: en|fr (required)"
       echo "  --show            Show browser during re-authentication"
       echo "  --help            Show this help"
       echo ""
       echo "Examples:"
-      echo "  ./switch-account-language.sh --account=rom1pey --lang=en"
-      echo "  ./switch-account-language.sh --account=mathieu --lang=fr --show"
+      echo "  ./switch-account-language.sh --account=account-a --lang=en"
+      echo "  ./switch-account-language.sh --account=account-b --lang=fr --show"
       exit 0
       ;;
   esac
@@ -85,7 +85,7 @@ fi
 
 if [ -z "${ACCOUNT_IDS[$ACCOUNT]}" ]; then
   echo "ERROR: Unknown account '$ACCOUNT'"
-  echo "Valid accounts: mathieu, rpmonster, rom1pey"
+  echo "Valid accounts: ${!ACCOUNT_IDS[*]}"
   exit 1
 fi
 
@@ -136,8 +136,8 @@ echo "Step 3/5: Re-authenticating $ACCOUNT..."
 echo "  This will open a browser to log in with the new language settings."
 echo ""
 
-cd /mnt/d/Claude/notebooklm-mcp-http
-cmd.exe /c "cd /d D:\\Claude\\notebooklm-mcp-http && npm run accounts test $ACCOUNT_ID -- $SHOW_BROWSER"
+cd /mnt/d/path/to/notebooklm-mcp
+cmd.exe /c "cd /d D:\\path\\to\\notebooklm-mcp && npm run accounts test $ACCOUNT_ID -- $SHOW_BROWSER"
 
 echo "  Done."
 
@@ -170,7 +170,7 @@ echo "Step 5/5: Starting server with UI locale '$LANG'..."
 # Convert lang to uppercase for display
 LANG_UPPER=$(echo "$LANG" | tr '[:lower:]' '[:upper:]')
 
-cmd.exe /c "cd /d D:\\Claude\\notebooklm-mcp-http && set NOTEBOOKLM_UI_LOCALE=$LANG&& start /B node dist/http-wrapper.js" &
+cmd.exe /c "cd /d D:\\path\\to\\notebooklm-mcp && set NOTEBOOKLM_UI_LOCALE=$LANG&& start /B node dist/http-wrapper.js" &
 sleep 4
 
 # Verify

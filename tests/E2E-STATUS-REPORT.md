@@ -1,7 +1,7 @@
 # NotebookLM MCP HTTP Server - E2E Test Status Report
 
 **Date:** 2025-12-31 02:00
-**Account:** rpmonster (test account)
+**Account:** account-b (test account)
 **Server Version:** 1.4.2
 **Test File:** `tests/integration/full-e2e.test.ts`
 
@@ -240,11 +240,11 @@ Note: `report` does not support `custom_instructions` - it uses `report_format` 
 
 ## Multi-Account Configuration
 
-| Account         | Status       |
-| --------------- | ------------ |
-| mathieudumont31 | Rate limited |
-| rpmonster       | Active       |
-| rom1pey         | Available    |
+| Account   | Status       |
+| --------- | ------------ |
+| account-a | Rate limited |
+| account-b | Active       |
+| account-c | Available    |
 
 ---
 

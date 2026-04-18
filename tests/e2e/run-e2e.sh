@@ -5,14 +5,14 @@
 #   ./run-e2e.sh                        # Quick mode, FR, default account
 #   ./run-e2e.sh --mode=full            # Full mode (76 tests)
 #   ./run-e2e.sh --lang=en              # English UI
-#   ./run-e2e.sh --account=rom1pey      # Specific account
+#   ./run-e2e.sh --account=account-c      # Specific account
 #   ./run-e2e.sh --test=01              # Run specific test file
-#   ./run-e2e.sh --mode=full --lang=en --account=mathieu  # Combined
+#   ./run-e2e.sh --mode=full --lang=en --account=account-b  # Combined
 
 # Default values
 MODE="quick"
 LANG="fr"
-ACCOUNT="mathieu"
+ACCOUNT="account-b"
 TEST_FILE=""
 
 # Parse arguments
@@ -38,13 +38,13 @@ for arg in "$@"; do
       echo "Options:"
       echo "  --mode=quick|full     Test mode (default: quick)"
       echo "  --lang=fr|en          UI language (default: fr)"
-      echo "  --account=NAME        Account: mathieu|rpmonster|rom1pey (default: mathieu)"
+      echo "  --account=NAME        Account: account-b|account-b|account-c (default: account-b)"
       echo "  --test=XX             Run specific test file (e.g., 01, 02, 03)"
       echo "  --help                Show this help"
       echo ""
       echo "Examples:"
       echo "  ./run-e2e.sh --mode=full --lang=en"
-      echo "  ./run-e2e.sh --test=03 --account=rom1pey"
+      echo "  ./run-e2e.sh --test=03 --account=account-c"
       exit 0
       ;;
   esac
