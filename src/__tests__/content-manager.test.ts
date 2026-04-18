@@ -183,6 +183,36 @@ describe('ContentManager', () => {
       expect(mockPage.$$).toHaveBeenCalled();
       expect(sources).toBeDefined();
     });
+
+    it('prefers parsed visible source rows when listing sources', async () => {
+      const manager = new ContentManager(mockPage);
+
+      manager['getVisibleSourceRows'] = jest
+        .fn()
+        .mockResolvedValue([{ name: 'Guide', element: {} }]);
+
+      const sources = await manager.listSources();
+
+      expect(sources).toEqual([
+        {
+          id: 'source-0',
+          name: 'Guide',
+          type: 'document',
+          status: 'ready',
+        },
+      ]);
+    });
+
+    it('detects a newly added source by multiset difference', async () => {
+      const manager = new ContentManager(mockPage);
+
+      const addedName = manager['findAddedSourceName'](
+        ['Guide', 'Guide'],
+        ['Guide', 'Guide', 'Checklist']
+      );
+
+      expect(addedName).toBe('Checklist');
+    });
   });
 
   describe('Generate Content', () => {
