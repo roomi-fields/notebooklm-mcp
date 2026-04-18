@@ -268,6 +268,28 @@ describe('Page Utils - Text Processing', () => {
   });
 });
 
+describe('Page Utils - Response Sanitization', () => {
+  let sanitizeResponseText: any;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    const module = await import('../utils/page-utils.js');
+    sanitizeResponseText = module.sanitizeResponseText;
+  });
+
+  it('removes leaked UI control lines and adjacent citation artifacts', () => {
+    const raw = ['Answer text', '1', 'more_horiz', '.', 'Second line'].join('\n');
+
+    expect(sanitizeResponseText(raw)).toBe('Answer text\nSecond line');
+  });
+
+  it('preserves ordinary response text', () => {
+    const raw = 'A clean answer with no UI labels.';
+
+    expect(sanitizeResponseText(raw)).toBe(raw);
+  });
+});
+
 describe('Page Utils - Streaming Detection Logic', () => {
   describe('stability detection', () => {
     it('should detect when text changes', () => {

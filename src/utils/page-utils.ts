@@ -92,6 +92,21 @@ const RATE_LIMIT_MESSAGES = [
 ];
 
 /**
+ * Standalone UI control labels that can leak into extracted response text.
+ * Only strip them when they appear as isolated lines to avoid mutating
+ * legitimate answer content.
+ */
+const UI_CONTROL_LINES = new Set([
+  'more_horiz',
+  'more_vert',
+  'open_in_new',
+  'content_copy',
+  'bookmark_border',
+  'expand_more',
+  'expand_less',
+]);
+
+/**
  * Check if text is an error message from NotebookLM
  */
 export function isErrorMessage(text: string): boolean {
@@ -105,6 +120,49 @@ export function isErrorMessage(text: string): boolean {
 export function isRateLimitMessage(text: string): boolean {
   const lower = text.toLowerCase();
   return RATE_LIMIT_MESSAGES.some((msg) => lower.includes(msg));
+}
+
+/**
+ * Remove leaked UI-control text from NotebookLM responses.
+ */
+export function sanitizeResponseText(text: string): string {
+  const trimmed = text.replace(/\r/g, '').trim();
+  if (!trimmed) return '';
+
+  const rawLines = trimmed
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  const cleanedLines: string[] = [];
+
+  for (let i = 0; i < rawLines.length; i++) {
+    const line = rawLines[i];
+    const prev = rawLines[i - 1] ?? '';
+    const next = rawLines[i + 1] ?? '';
+    const lower = line.toLowerCase();
+    const prevIsUi = UI_CONTROL_LINES.has(prev.toLowerCase());
+    const nextIsUi = UI_CONTROL_LINES.has(next.toLowerCase());
+
+    if (UI_CONTROL_LINES.has(lower)) {
+      continue;
+    }
+
+    if (/^\d+$/.test(line) && nextIsUi) {
+      continue;
+    }
+
+    if (/^[.,;:!?]+$/.test(line) && (prevIsUi || nextIsUi)) {
+      continue;
+    }
+
+    cleanedLines.push(line);
+  }
+
+  return cleanedLines
+    .join('\n')
+    .replace(/[ \t]+([.,;:!?])/g, '$1')
+    .trim();
 }
 
 // ============================================================================
@@ -174,7 +232,10 @@ export async function snapshotAllResponses(page: Page): Promise<string[]> {
           if (textElement) {
             const text = await textElement.innerText();
             if (text && text.trim()) {
-              allTexts.push(text.trim());
+              const sanitized = sanitizeResponseText(text);
+              if (sanitized) {
+                allTexts.push(sanitized);
+              }
             }
           }
         } catch {
@@ -449,14 +510,15 @@ async function extractLatestText(
           const textElement = await container.$('.message-text-content');
           if (textElement) {
             const text = await textElement.innerText();
-            if (text && text.trim()) {
+            const sanitized = sanitizeResponseText(text || '');
+            if (sanitized) {
               // Hash-based comparison (faster & less memory)
-              const textHash = hashString(text.trim());
+              const textHash = hashString(sanitized);
               if (!knownHashes.has(textHash)) {
                 log.success(
-                  `✅ [EXTRACT] Found NEW text in container[${idx}]: ${text.trim().length} chars`
+                  `✅ [EXTRACT] Found NEW text in container[${idx}]: ${sanitized.length} chars`
                 );
-                return text.trim();
+                return sanitized;
               } else {
                 skipped++;
               }
@@ -513,8 +575,9 @@ async function extractLatestText(
           }
 
           const text = await container.innerText();
-          if (text && text.trim() && !knownHashes.has(hashString(text.trim()))) {
-            return text.trim();
+          const sanitized = sanitizeResponseText(text || '');
+          if (sanitized && !knownHashes.has(hashString(sanitized))) {
+            return sanitized;
           }
         } catch {
           continue;
@@ -580,8 +643,11 @@ async function extractLatestText(
       return null;
     });
 
-    if (typeof fallbackText === 'string' && fallbackText.trim()) {
-      return fallbackText.trim();
+    if (typeof fallbackText === 'string') {
+      const sanitized = sanitizeResponseText(fallbackText);
+      if (sanitized) {
+        return sanitized;
+      }
     }
   } catch {
     // Ignore evaluation errors
@@ -598,5 +664,6 @@ export default {
   snapshotLatestResponse,
   snapshotAllResponses,
   countResponseElements,
+  sanitizeResponseText,
   waitForLatestAnswer,
 };
