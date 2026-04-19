@@ -1,10 +1,10 @@
 <div align="center">
 
-# NotebookLM MCP Server
+# NotebookLM MCP + HTTP REST API
 
-> **Forked from** [PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp)
+**Google NotebookLM over MCP + a local HTTP REST API — Q&A with citations, audio podcasts, video generation, multi-account rotation. Works with Claude Code, Codex, Cursor, n8n, Zapier, Make.**
 
-**Full automation of Google NotebookLM: Q&A, audio podcasts, and source management**
+> 🟢 **Actively maintained fork** of [PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp) (upstream last push: 2025-12-27). This fork ships v1.5.8 (2026-04-19) with 2026 NotebookLM UI selectors, HTTP REST API for n8n / Zapier / Make, multi-account rotation, and documented install on Windows / WSL / Docker.
 
 <!-- Badges -->
 
