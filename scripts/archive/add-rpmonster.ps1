@@ -1,2 +1,2 @@
 cd D:\path\to\notebooklm-mcp
-npm run accounts add "your-account@example.com" 'your-password' "your-totp-secret"
+npm run accounts add "agent-secondary@example.com" 'your-password' "your-totp-secret"

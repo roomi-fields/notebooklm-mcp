@@ -1,8 +1,8 @@
-# Step 1: Add notebook owned by account-c to library
-Write-Host "Step 1: Adding account-c notebook to library..."
+# Step 1: Add notebook owned by rom1pey to library
+Write-Host "Step 1: Adding rom1pey notebook to library..."
 $addBody = @{
-    name = "account-c-english-test"
-    url = "https://notebooklm.google.com/notebook/258f62a1-8658-4f96-8333-a9e16224f602"
+    name = "rom1pey-english-test"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000110"
     description = "Test notebook for English UI"
     topics = @("test", "english")
 } | ConvertTo-Json
@@ -15,9 +15,9 @@ try {
 }
 
 # Step 2: Activate this notebook
-Write-Host "`nStep 2: Activating account-c notebook..."
+Write-Host "`nStep 2: Activating rom1pey notebook..."
 try {
-    Invoke-RestMethod -Uri "http://localhost:3000/notebooks/account-c-english-test/activate" -Method PUT -TimeoutSec 10
+    Invoke-RestMethod -Uri "http://localhost:3000/notebooks/rom1pey-english-test/activate" -Method PUT -TimeoutSec 10
     Write-Host "Activated!"
 } catch {
     Write-Host "Activate failed: $($_.Exception.Message)"

@@ -1,5 +1,5 @@
 # Setup test notebook with source
-$testNotebookUrl = "https://notebooklm.google.com/notebook/abd21688-02a6-4459-953b-30f0612a984e"
+$testNotebookUrl = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000108"
 
 Write-Host "=== Setting up Test Notebook ===" -ForegroundColor Cyan
 

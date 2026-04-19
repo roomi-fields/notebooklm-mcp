@@ -13,7 +13,7 @@
 set -e
 
 MCP_PORT=3000
-MCP_DIR="${NOTEBOOKLM_MCP_DIR:-D:/path/to/notebooklm-mcp}"
+MCP_DIR="D:/path/to/notebooklm-mcp"
 
 # Helper function to call the API via PowerShell (bypasses WSL network issues)
 call_api() {

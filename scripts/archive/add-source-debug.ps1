@@ -2,7 +2,7 @@ $body = @{
     source_type = "text"
     title = "Test Source"
     text = "Test document for E2E."
-    notebook_url = "https://notebooklm.google.com/notebook/abd21688-02a6-4459-953b-30f0612a984e"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000108"
     show_browser = $true
 } | ConvertTo-Json
 

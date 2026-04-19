@@ -2,7 +2,7 @@
 # Opens browser and waits so you can check the UI language
 
 $body = @{
-    notebook_url = "https://notebooklm.google.com/notebook/725d28e1-4284-4f36-99a2-b6693c2ebf13"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000107"
     question = "Hello, what language is the UI in?"
     show_browser = $true
     browser_options = @{

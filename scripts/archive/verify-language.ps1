@@ -2,7 +2,7 @@
 # Opens browser to check if UI is in English
 
 $body = @{
-    notebook_url = "https://notebooklm.google.com/notebook/725d28e1-4284-4f36-99a2-b6693c2ebf13"
+    notebook_url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000107"
     question = "What is this notebook about?"
     show_browser = $true
 } | ConvertTo-Json

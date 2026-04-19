@@ -1,10 +1,10 @@
-# E2E Tests with English account (account-c)
-# Using notebook: account-c-english-test
+# E2E Tests with English account (rom1pey)
+# Using notebook: rom1pey-english-test
 
 $ErrorActionPreference = "Continue"
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  E2E Tests - English Account (account-c)" -ForegroundColor Cyan
+Write-Host "  E2E Tests - English Account (rom1pey)" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 

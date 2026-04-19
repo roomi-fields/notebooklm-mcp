@@ -6,7 +6,7 @@ Write-Host ""
 
 # Add a test notebook
 $notebook = @{
-    url = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+    url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
     name = "Test E2E"
     description = "Notebook pour tests E2E"
     topics = @("test", "e2e")

@@ -1,10 +1,10 @@
 # Test adding a text source with debug logging
 $uniqueId = (Get-Date).ToString("HHmmss")
-$notebookUrl = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+$notebookUrl = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 
 Write-Host "`n=== Testing add_source (text) with debug ===" -ForegroundColor Cyan
 Write-Host "Notebook URL: $notebookUrl"
-Write-Host "Expected UUID: 3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f`n"
+Write-Host "Expected UUID: 00000000-0000-0000-0000-000000000109`n"
 
 $body = @{
     notebook_url = $notebookUrl

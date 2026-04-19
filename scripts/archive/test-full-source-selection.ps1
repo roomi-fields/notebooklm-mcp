@@ -1,6 +1,6 @@
 # Test FULL: Source Selection (1 test)
 Add-Type -AssemblyName System.Web
-$notebookUrl = "https://notebooklm.google.com/notebook/3e79b7be-9a72-4ac7-aaf7-ac3f450fa96f"
+$notebookUrl = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000109"
 $encodedUrl = [System.Uri]::EscapeDataString($notebookUrl)
 
 Write-Host "`n=== Testing source selection ===" -ForegroundColor Cyan
