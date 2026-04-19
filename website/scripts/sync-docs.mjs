@@ -11,7 +11,7 @@
  * to the npm consumers of the package.
  */
 
-import { readFileSync, readdirSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -205,6 +205,10 @@ function renderFrontmatter(meta) {
   lines.push('---', '');
   return lines.join('\n');
 }
+
+// Ensure target exists — website/docs/ is gitignored, so on a fresh
+// CI checkout the directory may not exist yet.
+mkdirSync(targetDir, { recursive: true });
 
 // Sync deployment/docs/*.md → website/docs/
 for (const file of readdirSync(sourceDir)) {
