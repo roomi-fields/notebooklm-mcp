@@ -380,7 +380,27 @@ If all files are present and not empty, authentication is configured! ✅
 
 Before starting the server, let's verify that everything is OK:
 
-### Complete Checklist
+### Doctor Script (recommended)
+
+```bash
+npm run doctor:basic
+```
+
+Prints a `[PASS]`/`[FAIL]` line for each of: Node engine compatibility,
+`package.json`, `README.md`, `dist/index.js`, `dist/http-wrapper.js`.
+Exits non-zero on any failure. Use this instead of the manual checklist
+below for quick sanity checks before starting the server.
+
+Once the server is running (see [Startup](#️-startup) below), also run:
+
+```bash
+npm run doctor:http
+```
+
+to verify `/health` reachability. Pass `--notebook-url` to also exercise
+`/content` and `/ask`.
+
+### Complete Checklist (manual)
 
 ```powershell
 # 1. Node.js installed

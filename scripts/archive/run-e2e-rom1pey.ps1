@@ -1,5 +1,5 @@
-# E2E Tests with rom1pey account using the notebook we just created
-# Notebook: e2e-rom1pey-test (00000000-0000-0000-0000-000000000107)
+# E2E Tests with agent-tertiary account using the notebook we just created
+# Notebook: e2e-agent-tertiary-test (00000000-0000-0000-0000-000000000107)
 
 $ErrorActionPreference = "Continue"
 
@@ -9,8 +9,8 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Activate the notebook
-Write-Host "Activating e2e-rom1pey-test notebook..."
-$activateResponse = Invoke-RestMethod -Uri "http://localhost:3000/notebooks/e2e-rom1pey-test/activate" -Method PUT -TimeoutSec 30
+Write-Host "Activating e2e-agent-tertiary-test notebook..."
+$activateResponse = Invoke-RestMethod -Uri "http://localhost:3000/notebooks/e2e-agent-tertiary-test/activate" -Method PUT -TimeoutSec 30
 Write-Host "Activated: $($activateResponse.success)"
 
 # Verify active notebook

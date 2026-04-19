@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Fixed
+
+**NotebookLM UI adaptations for 2025 (PR #5 by @KhizarJamshaidIqbal):**
+
+- `sanitizeResponseText()`: strip leaked Material-icon labels (`more_vert`, `more_horiz`) and adjacent citation artifacts from answer text
+- `ensureDiscussionReady()` / `navigateToDiscussion()`: recover the Discussion panel before asking when the chat composer has been unmounted or disabled
+- Count-based source detection: use `.single-source-container` row counts instead of relying on source names, so URL sources (which surface as page titles, not URLs) are still detected correctly
+- New UI selectors for the "Add source" flow (`.cdk-overlay-pane`, `role=menu`, `role=menuitem`)
+- Chat-input detection now skips visible-but-disabled composers
+- Regression tests added in `src/__tests__/{page-utils,browser-session,content-manager}.test.ts`
+
+### Added
+
+**Doctor scripts (PR #6 by @KhizarJamshaidIqbal):**
+
+- `npm run doctor:basic` — repo + build artifacts + Node engine check
+- `npm run doctor:http` — `/health`, optional `/content` and `/ask` verification (pass `--notebook-url`)
+- `.env.example` documenting the project's config knobs
+
+### Security
+
+- Credentials, personal paths, test-account emails, and real notebook UUIDs scrubbed from archived scripts and docs (PR #4 by @KhizarJamshaidIqbal and follow-up commits)
+- Two tracked debug PNGs with literal Windows paths in their filenames removed from the index
+- `npm audit fix` applied: hono 4.12.14, @hono/node-server 1.19.14, express-rate-limit 8.3.2, handlebars 4.7.9, brace-expansion, flatted, ip-address bumped to patched versions (no direct-dependency changes)
+
+---
+
 ## [1.5.7] - 2026-02-26
 
 ### Fixed

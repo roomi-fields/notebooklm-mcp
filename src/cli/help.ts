@@ -29,6 +29,11 @@ DEVELOPMENT:
   npm run watch          Watch mode (auto-recompile on changes)
   npm run dev            Start MCP server in dev mode
 
+DIAGNOSTICS:
+  npm run doctor:basic   Verify Node version + required build artifacts
+  npm run doctor:http    Verify the running HTTP server (/health + optional /content + /ask)
+                         Pass --notebook-url to exercise /content and /ask
+
 MCP STDIO:
   npx notebooklm-mcp     Start MCP server (for Claude Desktop/Code)
 

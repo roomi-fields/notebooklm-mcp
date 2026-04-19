@@ -2,10 +2,10 @@
 Write-Host "=== Adding notebook to library ===" -ForegroundColor Cyan
 
 $body = @{
-    name = "e2e-rom1pey-test"
+    name = "e2e-agent-tertiary-test"
     url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000107"
-    description = "E2E test notebook owned by rom1pey"
-    topics = @("test", "e2e", "rom1pey")
+    description = "E2E test notebook owned by agent-tertiary"
+    topics = @("test", "e2e", "agent-tertiary")
 } | ConvertTo-Json
 
 Write-Host "Body: $body"

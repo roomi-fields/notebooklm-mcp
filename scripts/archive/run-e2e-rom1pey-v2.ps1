@@ -1,5 +1,5 @@
 # E2E Tests v2 - Better order: add sources first, then ask questions
-# Notebook: e2e-rom1pey-test (00000000-0000-0000-0000-000000000107)
+# Notebook: e2e-agent-tertiary-test (00000000-0000-0000-0000-000000000107)
 
 $ErrorActionPreference = "Continue"
 
@@ -9,9 +9,9 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Activate the notebook
-Write-Host "Activating e2e-rom1pey-test notebook..."
-Invoke-RestMethod -Uri "http://localhost:3000/notebooks/e2e-rom1pey-test/activate" -Method PUT -TimeoutSec 30 | Out-Null
-Write-Host "Active notebook: e2e-rom1pey-test"
+Write-Host "Activating e2e-agent-tertiary-test notebook..."
+Invoke-RestMethod -Uri "http://localhost:3000/notebooks/e2e-agent-tertiary-test/activate" -Method PUT -TimeoutSec 30 | Out-Null
+Write-Host "Active notebook: e2e-agent-tertiary-test"
 Write-Host ""
 
 $passed = 0

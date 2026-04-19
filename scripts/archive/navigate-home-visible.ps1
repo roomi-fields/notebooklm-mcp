@@ -1,5 +1,5 @@
 # Navigate to NotebookLM home page with visible browser
-# This will show all notebooks available to the current account (rom1pey)
+# This will show all notebooks available to the current account (agent-tertiary)
 
 Write-Host "=== Navigating to NotebookLM home ===" -ForegroundColor Cyan
 Write-Host "Please look at the browser window to see the notebooks available" -ForegroundColor Yellow

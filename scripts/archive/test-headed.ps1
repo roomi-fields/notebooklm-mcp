@@ -4,6 +4,6 @@ $body = @{
     headless = $false
 } | ConvertTo-Json
 
-Write-Host "Testing HEADED with mathieudumont31..."
+Write-Host "Testing HEADED with agent-primary..."
 $response = Invoke-RestMethod -Uri "http://localhost:3000/ask" -Method POST -ContentType "application/json" -Body $body -TimeoutSec 180
 $response | ConvertTo-Json -Depth 10

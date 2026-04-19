@@ -6,7 +6,25 @@
 
 ## 🔍 Quick Diagnosis
 
-### Verification Commands
+### Doctor Scripts (fastest path)
+
+```bash
+# Repo + build artifacts + Node version
+npm run doctor:basic
+
+# Start the server in another shell, then:
+npm run doctor:http
+
+# With a real notebook URL, also exercises /content and /ask:
+npm run doctor:http -- --notebook-url "https://notebooklm.google.com/notebook/<your-notebook-id>"
+```
+
+`doctor:basic` prints `[PASS]` / `[FAIL]` lines for each check and exits
+non-zero if anything is missing. `doctor:http` adds reachability of
+`/health`, `/content`, and `/ask`. Run `node scripts/doctor.mjs --help` for
+all flags (`--base-url`, `--timeout-ms`, `--question`).
+
+### Manual Verification Commands
 
 ```powershell
 # 1. Server active?

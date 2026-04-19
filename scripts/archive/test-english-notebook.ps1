@@ -1,4 +1,4 @@
-# Test with the newly created notebook (owned by rom1pey)
+# Test with the newly created notebook (owned by agent-tertiary)
 $body = @{
     notebook_id = "english-test"
     source_type = "url"
@@ -12,9 +12,9 @@ $addBody = @{
     url = "https://notebooklm.google.com/notebook/00000000-0000-0000-0000-000000000110"
 } | ConvertTo-Json
 
-Write-Host "Adding notebook owned by rom1pey..."
+Write-Host "Adding notebook owned by agent-tertiary..."
 Invoke-RestMethod -Uri "http://localhost:3000/notebooks" -Method POST -ContentType "application/json" -Body $addBody -TimeoutSec 60
 
-Write-Host "`nTesting URL source on rom1pey's notebook..."
+Write-Host "`nTesting URL source on agent-tertiary's notebook..."
 $response = Invoke-RestMethod -Uri "http://localhost:3000/content/sources" -Method POST -ContentType "application/json" -Body $body -TimeoutSec 120
 $response | ConvertTo-Json -Depth 5

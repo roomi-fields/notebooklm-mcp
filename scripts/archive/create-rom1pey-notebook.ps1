@@ -1,5 +1,5 @@
-# Create a new notebook with the current account (rom1pey)
-Write-Host "=== Creating new notebook with rom1pey account ===" -ForegroundColor Cyan
+# Create a new notebook with the current account (agent-tertiary)
+Write-Host "=== Creating new notebook with agent-tertiary account ===" -ForegroundColor Cyan
 
 $body = @{
     name = "E2E-Test-Rom1pey"
