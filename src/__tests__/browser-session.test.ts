@@ -405,4 +405,59 @@ describe('BrowserSession Extended Tests', () => {
       expect(session2.createdAt).toBeGreaterThan(session1.createdAt);
     });
   });
+
+  describe('Discussion Recovery', () => {
+    it('ignores disabled chat inputs when searching for the composer', async () => {
+      const session = new BrowserSession(
+        'discussion-test-1',
+        mockSharedContextManager,
+        mockAuthManager,
+        'https://notebooklm.google.com/notebook/test'
+      );
+
+      const disabledInput = {
+        isVisible: jest.fn().mockResolvedValue(true),
+        isEnabled: jest.fn().mockResolvedValue(false),
+        getAttribute: jest.fn().mockResolvedValue('Ask something'),
+      };
+
+      session['page'] = {
+        $: jest.fn().mockImplementation((selector: string) => {
+          if (selector === 'textarea.query-box-input') {
+            return Promise.resolve(disabledInput);
+          }
+          return Promise.resolve(null);
+        }),
+      };
+
+      const selector = await session['findChatInput']();
+      expect(selector).toBeNull();
+    });
+
+    it('navigates back to Discussion when the chat input is hidden', async () => {
+      const session = new BrowserSession(
+        'discussion-test-2',
+        mockSharedContextManager,
+        mockAuthManager,
+        'https://notebooklm.google.com/notebook/test'
+      );
+
+      session['page'] = {
+        waitForSelector: jest.fn().mockResolvedValue(undefined),
+      };
+
+      session['findChatInput'] = jest
+        .fn()
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce('textarea.query-box-input');
+      session['dismissTransientUi'] = jest.fn().mockResolvedValue(undefined);
+      session['navigateToDiscussion'] = jest.fn().mockResolvedValue(undefined);
+
+      await session['ensureDiscussionReady']();
+
+      expect(session['dismissTransientUi']).toHaveBeenCalled();
+      expect(session['navigateToDiscussion']).toHaveBeenCalled();
+    });
+  });
 });

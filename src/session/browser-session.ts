@@ -638,11 +638,16 @@ export class BrowserSession {
 
       // Snapshot existing responses BEFORE asking
       log.info(`  📸 Snapshotting existing responses...`);
-      const existingResponses = await snapshotAllResponses(page);
+      let existingResponses = await snapshotAllResponses(page);
       log.success(`  ✅ Captured ${existingResponses.length} existing responses`);
 
       // Ensure sources are selected before asking
       await this.ensureSourcesSelected();
+      await this.ensureDiscussionReady();
+
+      log.info(`  🔄 Re-snapshotting responses after Discussion recovery...`);
+      existingResponses = await snapshotAllResponses(page);
+      log.success(`  ✅ Captured ${existingResponses.length} existing responses after recovery`);
 
       // Check for rate limit BEFORE trying to submit a question
       log.info(`  🔍 Checking for rate limit before asking...`);
@@ -651,7 +656,18 @@ export class BrowserSession {
       }
 
       // Find the chat input
-      const inputSelector = await this.findChatInput();
+      let inputSelector = await this.findChatInput();
+      if (!inputSelector) {
+        log.warning(`  🔄 Chat input still missing after panel recovery. Reloading notebook...`);
+        await page.goto(this.notebookUrl, {
+          waitUntil: 'domcontentloaded',
+          timeout: CONFIG.browserTimeout,
+        });
+        await randomDelay(1500, 2500);
+        await this.waitForNotebookLMReady();
+        await this.ensureDiscussionReady();
+        inputSelector = await this.findChatInput();
+      }
       if (!inputSelector) {
         throw new Error(
           'Could not find visible chat input element. ' +
@@ -792,8 +808,17 @@ export class BrowserSession {
         const element = await this.page.$(selector);
         if (element) {
           const isVisible = await element.isVisible();
+          const isEnabled = await element.isEnabled().catch(() => false);
+          if (isVisible && !isEnabled) {
+            const placeholder = (await element.getAttribute('placeholder').catch(() => null)) || '';
+            log.warning(
+              `  ⚠️ Chat input is visible but disabled for selector ${selector}` +
+                (placeholder ? ` (placeholder: "${placeholder}")` : '')
+            );
+            continue;
+          }
           if (isVisible) {
-            // NO disabled check! Just like Python!
+            // Require an enabled composer before typing into it.
             log.success(`  ✅ Found chat input: ${selector}`);
             return selector;
           }
@@ -805,6 +830,120 @@ export class BrowserSession {
 
     log.error(`  ❌ Could not find visible chat input`);
     return null;
+  }
+
+  /**
+   * Dismiss transient overlays or side-panels that can block the chat input.
+   */
+  private async dismissTransientUi(): Promise<void> {
+    if (!this.page) {
+      return;
+    }
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        await this.page.keyboard.press('Escape');
+        await randomDelay(200, 350);
+      } catch {
+        break;
+      }
+    }
+  }
+
+  /**
+   * Navigate back to the Discussion tab so the chat input becomes visible again.
+   */
+  private async navigateToDiscussion(): Promise<void> {
+    if (!this.page) {
+      return;
+    }
+
+    const discussionSelectors = [
+      'div.mdc-tab:has-text("Discussion")',
+      '.mat-mdc-tab:has-text("Discussion")',
+      '[role="tab"]:has-text("Discussion")',
+      'button:has-text("Discussion")',
+      'div.mdc-tab >> text=Discussion',
+    ];
+
+    for (const selector of discussionSelectors) {
+      try {
+        const el = this.page.locator(selector).first();
+        if (await el.isVisible({ timeout: 1000 })) {
+          const isActive =
+            (await el.getAttribute('aria-selected')) === 'true' ||
+            (await el.getAttribute('class'))?.includes('mdc-tab--active');
+
+          if (!isActive) {
+            await el.click({ force: true });
+            await randomDelay(500, 800);
+            log.info(`  💬 Clicked Discussion tab`);
+          } else {
+            log.info(`  💬 Discussion tab already active`);
+          }
+          return;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    const positionalTabFallbacks = [
+      this.page.locator('.mat-mdc-tab-list .mdc-tab').nth(1),
+      this.page.locator('[role="tab"]').nth(1),
+    ];
+
+    for (const tab of positionalTabFallbacks) {
+      try {
+        if (await tab.isVisible({ timeout: 1000 })) {
+          await tab.click({ force: true });
+          await randomDelay(500, 800);
+          log.info(`  💬 Discussion tab accessed via positional fallback`);
+          return;
+        }
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  /**
+   * Restore a usable chat surface before typing a question.
+   */
+  private async ensureDiscussionReady(): Promise<void> {
+    if (!this.page) {
+      return;
+    }
+
+    if (await this.findChatInput()) {
+      return;
+    }
+
+    log.info(`  🧭 Restoring Discussion panel before asking...`);
+    await this.dismissTransientUi();
+
+    if (await this.findChatInput()) {
+      return;
+    }
+
+    await this.navigateToDiscussion();
+
+    const selectors = ['textarea.query-box-input', 'textarea[aria-label="Feld fÃ¼r Anfragen"]'];
+
+    for (const selector of selectors) {
+      try {
+        await this.page.waitForSelector(selector, {
+          timeout: 5000,
+          state: 'visible',
+        });
+        log.success(`  âœ… Discussion panel restored`);
+        return;
+      } catch {
+        continue;
+      }
+    }
+
+    await this.dismissTransientUi();
   }
 
   /**
