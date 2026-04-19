@@ -144,76 +144,13 @@
 
 ---
 
-## Changelog
+## Release History
 
-See the top-level [CHANGELOG.md](../../CHANGELOG.md) for the full per-release notes. Highlights:
+Every release from 1.0.0 to the current version is documented with full "Added / Changed / Fixed / Security" breakdowns.
 
-### v1.5.8 (2026-04-19)
+👉 **[See the full release history](/changelog)** — 13 versions, 6 years of changes.
 
-- 2026 NotebookLM UI selectors (PR #5)
-- Doctor scripts for deterministic verification (PR #6)
-- PII scrub of archive scripts and docs (PR #4 + follow-up)
-- `npm audit fix` for transitive CVEs
-
-### v1.5.0 – v1.5.7 (Feb 2026)
-
-- HTTP REST API for n8n / Zapier / Make
-- Multi-account rotation with rate-limit handling
-- Docker build from source
-- Auto-reauth on session expiry
-- Citation extraction with 5 output formats
-
-### v1.4.2 (2025-12-29)
-
-**Removed fake content generation** (re-added later as real studio outputs in 1.5.x):
-
-- Removed `generate_content` endpoint for FAQ, Study Guide, Briefing Doc, Timeline, TOC
-- These were NOT real NotebookLM features - just chat prompts
-- Only REAL content generation: Audio Overview (podcast)
-- Updated all documentation for honesty
-
-### v1.4.0 (2025-12-24)
-
-**Content Management:**
-
-- Audio Overview generation (podcast) - REAL NotebookLM feature
-- Audio download
-- Source management (files, URLs, text, YouTube)
-
-### v1.3.1 (2025-01-24)
-
-**New features:**
-
-- MCP Auto-Discovery Tool: `auto_discover_notebook` for Claude Desktop/Cursor
-- Parity with HTTP API: MCP clients now have auto-discovery capability
-- Zero-friction notebook addition: just URL, metadata auto-generated
-
-**Critical Fixes:**
-
-- Claude Desktop compatibility: Disabled `CompleteRequestSchema` handler
-- Fixed "Server does not support completions" error on connection
-
-### v1.1.2 (2025-11-22)
-
-**New features:**
-
-- ✅ Multi-notebook library system
-- ✅ Live validation of notebooks when adding
-- ✅ Protection against duplicate names
-- ✅ DELETE and PUT endpoints for notebooks
-- ✅ Detailed and contextualized error messages
-
-**Fixes:**
-
-- ✅ Fixed Cookies path (Default/Network/Cookies)
-- ✅ Cookies threshold lowered to 10KB
-- ✅ Better temporary session management
-
-**Documentation:**
-
-- ✅ New guide [06-NOTEBOOK-LIBRARY.md](./06-NOTEBOOK-LIBRARY.md)
-- ✅ "Notebook Configuration" section in [01-INSTALL.md](./01-INSTALL.md)
-- ✅ Enhanced API in [03-API.md](./03-API.md)
+Latest: **v1.5.8 (2026-04-19)** — 2026 NotebookLM UI selectors, doctor scripts, PII scrub, `npm audit fix`.
 
 ---
 

@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
-    "sync-changelog": "node scripts/sync-changelog.mjs",
-    "prestart": "npm run sync-changelog",
-    "prebuild": "npm run sync-changelog",
+    "sync-docs": "node scripts/sync-docs.mjs",
+    "prestart": "npm run sync-docs",
+    "prebuild": "npm run sync-docs",
     "start": "docusaurus start",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
