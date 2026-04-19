@@ -12,6 +12,8 @@
     "setup-auth": "node dist/cli/setup-auth.js",
     "de-auth": "node dist/cli/de-auth.js",
     "accounts": "node dist/cli/accounts.js",
+    "doctor:basic": "node scripts/doctor.mjs --basic",
+    "doctor:http": "node scripts/doctor.mjs --http",
     "start:http": "node dist/http-wrapper.js",
     "start:proxy": "node dist/stdio-http-proxy.js",
     "dev:http": "tsx watch src/http-wrapper.ts",
