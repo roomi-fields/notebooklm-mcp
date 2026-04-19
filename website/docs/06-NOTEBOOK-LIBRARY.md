@@ -1,3 +1,10 @@
+---
+title: Notebook library — save, search, activate, auto-discover
+description: Manage a persistent library of NotebookLM notebooks. Add by URL, search by name or topics, set an active notebook, share across Codex and Claude Code via cross-client sharing.
+keywords:
+  [notebooklm library, notebooklm notebook manager, notebooklm search, notebooklm cross-client]
+---
+
 # Managing the Notebook Library
 
 > Complete guide to the multi-notebook library system

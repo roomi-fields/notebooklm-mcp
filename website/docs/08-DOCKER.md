@@ -1,3 +1,16 @@
+---
+title: Deploy NotebookLM MCP with Docker and noVNC
+description: Dockerfile and docker-compose setup for the NotebookLM MCP server. Build from source, visual authentication via noVNC, Synology and QNAP NAS deployment patterns.
+keywords:
+  [
+    notebooklm docker,
+    notebooklm mcp container,
+    notebooklm novnc,
+    notebooklm synology,
+    notebooklm nas,
+  ]
+---
+
 # Docker Deployment
 
 Run NotebookLM MCP Server in a Docker container for isolated, reproducible deployments.

@@ -1,3 +1,16 @@
+---
+title: Multi-account rotation for rate-limited NotebookLM sessions
+description: Configure multiple Google accounts for the NotebookLM MCP server. Automatic rotation on rate-limit detection, TOTP support, per-account encrypted profile storage.
+keywords:
+  [
+    notebooklm multi account,
+    notebooklm account rotation,
+    notebooklm rate limit,
+    notebooklm totp,
+    google account rotation,
+  ]
+---
+
 # Multi-Account Management
 
 The NotebookLM MCP server supports multiple Google accounts with automatic rotation when rate limits are hit.

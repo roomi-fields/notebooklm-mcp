@@ -1,3 +1,16 @@
+---
+title: Install NotebookLM MCP on Windows, macOS, Linux, WSL
+description: Step-by-step installation guide for the NotebookLM MCP server. Clone, npm install, build, authenticate Google, register with Claude Code, Codex, or Cursor. Verify with doctor:basic.
+keywords:
+  [
+    notebooklm mcp install,
+    notebooklm mcp setup,
+    claude code mcp install,
+    notebooklm installation windows,
+    notebooklm wsl,
+  ]
+---
+
 # Installation Guide - NotebookLM MCP HTTP Server
 
 > Complete installation from scratch on Windows 10/11

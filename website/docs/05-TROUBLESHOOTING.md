@@ -1,3 +1,16 @@
+---
+title: Troubleshooting — doctor scripts, common failures and fixes
+description: Common failure signatures and fixes for the NotebookLM MCP server. Doctor script, port conflicts, authentication loops, rate limits, browser profile locks, session expiry.
+keywords:
+  [
+    notebooklm troubleshooting,
+    notebooklm mcp errors,
+    notebooklm authentication failed,
+    notebooklm rate limit,
+    notebooklm doctor script,
+  ]
+---
+
 # Troubleshooting Guide - NotebookLM MCP HTTP Server
 
 > Solutions to common problems

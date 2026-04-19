@@ -1,3 +1,16 @@
+---
+title: NotebookLM in n8n — HTTP workflows with citations
+description: Integrate NotebookLM into n8n workflows via the HTTP REST API. Webhook examples, scheduled queries, Slack integration, content generation flows, citation-backed responses.
+keywords:
+  [
+    notebooklm n8n,
+    n8n notebooklm integration,
+    n8n http request notebooklm,
+    notebooklm workflow automation,
+    zapier notebooklm,
+  ]
+---
+
 # n8n Integration - NotebookLM MCP HTTP Server
 
 > Complete guide for integrating NotebookLM into your n8n workflows

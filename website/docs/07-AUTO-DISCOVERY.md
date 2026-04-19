@@ -1,3 +1,15 @@
+---
+title: Auto-discover NotebookLM notebook metadata from a URL
+description: Use the auto_discover_notebook tool or /notebooks/auto-discover endpoint to extract notebook name, description, topics, and use cases from just a NotebookLM URL.
+keywords:
+  [
+    notebooklm auto discovery,
+    notebooklm metadata extraction,
+    auto_discover_notebook,
+    claude desktop auto discovery,
+  ]
+---
+
 # Auto-Discovery Pattern
 
 ## Overview

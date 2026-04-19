@@ -28,6 +28,32 @@ const config: Config = {
     locales: ['en'],
   },
 
+  headTags: [
+    {
+      tagName: 'script',
+      attributes: { type: 'application/ld+json' },
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'NotebookLM MCP + HTTP REST API',
+        description:
+          'Google NotebookLM over MCP + a local HTTP REST API. Citation-backed Q&A, audio podcasts, video generation, multi-account rotation.',
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Windows, macOS, Linux',
+        url: 'https://roomi-fields.github.io/notebooklm-mcp/',
+        downloadUrl: 'https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp',
+        author: {
+          '@type': 'Person',
+          name: 'Romain Peyrichou',
+          url: 'https://github.com/roomi-fields',
+        },
+        license: 'https://opensource.org/licenses/MIT',
+        softwareVersion: '1.5.8',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      }),
+    },
+  ],
+
   presets: [
     [
       'classic',
@@ -51,6 +77,10 @@ const config: Config = {
 
   themeConfig: {
     image: 'img/social-card.png',
+    docs: {
+      sidebar: { hideable: true },
+      versionPersistence: 'localStorage',
+    },
     metadata: [
       {
         name: 'keywords',
@@ -62,6 +92,10 @@ const config: Config = {
         content:
           'Google NotebookLM over MCP + a local HTTP REST API. Q&A with citations, audio, video, content generation, multi-account rotation. Works with Claude Code, Codex, Cursor, n8n, Zapier, Make.',
       },
+      { name: 'robots', content: 'index, follow' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'NotebookLM MCP + HTTP REST API' },
+      { name: 'twitter:card', content: 'summary_large_image' },
     ],
     colorMode: {
       respectPrefersColorScheme: true,

@@ -22,6 +22,10 @@
  *   MCP_HTTP_URL - HTTP server URL (default: http://localhost:3000)
  */
 
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -33,6 +37,11 @@ import {
   Tool,
   Resource,
 } from '@modelcontextprotocol/sdk/types.js';
+
+const packageJson = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf-8')
+) as { version: string };
+const SERVER_VERSION = packageJson.version;
 
 // HTTP server URL (configurable via environment)
 const HTTP_BASE_URL = process.env.MCP_HTTP_URL || 'http://localhost:3000';
@@ -571,7 +580,7 @@ class StdioHttpProxyServer {
     this.server = new Server(
       {
         name: 'notebooklm-mcp-proxy',
-        version: '1.3.6',
+        version: SERVER_VERSION,
       },
       {
         capabilities: {
@@ -760,7 +769,7 @@ class StdioHttpProxyServer {
 async function main() {
   console.error('╔══════════════════════════════════════════════════════════╗');
   console.error('║                                                          ║');
-  console.error('║     NotebookLM MCP Stdio-HTTP Proxy v1.3.6               ║');
+  console.error(`║     NotebookLM MCP Stdio-HTTP Proxy v${SERVER_VERSION.padEnd(18, ' ')}║`);
   console.error('║                                                          ║');
   console.error('║   Proxy stdio MCP requests to HTTP server                ║');
   console.error('║                                                          ║');

@@ -146,9 +146,26 @@
 
 ## Changelog
 
+See the top-level [CHANGELOG.md](../../CHANGELOG.md) for the full per-release notes. Highlights:
+
+### v1.5.8 (2026-04-19)
+
+- 2026 NotebookLM UI selectors (PR #5)
+- Doctor scripts for deterministic verification (PR #6)
+- PII scrub of archive scripts and docs (PR #4 + follow-up)
+- `npm audit fix` for transitive CVEs
+
+### v1.5.0 – v1.5.7 (Feb 2026)
+
+- HTTP REST API for n8n / Zapier / Make
+- Multi-account rotation with rate-limit handling
+- Docker build from source
+- Auto-reauth on session expiry
+- Citation extraction with 5 output formats
+
 ### v1.4.2 (2025-12-29)
 
-**Removed fake content generation:**
+**Removed fake content generation** (re-added later as real studio outputs in 1.5.x):
 
 - Removed `generate_content` endpoint for FAQ, Study Guide, Briefing Doc, Timeline, TOC
 - These were NOT real NotebookLM features - just chat prompts

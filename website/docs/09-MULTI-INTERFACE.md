@@ -1,3 +1,15 @@
+---
+title: Run NotebookLM MCP + HTTP server simultaneously
+description: Use NotebookLM as an MCP stdio server for Claude Code AND as a local HTTP REST API for n8n, Zapier, curl, at the same time. Stdio-to-HTTP proxy pattern, no profile conflicts.
+keywords:
+  [
+    notebooklm mcp http,
+    notebooklm stdio http proxy,
+    notebooklm claude desktop,
+    notebooklm multi interface,
+  ]
+---
+
 # Multi-Interface Mode (v1.3.6+)
 
 > Run Claude Desktop AND HTTP API simultaneously with a single Chrome instance

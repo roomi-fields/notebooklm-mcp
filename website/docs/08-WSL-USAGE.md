@@ -1,3 +1,9 @@
+---
+title: Use NotebookLM MCP from WSL on Windows
+description: WSL workflow for the NotebookLM MCP server. Run the server on the Windows side, call it from WSL via a helper, manage the Chrome profile across WSL and Windows.
+keywords: [notebooklm wsl, notebooklm windows subsystem linux, notebooklm mcp wsl setup]
+---
+
 # WSL Usage Guide
 
 This guide explains how to use the NotebookLM MCP Server with Claude Code from WSL (Windows Subsystem for Linux).

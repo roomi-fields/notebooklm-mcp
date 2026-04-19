@@ -1,3 +1,16 @@
+---
+title: HTTP REST API reference — /ask, /content, /notebooks
+description: Complete HTTP REST API reference for the NotebookLM MCP server. Endpoints /ask, /content, /notebooks, /sources, /health, /setup-auth with request and response schemas.
+keywords:
+  [
+    notebooklm http api,
+    notebooklm rest api,
+    notebooklm ask endpoint,
+    notebooklm content api,
+    notebooklm rest api reference,
+  ]
+---
+
 # API Documentation - NotebookLM MCP HTTP Server
 
 > Complete reference for all REST endpoints

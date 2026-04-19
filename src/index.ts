@@ -30,6 +30,10 @@
  * Based on the Python NotebookLM API implementation
  */
 
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -50,6 +54,11 @@ import { ToolHandlers, buildToolDefinitions } from './tools/index.js';
 import { CONFIG } from './config.js';
 import { log } from './utils/logger.js';
 
+const packageJson = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf-8')
+) as { version: string };
+const SERVER_VERSION = packageJson.version;
+
 /**
  * Main MCP Server Class
  */
@@ -66,7 +75,7 @@ class NotebookLMMCPServer {
     this.server = new Server(
       {
         name: 'notebooklm-mcp',
-        version: '1.4.2',
+        version: SERVER_VERSION,
       },
       {
         capabilities: {
@@ -90,7 +99,7 @@ class NotebookLMMCPServer {
     this.setupShutdownHandlers();
 
     log.info('🚀 NotebookLM MCP Server initialized');
-    log.info(`  Version: 1.3.5`);
+    log.info(`  Version: ${SERVER_VERSION}`);
     log.info(`  Node: ${process.version}`);
     log.info(`  Platform: ${process.platform}`);
   }
@@ -716,7 +725,7 @@ async function main() {
   // Print banner
   console.error('╔══════════════════════════════════════════════════════════╗');
   console.error('║                                                          ║');
-  console.error('║           NotebookLM MCP Server v1.3.5                   ║');
+  console.error(`║           NotebookLM MCP Server v${SERVER_VERSION.padEnd(22, ' ')}║`);
   console.error('║                                                          ║');
   console.error('║   Chat with Gemini 2.5 through NotebookLM via MCP       ║');
   console.error('║                                                          ║');

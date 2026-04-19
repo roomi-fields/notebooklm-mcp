@@ -1,3 +1,16 @@
+---
+title: Configure NotebookLM MCP — env vars, headless, stealth, locale
+description: Full configuration reference. Environment variables for headless mode, stealth, UI locale, data directory, session timeout, max sessions. Persistent auth layout and security notes.
+keywords:
+  [
+    notebooklm mcp config,
+    notebooklm environment variables,
+    notebooklm headless,
+    notebooklm locale,
+    patchright stealth,
+  ]
+---
+
 # Configuration Guide - NotebookLM MCP HTTP Server
 
 > Advanced configuration, environment variables, security

@@ -21,22 +21,17 @@ The Content Management module enables you to:
 
 **REAL NotebookLM Features (fully integrated):**
 
-- Audio Overview generation - Uses NotebookLM's actual podcast feature
-- Audio download - Downloads the real generated audio file
-- Source management - Add files, URLs, text, YouTube videos
-- Q&A with citations - Uses NotebookLM's actual chat
+- Audio Overview generation — NotebookLM's actual podcast feature
+- Video generation — brief + explainer with 6 visual styles (classroom, documentary, animated, corporate, cinematic, minimalist)
+- Infographic generation — horizontal and vertical layouts
+- Report / Presentation / Data Table — text-based content returned in the API response
+- Download artifacts — WAV audio, MP4 video, PNG infographics
+- Source management — add files, URLs, text, YouTube videos, Google Drive
+- Q&A with citations — DOM-extracted source names and excerpts
 
-**NOT Supported (removed in v1.4.2):**
+**Prompt-based content (use `ask_question` directly):**
 
-The following were removed because they were NOT real NotebookLM integrations. They were just sending prompts to the chat, which you can do yourself with `ask_question`:
-
-- ~~Briefing Doc~~ - Just asked chat to generate a summary
-- ~~Study Guide~~ - Just asked chat to create study materials
-- ~~FAQ~~ - Just asked chat to generate FAQs
-- ~~Timeline~~ - Just asked chat to create a timeline
-- ~~Table of Contents~~ - Just asked chat to create a TOC
-
-If you need these, simply use `ask_question` with your own prompt like "Create a study guide" or "Generate an FAQ".
+For content types that NotebookLM doesn't expose as first-class studio outputs — briefing docs, study guides, FAQ, timelines, tables of contents — call `ask_question` with a custom prompt (e.g. "Create a study guide from these sources"). These are regular chat responses, not separate NotebookLM integrations.
 
 ---
 
@@ -410,11 +405,12 @@ Audio generation can take 5-10 minutes. The API will wait up to 10 minutes for c
 
 ## Version History
 
-| Version | Changes                                     |
-| ------- | ------------------------------------------- |
-| 1.4.2   | Removed fake content generation (FAQ, etc.) |
-| 1.4.0   | Added content management module             |
-| 1.3.7   | Source citation extraction                  |
+| Version | Changes                                                                             |
+| ------- | ----------------------------------------------------------------------------------- |
+| 1.5.x   | 2026 UI selectors, re-added video/infographic/presentation/report/data_table        |
+| 1.4.2   | Removed fake content generation (FAQ, etc.) — re-added later as real studio outputs |
+| 1.4.0   | Added content management module                                                     |
+| 1.3.7   | Source citation extraction                                                          |
 
 ---
 

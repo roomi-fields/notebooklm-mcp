@@ -48,6 +48,10 @@ mcp-add-command.txt
 docs/why-notebooklm.md
 auto-discovery-complet.md
 
+# Personal deployment helpers (keep locally, do not track)
+deploy-to-filer.sh
+DOCKER-FIXES.md
+
 # Publishing scripts and documentation (local use only)
 publish/
 
@@ -93,3 +97,14 @@ add-account.ts
 accounts_test.txt
 server_output.txt
 *_output.txt
+
+# Secrets / tokens (never commit)
+.mcpregistry_github_token
+.mcpregistry_registry_token
+mcp-publisher
+
+# Temp scratch files
+tmp-*
+
+# Tracked-by-accident Windows literal paths
+C:\\Users\\*
