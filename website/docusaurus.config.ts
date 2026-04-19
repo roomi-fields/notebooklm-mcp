@@ -110,6 +110,11 @@ const config: Config = {
           label: 'Docs',
         },
         {
+          to: '/changelog',
+          label: 'Releases',
+          position: 'left',
+        },
+        {
           href: 'https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp',
           label: 'npm',
           position: 'right',

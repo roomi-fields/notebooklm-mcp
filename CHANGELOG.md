@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-**NotebookLM UI adaptations for 2025 (PR #5 by @KhizarJamshaidIqbal):**
+**NotebookLM UI adaptations for 2026 (PR #5 by @KhizarJamshaidIqbal):**
 
 - `sanitizeResponseText()`: strip leaked Material-icon labels (`more_vert`, `more_horiz`) and adjacent citation artifacts from answer text
 - `ensureDiscussionReady()` / `navigateToDiscussion()`: recover the Discussion panel before asking when the chat composer has been unmounted or disabled

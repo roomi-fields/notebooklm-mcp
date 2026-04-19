@@ -29,6 +29,11 @@ const sidebars: SidebarsConfig = {
       label: 'Advanced',
       items: ['MULTI-ACCOUNT', 'TROUBLESHOOTING'],
     },
+    {
+      type: 'doc',
+      id: 'CHANGELOG',
+      label: 'Release history',
+    },
   ],
 };
 
