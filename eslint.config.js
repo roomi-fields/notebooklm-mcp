@@ -12,6 +12,7 @@ export default tseslint.config(
       'tests/**',
       'src/__tests__/**',
       'scripts/**',
+      'website/**',
     ],
   },
   {
