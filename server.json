@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.roomi-fields/notebooklm-mcp",
+  "title": "NotebookLM MCP",
+  "description": "Automate Google NotebookLM — Q&A with citations, audio, video, content generation",
+  "repository": {
+    "url": "https://github.com/roomi-fields/notebooklm-mcp",
+    "source": "github"
+  },
+  "version": "1.5.9",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@roomi-fields/notebooklm-mcp",
+      "version": "1.5.9",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

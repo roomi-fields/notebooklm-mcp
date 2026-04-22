@@ -108,3 +108,6 @@ tmp-*
 
 # Tracked-by-accident Windows literal paths
 C:\\Users\\*
+
+# RTFM local database
+.rtfm/

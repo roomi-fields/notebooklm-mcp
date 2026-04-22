@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.9] - 2026-04-22
+
+### Fixed
+
+- Restore `mcpName` field in `package.json` (accidentally dropped during the 1.5.8 release). This field is required by the official MCP Registry to verify npm-package ownership; without it the registry refuses to update server metadata. v1.5.9 re-enables registry updates for `io.github.roomi-fields/notebooklm-mcp`.
+
+---
+
 ## [1.5.8] - 2026-04-19
 
 ### Fixed
