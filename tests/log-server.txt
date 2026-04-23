@@ -1,0 +1,822 @@
+ℹ️  [09:22:56] 🔧 [TOOL] get_health called
+✅  [09:22:56] ✅ [TOOL] get_health completed
+ℹ️  [09:22:56] 🔧 [TOOL] ask_question called
+ℹ️  [09:22:56]   Question: "Que disent les sources sur la hiérarchie de Chomsky (Type 0 à Type 3) et son application à la musiqu..."
+ℹ️  [09:22:56]   Notebook URL: https://notebooklm.google.com/notebook/36f5c1dc-3feb-46e9-8680-dbc86ad193a8
+ℹ️  [09:22:56]   Source format: footnotes
+ℹ️  [09:22:56] [c41a73cf] Progress: Getting or creating browser session... (1/5)
+ℹ️  [09:22:56] 🆕 Auto-generated session ID: 128c522d
+ℹ️  [09:22:56] 🆕 Creating new session 128c522d...
+    [09:22:56]   ✅ Context still valid (browser open)
+✅  [09:22:56] ♻️  Reusing existing persistent context
+ℹ️  [09:22:56] 🆕 BrowserSession 128c522d created
+ℹ️  [09:22:56] 🚀 Initializing session 128c522d...
+    [09:22:56]   ✅ Context still valid (browser open)
+✅  [09:22:56] ♻️  Reusing existing persistent context
+✅  [09:22:56]   ✅ Created new page
+ℹ️  [09:22:56]   🌐 Navigating to: https://notebooklm.google.com/notebook/36f5c1dc-3feb-46e9-8680-dbc86ad193a8
+✅  [09:23:00] ✅ All 23 critical cookies are valid
+✅  [09:23:00]   ✅ Session already authenticated
+ℹ️  [09:23:00]   🔄 Restoring sessionStorage...
+⚠️  [09:23:00] ⚠️  Failed to load sessionStorage: Error: ENOENT: no such file or directory, open 'C:\Users\romai\AppData\Local\notebooklm-mcp\Data\browser_state\session.json'
+ℹ️  [09:23:00]   ℹ️  No saved sessionStorage found (fresh session)
+ℹ️  [09:23:00]   ⏳ Waiting for NotebookLM interface...
+ℹ️  [09:23:00]   ⏳ Waiting for chat input (textarea.query-box-input)...
+✅  [09:23:00]   ✅ Chat input ready!
+ℹ️  [09:23:00]   ⏳ Waiting for page content to load...
+⚠️  [09:23:15]   ⚠️ Timeout waiting for content to load, proceeding anyway...
+✅  [09:23:15]   ✅ Page content loaded!
+✅  [09:23:15] ✅ Session 128c522d initialized successfully
+✅  [09:23:15] ✅ Session 128c522d created (1/10 active)
+ℹ️  [09:23:15] [c41a73cf] Progress: Asking question to NotebookLM... (2/5)
+ℹ️  [09:23:15] 💬 [128c522d] Asking: "Que disent les sources sur la hiérarchie de Chomsky (Type 0 à Type 3) et son application à la musiqu..."
+ℹ️  [09:23:15] [c41a73cf] Progress: Verifying authentication... (2/5)
+✅  [09:23:15] ✅ All 23 critical cookies are valid
+ℹ️  [09:23:15]   📸 Snapshotting existing responses...
+ℹ️  [09:23:16] 📸 [SNAPSHOT] Captured 10 existing responses
+✅  [09:23:16]   ✅ Captured 10 existing responses
+ℹ️  [09:23:16]   📋 Ensuring sources are selected...
+ℹ️  [09:23:16]   🔍 "Select all" not found, trying to verify sources manually...
+ℹ️  [09:23:16]   🔍 Checking for rate limit before asking...
+ℹ️  [09:23:17]   📸 Debug screenshot saved: C:\Users\romai\AppData\Local\notebooklm-mcp\Data\debug-before-ask.png
+✅  [09:23:17]   ✅ Found chat input: textarea.query-box-input
+ℹ️  [09:23:17]   ⌨️  Typing question with human-like behavior...
+ℹ️  [09:23:17] [c41a73cf] Progress: Typing question with human-like behavior... (2/5)
+ℹ️  [09:24:20]   📤 Submitting question...
+ℹ️  [09:24:20] [c41a73cf] Progress: Submitting question... (3/5)
+ℹ️  [09:24:21]   📸 Debug screenshot (after submit) saved: C:\Users\romai\AppData\Local\notebooklm-mcp\Data\debug-after-submit.png
+ℹ️  [09:24:21]   ⏳ Waiting for response (with streaming detection)...
+ℹ️  [09:24:21] [c41a73cf] Progress: Waiting for NotebookLM response (streaming detection active)... (3/5)
+🔍  [09:24:21] 🔍 [DEBUG] Waiting for NEW answer. Ignoring 10 known responses
+✅  [09:24:22] ✅ [EXTRACT] Found NEW text in container[10]: 23 chars
+🔍  [09:24:22] 🔍 [DEBUG] Found placeholder: "Analyzing your files......" - continuing...
+✅  [09:24:22] ✅ [EXTRACT] Found NEW text in container[10]: 23 chars
+🔍  [09:24:22] 🔍 [DEBUG] Found placeholder: "Analyzing your files......" - continuing...
+✅  [09:24:23] ✅ [EXTRACT] Found NEW text in container[10]: 23 chars
+🔍  [09:24:23] 🔍 [DEBUG] Found placeholder: "Analyzing your files......" - continuing...
+✅  [09:24:23] ✅ [EXTRACT] Found NEW text in container[10]: 23 chars
+🔍  [09:24:23] 🔍 [DEBUG] Found placeholder: "Analyzing your files......" - continuing...
+    [09:24:24] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:24:24] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:24:24] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:24] 🔍 [DEBUG] Found placeholder: "Checking your files......" - continuing...
+✅  [09:24:25] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:25] 🔍 [DEBUG] Found placeholder: "Checking your files......" - continuing...
+✅  [09:24:25] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:25] 🔍 [DEBUG] Found placeholder: "Checking your files......" - continuing...
+✅  [09:24:26] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:26] 🔍 [DEBUG] Found placeholder: "Checking your files......" - continuing...
+✅  [09:24:27] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:27] 🔍 [DEBUG] Found placeholder: "Checking your files......" - continuing...
+    [09:24:27] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:24:27] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:24:27] ✅ [EXTRACT] Found NEW text in container[10]: 21 chars
+🔍  [09:24:27] 🔍 [DEBUG] Found placeholder: "Opening your notes......" - continuing...
+✅  [09:24:28] ✅ [EXTRACT] Found NEW text in container[10]: 21 chars
+🔍  [09:24:28] 🔍 [DEBUG] Found placeholder: "Opening your notes......" - continuing...
+✅  [09:24:28] ✅ [EXTRACT] Found NEW text in container[10]: 21 chars
+🔍  [09:24:28] 🔍 [DEBUG] Found placeholder: "Opening your notes......" - continuing...
+✅  [09:24:29] ✅ [EXTRACT] Found NEW text in container[10]: 21 chars
+🔍  [09:24:29] 🔍 [DEBUG] Found placeholder: "Opening your notes......" - continuing...
+✅  [09:24:30] ✅ [EXTRACT] Found NEW text in container[10]: 21 chars
+🔍  [09:24:30] 🔍 [DEBUG] Found placeholder: "Opening your notes......" - continuing...
+    [09:24:30] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:24:30] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:24:30] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:30] 🔍 [DEBUG] Found placeholder: "Searching your docs......" - continuing...
+✅  [09:24:31] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:31] 🔍 [DEBUG] Found placeholder: "Searching your docs......" - continuing...
+✅  [09:24:32] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:32] 🔍 [DEBUG] Found placeholder: "Searching your docs......" - continuing...
+✅  [09:24:32] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:32] 🔍 [DEBUG] Found placeholder: "Searching your docs......" - continuing...
+✅  [09:24:33] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:33] 🔍 [DEBUG] Found placeholder: "Getting the context......" - continuing...
+    [09:24:34] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:24:34] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:24:34] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:34] 🔍 [DEBUG] Found placeholder: "Getting the context......" - continuing...
+✅  [09:24:34] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:34] 🔍 [DEBUG] Found placeholder: "Getting the context......" - continuing...
+✅  [09:24:35] ✅ [EXTRACT] Found NEW text in container[10]: 21 chars
+🔍  [09:24:35] 🔍 [DEBUG] Found placeholder: "Looking at sources......" - continuing...
+✅  [09:24:36] ✅ [EXTRACT] Found NEW text in container[10]: 28 chars
+🔍  [09:24:36] 🔍 [DEBUG] Found placeholder: "Exploring Musical Grammar......" - continuing...
+✅  [09:24:36] ✅ [EXTRACT] Found NEW text in container[10]: 28 chars
+🔍  [09:24:36] 🔍 [DEBUG] Found placeholder: "Exploring Musical Grammar......" - continuing...
+    [09:24:37] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:24:37] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:24:37] ✅ [EXTRACT] Found NEW text in container[10]: 28 chars
+🔍  [09:24:37] 🔍 [DEBUG] Found placeholder: "Exploring Musical Grammar......" - continuing...
+✅  [09:24:38] ✅ [EXTRACT] Found NEW text in container[10]: 24 chars
+🔍  [09:24:38] 🔍 [DEBUG] Found placeholder: "Sifting through pages......" - continuing...
+✅  [09:24:39] ✅ [EXTRACT] Found NEW text in container[10]: 30 chars
+🔍  [09:24:39] 🔍 [DEBUG] Found placeholder: "Analyzing Source Structures......" - continuing...
+✅  [09:24:39] ✅ [EXTRACT] Found NEW text in container[10]: 30 chars
+🔍  [09:24:39] 🔍 [DEBUG] Found placeholder: "Analyzing Source Structures......" - continuing...
+✅  [09:24:40] ✅ [EXTRACT] Found NEW text in container[10]: 30 chars
+🔍  [09:24:40] 🔍 [DEBUG] Found placeholder: "Analyzing Source Structures......" - continuing...
+    [09:24:40] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:24:40] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:24:41] ✅ [EXTRACT] Found NEW text in container[10]: 22 chars
+🔍  [09:24:41] 🔍 [DEBUG] Found placeholder: "Getting the context......" - continuing...
+✅  [09:24:41] ✅ [EXTRACT] Found NEW text in container[10]: 37 chars
+🔍  [09:24:41] 🔍 [DEBUG] Found placeholder: "Identifying Grammatical Structures......" - continuing...
+✅  [09:24:42] ✅ [EXTRACT] Found NEW text in container[10]: 37 chars
+🔍  [09:24:42] 🔍 [DEBUG] Found placeholder: "Identifying Grammatical Structures......" - continuing...
+✅  [09:24:43] ✅ [EXTRACT] Found NEW text in container[9]: 6300 chars
+🔍  [09:24:43] 🔍 [DEBUG] New candidate text (6300 chars): "Les sources fournies offrent une analyse approfondie de la structure récursive en musique, principal..."
+✅  [09:24:44] ✅ [EXTRACT] Found NEW text in container[10]: 34 chars
+🔍  [09:24:44] 🔍 [DEBUG] Found placeholder: "Defining Musical Grammar Levels......" - continuing...
+    [09:24:45] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:24:45] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:24:45] ✅ [EXTRACT] Found NEW text in container[10]: 34 chars
+🔍  [09:24:45] 🔍 [DEBUG] Found placeholder: "Defining Musical Grammar Levels......" - continuing...
+✅  [09:24:46] ✅ [EXTRACT] Found NEW text in container[5]: 4837 chars
+🔍  [09:24:46] 🔍 [DEBUG] New candidate text (4837 chars): "Le Bol Processor (BP), développé par Bernard Bel et Jim Kippen dans les années 1980, représente une ..."
+🔍  [09:24:46] 🔄 [DEBUG] Text changed (4837 chars, was 6300)
+✅  [09:24:47] ✅ [EXTRACT] Found NEW text in container[10]: 33 chars
+🔍  [09:24:47] 🔍 [DEBUG] Found placeholder: "Structuring Grammatical Levels......" - continuing...
+✅  [09:24:48] ✅ [EXTRACT] Found NEW text in container[10]: 33 chars
+🔍  [09:24:48] 🔍 [DEBUG] Found placeholder: "Structuring Grammatical Levels......" - continuing...
+✅  [09:24:49] ✅ [EXTRACT] Found NEW text in container[8]: 5772 chars
+🔍  [09:24:49] 🔍 [DEBUG] New candidate text (5772 chars): "Oui, les sources abordent explicitement la nécessité de dépasser les grammaires hors-contexte (Conte..."
+🔍  [09:24:49] 🔄 [DEBUG] Text changed (5772 chars, was 4837)
+    [09:24:50] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:24:50] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:24:50] ✅ [EXTRACT] Found NEW text in container[2]: 4593 chars
+🔍  [09:24:50] 🔍 [DEBUG] New candidate text (4593 chars): "Voici une synthèse basée sur les sources fournies, répondant à votre double interrogation sur l'appl..."
+🔍  [09:24:50] 🔄 [DEBUG] Text changed (4593 chars, was 5772)
+✅  [09:25:00] ✅ [EXTRACT] Found NEW text in container[0]: 4663 chars
+🔍  [09:25:00] 🔍 [DEBUG] New candidate text (4663 chars): "D'après les sources fournies, principalement l'ouvrage d'Alexandre Ayrault et les textes sur la sémi..."
+🔍  [09:25:00] 🔄 [DEBUG] Text changed (4663 chars, was 4593)
+✅  [09:25:05] ✅ [EXTRACT] Found NEW text in container[0]: 4663 chars
+✅  [09:25:06] ✅ [EXTRACT] Found NEW text in container[10]: 5923 chars
+🔍  [09:25:06] 🔍 [DEBUG] New candidate text (5923 chars): "Les sources fournies offrent une analyse détaillée de l'application de la hiérarchie de Chomsky à la..."
+🔍  [09:25:06] 🔄 [DEBUG] Text changed (5923 chars, was 4663)
+✅  [09:25:07] ✅ [EXTRACT] Found NEW text in container[10]: 5923 chars
+    [09:25:09] ⏭️ [EXTRACT] Checking 11 containers (10 known hashes)
+    [09:25:09] 🔍 [EXTRACT] Scanning 11 containers (10 known)
+✅  [09:25:09] ✅ [EXTRACT] Found NEW text in container[10]: 5923 chars
+🔍  [09:25:09] ✅ [DEBUG] Text stable for 3 polls (5923 chars)
+🔍  [09:25:09] ✅ [DEBUG] Returning stable answer (5923 chars)
+ℹ️  [09:25:09]   🔍 Checking for rate limit errors...
+✅  [09:25:10] ✅ [128c522d] Received answer (5923 chars, 1 total messages)
+ℹ️  [09:25:10] [c41a73cf] Progress: Extracting source citations... (4/5)
+ℹ️  [09:25:10] 📚 [CITATIONS] Extracting sources (format: footnotes)...
+ℹ️  [09:25:10] 📚 [CITATIONS] Found 21 citation markers
+ℹ️  [09:25:10]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:13]   📖 Source text: "La théorie de la tripartition sémiologique ou théo..."
+✅  [09:25:13]   ✅ [[1]] Extracted: "La théorie de la tripartition sémiologique ou théo..."
+ℹ️  [09:25:13]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:13] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:13]   ✅ [[4]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:13]   📄 Source name: "David Cope - The hidden structure of music - EN.pd..."
+⚠️  [09:25:13] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:13]   ✅ [[6]] Extracted: "David Cope - The hidden structure of music - EN.pd..."
+ℹ️  [09:25:14]   📄 Source name: "Andrew Hugill - The Digital Musician (3rd Ed) - EN..."
+⚠️  [09:25:14] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:14]   ✅ [[7]] Extracted: "Andrew Hugill - The Digital Musician (3rd Ed) - EN..."
+ℹ️  [09:25:14]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:14] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:14]   ✅ [[8]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:14]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:14] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:14]   ✅ [[9]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:14]   📄 Source name: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+⚠️  [09:25:14] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:14]   ✅ [[10]] Extracted: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+ℹ️  [09:25:14]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:14] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:14]   ✅ [[11]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:15]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:15] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:15]   ✅ [[12]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:16]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:16] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:16]   ✅ [[14]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:16]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:16] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:16]   ✅ [[15]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:16]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:16] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:16]   ✅ [[16]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:16]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:16] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:16]   ✅ [[17]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:16]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:16] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:16]   ✅ [[18]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:16]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:16] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:16]   ✅ [[19]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:17]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:17] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:17]   ✅ [[20]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:17]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:17] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:17]   ✅ [[22]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:17]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:17] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:17]   ✅ [[23]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:17]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:17] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:17]   ✅ [[26]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:17]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:17] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:17]   ✅ [[29]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:25:18]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:25:18] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:25:18]   ✅ [[30]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+✅  [09:25:18] 📚 [CITATIONS] Extracted 21/21 sources
+✅  [09:25:18]   📚 Extracted 21 source citations
+ℹ️  [09:25:18] [c41a73cf] Progress: Question answered successfully! (5/5)
+✅  [09:25:18] ✅ [TOOL] ask_question completed successfully
+✅  [09:25:18] [c41a73cf] /ask - Completed
+ℹ️  [09:26:18] 🔧 [TOOL] ask_question called
+ℹ️  [09:26:18]   Question: "Les sources discutent-elles des grammaires context-sensitive ou des langages faiblement context-sens..."
+ℹ️  [09:26:18]   Session ID: 128c522d
+ℹ️  [09:26:18]   Notebook URL: https://notebooklm.google.com/notebook/36f5c1dc-3feb-46e9-8680-dbc86ad193a8
+ℹ️  [09:26:18]   Source format: footnotes
+ℹ️  [09:26:18] [0029ac70] Progress: Getting or creating browser session... (1/5)
+✅  [09:26:18] ♻️  Reusing existing session 128c522d
+ℹ️  [09:26:18] [0029ac70] Progress: Asking question to NotebookLM... (2/5)
+ℹ️  [09:26:18] 💬 [128c522d] Asking: "Les sources discutent-elles des grammaires context-sensitive ou des langages faiblement context-sens..."
+ℹ️  [09:26:18] [0029ac70] Progress: Verifying authentication... (2/5)
+✅  [09:26:18] ✅ All 23 critical cookies are valid
+ℹ️  [09:26:18]   📸 Snapshotting existing responses...
+ℹ️  [09:26:18] 📸 [SNAPSHOT] Captured 21 existing responses
+✅  [09:26:18]   ✅ Captured 21 existing responses
+ℹ️  [09:26:18]   📋 Ensuring sources are selected...
+ℹ️  [09:26:20]   🔍 "Select all" not found, trying to verify sources manually...
+ℹ️  [09:26:20]   🔍 Checking for rate limit before asking...
+ℹ️  [09:26:21]   📸 Debug screenshot saved: C:\Users\romai\AppData\Local\notebooklm-mcp\Data\debug-before-ask.png
+✅  [09:26:22]   ✅ Found chat input: textarea.query-box-input
+ℹ️  [09:26:22]   ⌨️  Typing question with human-like behavior...
+ℹ️  [09:26:22] [0029ac70] Progress: Typing question with human-like behavior... (2/5)
+ℹ️  [09:28:06]   📤 Submitting question...
+ℹ️  [09:28:06] [0029ac70] Progress: Submitting question... (3/5)
+ℹ️  [09:28:07]   📸 Debug screenshot (after submit) saved: C:\Users\romai\AppData\Local\notebooklm-mcp\Data\debug-after-submit.png
+ℹ️  [09:28:07]   ⏳ Waiting for response (with streaming detection)...
+ℹ️  [09:28:07] [0029ac70] Progress: Waiting for NotebookLM response (streaming detection active)... (3/5)
+🔍  [09:28:07] 🔍 [DEBUG] Waiting for NEW answer. Ignoring 21 known responses
+✅  [09:28:08] ✅ [EXTRACT] Found NEW text in container[21]: 22 chars
+🔍  [09:28:08] 🔍 [DEBUG] Found placeholder: "Reading your inputs......" - continuing...
+✅  [09:28:09] ✅ [EXTRACT] Found NEW text in container[21]: 22 chars
+🔍  [09:28:09] 🔍 [DEBUG] Found placeholder: "Reading your inputs......" - continuing...
+✅  [09:28:10] ✅ [EXTRACT] Found NEW text in container[21]: 22 chars
+🔍  [09:28:10] 🔍 [DEBUG] Found placeholder: "Reading your inputs......" - continuing...
+✅  [09:28:11] ✅ [EXTRACT] Found NEW text in container[21]: 19 chars
+🔍  [09:28:11] 🔍 [DEBUG] Found placeholder: "Getting the gist......" - continuing...
+    [09:28:12] ⏭️ [EXTRACT] Checking 22 containers (21 known hashes)
+    [09:28:12] 🔍 [EXTRACT] Scanning 22 containers (21 known)
+✅  [09:28:12] ✅ [EXTRACT] Found NEW text in container[21]: 19 chars
+🔍  [09:28:12] 🔍 [DEBUG] Found placeholder: "Getting the gist......" - continuing...
+✅  [09:28:13] ✅ [EXTRACT] Found NEW text in container[21]: 20 chars
+🔍  [09:28:13] 🔍 [DEBUG] Found placeholder: "Scanning the text......" - continuing...
+✅  [09:28:14] ✅ [EXTRACT] Found NEW text in container[21]: 20 chars
+🔍  [09:28:14] 🔍 [DEBUG] Found placeholder: "Scanning the text......" - continuing...
+✅  [09:28:15] ✅ [EXTRACT] Found NEW text in container[21]: 20 chars
+🔍  [09:28:15] 🔍 [DEBUG] Found placeholder: "Scanning the text......" - continuing...
+✅  [09:28:16] ✅ [EXTRACT] Found NEW text in container[21]: 22 chars
+🔍  [09:28:16] 🔍 [DEBUG] Found placeholder: "Gathering the facts......" - continuing...
+    [09:28:17] ⏭️ [EXTRACT] Checking 22 containers (21 known hashes)
+    [09:28:17] 🔍 [EXTRACT] Scanning 22 containers (21 known)
+✅  [09:28:17] ✅ [EXTRACT] Found NEW text in container[21]: 22 chars
+🔍  [09:28:17] 🔍 [DEBUG] Found placeholder: "Gathering the facts......" - continuing...
+✅  [09:28:18] ✅ [EXTRACT] Found NEW text in container[21]: 22 chars
+🔍  [09:28:18] 🔍 [DEBUG] Found placeholder: "Gathering the facts......" - continuing...
+✅  [09:28:19] ✅ [EXTRACT] Found NEW text in container[21]: 19 chars
+🔍  [09:28:19] 🔍 [DEBUG] Found placeholder: "Getting the gist......" - continuing...
+✅  [09:28:20] ✅ [EXTRACT] Found NEW text in container[21]: 19 chars
+🔍  [09:28:20] 🔍 [DEBUG] Found placeholder: "Getting the gist......" - continuing...
+✅  [09:28:21] ✅ [EXTRACT] Found NEW text in container[21]: 19 chars
+🔍  [09:28:21] 🔍 [DEBUG] Found placeholder: "Getting the gist......" - continuing...
+    [09:28:22] ⏭️ [EXTRACT] Checking 22 containers (21 known hashes)
+    [09:28:22] 🔍 [EXTRACT] Scanning 22 containers (21 known)
+✅  [09:28:23] ✅ [EXTRACT] Found NEW text in container[3]: 5175 chars
+🔍  [09:28:23] 🔍 [DEBUG] New candidate text (5175 chars): "Les sources fournies contiennent une quantité significative d'informations sur le système Experiment..."
+✅  [09:28:25] ✅ [EXTRACT] Found NEW text in container[21]: 37 chars
+🔍  [09:28:25] 🔍 [DEBUG] Found placeholder: "Exploring Grammatical Applications......" - continuing...
+✅  [09:28:26] ✅ [EXTRACT] Found NEW text in container[21]: 34 chars
+🔍  [09:28:26] 🔍 [DEBUG] Found placeholder: "Identifying Musical Limitations......" - continuing...
+✅  [09:28:27] ✅ [EXTRACT] Found NEW text in container[21]: 34 chars
+🔍  [09:28:27] 🔍 [DEBUG] Found placeholder: "Identifying Musical Limitations......" - continuing...
+✅  [09:28:29] ✅ [EXTRACT] Found NEW text in container[21]: 33 chars
+🔍  [09:28:29] 🔍 [DEBUG] Found placeholder: "Analyzing Contextual Relevance......" - continuing...
+    [09:28:30] ⏭️ [EXTRACT] Checking 22 containers (21 known hashes)
+    [09:28:30] 🔍 [EXTRACT] Scanning 22 containers (21 known)
+✅  [09:28:30] ✅ [EXTRACT] Found NEW text in container[21]: 33 chars
+🔍  [09:28:30] 🔍 [DEBUG] Found placeholder: "Analyzing Contextual Relevance......" - continuing...
+✅  [09:28:32] ✅ [EXTRACT] Found NEW text in container[21]: 38 chars
+🔍  [09:28:32] 🔍 [DEBUG] Found placeholder: "Pinpointing Contextual Dependencies......" - continuing...
+✅  [09:28:32] ✅ [EXTRACT] Found NEW text in container[21]: 38 chars
+🔍  [09:28:32] 🔍 [DEBUG] Found placeholder: "Pinpointing Contextual Dependencies......" - continuing...
+✅  [09:28:34] ✅ [EXTRACT] Found NEW text in container[21]: 34 chars
+🔍  [09:28:34] 🔍 [DEBUG] Found placeholder: "Defining Grammatical Frameworks......" - continuing...
+✅  [09:28:35] ✅ [EXTRACT] Found NEW text in container[21]: 34 chars
+🔍  [09:28:35] 🔍 [DEBUG] Found placeholder: "Defining Grammatical Frameworks......" - continuing...
+    [09:28:37] ⏭️ [EXTRACT] Checking 22 containers (21 known hashes)
+    [09:28:37] 🔍 [EXTRACT] Scanning 22 containers (21 known)
+✅  [09:28:37] ✅ [EXTRACT] Found NEW text in container[21]: 29 chars
+🔍  [09:28:37] 🔍 [DEBUG] Found placeholder: "Refining Content Structure......" - continuing...
+✅  [09:28:38] ✅ [EXTRACT] Found NEW text in container[21]: 29 chars
+🔍  [09:28:38] 🔍 [DEBUG] Found placeholder: "Refining Content Structure......" - continuing...
+✅  [09:28:43] ✅ [EXTRACT] Found NEW text in container[15]: 4837 chars
+🔍  [09:28:43] 🔍 [DEBUG] New candidate text (4837 chars): "Le Bol Processor (BP), développé par Bernard Bel et Jim Kippen dans les années 1980, représente une ..."
+🔍  [09:28:43] 🔄 [DEBUG] Text changed (4837 chars, was 5175)
+✅  [09:28:52] ✅ [EXTRACT] Found NEW text in container[0]: 6043 chars
+🔍  [09:28:52] 🔍 [DEBUG] New candidate text (6043 chars): "Les sources abordent la question de la sémantique musicale avec une grande prudence, distinguant net..."
+🔍  [09:28:52] 🔄 [DEBUG] Text changed (6043 chars, was 4837)
+✅  [09:28:54] ✅ [EXTRACT] Found NEW text in container[21]: 6281 chars
+🔍  [09:28:54] 🔍 [DEBUG] New candidate text (6281 chars): "Oui, les sources abordent explicitement la nécessité de dépasser les grammaires hors-contexte (Conte..."
+🔍  [09:28:54] 🔄 [DEBUG] Text changed (6281 chars, was 6043)
+    [09:28:56] ⏭️ [EXTRACT] Checking 22 containers (21 known hashes)
+    [09:28:56] 🔍 [EXTRACT] Scanning 22 containers (21 known)
+✅  [09:28:56] ✅ [EXTRACT] Found NEW text in container[21]: 6281 chars
+✅  [09:28:58] ✅ [EXTRACT] Found NEW text in container[21]: 6281 chars
+🔍  [09:28:58] ✅ [DEBUG] Text stable for 3 polls (6281 chars)
+🔍  [09:28:58] ✅ [DEBUG] Returning stable answer (6281 chars)
+ℹ️  [09:28:58]   🔍 Checking for rate limit errors...
+✅  [09:28:59] ✅ [128c522d] Received answer (6281 chars, 2 total messages)
+ℹ️  [09:28:59] [0029ac70] Progress: Extracting source citations... (4/5)
+ℹ️  [09:28:59] 📚 [CITATIONS] Extracting sources (format: footnotes)...
+ℹ️  [09:29:00] 📚 [CITATIONS] Found 21 citation markers
+ℹ️  [09:29:00]   📄 Source name: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+⚠️  [09:29:02] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.hover: Element is not attached to the DOM
+Call log:
+  - attempting hover action
+    - waiting for element to be visible and stable
+    - element is visible and stable
+    - scrolling into view if needed
+    - done scrolling
+    - element is not visible
+  - retrying hover action
+    - waiting for element to be visible and stable
+
+✅  [09:29:02]   ✅ [[1]] Extracted: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+ℹ️  [09:29:02]   📄 Source name: "Aniruddh D. Patel - Music, Language, and the Brain..."
+⚠️  [09:29:02] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:02]   ✅ [[2]] Extracted: "Aniruddh D. Patel - Music, Language, and the Brain..."
+ℹ️  [09:29:02]   📄 Source name: "Nicolas Ruwet - Langage, musique, poésie - FR.pdf..."
+⚠️  [09:29:02] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:02]   ✅ [[3]] Extracted: "Nicolas Ruwet - Langage, musique, poésie - FR.pdf..."
+ℹ️  [09:29:02]   📄 Source name: "Stefan Koelsch - Brain and Music - EN.pdf..."
+⚠️  [09:29:02] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:02]   ✅ [[4]] Extracted: "Stefan Koelsch - Brain and Music - EN.pdf..."
+ℹ️  [09:29:02]   📄 Source name: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+⚠️  [09:29:02] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:02]   ✅ [[5]] Extracted: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+ℹ️  [09:29:03]   📄 Source name: "Aniruddh D. Patel - Music, Language, and the Brain..."
+⚠️  [09:29:03] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:03]   ✅ [[6]] Extracted: "Aniruddh D. Patel - Music, Language, and the Brain..."
+ℹ️  [09:29:03]   📄 Source name: "Leonard B. Meyer - Émotion et signification en mus..."
+⚠️  [09:29:03] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:03]   ✅ [[7]] Extracted: "Leonard B. Meyer - Émotion et signification en mus..."
+ℹ️  [09:29:03]   📄 Source name: "Eero Tarasti - A Theory of Musical Semiotics - EN...."
+⚠️  [09:29:03] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:03]   ✅ [[8]] Extracted: "Eero Tarasti - A Theory of Musical Semiotics - EN...."
+ℹ️  [09:29:03]   📄 Source name: "Eero Tarasti - A Theory of Musical Semiotics - EN...."
+⚠️  [09:29:03] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:03]   ✅ [[9]] Extracted: "Eero Tarasti - A Theory of Musical Semiotics - EN...."
+ℹ️  [09:29:03]   📄 Source name: "Nicolas Ruwet - Langage, musique, poésie - FR.pdf..."
+⚠️  [09:29:03] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:03]   ✅ [[10]] Extracted: "Nicolas Ruwet - Langage, musique, poésie - FR.pdf..."
+ℹ️  [09:29:03]   📄 Source name: "Aniruddh D. Patel - Music, Language, and the Brain..."
+⚠️  [09:29:04] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:04]   ✅ [[11]] Extracted: "Aniruddh D. Patel - Music, Language, and the Brain..."
+ℹ️  [09:29:04]   📄 Source name: "Aniruddh D. Patel - Music, Language, and the Brain..."
+⚠️  [09:29:04] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:04]   ✅ [[12]] Extracted: "Aniruddh D. Patel - Music, Language, and the Brain..."
+ℹ️  [09:29:04]   📄 Source name: "Constantin Floros - Music as Message (Musik als Bo..."
+⚠️  [09:29:04] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:04]   ✅ [[13]] Extracted: "Constantin Floros - Music as Message (Musik als Bo..."
+ℹ️  [09:29:04]   📄 Source name: "Eero Tarasti - A Theory of Musical Semiotics - EN...."
+⚠️  [09:29:04] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:04]   ✅ [[14]] Extracted: "Eero Tarasti - A Theory of Musical Semiotics - EN...."
+ℹ️  [09:29:05]   📄 Source name: "Byron Almén - A Theory of Musical Narrative - EN.p..."
+⚠️  [09:29:05] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:05]   ✅ [[15]] Extracted: "Byron Almén - A Theory of Musical Narrative - EN.p..."
+ℹ️  [09:29:05]   📄 Source name: "Eero Tarasti - A Theory of Musical Semiotics - EN...."
+⚠️  [09:29:05] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:05]   ✅ [[16]] Extracted: "Eero Tarasti - A Theory of Musical Semiotics - EN...."
+ℹ️  [09:29:05]   📄 Source name: "Raymond Monelle - The Sense of Music_ Semiotic Ess..."
+⚠️  [09:29:06] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:06]   ✅ [[17]] Extracted: "Raymond Monelle - The Sense of Music_ Semiotic Ess..."
+ℹ️  [09:29:06]   📄 Source name: "Nicolas Ruwet - Langage, musique, poésie - FR.pdf..."
+⚠️  [09:29:06] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:06]   ✅ [[18]] Extracted: "Nicolas Ruwet - Langage, musique, poésie - FR.pdf..."
+ℹ️  [09:29:06]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:29:06] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:06]   ✅ [[19]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+ℹ️  [09:29:06]   📄 Source name: "Andrew Hugill - The Digital Musician (3rd Ed) - EN..."
+⚠️  [09:29:06] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:06]   ✅ [[20]] Extracted: "Andrew Hugill - The Digital Musician (3rd Ed) - EN..."
+ℹ️  [09:29:06]   📄 Source name: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+⚠️  [09:29:06] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:29:06]   ✅ [[21]] Extracted: "Alexandre Ayrault - FONCTION DE LA TRIPARTITION SÉ..."
+✅  [09:29:06] 📚 [CITATIONS] Extracted 21/21 sources
+✅  [09:29:06]   📚 Extracted 21 source citations
+ℹ️  [09:29:06] [0029ac70] Progress: Question answered successfully! (5/5)
+✅  [09:29:06] ✅ [TOOL] ask_question completed successfully
+✅  [09:29:06] [0029ac70] /ask - Completed
+ℹ️  [09:30:07] 🔧 [TOOL] ask_question called
+ℹ️  [09:30:07]   Question: "Que disent les sources sur la structure récursive en musique ? La récursion musicale est-elle compar..."
+ℹ️  [09:30:07]   Session ID: 128c522d
+ℹ️  [09:30:07]   Notebook URL: https://notebooklm.google.com/notebook/36f5c1dc-3feb-46e9-8680-dbc86ad193a8
+ℹ️  [09:30:07]   Source format: footnotes
+ℹ️  [09:30:07] [55a0988d] Progress: Getting or creating browser session... (1/5)
+✅  [09:30:07] ♻️  Reusing existing session 128c522d
+ℹ️  [09:30:07] [55a0988d] Progress: Asking question to NotebookLM... (2/5)
+ℹ️  [09:30:07] 💬 [128c522d] Asking: "Que disent les sources sur la structure récursive en musique ? La récursion musicale est-elle compar..."
+ℹ️  [09:30:07] [55a0988d] Progress: Verifying authentication... (2/5)
+✅  [09:30:07] ✅ All 23 critical cookies are valid
+ℹ️  [09:30:07]   📸 Snapshotting existing responses...
+ℹ️  [09:30:08] 📸 [SNAPSHOT] Captured 32 existing responses
+✅  [09:30:08]   ✅ Captured 32 existing responses
+ℹ️  [09:30:08]   📋 Ensuring sources are selected...
+ℹ️  [09:30:10]   🔍 "Select all" not found, trying to verify sources manually...
+ℹ️  [09:30:10]   🔍 Checking for rate limit before asking...
+ℹ️  [09:30:12]   📸 Debug screenshot saved: C:\Users\romai\AppData\Local\notebooklm-mcp\Data\debug-before-ask.png
+✅  [09:30:12]   ✅ Found chat input: textarea.query-box-input
+ℹ️  [09:30:12]   ⌨️  Typing question with human-like behavior...
+ℹ️  [09:30:12] [55a0988d] Progress: Typing question with human-like behavior... (2/5)
+ℹ️  [09:32:27]   📤 Submitting question...
+ℹ️  [09:32:27] [55a0988d] Progress: Submitting question... (3/5)
+ℹ️  [09:32:29]   📸 Debug screenshot (after submit) saved: C:\Users\romai\AppData\Local\notebooklm-mcp\Data\debug-after-submit.png
+ℹ️  [09:32:29]   ⏳ Waiting for response (with streaming detection)...
+ℹ️  [09:32:29] [55a0988d] Progress: Waiting for NotebookLM response (streaming detection active)... (3/5)
+🔍  [09:32:29] 🔍 [DEBUG] Waiting for NEW answer. Ignoring 32 known responses
+✅  [09:32:30] ✅ [EXTRACT] Found NEW text in container[32]: 23 chars
+🔍  [09:32:30] 🔍 [DEBUG] Found placeholder: "Analyzing your files......" - continuing...
+✅  [09:32:32] ✅ [EXTRACT] Found NEW text in container[32]: 26 chars
+🔍  [09:32:32] 🔍 [DEBUG] Found placeholder: "Exploring your material......" - continuing...
+✅  [09:32:34] ✅ [EXTRACT] Found NEW text in container[32]: 26 chars
+🔍  [09:32:34] 🔍 [DEBUG] Found placeholder: "Exploring your material......" - continuing...
+✅  [09:32:35] ✅ [EXTRACT] Found NEW text in container[32]: 24 chars
+🔍  [09:32:35] 🔍 [DEBUG] Found placeholder: "Finding relevant info......" - continuing...
+    [09:32:37] ⏭️ [EXTRACT] Checking 33 containers (32 known hashes)
+    [09:32:37] 🔍 [EXTRACT] Scanning 33 containers (32 known)
+✅  [09:32:37] ✅ [EXTRACT] Found NEW text in container[32]: 24 chars
+🔍  [09:32:37] 🔍 [DEBUG] Found placeholder: "Finding relevant info......" - continuing...
+✅  [09:32:40] ✅ [EXTRACT] Found NEW text in container[16]: 5332 chars
+🔍  [09:32:40] 🔍 [DEBUG] New candidate text (5332 chars): "Les sources fournies tracent effectivement une filiation intellectuelle claire et continue de l'appl..."
+✅  [09:32:43] ✅ [EXTRACT] Found NEW text in container[32]: 29 chars
+🔍  [09:32:43] 🔍 [DEBUG] Found placeholder: "Defining Musical Recursion......" - continuing...
+✅  [09:32:46] ✅ [EXTRACT] Found NEW text in container[32]: 33 chars
+🔍  [09:32:46] 🔍 [DEBUG] Found placeholder: "Comparing Recursive Structures......" - continuing...
+✅  [09:32:48] ✅ [EXTRACT] Found NEW text in container[0]: 5231 chars
+🔍  [09:32:48] 🔍 [DEBUG] New candidate text (5231 chars): "D'après les sources fournies, bien que la Generative Theory of Tonal Music (GTTM) de Lerdahl et Jack..."
+🔍  [09:32:48] 🔄 [DEBUG] Text changed (5231 chars, was 5332)
+    [09:32:52] ⏭️ [EXTRACT] Checking 33 containers (32 known hashes)
+    [09:32:52] 🔍 [EXTRACT] Scanning 33 containers (32 known)
+✅  [09:32:55] ✅ [EXTRACT] Found NEW text in container[7]: 5268 chars
+🔍  [09:32:55] 🔍 [DEBUG] New candidate text (5268 chars): "Les sources fournies offrent une analyse approfondie des neurosciences de la syntaxe musicale. Elles..."
+🔍  [09:32:55] 🔄 [DEBUG] Text changed (5268 chars, was 5231)
+✅  [09:33:09] ✅ [EXTRACT] Found NEW text in container[32]: 5623 chars
+🔍  [09:33:09] 🔍 [DEBUG] New candidate text (5623 chars): "Les sources fournies offrent une analyse complexe et nuancée de la structure récursive en musique. E..."
+🔍  [09:33:09] 🔄 [DEBUG] Text changed (5623 chars, was 5268)
+✅  [09:33:11] ✅ [EXTRACT] Found NEW text in container[32]: 5623 chars
+✅  [09:33:14] ✅ [EXTRACT] Found NEW text in container[32]: 5623 chars
+🔍  [09:33:14] ✅ [DEBUG] Text stable for 3 polls (5623 chars)
+🔍  [09:33:14] ✅ [DEBUG] Returning stable answer (5623 chars)
+ℹ️  [09:33:14]   🔍 Checking for rate limit errors...
+✅  [09:33:16] ✅ [128c522d] Received answer (5623 chars, 3 total messages)
+ℹ️  [09:33:16] [55a0988d] Progress: Extracting source citations... (4/5)
+ℹ️  [09:33:17] 📚 [CITATIONS] Extracting sources (format: footnotes)...
+ℹ️  [09:33:18] 📚 [CITATIONS] Found 20 citation markers
+ℹ️  [09:33:18]   📄 Source name: "David Meredith - Computational Music Analysis - DE..."
+⚠️  [09:33:21] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.hover: Element is not attached to the DOM
+Call log:
+  - attempting hover action
+    - waiting for element to be visible and stable
+    - element is visible and stable
+    - scrolling into view if needed
+    - done scrolling
+    - element is not visible
+  - retrying hover action
+    - waiting for element to be visible and stable
+
+✅  [09:33:21]   ✅ [[1]] Extracted: "David Meredith - Computational Music Analysis - DE..."
+ℹ️  [09:33:22]   📄 Source name: "David Meredith - Computational Music Analysis - DE..."
+⚠️  [09:33:22] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:22]   ✅ [[2]] Extracted: "David Meredith - Computational Music Analysis - DE..."
+ℹ️  [09:33:22]   📄 Source name: "David Meredith - Computational Music Analysis - DE..."
+⚠️  [09:33:22] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:22]   ✅ [[3]] Extracted: "David Meredith - Computational Music Analysis - DE..."
+ℹ️  [09:33:22]   📄 Source name: "David Meredith - Computational Music Analysis - DE..."
+⚠️  [09:33:22] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:22]   ✅ [[4]] Extracted: "David Meredith - Computational Music Analysis - DE..."
+ℹ️  [09:33:22]   📄 Source name: "David Meredith - Computational Music Analysis - DE..."
+⚠️  [09:33:22] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:22]   ✅ [[5]] Extracted: "David Meredith - Computational Music Analysis - DE..."
+ℹ️  [09:33:22]   📄 Source name: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+⚠️  [09:33:22] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:22]   ✅ [[6]] Extracted: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+ℹ️  [09:33:23]   📄 Source name: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+⚠️  [09:33:23] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:23]   ✅ [[7]] Extracted: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+ℹ️  [09:33:23]   📄 Source name: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+⚠️  [09:33:23] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:23]   ✅ [[8]] Extracted: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+ℹ️  [09:33:23]   📄 Source name: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+⚠️  [09:33:23] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:23]   ✅ [[9]] Extracted: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+ℹ️  [09:33:23]   📄 Source name: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+⚠️  [09:33:23] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:23]   ✅ [[10]] Extracted: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+ℹ️  [09:33:23]   📄 Source name: "David Meredith - Computational Music Analysis - DE..."
+⚠️  [09:33:23] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:23]   ✅ [[11]] Extracted: "David Meredith - Computational Music Analysis - DE..."
+ℹ️  [09:33:24]   📄 Source name: "David Meredith - Computational Music Analysis - DE..."
+⚠️  [09:33:24] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:24]   ✅ [[12]] Extracted: "David Meredith - Computational Music Analysis - DE..."
+ℹ️  [09:33:24]   📄 Source name: "David Meredith - Computational Music Analysis - DE..."
+⚠️  [09:33:24] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:24]   ✅ [[13]] Extracted: "David Meredith - Computational Music Analysis - DE..."
+ℹ️  [09:33:24]   📄 Source name: "Vincent Meelberg - New Sounds, New Stories_ Narrat..."
+⚠️  [09:33:24] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:24]   ✅ [[14]] Extracted: "Vincent Meelberg - New Sounds, New Stories_ Narrat..."
+ℹ️  [09:33:24]   📄 Source name: "Dmitri Tymoczko - A Geometry of Music - EN.pdf..."
+⚠️  [09:33:24] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:24]   ✅ [[15]] Extracted: "Dmitri Tymoczko - A Geometry of Music - EN.pdf..."
+ℹ️  [09:33:24]   📄 Source name: "Vincent Meelberg - New Sounds, New Stories_ Narrat..."
+⚠️  [09:33:24] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:24]   ✅ [[16]] Extracted: "Vincent Meelberg - New Sounds, New Stories_ Narrat..."
+ℹ️  [09:33:25]   📄 Source name: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+⚠️  [09:33:25] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:25]   ✅ [[17]] Extracted: "Lerdahl & Jackendoff - A Generative Theory of Tona..."
+ℹ️  [09:33:25]   📄 Source name: "Alexander Lerch - Audio Content Analysis - EN.pdf..."
+⚠️  [09:33:25] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:25]   ✅ [[18]] Extracted: "Alexander Lerch - Audio Content Analysis - EN.pdf..."
+ℹ️  [09:33:25]   📄 Source name: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+⚠️  [09:33:25] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:25]   ✅ [[19]] Extracted: "Guerino Mazzola - The Topos of Music - DE.pdf..."
+ℹ️  [09:33:25]   📄 Source name: "Gerhard Nierhaus - Algorithmic Composition_ Paradi..."
+⚠️  [09:33:25] ⚠️  [CITATIONS] Extraction failed: Error: elementHandle.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+  - attempting scroll into view action
+    - waiting for element to be stable
+
+✅  [09:33:25]   ✅ [[20]] Extracted: "Gerhard Nierhaus - Algorithmic Composition_ Paradi..."
+✅  [09:33:25] 📚 [CITATIONS] Extracted 20/20 sources
+✅  [09:33:25]   📚 Extracted 20 source citations
+ℹ️  [09:33:25] [55a0988d] Progress: Question answered successfully! (5/5)
+✅  [09:33:25] ✅ [TOOL] ask_question completed successfully
+✅  [09:33:25] [55a0988d] /ask - Completed
+ℹ️  [09:34:07] 🔧 [TOOL] ask_question called
+ℹ️  [09:34:07]   Question: "Les sources discutent-elles de concepts de théorie des langages formels comme les automates à pile, ..."
+ℹ️  [09:34:07]   Session ID: 128c522d
+ℹ️  [09:34:07]   Notebook URL: https://notebooklm.google.com/notebook/36f5c1dc-3feb-46e9-8680-dbc86ad193a8
+ℹ️  [09:34:07]   Source format: footnotes
+ℹ️  [09:34:07] [f377f65a] Progress: Getting or creating browser session... (1/5)
+✅  [09:34:07] ♻️  Reusing existing session 128c522d
+ℹ️  [09:34:07] [f377f65a] Progress: Asking question to NotebookLM... (2/5)
+ℹ️  [09:34:07] 💬 [128c522d] Asking: "Les sources discutent-elles de concepts de théorie des langages formels comme les automates à pile, ..."
+ℹ️  [09:34:07] [f377f65a] Progress: Verifying authentication... (2/5)
+✅  [09:34:07] ✅ All 23 critical cookies are valid
+ℹ️  [09:34:07]   📸 Snapshotting existing responses...
+ℹ️  [09:34:08] 📸 [SNAPSHOT] Captured 43 existing responses
+✅  [09:34:08]   ✅ Captured 43 existing responses
+ℹ️  [09:34:08]   📋 Ensuring sources are selected...
+ℹ️  [09:34:12]   🔍 "Select all" not found, trying to verify sources manually...
+ℹ️  [09:34:12]   🔍 Checking for rate limit before asking...
+ℹ️  [09:34:15]   📸 Debug screenshot saved: C:\Users\romai\AppData\Local\notebooklm-mcp\Data\debug-before-ask.png
+✅  [09:34:15]   ✅ Found chat input: textarea.query-box-input
+ℹ️  [09:34:15]   ⌨️  Typing question with human-like behavior...
+ℹ️  [09:34:15] [f377f65a] Progress: Typing question with human-like behavior... (2/5)
+
+
+
