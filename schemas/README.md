@@ -8,9 +8,9 @@ declares; the published copy is built from it.
 
 ## Schemas
 
-| File                                           | Canonical URL                                          | Description                                                                                                                |
-| ---------------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| [`nblm-answer-v1.json`](./nblm-answer-v1.json) | <https://schemas.roomi-fields.com/nblm-answer-v1.json> | Sidecar payload produced by `/batch-to-vault`: one NotebookLM answer with citations, source excerpts and session metadata. |
+| File                                           | Canonical URL                                                                                        | Description                                                                                                                |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [`nblm-answer-v1.json`](./nblm-answer-v1.json) | [schemas.roomi-fields.com/nblm-answer-v1.json](https://schemas.roomi-fields.com/nblm-answer-v1.json) | Sidecar payload produced by `/batch-to-vault`: one NotebookLM answer with citations, source excerpts and session metadata. |
 
 ## Conventions
 
@@ -21,7 +21,7 @@ declares; the published copy is built from it.
 ## Publishing flow
 
 The `nblm-answer-v1.json` file is mirrored as a static asset on the public
-site at <https://schemas.roomi-fields.com/nblm-answer-v1.json>. When updating
+site at [schemas.roomi-fields.com/nblm-answer-v1.json](https://schemas.roomi-fields.com/nblm-answer-v1.json). When updating
 the schema:
 
 1. Edit the file in this directory.

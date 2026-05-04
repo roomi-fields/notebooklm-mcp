@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `POST /batch-to-vault` endpoint: runs a list of questions and writes each answer as a markdown file (YAML frontmatter + answer + sources block) and a JSON sidecar in a vault directory, ready for ingestion by [RTFM](https://github.com/roomi-fields/rtfm) or any markdown vault tool (Obsidian, Foam, Dendron). Removes the 50-queries/day quota and 10–30s latency for repeat queries on academic / SOTA workflows.
 - `src/utils/vault-writer.ts`: `formatAnswerMarkdown`, `formatAnswerJson`, `makeSlug` helpers with NFD-normalised slugs and YAML escape.
-- `nblm-answer-v1` JSON Schema published at the canonical, immutable URL <https://schemas.roomi-fields.com/nblm-answer-v1.json> (served as `application/schema+json` with open CORS, JSON-LD Dataset entry for AI-crawler discovery, 24h immutable cache). Source-of-truth copy in `schemas/nblm-answer-v1.json`.
+- `nblm-answer-v1` JSON Schema published at the canonical, immutable URL [https://schemas.roomi-fields.com/nblm-answer-v1.json](https://schemas.roomi-fields.com/nblm-answer-v1.json) (served as `application/schema+json` with open CORS, JSON-LD Dataset entry for AI-crawler discovery, 24h immutable cache). Source-of-truth copy in `schemas/nblm-answer-v1.json`.
 - New documentation page [`14-RTFM-INTEGRATION.md`](./deployment/docs/14-RTFM-INTEGRATION.md) — full pattern, schema reference, RTFM wiring, recommended layout for academic batches, question-generation prompt.
 - README: RTFM listed as the 4th Integration Option alongside MCP, HTTP REST, and Docker.
 

@@ -218,7 +218,7 @@ For batches above ~50 questions, multi-account rotation kicks in automatically w
 
 Sidecar `{slug}.json` files conform to this schema. Stable across releases under SemVer; breaking changes will bump the major version.
 
-> **Canonical URL** (resolvable, served as `application/schema+json` with CORS): <https://schemas.roomi-fields.com/nblm-answer-v1.json> — fetch from any JSON Schema validator. The version below mirrors the canonical document.
+> **Canonical URL** (resolvable, served as `application/schema+json` with CORS): [schemas.roomi-fields.com/nblm-answer-v1.json](https://schemas.roomi-fields.com/nblm-answer-v1.json) — fetch from any JSON Schema validator. The version below mirrors the canonical document.
 
 ```json
 {
