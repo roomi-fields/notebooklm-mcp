@@ -66,6 +66,7 @@ Generate multiple content types from your notebook sources:
 - **MCP Protocol** — Claude Code, Cursor, Codex, any MCP client
 - **HTTP REST API** — n8n, Zapier, Make.com, custom integrations
 - **Docker** — Isolated deployment with Docker or Docker Compose
+- **[RTFM](https://github.com/roomi-fields/rtfm) retrieval layer** — `/batch-to-vault` writes citation-backed answers as markdown + JSON sidecars (`nblm-answer-v1` schema), indexable by [RTFM](https://github.com/roomi-fields/rtfm) (FTS5 + semantic) for unlimited offline queries. Ideal for academic / SOTA workflows. [Guide](./deployment/docs/14-RTFM-INTEGRATION.md).
 
 ---
 
@@ -135,23 +136,24 @@ See [Docker Guide](./deployment/docs/08-DOCKER.md) for NAS deployment (Synology,
 
 Full docs site: **<https://roomi-fields.github.io/notebooklm-mcp/>** · [OpenAPI 3.1 spec](./deployment/docs/openapi.yaml)
 
-| Guide                                                                    | Description                                            |
-| ------------------------------------------------------------------------ | ------------------------------------------------------ |
-| [Installation](./deployment/docs/01-INSTALL.md)                          | Step-by-step setup for HTTP and MCP modes              |
-| [Configuration](./deployment/docs/02-CONFIGURATION.md)                   | Environment variables and security                     |
-| [REST API reference](./deployment/docs/03-API.md)                        | Complete HTTP endpoint documentation (33 endpoints)    |
-| [Run 1 000 questions overnight](./deployment/docs/12-BATCH-1000.md)      | Production batch pattern with auto-reauth and rotation |
-| [n8n integration](./deployment/docs/04-N8N-INTEGRATION.md)               | Workflow automation setup                              |
-| [Troubleshooting](./deployment/docs/05-TROUBLESHOOTING.md)               | Common issues and solutions                            |
-| [Notebook library](./deployment/docs/06-NOTEBOOK-LIBRARY.md)             | Multi-notebook management                              |
-| [Auto-discovery](./deployment/docs/07-AUTO-DISCOVERY.md)                 | Autonomous metadata generation                         |
-| [Content management](./deployment/docs/10-CONTENT-MANAGEMENT.md)         | Audio, video, infographic, report, presentation        |
-| [Multi-account rotation](./deployment/docs/11-MULTI-ACCOUNT.md)          | Multiple accounts with TOTP auto-reauth                |
-| [Docker](./deployment/docs/08-DOCKER.md)                                 | Docker and Docker Compose deployment                   |
-| [Multi-interface](./deployment/docs/09-MULTI-INTERFACE.md)               | Run Claude Desktop + HTTP simultaneously               |
-| [**Compare with PleasePrompto v2.0.0**](./deployment/docs/13-COMPARE.md) | Feature matrix vs the upstream MCP-only server         |
-| [Chrome profile limitation](./docs/CHROME_PROFILE_LIMITATION.md)         | Profile locking (solved in v1.3.6+)                    |
-| [Adding a language](./docs/ADDING_A_LANGUAGE.md)                         | i18n system for multilingual UI support                |
+| Guide                                                                                        | Description                                                                                                                       |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| [Installation](./deployment/docs/01-INSTALL.md)                                              | Step-by-step setup for HTTP and MCP modes                                                                                         |
+| [Configuration](./deployment/docs/02-CONFIGURATION.md)                                       | Environment variables and security                                                                                                |
+| [REST API reference](./deployment/docs/03-API.md)                                            | Complete HTTP endpoint documentation (33 endpoints)                                                                               |
+| [Run 1 000 questions overnight](./deployment/docs/12-BATCH-1000.md)                          | Production batch pattern with auto-reauth and rotation                                                                            |
+| [**RTFM integration — cache as searchable vault**](./deployment/docs/14-RTFM-INTEGRATION.md) | Pipeline pattern: NotebookLM as one-shot ingestion, RTFM as retrieval layer. `/batch-to-vault` endpoint, `nblm-answer-v1` schema. |
+| [n8n integration](./deployment/docs/04-N8N-INTEGRATION.md)                                   | Workflow automation setup                                                                                                         |
+| [Troubleshooting](./deployment/docs/05-TROUBLESHOOTING.md)                                   | Common issues and solutions                                                                                                       |
+| [Notebook library](./deployment/docs/06-NOTEBOOK-LIBRARY.md)                                 | Multi-notebook management                                                                                                         |
+| [Auto-discovery](./deployment/docs/07-AUTO-DISCOVERY.md)                                     | Autonomous metadata generation                                                                                                    |
+| [Content management](./deployment/docs/10-CONTENT-MANAGEMENT.md)                             | Audio, video, infographic, report, presentation                                                                                   |
+| [Multi-account rotation](./deployment/docs/11-MULTI-ACCOUNT.md)                              | Multiple accounts with TOTP auto-reauth                                                                                           |
+| [Docker](./deployment/docs/08-DOCKER.md)                                                     | Docker and Docker Compose deployment                                                                                              |
+| [Multi-interface](./deployment/docs/09-MULTI-INTERFACE.md)                                   | Run Claude Desktop + HTTP simultaneously                                                                                          |
+| [**Compare with PleasePrompto v2.0.0**](./deployment/docs/13-COMPARE.md)                     | Feature matrix vs the upstream MCP-only server                                                                                    |
+| [Chrome profile limitation](./docs/CHROME_PROFILE_LIMITATION.md)                             | Profile locking (solved in v1.3.6+)                                                                                               |
+| [Adding a language](./docs/ADDING_A_LANGUAGE.md)                                             | i18n system for multilingual UI support                                                                                           |
 
 ---
 
