@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0] - 2026-05-06
+
+### Added
+
+**`batch_to_vault` is now a first-class MCP tool — no HTTP server required:**
+
+- New MCP tool `batch_to_vault` exposed alongside `ask_question`, `add_source`, etc. Same parameters and output as the HTTP endpoint (`questions[]`, `vault_dir`, `notebook_id`/`notebook_url`, `slug_prefix`, `source_format`, `sleep_between_ms`, `session_id`). MCP clients (Claude Code, Cursor, Codex…) can now run a batch directly without starting `npm run start:http` or hitting `localhost:3000`.
+- Shared helper `runBatchToVault` in `src/utils/vault-writer.ts` — single source of truth for the batch loop. Both the MCP tool (`ToolHandlers.handleBatchToVault`) and the HTTP `/batch-to-vault` endpoint call it with the same `askQuestion` injection. Eliminates the previous duplicated loop in `http-wrapper.ts`.
+
+### Changed
+
+- `POST /batch-to-vault` is now a thin wrapper over `ToolHandlers.handleBatchToVault`. Behaviour and response shape are unchanged; the implementation is just no longer duplicated.
+
+---
+
 ## [1.6.0] - 2026-05-04
 
 ### Added

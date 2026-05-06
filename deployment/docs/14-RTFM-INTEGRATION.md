@@ -34,7 +34,42 @@ This page shows how to wire the two together.
 - A notebook with sources already attached. List them with `GET /notebooks/scrape`.
 - A list of questions you want answered against that notebook.
 
-## The endpoint
+## Two transports, same logic
+
+The batch runner is exposed two ways — pick whichever matches your client. Both call the same `runBatchToVault` helper, accept the same parameters, and return the same shape.
+
+| Transport                   | When to use                                                        | Requires HTTP server running?          |
+| --------------------------- | ------------------------------------------------------------------ | -------------------------------------- |
+| MCP tool `batch_to_vault`   | From an MCP client (Claude Code, Cursor, Codex, Continue)          | No — the MCP client spawns the process |
+| HTTP `POST /batch-to-vault` | From shell scripts, curl, n8n HTTP node, custom backends, browsers | Yes (`npm run start:http`)             |
+
+For ad-hoc batches inside an agent session, prefer the MCP tool — nothing to start, kill, or expose on a port. For overnight cron jobs and external orchestrators, the HTTP endpoint is the right transport.
+
+### MCP tool call
+
+From any MCP client with this server registered:
+
+```jsonc
+// Claude Code / Cursor / Codex tool call
+{
+  "tool": "batch_to_vault",
+  "arguments": {
+    "questions": [
+      "What is the OSBD process?",
+      "How does NVC differentiate a need from a strategy?",
+    ],
+    "vault_dir": "/path/to/your/vault/cnv",
+    "notebook_id": "notebook-1",
+    "slug_prefix": "sota",
+    "source_format": "json",
+    "sleep_between_ms": 2000,
+  },
+}
+```
+
+The agent invokes `batch_to_vault` directly — same answer, same `{slug}.md` + `{slug}.json` artifacts, no HTTP round-trip.
+
+## The HTTP endpoint
 
 `POST /batch-to-vault` runs a list of questions and writes each answer as two artifacts in a vault directory:
 

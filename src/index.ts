@@ -394,6 +394,21 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case 'batch_to_vault':
+            result = await this.toolHandlers.handleBatchToVault(
+              args as {
+                questions: string[];
+                vault_dir: string;
+                notebook_id?: string;
+                notebook_url?: string;
+                slug_prefix?: string;
+                source_format?: 'none' | 'inline' | 'footnotes' | 'json' | 'expanded';
+                sleep_between_ms?: number;
+                session_id?: string;
+              }
+            );
+            break;
+
           case 'auto_discover_notebook':
             result = await this.toolHandlers.handleAutoDiscoverNotebook(args as { url: string });
             break;

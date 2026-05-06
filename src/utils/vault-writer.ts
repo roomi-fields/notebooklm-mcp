@@ -8,7 +8,16 @@
  * Schema URL: https://schemas.roomi-fields.com/nblm-answer-v1.json
  */
 
-import type { AskQuestionSuccess, Citation } from '../types.js';
+import { promises as fs } from 'fs';
+import path from 'path';
+import type {
+  AskQuestionResult,
+  AskQuestionSuccess,
+  Citation,
+  ProgressCallback,
+  SourceFormat,
+  ToolResult,
+} from '../types.js';
 
 export interface NotebookMeta {
   id?: string;
@@ -179,5 +188,161 @@ export function formatAnswerJson(
       citations_count: citations.length,
       source_names: sourceNames,
     },
+  };
+}
+
+export interface BatchToVaultArgs {
+  questions: string[];
+  vault_dir: string;
+  notebook_id?: string;
+  notebook_url?: string;
+  slug_prefix?: string;
+  source_format?: SourceFormat;
+  sleep_between_ms?: number;
+  session_id?: string;
+}
+
+export interface BatchToVaultFileResult {
+  question: string;
+  md_path: string;
+  json_path: string;
+  success: boolean;
+  citations_count: number;
+  error?: string;
+}
+
+export interface BatchToVaultResult {
+  vault_dir: string;
+  total: number;
+  succeeded: number;
+  failed: number;
+  session_id?: string;
+  notebook: NotebookMeta;
+  files: BatchToVaultFileResult[];
+}
+
+export type AskQuestionFn = (
+  args: {
+    question: string;
+    session_id?: string;
+    notebook_id?: string;
+    notebook_url?: string;
+    source_format?: SourceFormat;
+  },
+  sendProgress?: ProgressCallback
+) => Promise<ToolResult<AskQuestionResult>>;
+
+interface BatchLogger {
+  info?: (msg: string) => void;
+  error?: (msg: string) => void;
+}
+
+/**
+ * Run a batch of questions and persist each answer as `{slug}.md` + `{slug}.json`
+ * in `vault_dir`. Shared between the HTTP `/batch-to-vault` endpoint and the
+ * `batch_to_vault` MCP tool — the only difference between callers is the
+ * `askQuestion` function passed in (both wrap `ToolHandlers.handleAskQuestion`).
+ */
+export async function runBatchToVault(
+  args: BatchToVaultArgs,
+  askQuestion: AskQuestionFn,
+  logger?: BatchLogger
+): Promise<BatchToVaultResult> {
+  const {
+    questions,
+    vault_dir,
+    notebook_id,
+    notebook_url,
+    slug_prefix = '',
+    source_format = 'json',
+    sleep_between_ms = 0,
+    session_id,
+  } = args;
+
+  const absVaultDir = path.resolve(vault_dir);
+  await fs.mkdir(absVaultDir, { recursive: true });
+
+  const results: BatchToVaultFileResult[] = [];
+  let currentSession: string | undefined = session_id;
+  const notebookMeta: NotebookMeta = {};
+
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    logger?.info?.(`[${i + 1}/${questions.length}] ${String(q).substring(0, 80)}`);
+
+    try {
+      const askResult = await askQuestion({
+        question: q,
+        session_id: currentSession,
+        notebook_id,
+        notebook_url,
+        source_format,
+      });
+
+      if (!askResult?.success || !askResult.data || askResult.data.status !== 'success') {
+        const errMsg =
+          askResult?.error ||
+          (askResult?.data && 'error' in askResult.data ? askResult.data.error : 'Unknown error');
+        results.push({
+          question: q,
+          md_path: '',
+          json_path: '',
+          success: false,
+          citations_count: 0,
+          error: errMsg,
+        });
+        continue;
+      }
+
+      const data = askResult.data as AskQuestionSuccess;
+      if (data.session_id) currentSession = data.session_id;
+      if (!notebookMeta.url && data.notebook_url) notebookMeta.url = data.notebook_url;
+      if (!notebookMeta.id && notebook_id) notebookMeta.id = notebook_id;
+
+      const askedAt = new Date().toISOString();
+      const slug = makeSlug(q, slug_prefix, i);
+      const mdPath = path.join(absVaultDir, `${slug}.md`);
+      const jsonPath = path.join(absVaultDir, `${slug}.json`);
+
+      const markdown = formatAnswerMarkdown(data, notebookMeta, askedAt);
+      const jsonPayload = formatAnswerJson(data, notebookMeta, askedAt);
+
+      await fs.writeFile(mdPath, markdown, 'utf-8');
+      await fs.writeFile(jsonPath, JSON.stringify(jsonPayload, null, 2), 'utf-8');
+
+      results.push({
+        question: q,
+        md_path: mdPath,
+        json_path: jsonPath,
+        success: true,
+        citations_count: data.sources?.citations.length ?? 0,
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger?.error?.(`[${i + 1}] failed: ${msg}`);
+      results.push({
+        question: q,
+        md_path: '',
+        json_path: '',
+        success: false,
+        citations_count: 0,
+        error: msg,
+      });
+    }
+
+    if (sleep_between_ms > 0 && i < questions.length - 1) {
+      await new Promise((r) => setTimeout(r, sleep_between_ms));
+    }
+  }
+
+  const succeeded = results.filter((r) => r.success).length;
+  return {
+    vault_dir: absVaultDir,
+    total: questions.length,
+    succeeded,
+    failed: questions.length - succeeded,
+    session_id: currentSession,
+    notebook: notebookMeta,
+    files: results,
   };
 }

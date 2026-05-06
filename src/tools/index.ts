@@ -42,6 +42,7 @@ import { RateLimitError } from '../errors.js';
 import { CleanupManager } from '../utils/cleanup-manager.js';
 import { randomDelay } from '../utils/stealth-utils.js';
 import { ContentManager } from '../content/content-manager.js';
+import { runBatchToVault, type BatchToVaultResult } from '../utils/vault-writer.js';
 import type {
   SourceUploadResult,
   SourceDeleteResult,
@@ -1099,6 +1100,69 @@ User: "Yes" → call remove_notebook`,
       },
     },
     // ========================================================================
+    // Batch / Vault Tools
+    // ========================================================================
+    {
+      name: 'batch_to_vault',
+      description:
+        'Run a list of questions against a notebook and persist each answer to disk as ' +
+        'two artifacts: `{slug}.md` (markdown with YAML frontmatter, answer body and ' +
+        'cited source excerpts) and `{slug}.json` (structured payload conforming to the ' +
+        'nblm-answer-v1 schema). Designed for one-shot ingestion of a notebook into a ' +
+        'searchable markdown vault (e.g. for indexing with RTFM) — every answer keeps ' +
+        'titles + highlighted excerpts, so repeat queries no longer need to round-trip ' +
+        'through NotebookLM.\n\n' +
+        'Reuses the same browser/session as ask_question — no HTTP server required. ' +
+        'Pass `sleep_between_ms` (1500–3000ms) for batches above ~20 questions to avoid ' +
+        'hammering NotebookLM.\n\n' +
+        'Returns per-question file paths, success flags, citation counts and the resolved ' +
+        'session id. See the RTFM integration guide for the recommended workflow.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          questions: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Non-empty array of question strings to ask sequentially.',
+          },
+          vault_dir: {
+            type: 'string',
+            description:
+              'Destination directory (absolute or relative). Created with mkdir -p if missing.',
+          },
+          notebook_id: {
+            type: 'string',
+            description:
+              'Optional library notebook id to query. Falls back to the active notebook.',
+          },
+          notebook_url: {
+            type: 'string',
+            description:
+              'Optional NotebookLM URL (overrides notebook_id). Use for ad-hoc notebooks.',
+          },
+          slug_prefix: {
+            type: 'string',
+            description: 'Optional filename prefix (e.g. "sota", "market-2026q2"). Default: "".',
+          },
+          source_format: {
+            type: 'string',
+            enum: ['none', 'inline', 'footnotes', 'json', 'expanded'],
+            description:
+              'Citation extraction mode. "json" (default) preserves titles + excerpts in the sidecar.',
+          },
+          sleep_between_ms: {
+            type: 'number',
+            description: 'Pause between questions in ms. 1500–3000 is sane for batches above ~20.',
+          },
+          session_id: {
+            type: 'string',
+            description: 'Optional session id to reuse for context continuity across the batch.',
+          },
+        },
+        required: ['questions', 'vault_dir'],
+      },
+    },
+    // ========================================================================
     // Browser Scraping Tools (Real NotebookLM Data)
     // ========================================================================
     {
@@ -1423,6 +1487,51 @@ export class ToolHandlers {
         success: false,
         error: errorMessage,
       };
+    }
+  }
+
+  /**
+   * Handle batch_to_vault tool — run N questions and persist each answer
+   * as `{slug}.md` + `{slug}.json` in `vault_dir`. Shared logic with the
+   * HTTP `/batch-to-vault` endpoint (both call `runBatchToVault`).
+   */
+  async handleBatchToVault(args: {
+    questions: string[];
+    vault_dir: string;
+    notebook_id?: string;
+    notebook_url?: string;
+    slug_prefix?: string;
+    source_format?: SourceFormat;
+    sleep_between_ms?: number;
+    session_id?: string;
+  }): Promise<ToolResult<BatchToVaultResult>> {
+    if (!Array.isArray(args.questions) || args.questions.length === 0) {
+      return {
+        success: false,
+        error: 'questions must be a non-empty string array',
+      };
+    }
+    if (!args.vault_dir || typeof args.vault_dir !== 'string') {
+      return {
+        success: false,
+        error: 'vault_dir is required (absolute or relative directory path)',
+      };
+    }
+
+    log.info(`🔧 [TOOL] batch_to_vault — ${args.questions.length} questions → ${args.vault_dir}`);
+    try {
+      const data = await runBatchToVault(args, (askArgs) => this.handleAskQuestion(askArgs), {
+        info: (m) => log.info(`  ${m}`),
+        error: (m) => log.error(`  ${m}`),
+      });
+      log.success(
+        `✅ batch_to_vault — ${data.succeeded}/${data.total} written to ${data.vault_dir}`
+      );
+      return { success: true, data };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error(`❌ batch_to_vault — ${errorMessage}`);
+      return { success: false, error: errorMessage };
     }
   }
 
