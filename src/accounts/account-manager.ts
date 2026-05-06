@@ -533,6 +533,26 @@ export class AccountManager {
   }
 
   /**
+   * Clear the current-account marker.
+   *
+   * Used after `re_auth` succeeds: a re-auth may have logged in with a
+   * different Google account than the one previously stored, but
+   * `performSetup()` (manual browser login) doesn't tell us *which* Google
+   * account the user picked. Rather than keep stale data and lie about
+   * which account is active, we clear the marker so `get_health` truthfully
+   * omits `current_account` until something explicit re-establishes it.
+   */
+  async clearCurrentAccountId(): Promise<void> {
+    const currentAccountPath = path.join(CONFIG.dataDir, 'current-account.txt');
+    try {
+      await fs.unlink(currentAccountPath);
+      log.info('  🧹 Current account marker cleared');
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+    }
+  }
+
+  /**
    * Record a login failure
    */
   async recordLoginFailure(accountId: string, error: string): Promise<void> {

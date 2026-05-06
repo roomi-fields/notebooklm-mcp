@@ -2043,6 +2043,18 @@ export class ToolHandlers {
       const durationSeconds = (Date.now() - startTime) / 1000;
 
       if (success) {
+        // Clear stale current-account marker. re_auth may have logged in with a
+        // different Google account, but performSetup() (manual browser login)
+        // doesn't tell us which account the user picked. Rather than keep
+        // returning the previous email from get_health, drop the marker so
+        // get_health truthfully omits `current_account`.
+        try {
+          const accountManager = await getAccountManager();
+          await accountManager.clearCurrentAccountId();
+        } catch (e) {
+          log.warning(`  ⚠️ Could not clear current account marker: ${e}`);
+        }
+
         await sendProgress?.('Re-authentication complete!', 12, 12);
         log.success(`✅ [TOOL] re_auth completed (${durationSeconds.toFixed(1)}s)`);
         return {
@@ -3205,61 +3217,61 @@ export class ToolHandlers {
         const notebooks: Array<{ id: string; name: string; url: string }> = [];
         const seenIds = new Set<string>();
 
-        // Strategy 1: Find notebook buttons with aria-labelledby="project-{UUID}-title"
-        const notebookButtons = await page.locator('button[aria-labelledby*="project-"]').all();
-        log.info(`  📋 Found ${notebookButtons.length} notebook buttons`);
+        // Strategy 1: Single page.evaluate() that walks every element whose
+        // id matches `project-{UUID}-title` and reads its textContent.
+        //
+        // This sidesteps the older `button[aria-labelledby*="project-"]`
+        // selector (NotebookLM has changed which tag wraps the title — a
+        // <button> with aria-labelledby today, something else tomorrow).
+        // The id-based naming is stable: NotebookLM consistently identifies
+        // each notebook by `project-{UUID}-title` regardless of layout.
+        //
+        // Passed as a template string so we don't fight tsconfig's missing
+        // DOM lib (consistent with the rest of the codebase, e.g. browser-session.ts).
+        type ScrapedNotebook = { id: string; name: string };
+        const scraped = (await page.evaluate(`
+          (() => {
+            const out = [];
+            const els = document.querySelectorAll('[id^="project-"][id$="-title"]');
+            els.forEach((el) => {
+              const m = el.id.match(/^project-([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})-title$/);
+              if (!m) return;
+              const text = (el.textContent ?? '').trim();
+              if (text) out.push({ id: m[1], name: text });
+            });
+            return out;
+          })()
+        `)) as ScrapedNotebook[];
+        log.info(`  📋 Strategy 1 found ${scraped.length} notebook titles via id-based scan`);
 
-        for (const button of notebookButtons) {
-          try {
-            const ariaLabelledBy = await button.getAttribute('aria-labelledby');
-            if (!ariaLabelledBy) continue;
-
-            // Extract UUID from aria-labelledby (format: "project-{UUID}-title project-{UUID}-emoji")
-            const idMatch = ariaLabelledBy.match(/project-([a-f0-9-]{36})/);
-            if (!idMatch) continue;
-
-            const id = idMatch[1];
-            if (seenIds.has(id)) continue;
-            seenIds.add(id);
-
-            // Get notebook name from the title element
-            let name = 'Untitled';
-            const titleElementId = `project-${id}-title`;
-            // UUID format doesn't need escaping, but we use attribute selector to be safe
-            const titleElement = page.locator(`[id="${titleElementId}"]`);
-            if ((await titleElement.count()) > 0) {
-              const titleText = await titleElement.textContent();
-              if (titleText && titleText.trim()) {
-                name = titleText.trim();
-              }
-            }
-
-            const url = `https://notebooklm.google.com/notebook/${id}`;
-            notebooks.push({ id, name, url });
-            log.info(`    📓 Found: ${name} (${id.substring(0, 8)}...)`);
-          } catch (e) {
-            log.warning(`    ⚠️ Could not extract notebook info: ${e}`);
-          }
+        for (const { id, name } of scraped) {
+          if (seenIds.has(id)) continue;
+          seenIds.add(id);
+          const url = `https://notebooklm.google.com/notebook/${id}`;
+          notebooks.push({ id, name, url });
+          log.info(`    📓 Found: ${name} (${id.substring(0, 8)}...)`);
         }
 
-        // Strategy 2: Fallback - parse HTML for notebook IDs
-        if (notebooks.length === 0) {
-          log.info('  📚 Fallback: Parsing HTML for notebook IDs...');
-          const pageContent = await page.content();
-          const notebookIdMatches = pageContent.match(
-            /project-([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/g
-          );
-
-          if (notebookIdMatches) {
-            for (const match of notebookIdMatches) {
-              const id = match.replace('project-', '');
-              if (!seenIds.has(id)) {
-                seenIds.add(id);
-                const url = `https://notebooklm.google.com/notebook/${id}`;
-                notebooks.push({ id, name: `Notebook`, url });
-                log.info(`    📓 Found from HTML: ${id.substring(0, 8)}...`);
-              }
-            }
+        // Strategy 2: Fallback for edge cases where the title element is
+        // present in the DOM tree but its textContent is empty (e.g. a
+        // notebook that hasn't finished hydrating). We discover any
+        // additional UUIDs from the raw HTML so the caller at least sees
+        // the notebook id, and mark `name` as empty (NOT a hardcoded
+        // "Notebook" placeholder — that was the old bug).
+        const pageContent = await page.content();
+        const allUuidMatches = pageContent.match(
+          /project-([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/g
+        );
+        if (allUuidMatches) {
+          for (const match of allUuidMatches) {
+            const id = match.replace('project-', '');
+            if (seenIds.has(id)) continue;
+            seenIds.add(id);
+            const url = `https://notebooklm.google.com/notebook/${id}`;
+            notebooks.push({ id, name: '', url });
+            log.warning(
+              `    📓 Found id only (no title hydrated): ${id.substring(0, 8)}... (name empty, not "Notebook")`
+            );
           }
         }
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "notebooklm",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "description": "Automate Google NotebookLM at scale. Citation-backed Q&A, full Studio generation (audio, video, infographic, report, presentation, data table), multi-account rotation with auto-reauth, and batch_to_vault for offline RTFM-ingestable answer caching.",
   "author": {
     "name": "roomi-fields",
@@ -14,7 +14,7 @@
   "mcpServers": {
     "notebooklm": {
       "command": "npx",
-      "args": ["-y", "@roomi-fields/notebooklm-mcp"]
+      "args": ["-y", "@roomi-fields/notebooklm-mcp@1.7.5"]
     }
   }
 }

@@ -4,7 +4,7 @@
 
 **Automate Google NotebookLM at scale. 33-endpoint HTTP REST API for n8n / Zapier / Make / curl, plus an MCP server for Claude Code / Cursor / Codex. Citation-backed Q&A, full Studio generation (audio · video · infographic · report · presentation · data table), multi-account rotation with auto-reauth.**
 
-> v1.7.4 — production-grade, batch-tested on overnight runs of 1 000+ questions. New: `batch_to_vault` is now a first-class MCP tool (no HTTP server required) on top of the existing `POST /batch-to-vault` endpoint. See [RTFM integration](./deployment/docs/14-RTFM-INTEGRATION.md) for the full pattern. [Compare with `PleasePrompto/notebooklm-mcp` v2.0.0](https://roomi-fields.github.io/notebooklm-mcp/compare) to see when this project is the right pick (REST API, full Studio, auto-reauth) and when the MCP-only upstream is.
+> v1.7.5 — production-grade, batch-tested on overnight runs of 1 000+ questions. New: `batch_to_vault` is now a first-class MCP tool (no HTTP server required) on top of the existing `POST /batch-to-vault` endpoint. See [RTFM integration](./deployment/docs/14-RTFM-INTEGRATION.md) for the full pattern. [Compare with `PleasePrompto/notebooklm-mcp` v2.0.0](https://roomi-fields.github.io/notebooklm-mcp/compare) to see when this project is the right pick (REST API, full Studio, auto-reauth) and when the MCP-only upstream is.
 
 <!-- Badges -->
 
@@ -174,6 +174,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 **Latest releases:**
 
+- **v1.7.5** — Three end-user bugs fixed: (1) `/plugin update` now actually upgrades the running MCP (npx pin in `plugin.json`); (2) `list_notebooks_from_nblm` no longer hardcodes `"Notebook"` as title — id-based scrape returns real names; (3) `get_health.current_account` no longer returns a stale email after `re_auth`
 - **v1.7.4** — Expose `create_notebook` and `delete_notebooks_from_nblm` as MCP tools (handlers existed but lacked a tool definition + dispatch case); 30/30 alignment audit passes
 - **v1.7.3** — Fix: `list_notebooks_from_nblm` MCP tool was declared but unreachable (missing dispatch case) — now resolves correctly
 - **v1.7.2** — Claude Code plugin manifest (`.claude-plugin/plugin.json`) + cross-file version sync script enforced in CI; README "Install via Claude Code marketplace" one-liner

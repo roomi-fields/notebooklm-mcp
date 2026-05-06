@@ -35,11 +35,22 @@ const targets = [
     // Regex replace (not reparse+reserialize) so prettier-controlled
     // formatting decisions (e.g. keywords array on one line vs many) are
     // preserved between releases and don't trigger phantom drift.
+    //
+    // We rewrite TWO things in this file:
+    //   1. The top-level "version" field — what /plugin Discover shows.
+    //   2. The npx version pin in mcpServers.notebooklm.args — what the MCP
+    //      runtime actually downloads. Pinning is required because npx -y
+    //      without a version reuses the _npx/<hash>/ cache and ignores newly
+    //      published releases until the cache is manually purged. By pinning
+    //      to the same version /plugin update just installed, we force npx
+    //      to fetch (or use the matching cache) for that exact version.
     transform: (s) =>
-      s.replace(
-        /^(\s*"version":\s*)"\d+\.\d+\.\d+"/m,
-        `$1"${VERSION}"`
-      ),
+      s
+        .replace(/^(\s*"version":\s*)"\d+\.\d+\.\d+"/m, `$1"${VERSION}"`)
+        .replace(
+          /"@roomi-fields\/notebooklm-mcp(?:@\d+\.\d+\.\d+)?"/,
+          `"@roomi-fields/notebooklm-mcp@${VERSION}"`
+        ),
   },
   {
     path: 'website/docusaurus.config.ts',

@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.5] - 2026-05-06
+
+Three bugs reported by an end-user agent against 1.7.2–1.7.4. All three are fixed in this release.
+
+### Fixed
+
+**#1 — `/plugin update` did not actually upgrade the running MCP server (cache-poisoning by `npx -y` without a version pin).**
+
+`mcpServers.notebooklm.args` was `["-y", "@roomi-fields/notebooklm-mcp"]`. Without a version specifier, `npx` reused the existing `_npx/<hash>/` cache regardless of which version `/plugin update` had just installed in the marketplace cache. Symptom: plugin manifest showed 1.7.4 but the live MCP server was still 1.7.2 and rejected newly-added tools (`create_notebook` etc.) with `Unknown tool`.
+
+Fix: pin the version inside the args (`"@roomi-fields/notebooklm-mcp@1.7.5"`). `scripts/sync-version.mjs` now propagates the package version to both the manifest's `version` field AND the npx pin in `mcpServers.notebooklm.args`. The CI `version:check` validates both. From now on every release ships with a manifest that points npx at exactly the version users just upgraded to.
+
+**#2 — `list_notebooks_from_nblm` returned every notebook with `name: "Notebook"`.**
+
+The Strategy 1 selector (`button[aria-labelledby*="project-"]`) no longer matches the current NotebookLM DOM, so it returned 0. The Strategy 2 fallback then scraped UUIDs out of the raw HTML and **hardcoded `name: 'Notebook'`** for each — making the API report N notebooks all named "Notebook" instead of an empty result or real titles.
+
+Fix: replace the brittle button selector with a DOM-agnostic `page.evaluate()` that walks every element whose `id` matches `project-{UUID}-title` and reads its `textContent`. The id-based naming is intrinsic to NotebookLM's data model and stable across UI rewrites. Strategy 2 (raw HTML fallback) now returns `name: ''` for ids it can only discover from HTML — never the misleading hardcoded placeholder.
+
+**#3 — `get_health.current_account` reported the previous account after `re_auth` succeeded with a different Google account.**
+
+`handleReAuth` ran de-auth + `performSetup()` (manual browser login) but never touched the `current-account.txt` marker. Since `performSetup()` does not know which Google account the user picks during browser login, the marker stayed stale and `get_health` kept returning the old email.
+
+Fix: new `AccountManager.clearCurrentAccountId()` method, called after a successful `re_auth`. `get_health` now truthfully omits `current_account` rather than returning a wrong value. Detecting the new account from the post-login browser state is a richer follow-up — for now we choose honest absence over misleading presence.
+
+---
+
 ## [1.7.4] - 2026-05-06
 
 ### Added
