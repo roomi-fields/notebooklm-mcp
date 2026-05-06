@@ -597,6 +597,13 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case 'list_notebooks_from_nblm':
+            result = await this.toolHandlers.handleListNotebooksFromNblm(
+              args as { show_browser?: boolean },
+              sendProgress
+            );
+            break;
+
           default:
             log.error(`❌ [MCP] Unknown tool: ${name}`);
             return {

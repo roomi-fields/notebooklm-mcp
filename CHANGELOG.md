@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.3] - 2026-05-06
+
+### Fixed
+
+- `list_notebooks_from_nblm` MCP tool was declared in the tool list but missing from the dispatch switch in `src/index.ts`, so calling it returned `Unknown tool`. Added the missing case → the tool now resolves and runs `handleListNotebooksFromNblm`.
+
+### Known orphans (not fixed in this patch)
+
+- `handleCreateNotebook` and `handleDeleteNotebooksFromNblm` exist as `ToolHandlers` methods but are not exposed via either a tool definition or a switch case. They are unreachable today and have no effect on user-visible behaviour. A follow-up will decide whether to expose them or remove them.
+
+---
+
 ## [1.7.2] - 2026-05-06
 
 ### Added

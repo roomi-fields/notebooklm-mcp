@@ -4,7 +4,7 @@
 
 **Automate Google NotebookLM at scale. 33-endpoint HTTP REST API for n8n / Zapier / Make / curl, plus an MCP server for Claude Code / Cursor / Codex. Citation-backed Q&A, full Studio generation (audio · video · infographic · report · presentation · data table), multi-account rotation with auto-reauth.**
 
-> v1.7.2 — production-grade, batch-tested on overnight runs of 1 000+ questions. New: `batch_to_vault` is now a first-class MCP tool (no HTTP server required) on top of the existing `POST /batch-to-vault` endpoint. See [RTFM integration](./deployment/docs/14-RTFM-INTEGRATION.md) for the full pattern. [Compare with `PleasePrompto/notebooklm-mcp` v2.0.0](https://roomi-fields.github.io/notebooklm-mcp/compare) to see when this project is the right pick (REST API, full Studio, auto-reauth) and when the MCP-only upstream is.
+> v1.7.3 — production-grade, batch-tested on overnight runs of 1 000+ questions. New: `batch_to_vault` is now a first-class MCP tool (no HTTP server required) on top of the existing `POST /batch-to-vault` endpoint. See [RTFM integration](./deployment/docs/14-RTFM-INTEGRATION.md) for the full pattern. [Compare with `PleasePrompto/notebooklm-mcp` v2.0.0](https://roomi-fields.github.io/notebooklm-mcp/compare) to see when this project is the right pick (REST API, full Studio, auto-reauth) and when the MCP-only upstream is.
 
 <!-- Badges -->
 
@@ -174,6 +174,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 **Latest releases:**
 
+- **v1.7.3** — Fix: `list_notebooks_from_nblm` MCP tool was declared but unreachable (missing dispatch case) — now resolves correctly
 - **v1.7.2** — Claude Code plugin manifest (`.claude-plugin/plugin.json`) + cross-file version sync script enforced in CI; README "Install via Claude Code marketplace" one-liner
 - **v1.7.0** — `batch_to_vault` exposed as a first-class MCP tool (parity with the HTTP endpoint, no localhost server required); shared `runBatchToVault` helper deduplicates the loop across both transports
 - **v1.6.0** — `/batch-to-vault` endpoint + RTFM integration (`nblm-answer-v1` JSON Schema published at [schemas.roomi-fields.com/nblm-answer-v1.json](https://schemas.roomi-fields.com/nblm-answer-v1.json)) for caching NotebookLM answers as a searchable markdown vault
