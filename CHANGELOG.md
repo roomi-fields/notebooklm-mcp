@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.9] - 2026-05-06
+
+### Security
+
+- Resolve transitive moderate XSS advisory **GHSA-v2v4-37r5-5v8g** in `ip-address ≤10.1.0` (reachable via `@modelcontextprotocol/sdk@1.26.0` → `express-rate-limit@8.x` → `ip-address`). Added `overrides: { "ip-address": "^10.2.0" }` to `package.json` to force the patched version regardless of upstream re-resolution. `npm audit` now reports `0 vulnerabilities`. CI `security` job (audit gate) was failing on 1.7.8 because of this advisory; this release unblocks it.
+
+---
+
 ## [1.7.8] - 2026-05-06
 
 ### Fixed (this time properly tested at runtime, MCP attached)
