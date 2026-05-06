@@ -4,7 +4,7 @@
 
 **Automate Google NotebookLM at scale. 33-endpoint HTTP REST API for n8n / Zapier / Make / curl, plus an MCP server for Claude Code / Cursor / Codex. Citation-backed Q&A, full Studio generation (audio · video · infographic · report · presentation · data table), multi-account rotation with auto-reauth.**
 
-> v1.7.7 — production-grade, batch-tested on overnight runs of 1 000+ questions. New: `batch_to_vault` is now a first-class MCP tool (no HTTP server required) on top of the existing `POST /batch-to-vault` endpoint. See [RTFM integration](./deployment/docs/14-RTFM-INTEGRATION.md) for the full pattern. [Compare with `PleasePrompto/notebooklm-mcp` v2.0.0](https://roomi-fields.github.io/notebooklm-mcp/compare) to see when this project is the right pick (REST API, full Studio, auto-reauth) and when the MCP-only upstream is.
+> v1.7.8 — production-grade, batch-tested on overnight runs of 1 000+ questions. New: `batch_to_vault` is now a first-class MCP tool (no HTTP server required) on top of the existing `POST /batch-to-vault` endpoint. See [RTFM integration](./deployment/docs/14-RTFM-INTEGRATION.md) for the full pattern. [Compare with `PleasePrompto/notebooklm-mcp` v2.0.0](https://roomi-fields.github.io/notebooklm-mcp/compare) to see when this project is the right pick (REST API, full Studio, auto-reauth) and when the MCP-only upstream is.
 
 <!-- Badges -->
 
@@ -174,6 +174,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 **Latest releases:**
 
+- **v1.7.8** — `add_source` false-negative fix (verified at runtime against a live MCP session this time): the count-based success detection now runs on every poll cycle instead of only after the upload dialog closes, since NotebookLM 2026 keeps the dialog open to allow chained uploads. Also fixes a long-standing packaging bug where `dist/index.js` was published in mode 644 (no `+x`), causing silent `Permission denied` failures in sandbox shells
 - **v1.7.7** — `add_source` defensive patch: broaden selectors to cover the empty/fresh-notebook "Upload sources" CTA (EN+FR), and replace the bare `Could not find "Add source" button` error with a structured DOM dump (URL, title, top 25 buttons + their aria-label/text/class) so the next iteration can be precise. Not validated runtime — the enriched diagnostic is the deliverable
 - **v1.7.6** — Fixes two tools shipped in 1.7.4 without live-runtime validation: (1) `create_notebook` now waits for the final UUID-based URL (no more `notebook/creating/c`) and verifies the rename actually applied (returns `name_applied`/`actual_name`); (2) `delete_notebooks_from_nblm` now uses the same id-based DOM strategy as `list_notebooks_from_nblm` (the old `button[aria-labelledby*="project-"]` selector was broken on the current NotebookLM DOM)
 - **v1.7.5** — Three end-user bugs fixed: (1) `/plugin marketplace update roomi-fields` + `/reload-plugins` now actually upgrades the running MCP (npx pin in `plugin.json`); (2) `list_notebooks_from_nblm` no longer hardcodes `"Notebook"` as title — id-based scrape returns real names; (3) `get_health.current_account` no longer returns a stale email after `re_auth`

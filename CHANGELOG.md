@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.8] - 2026-05-06
+
+### Fixed (this time properly tested at runtime, MCP attached)
+
+**`add_source` returned `Timeout waiting for source processing` for uploads that actually succeeded — false negative.**
+
+Verified in a live MCP session against my own NotebookLM account. After the upload, `list_content` immediately reported the source as `status: "ready"` while `add_source` reported `success: false`. Root cause traced in `waitForSourceProcessing`: NotebookLM 2026 keeps the upload dialog open after a successful upload (it lets the user chain more uploads), and the count-based success detection in the polling loop was gated behind `if (!dialogVisible)` — so the loop ran for the full 90s timeout while the dialog stayed open, and the early success signal (the source-list count growing by 1) was never tripped. Fix: lift the count-based detection out of the dialog-state branch and run it on every poll cycle. As soon as the source-list count grows, return success regardless of whether NotebookLM has dismissed the dialog or not.
+
+**Packaging: `dist/index.js` and `dist/stdio-http-proxy.js` were published in mode 644 (no executable bit) since at least 1.7.3.**
+
+The shebang `#!/usr/bin/env node` was present, but without the executable bit npm-published archives only worked on systems where the npm install step happened to re-chmod (e.g. the `bin` symlink machinery). Sandbox bash environments that don't re-chmod silently failed with `Permission denied`. Fix: new `build:chmod-bin` step in the `build` script that explicitly chmod-755s both binaries before they get tarballed by `npm publish`. Verified locally — `ls -la dist/index.js` now shows `-rwxr-xr-x` after `npm run build`.
+
+---
+
 ## [1.7.7] - 2026-05-06
 
 ### Defensive (not yet validated runtime)

@@ -1227,6 +1227,61 @@ export class ContentManager {
         }
       }
 
+      // ★ Count-based success detection — INDEPENDENT of dialog state.
+      //
+      // NotebookLM 2026 keeps the upload dialog open after a successful
+      // upload (so the user can chain multiple uploads without re-opening
+      // the dialog). The pre-existing logic only checked `count` after the
+      // dialog had closed, so it never tripped — the loop ran until the
+      // 90s timeout, and `add_source` returned a false negative (status:
+      // failed, error: "Timeout waiting for source processing") even though
+      // `list_content` immediately afterwards confirmed the source was
+      // present and ready. Verified runtime against MCP v1.7.7 in May 2026.
+      //
+      // The count-based signal is now the primary success path: as soon as
+      // the source-list count grew by ≥1, we consider the upload successful
+      // and return. The downstream branches (name-based, dialog-closed
+      // checks) remain as fallbacks for completeness.
+      try {
+        const currentCountInLoop = await this.page.locator('.single-source-container').count();
+        if (initialSourceCount >= 0 && currentCountInLoop > initialSourceCount) {
+          let detectedSourceName: string | undefined;
+          let detectedSourceId: string | undefined;
+          try {
+            const currentLabels = await this.getAllSourceLabels();
+            detectedSourceName =
+              this.findAddedSourceName(initialSourceLabels, currentLabels) ||
+              this.findAddedSourceName(previousSourceNames, currentLabels);
+            if (detectedSourceName) {
+              for (let i = currentLabels.length - 1; i >= 0; i--) {
+                if (
+                  this.normalizeSourceName(currentLabels[i]) ===
+                  this.normalizeSourceName(detectedSourceName)
+                ) {
+                  detectedSourceId = `source-${i}`;
+                  break;
+                }
+              }
+            }
+          } catch {
+            // Continue — even without a name, the count signal is enough.
+          }
+          log.success(
+            `  ✅ Source added (count ${initialSourceCount} → ${currentCountInLoop})${
+              detectedSourceName ? ` — name: ${detectedSourceName}` : ''
+            }`
+          );
+          return {
+            success: true,
+            sourceId: detectedSourceId,
+            sourceName: detectedSourceName ?? sourceName,
+            status: 'ready',
+          };
+        }
+      } catch {
+        /* ignore — fall through to dialog-state checks below */
+      }
+
       // Check if dialog is still open (might mean still processing)
       const dialogSelectors = ['[role="dialog"]', '.mat-dialog-container', '.mdc-dialog'];
       let dialogVisible = false;

@@ -1,6 +1,6 @@
 {
   "name": "@roomi-fields/notebooklm-mcp",
-  "version": "1.7.7",
+  "version": "1.7.8",
   "mcpName": "io.github.roomi-fields/notebooklm-mcp",
   "description": "MCP server for NotebookLM API with HTTP REST API - Zero hallucinations from your notebooks",
   "type": "module",
@@ -19,7 +19,8 @@
     "start:proxy": "node dist/stdio-http-proxy.js",
     "dev:http": "tsx watch src/http-wrapper.ts",
     "dev:proxy": "tsx watch src/stdio-http-proxy.ts",
-    "build": "tsc && npm run build:i18n",
+    "build": "tsc && npm run build:i18n && npm run build:chmod-bin",
+    "build:chmod-bin": "node -e \"require('fs').chmodSync('dist/index.js', 0o755); require('fs').chmodSync('dist/stdio-http-proxy.js', 0o755);\"",
     "version:sync": "node scripts/sync-version.mjs",
     "version:check": "node scripts/sync-version.mjs --check",
     "build:i18n": "node -e \"require('fs').cpSync('src/i18n', 'dist/i18n', {recursive: true, filter: (s) => s.endsWith('.json') || require('fs').statSync(s).isDirectory()})\"",
