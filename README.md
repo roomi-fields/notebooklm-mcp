@@ -81,7 +81,7 @@ The fastest way to get NotebookLM into Claude Code. Distributed via the [`roomi-
 /plugin install notebooklm@roomi-fields
 ```
 
-That registers the MCP server, runs `npx -y @roomi-fields/notebooklm-mcp` automatically on first use (Node ≥ 18 required), and keeps you in sync with releases via `/plugin update`. Then run `npm run setup-auth` once to log into Google. To install RTFM at the same time: `/plugin install rtfm@roomi-fields`.
+That registers the MCP server, runs `npx -y @roomi-fields/notebooklm-mcp@<pinned-version>` automatically (Node ≥ 18 required), and lets you upgrade with two commands when a new release ships: `/plugin marketplace update roomi-fields` then `/reload-plugins`. Then run `npm run setup-auth` once to log into Google. To install RTFM at the same time: `/plugin install rtfm@roomi-fields`.
 
 ### Option 1 — HTTP REST API (n8n, Zapier, Make, curl, any HTTP client)
 
@@ -174,7 +174,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 **Latest releases:**
 
-- **v1.7.5** — Three end-user bugs fixed: (1) `/plugin update` now actually upgrades the running MCP (npx pin in `plugin.json`); (2) `list_notebooks_from_nblm` no longer hardcodes `"Notebook"` as title — id-based scrape returns real names; (3) `get_health.current_account` no longer returns a stale email after `re_auth`
+- **v1.7.5** — Three end-user bugs fixed: (1) `/plugin marketplace update roomi-fields` + `/reload-plugins` now actually upgrades the running MCP (npx pin in `plugin.json`); (2) `list_notebooks_from_nblm` no longer hardcodes `"Notebook"` as title — id-based scrape returns real names; (3) `get_health.current_account` no longer returns a stale email after `re_auth`
 - **v1.7.4** — Expose `create_notebook` and `delete_notebooks_from_nblm` as MCP tools (handlers existed but lacked a tool definition + dispatch case); 30/30 alignment audit passes
 - **v1.7.3** — Fix: `list_notebooks_from_nblm` MCP tool was declared but unreachable (missing dispatch case) — now resolves correctly
 - **v1.7.2** — Claude Code plugin manifest (`.claude-plugin/plugin.json`) + cross-file version sync script enforced in CI; README "Install via Claude Code marketplace" one-liner

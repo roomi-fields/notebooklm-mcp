@@ -13,11 +13,11 @@ Three bugs reported by an end-user agent against 1.7.2–1.7.4. All three are fi
 
 ### Fixed
 
-**#1 — `/plugin update` did not actually upgrade the running MCP server (cache-poisoning by `npx -y` without a version pin).**
+**#1 — `/plugin marketplace update` + `/reload-plugins` did not actually upgrade the running MCP server (cache-poisoning by `npx -y` without a version pin).**
 
-`mcpServers.notebooklm.args` was `["-y", "@roomi-fields/notebooklm-mcp"]`. Without a version specifier, `npx` reused the existing `_npx/<hash>/` cache regardless of which version `/plugin update` had just installed in the marketplace cache. Symptom: plugin manifest showed 1.7.4 but the live MCP server was still 1.7.2 and rejected newly-added tools (`create_notebook` etc.) with `Unknown tool`.
+`mcpServers.notebooklm.args` was `["-y", "@roomi-fields/notebooklm-mcp"]`. Without a version specifier, `npx` reused the existing `_npx/<hash>/` cache regardless of which version the marketplace just refreshed to. Symptom: plugin manifest showed 1.7.4 but the live MCP server was still 1.7.2 and rejected newly-added tools (`create_notebook` etc.) with `Unknown tool`.
 
-Fix: pin the version inside the args (`"@roomi-fields/notebooklm-mcp@1.7.5"`). `scripts/sync-version.mjs` now propagates the package version to both the manifest's `version` field AND the npx pin in `mcpServers.notebooklm.args`. The CI `version:check` validates both. From now on every release ships with a manifest that points npx at exactly the version users just upgraded to.
+Fix: pin the version inside the args (`"@roomi-fields/notebooklm-mcp@1.7.5"`). `scripts/sync-version.mjs` now propagates the package version to both the manifest's `version` field AND the npx pin in `mcpServers.notebooklm.args`. The CI `version:check` validates both. From now on every release ships with a manifest that points npx at exactly the version the marketplace just resolved to.
 
 **#2 — `list_notebooks_from_nblm` returned every notebook with `name: "Notebook"`.**
 
