@@ -161,11 +161,23 @@ export class ContentManager {
       'button[aria-label*="Add source"]',
       'button[aria-label*="Ajouter une source"]',
       'button[aria-label*="add source" i]',
+      // Empty / freshly-created notebook layouts: NotebookLM shows a centered
+      // "Upload sources" / "Choose files" CTA instead of the per-panel "+"
+      // button. Cover the variants that have been observed in the wild.
+      'button[aria-label*="Upload" i]',
+      'button[aria-label*="Téléverser" i]',
+      'button[aria-label*="Importer" i]',
+      'button[aria-label*="Choose" i]',
       // Icon button with "add" icon specifically
       'button:has(mat-icon:has-text("add"))',
       'button:has(mat-icon:has-text("add_circle"))',
       // Text-based patterns (bilingual via i18n)
       ...i18nSelectors('button:has-text("{text}")', 'buttons', 'addSource'),
+      // Empty-notebook CTA text patterns
+      'button:has-text("Upload sources")',
+      'button:has-text("Choose files")',
+      'button:has-text("Téléverser")',
+      'button:has-text("Importer")',
       // FAB buttons (floating action button for adding)
       'button.mat-fab',
       'button.mat-mini-fab',
@@ -194,7 +206,7 @@ export class ContentManager {
       const addButtons = await this.page.locator('button[aria-label]').all();
       for (const btn of addButtons) {
         const ariaLabel = await btn.getAttribute('aria-label');
-        if (ariaLabel && /add|ajouter|upload|source/i.test(ariaLabel)) {
+        if (ariaLabel && /add|ajouter|upload|source|téléverser|importer/i.test(ariaLabel)) {
           if (await btn.isVisible()) {
             log.info(`  ✅ Found add button via fallback: aria-label="${ariaLabel}"`);
             await btn.click();
@@ -207,10 +219,39 @@ export class ContentManager {
       // Continue to debug
     }
 
-    // Debug: log page content to help identify the correct selector
+    // All strategies failed. Capture an actionable dump of what we see on
+    // the page, embed it directly in the thrown error, AND save the screenshot
+    // — so the caller (an MCP agent) doesn't need separate filesystem access
+    // to diagnose. This replaces the old behaviour where the only signal
+    // bubbling up to the caller was the bare string `Could not find "Add source" button`.
     await this.debugPageContent();
-
-    throw new Error('Could not find "Add source" button');
+    const observed = await this.page
+      .evaluate(
+        `
+        (() => {
+          const buttons = Array.from(document.querySelectorAll('button')).slice(0, 25);
+          return {
+            url: location.href,
+            title: document.title,
+            buttonCount: document.querySelectorAll('button').length,
+            buttons: buttons.map(b => ({
+              ariaLabel: b.getAttribute('aria-label') || null,
+              text: (b.textContent || '').trim().slice(0, 80),
+              hasMatIcon: !!b.querySelector('mat-icon'),
+              classList: (b.getAttribute('class') || '').split(' ').slice(0, 4).join(' '),
+              visible: !!(b.offsetParent !== null),
+            })),
+          };
+        })()
+      `
+      )
+      .catch((e: unknown) => ({ error: String(e) }));
+    throw new Error(
+      `Could not find "Add source" button. None of ${addSourceSelectors.length} selectors matched on the current page. ` +
+        `Likely cause: NotebookLM DOM has shifted (e.g. freshly-created notebook shows a different "Upload" CTA). ` +
+        `Observed page state: ${JSON.stringify(observed, null, 2)}. ` +
+        `Debug screenshot also saved to ${path.join(CONFIG.dataDir, 'debug-add-source.png')}.`
+    );
   }
 
   /**

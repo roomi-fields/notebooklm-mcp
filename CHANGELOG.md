@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.7] - 2026-05-06
+
+### Defensive (not yet validated runtime)
+
+**`add_source` `Could not find "Add source" button` — possibly fixed, definitely better diagnosed.**
+
+Reported by an end-user agent against a freshly-created notebook. Root cause is uncertain without runtime visibility from a Claude Code session — but two things are now in place:
+
+- **Selectors broadened** to cover the empty-notebook layout NotebookLM shows for fresh notebooks (centered "Upload sources" / "Choose files" CTA in EN, "Téléverser" / "Importer" in FR), in addition to the per-panel "+" button. Both aria-label and visible-text variants are tried.
+- **Error is now actionable.** Previously the failure surfaced as just `Could not find "Add source" button`. The error now embeds a JSON dump of what the page contains: URL, document title, total button count, and up to 25 buttons with their `aria-label`, text content, mat-icon presence, class list, and visibility flag. Plus the path of the debug screenshot. So when this error reaches the calling agent, it can either pick the right selector itself or paste the dump back to a maintainer for a precise fix.
+
+I do not have runtime access to a NotebookLM session in this environment, so I cannot confirm the broadened selectors actually resolve the error. If the issue persists, the enriched payload is designed to make the next iteration definitive instead of speculative.
+
+---
+
 ## [1.7.6] - 2026-05-06
 
 ### Fixed
