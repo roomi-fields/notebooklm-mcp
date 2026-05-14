@@ -40,6 +40,15 @@ The legacy ↔ canonical mapping lives in one place: `src/tools/tool-names.ts`.
 - `smithery.yaml` + `mcpb/` bundle source — the server is now published on the
   [Smithery registry](https://smithery.ai/servers/roomifields/notebooklm-mcp).
 
+### Security
+
+- Resolve two new transitive advisories pulled in via
+  `@modelcontextprotocol/sdk@1.26.0`: **`fast-uri ≤3.1.1`** (high — path
+  traversal / host confusion, GHSA-q3j6-qgpj-74h6, GHSA-v39h-62p7-jpjc) and
+  **`hono ≤4.12.17`** (moderate — several, incl. cache cross-user leakage
+  GHSA-p77w-8qqv-26rm). Added `overrides` for `fast-uri ^3.1.2` and
+  `hono ^4.12.18`; `npm audit` reports `0 vulnerabilities`.
+
 ---
 
 ## [1.7.9] - 2026-05-06
