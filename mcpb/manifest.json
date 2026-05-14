@@ -3,8 +3,8 @@
   "name": "notebooklm-mcp",
   "display_name": "NotebookLM MCP",
   "version": "1.7.9",
-  "description": "Automate Google NotebookLM at scale — citation-backed Q&A, Studio generation, multi-account rotation.",
-  "long_description": "MCP server for Google NotebookLM. Citation-backed Q&A from your notebooks, full Studio generation (audio overview, video, infographic, report, presentation, data table), source and notebook management, multi-account rotation with auto-reauth, and batch_to_vault for offline answer caching. Also ships a local HTTP REST API for use from n8n, Zapier, Make and scripts. Runs locally — it drives a real browser session against your own Google account.",
+  "description": "Automate Google NotebookLM at scale \u2014 citation-backed Q&A, Studio generation, multi-account rotation.",
+  "long_description": "MCP server for Google NotebookLM. Citation-backed Q&A from your notebooks, full Studio generation (audio overview, video, infographic, report, presentation, data table), source and notebook management, multi-account rotation with auto-reauth, and batch_to_vault for offline answer caching. Also ships a local HTTP REST API for use from n8n, Zapier, Make and scripts. Runs locally \u2014 it drives a real browser session against your own Google account.",
   "author": {
     "name": "Romain Peyrichou",
     "url": "https://github.com/roomi-fields"
@@ -41,8 +41,18 @@
     "mcp_config": {
       "command": "npx",
       "args": ["-y", "@roomi-fields/notebooklm-mcp@latest"],
-      "env": {}
+      "env": {
+        "NOTEBOOKLM_DATA_DIR": "${user_config.data_dir}"
+      }
     }
   },
-  "tools_generated": true
+  "tools_generated": true,
+  "user_config": {
+    "data_dir": {
+      "type": "directory",
+      "title": "Data directory",
+      "description": "Where NotebookLM MCP stores its Chrome profile and session data. Leave blank to use the default location.",
+      "required": false
+    }
+  }
 }
