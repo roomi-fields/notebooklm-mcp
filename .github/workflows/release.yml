@@ -1,34 +1,121 @@
 name: Release
 
+# Two-job split per codex round-3 B2 (Shai-Hulud hardening):
+#   - build:   runs lifecycle-script-free `npm pack` in a permissions-restricted job
+#              (NO id-token), uploads the .tgz + sha256 as an artifact
+#   - publish: downloads artifact, verifies sha256, publishes from the .tgz file
+#              with id-token: write and a protected GitHub Environment gate
+#
+# Trusted Publishing (OIDC) is configured at:
+#   https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp/access
+#   → Trusted Publishers → Add GitHub Actions
+#   See /tmp/shai-hulud-p5-deploy.md for full setup instructions.
+#
+# No NPM_TOKEN secret is needed once Trusted Publishing is live. Provenance is
+# produced automatically by npm when published from a Trusted Publisher OIDC
+# context, but we keep the `--provenance` flag explicit so the publish still
+# works as a fallback if Trusted Publishing is briefly disabled.
+
 on:
   push:
     tags:
       - 'v*'
 
+# Top-level permissions = read-only. Each job opts in to what it needs.
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 jobs:
-  release:
+  build:
+    name: Build & pack (no scripts, no OIDC)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '20'
+          node-version: '22.14.0'
           registry-url: 'https://registry.npmjs.org'
+          cache: ''
+          package-manager-cache: false
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Pin npm to >= 11.5.1
+        run: npm install --global --ignore-scripts npm@11.5.1
 
-      - name: Build
-        run: npm run build
+      - name: Install deps (no scripts)
+        run: npm ci --ignore-scripts
 
-      - name: Publish to npm
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build (explicit, not via lifecycle)
+        run: npm run build --ignore-scripts
+
+      - name: Pack tarball (no scripts)
+        id: pack
+        run: |
+          set -euo pipefail
+          PACK_JSON=$(npm pack --ignore-scripts --json)
+          echo "$PACK_JSON" > pack.json
+          TGZ=$(node -e "console.log(require('./pack.json')[0].filename)")
+          echo "tgz=$TGZ" >> "$GITHUB_OUTPUT"
+          mkdir -p out
+          mv "$TGZ" "out/$TGZ"
+          (cd out && sha256sum "$TGZ" > "$TGZ.sha256")
+          echo "Produced: out/$TGZ"
+          cat "out/$TGZ.sha256"
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: npm-package
+          path: |
+            out/*.tgz
+            out/*.tgz.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish to npm (Trusted Publisher)
+    needs: build
+    runs-on: ubuntu-latest
+    # Protected GitHub environment — requires manual approval by Bryan on every
+    # tag push before npm credentials are available to the job.
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.14.0'
+          registry-url: 'https://registry.npmjs.org'
+          cache: ''
+          package-manager-cache: false
+
+      - name: Pin npm to >= 11.5.1
+        run: npm install --global --ignore-scripts npm@11.5.1
+
+      - name: Download package artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: npm-package
+          path: pkg
+
+      - name: Verify sha256 of artifact
+        working-directory: pkg
+        run: |
+          set -euo pipefail
+          ls -la
+          sha256sum -c *.tgz.sha256
+          # Resolve the tarball filename for the publish step.
+          TGZ=$(ls *.tgz)
+          echo "TGZ=$TGZ" >> "$GITHUB_ENV"
+
+      - name: Publish to npm with provenance (Trusted Publisher OIDC)
+        working-directory: pkg
+        run: npm publish "./$TGZ" --ignore-scripts --provenance --access public
