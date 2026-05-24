@@ -235,7 +235,10 @@ export class SharedContextManager {
       }
     } catch (e: unknown) {
       const msg = String(e instanceof Error ? e.message : e);
-      const isSingleton = /ProcessSingleton|SingletonLock|profile is already in use/i.test(msg);
+      const isSingleton =
+        /ProcessSingleton|SingletonLock|profile is already in use|Abriendo en una sesión existente/i.test(
+          msg
+        );
       if (strategy === 'single' || !isSingleton) {
         // hard fail
         if (isSingleton && strategy === 'single') {
