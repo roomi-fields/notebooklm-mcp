@@ -716,6 +716,19 @@ export class ContentManager {
       log.info(`  🔍 Looking for upload button...`);
       await this.clickUploadButton();
 
+      // Wait for the upload dialog to close on its own before any verification
+      // step touches the page. waitForSourceProcessing → getVisibleSourceRows →
+      // ensureSourcesPanel will press Escape on any visible [role="dialog"],
+      // and on the 2026 UI that Escape lands DURING ingest and cancels the
+      // add. Letting the dialog close naturally first avoids the race.
+      await this.page
+        .locator('[role="dialog"]')
+        .first()
+        .waitFor({ state: 'hidden', timeout: 30000 })
+        .catch(() => {
+          /* dialog may stay open on success (multi-upload UX) — handled later */
+        });
+
       // Wait for processing
       const result = await this.waitForSourceProcessing(
         input.title || input.url,
