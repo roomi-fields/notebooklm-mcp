@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "notebooklm-mcp",
   "display_name": "NotebookLM MCP",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Automate Google NotebookLM at scale \u2014 citation-backed Q&A, Studio generation, multi-account rotation.",
   "long_description": "MCP server for Google NotebookLM. Citation-backed Q&A from your notebooks, full Studio generation (audio overview, video, infographic, report, presentation, data table), source and notebook management, multi-account rotation with auto-reauth, and batch_to_vault for offline answer caching. Also ships a local HTTP REST API for use from n8n, Zapier, Make and scripts. Runs locally \u2014 it drives a real browser session against your own Google account.",
   "author": {

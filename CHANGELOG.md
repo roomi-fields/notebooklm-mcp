@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.1] - 2026-05-27
+
+### Fixed
+
+- **`add_source` for URL sources** — the 2026 NotebookLM add-source dialog
+  redesign broke URL uploads on three fronts: the "Websites" tile is now an
+  Angular Material chip (`mat-chip` / `mat-mdc-chip`), the URL textarea ships
+  `aria-label="Enter URLs"` instead of a `placeholder` containing "URL", and
+  the verification path's `Escape` keypress was landing mid-ingest and
+  canceling the add. The dialog also closes asynchronously now, so the
+  baseline source count was being captured _after_ the new row already
+  appeared and the count-based detection never tripped. Threading the
+  pre-baseline count from `addSource()` and waiting for the dialog to settle
+  before verification fixes the false-negative. (Reported by
+  [@assistantthatskywalker](https://github.com/assistantthatskywalker) in
+  [#14](https://github.com/roomi-fields/notebooklm-mcp/issues/14).)
+- **Answer wait timeout 2 min → 5 min** in `waitForLatestAnswer` — long
+  NotebookLM answers with many citations regularly exceed 2 minutes and were
+  timing out as false negatives. (Cherry-picked from
+  [@LScelza-synapse](https://github.com/LScelza-synapse)'s fork.)
+- **Spanish profile-lock locale detection** — added "Abriendo en una sesión
+  existente" to the regex that triggers the singleton-profile fallback, so
+  Spanish-locale Chrome installs no longer hard-fail on a locked profile.
+
+### Security
+
+- Override `brace-expansion@^5.0.6` (scoped to the `^5.0.0` range so the older
+  `1.x` line in eslint deps is untouched) — fixes
+  [GHSA-jxxr-4gwj-5jf2](https://github.com/advisories/GHSA-jxxr-4gwj-5jf2).
+- Override `qs@^6.15.2` — fixes
+  [GHSA-q8mj-m7cp-5q26](https://github.com/advisories/GHSA-q8mj-m7cp-5q26)
+  in the express / body-parser transitive chain.
+
+---
+
 ## [2.0.0] - 2026-05-14
 
 ### Changed — tool names are now a dot-notation tree
