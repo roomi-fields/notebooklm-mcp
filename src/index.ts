@@ -352,8 +352,8 @@ class NotebookLMMCPServer {
     // Handle tool calls
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name: requestedName, arguments: args } = request.params;
-      // v2 tools are advertised under canonical dot-notation names
-      // (e.g. `notebook.ask`). The dispatch switch and handlers still use the
+      // v2 tools are advertised under canonical (v2) names
+      // (e.g. `notebook_ask`). The dispatch switch and handlers still use the
       // legacy flat names internally — and legacy names remain accepted as
       // aliases, so existing integrations keep working.
       const name = CANONICAL_TO_LEGACY[requestedName] ?? requestedName;

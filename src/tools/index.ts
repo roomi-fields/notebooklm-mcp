@@ -1478,7 +1478,7 @@ User: "Yes" → call remove_notebook`,
     },
   ];
 
-  // Rename to canonical (v2 dot-notation) names and attach the shared output
+  // Rename to canonical (v2) names and attach the shared output
   // schema + behaviour hints. Annotation lookup uses the legacy name, which is
   // still `tool.name` at this point.
   return defs.map((tool) => ({

@@ -1,9 +1,12 @@
 /**
- * Canonical (v2) tool names — a navigable `namespace.action` dot-notation tree.
+ * Canonical (v2) tool names — a navigable `namespace_action` tree.
  *
- * v2.0.0 renamed every tool from a flat snake_case list to this tree. The legacy
- * flat names still work everywhere — both the stdio server and the HTTP proxy
- * accept them as aliases — but `tools/list` advertises only the canonical names.
+ * v2.0.0 renamed every tool from an unstructured flat list to this tree. The
+ * legacy flat names still work everywhere — both the stdio server and the HTTP
+ * proxy accept them as aliases — but `tools/list` advertises only the canonical
+ * names. Names use `_` (not `.`) as the separator: the MCP tool-name pattern
+ * `^[a-zA-Z0-9_-]{1,64}$` forbids dots, and some clients (e.g. Claude Desktop)
+ * reject dotted names outright.
  *
  * This module has no heavy imports on purpose: both `tools/index.ts` and the
  * lightweight `stdio-http-proxy.ts` import it.
@@ -11,48 +14,48 @@
 
 /** Legacy flat name (still used internally by handlers) → canonical v2 name. */
 export const LEGACY_TO_CANONICAL: Record<string, string> = {
-  // library.* — the local notebook library
-  add_notebook: 'library.add',
-  list_notebooks: 'library.list',
-  get_notebook: 'library.get',
-  select_notebook: 'library.select',
-  update_notebook: 'library.update',
-  remove_notebook: 'library.remove',
-  search_notebooks: 'library.search',
-  auto_discover_notebook: 'library.discover',
-  get_library_stats: 'library.stats',
-  // notebook.* — operations directly against NotebookLM
-  ask_question: 'notebook.ask',
-  create_notebook: 'notebook.create',
-  delete_notebooks_from_nblm: 'notebook.delete',
-  list_notebooks_from_nblm: 'notebook.list',
-  // session.* — chat sessions
-  list_sessions: 'session.list',
-  close_session: 'session.close',
-  reset_session: 'session.reset',
-  // source.* — notebook sources
-  add_source: 'source.add',
-  delete_source: 'source.delete',
-  // content.* — generated Studio content
-  generate_content: 'content.generate',
-  list_content: 'content.list',
-  download_content: 'content.download',
-  // note.* — Studio notes
-  create_note: 'note.create',
-  save_chat_to_note: 'note.save_chat',
-  convert_note_to_source: 'note.to_source',
-  // auth.* — Google authentication
-  setup_auth: 'auth.setup',
-  de_auth: 'auth.logout',
-  re_auth: 'auth.switch',
-  // server.* — server lifecycle
-  get_health: 'server.health',
-  cleanup_data: 'server.cleanup',
-  // vault.* — offline answer caching
-  batch_to_vault: 'vault.batch',
+  // library_* — the local notebook library
+  add_notebook: 'library_add',
+  list_notebooks: 'library_list',
+  get_notebook: 'library_get',
+  select_notebook: 'library_select',
+  update_notebook: 'library_update',
+  remove_notebook: 'library_remove',
+  search_notebooks: 'library_search',
+  auto_discover_notebook: 'library_discover',
+  get_library_stats: 'library_stats',
+  // notebook_* — operations directly against NotebookLM
+  ask_question: 'notebook_ask',
+  create_notebook: 'notebook_create',
+  delete_notebooks_from_nblm: 'notebook_delete',
+  list_notebooks_from_nblm: 'notebook_list',
+  // session_* — chat sessions
+  list_sessions: 'session_list',
+  close_session: 'session_close',
+  reset_session: 'session_reset',
+  // source_* — notebook sources
+  add_source: 'source_add',
+  delete_source: 'source_delete',
+  // content_* — generated Studio content
+  generate_content: 'content_generate',
+  list_content: 'content_list',
+  download_content: 'content_download',
+  // note_* — Studio notes
+  create_note: 'note_create',
+  save_chat_to_note: 'note_save_chat',
+  convert_note_to_source: 'note_to_source',
+  // auth_* — Google authentication
+  setup_auth: 'auth_setup',
+  de_auth: 'auth_logout',
+  re_auth: 'auth_switch',
+  // server_* — server lifecycle
+  get_health: 'server_health',
+  cleanup_data: 'server_cleanup',
+  // vault_* — offline answer caching
+  batch_to_vault: 'vault_batch',
 };
 
-/** Canonical v2 dot-notation name → legacy flat name. */
+/** Canonical v2 name → legacy flat name. */
 export const CANONICAL_TO_LEGACY: Record<string, string> = Object.fromEntries(
   Object.entries(LEGACY_TO_CANONICAL).map(([legacy, canonical]) => [canonical, legacy])
 );

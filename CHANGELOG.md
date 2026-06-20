@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.2] - 2026-06-20
+
+### Fixed — canonical tool names use `_` instead of `.`
+
+The v2 canonical tool names were a dot-separated tree (`notebook.ask`,
+`source.add`, …), but the MCP / Anthropic tool-name pattern is
+`^[a-zA-Z0-9_-]{1,64}$` — **dots are not allowed**. Claude Code silently
+rewrote the dots, masking the problem, but Claude Desktop validates remote
+tool definitions strictly and rejected the whole server with:
+
+```
+tools.<n>.FrontendRemoteMcpToolDefinition.name: String should match pattern '^[a-zA-Z0-9_-]{1,64}$'
+```
+
+Every canonical name now uses `_` as the namespace separator: `notebook.ask`
+→ `notebook_ask`, `source.add` → `source_add`, `vault.batch` → `vault_batch`,
+and so on across all 9 namespaces. This is what Claude Code already displayed,
+so its users see no change. The legacy flat names remain accepted as aliases,
+and a regression test now asserts every advertised name matches the pattern.
+
+---
+
 ## [2.0.1] - 2026-05-27
 
 ### Fixed
@@ -44,16 +66,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - 2026-05-14
 
-### Changed — tool names are now a dot-notation tree
+### Changed — tool names are now a namespaced tree
 
 Every tool was renamed from a flat `snake_case` list to a navigable
-`namespace.action` tree (9 namespaces): `notebook.*`, `library.*`, `session.*`,
-`source.*`, `content.*`, `note.*`, `auth.*`, `server.*`, `vault.*`. For
-example `ask_question` → `notebook.ask`, `add_source` → `source.add`,
-`list_sessions` → `session.list`, `get_health` → `server.health`,
-`batch_to_vault` → `vault.batch`. `tools/list` now advertises only the
+`namespace_action` tree (9 namespaces): `notebook_*`, `library_*`, `session_*`,
+`source_*`, `content_*`, `note_*`, `auth_*`, `server_*`, `vault_*`. For
+example `ask_question` → `notebook_ask`, `add_source` → `source_add`,
+`list_sessions` → `session_list`, `get_health` → `server_health`,
+`batch_to_vault` → `vault_batch`. `tools/list` now advertises only the
 canonical names. This aligns with MCP naming best practice and is the reason
 for the major version bump.
+
+> Note: 2.0.0–2.0.1 shipped these names with a `.` separator
+> (`notebook.ask`), which the MCP tool-name pattern forbids; 2.0.2 corrected
+> the separator to `_`. See the [2.0.2] entry.
 
 **Backward compatible — nothing breaks.** Both the stdio server and the HTTP
 proxy still accept the legacy flat names as aliases: the dispatch layer

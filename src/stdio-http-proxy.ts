@@ -417,7 +417,7 @@ function buildProxyToolDefinitions(): Tool[] {
   ];
 }
 
-/** Tool definitions advertised over stdio — canonical v2 dot-notation names. */
+/** Tool definitions advertised over stdio — canonical v2 names. */
 function buildCanonicalProxyToolDefinitions(): Tool[] {
   return buildProxyToolDefinitions().map((tool) => ({
     ...tool,
@@ -427,7 +427,7 @@ function buildCanonicalProxyToolDefinitions(): Tool[] {
 
 /**
  * Map tool calls to HTTP endpoints.
- * Accepts both canonical (v2 dot-notation) and legacy flat tool names.
+ * Accepts both canonical (v2) and legacy flat tool names.
  */
 async function handleToolCall(
   requestedName: string,
@@ -672,7 +672,7 @@ class StdioHttpProxyServer {
     // Handle tool calls - proxy to HTTP server
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name: requestedName, arguments: args } = request.params;
-      // Accept both canonical (v2 dot-notation) and legacy flat names.
+      // Accept both canonical (v2) and legacy flat names.
       const name = toLegacyName(requestedName);
       log(`🔧 Tool call: ${requestedName}`);
 

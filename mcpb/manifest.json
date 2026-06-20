@@ -2,9 +2,9 @@
   "manifest_version": "0.3",
   "name": "notebooklm-mcp",
   "display_name": "NotebookLM MCP",
-  "version": "2.0.1",
-  "description": "Automate Google NotebookLM at scale \u2014 citation-backed Q&A, Studio generation, multi-account rotation.",
-  "long_description": "MCP server for Google NotebookLM. Citation-backed Q&A from your notebooks, full Studio generation (audio overview, video, infographic, report, presentation, data table), source and notebook management, multi-account rotation with auto-reauth, and batch_to_vault for offline answer caching. Also ships a local HTTP REST API for use from n8n, Zapier, Make and scripts. Runs locally \u2014 it drives a real browser session against your own Google account.",
+  "version": "2.0.2",
+  "description": "Automate Google NotebookLM at scale — citation-backed Q&A, Studio generation, multi-account rotation.",
+  "long_description": "MCP server for Google NotebookLM. Citation-backed Q&A from your notebooks, full Studio generation (audio overview, video, infographic, report, presentation, data table), source and notebook management, multi-account rotation with auto-reauth, and batch_to_vault for offline answer caching. Also ships a local HTTP REST API for use from n8n, Zapier, Make and scripts. Runs locally — it drives a real browser session against your own Google account.",
   "author": {
     "name": "Romain Peyrichou",
     "url": "https://github.com/roomi-fields"
@@ -58,7 +58,7 @@
   },
   "tools": [
     {
-      "name": "auth.logout",
+      "name": "auth_logout",
       "description": "Log out and clear all stored authentication data.",
       "inputSchema": {
         "type": "object",
@@ -91,8 +91,8 @@
       }
     },
     {
-      "name": "auth.setup",
-      "description": "Authenticate with Google for NotebookLM access \u2014 opens a browser window for manual login.",
+      "name": "auth_setup",
+      "description": "Authenticate with Google for NotebookLM access — opens a browser window for manual login.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -146,7 +146,7 @@
       }
     },
     {
-      "name": "auth.switch",
+      "name": "auth_switch",
       "description": "Switch to a different Google account or re-authenticate after an expired session.",
       "inputSchema": {
         "type": "object",
@@ -201,7 +201,7 @@
       }
     },
     {
-      "name": "content.download",
+      "name": "content_download",
       "description": "Download or export generated content from NotebookLM.",
       "inputSchema": {
         "type": "object",
@@ -253,7 +253,7 @@
       }
     },
     {
-      "name": "content.generate",
+      "name": "content_generate",
       "description": "Generate Studio content (audio overview, video, infographic, report, presentation, data table) from the notebook's sources.",
       "inputSchema": {
         "type": "object",
@@ -327,7 +327,7 @@
       }
     },
     {
-      "name": "content.list",
+      "name": "content_list",
       "description": "List all sources and generated Studio content in the current notebook.",
       "inputSchema": {
         "type": "object",
@@ -368,7 +368,7 @@
       }
     },
     {
-      "name": "library.add",
+      "name": "library_add",
       "description": "Add a notebook to the local library with manually specified metadata.",
       "inputSchema": {
         "type": "object",
@@ -442,7 +442,7 @@
       }
     },
     {
-      "name": "library.discover",
+      "name": "library_discover",
       "description": "Auto-generate a notebook's metadata (name, topics, use cases) by inspecting it in NotebookLM.",
       "inputSchema": {
         "type": "object",
@@ -480,7 +480,7 @@
       }
     },
     {
-      "name": "library.get",
+      "name": "library_get",
       "description": "Get detailed information about a specific library notebook by ID.",
       "inputSchema": {
         "type": "object",
@@ -518,7 +518,7 @@
       }
     },
     {
-      "name": "library.list",
+      "name": "library_list",
       "description": "List all notebooks in the local library with their metadata (name, topics, use cases, URL).",
       "inputSchema": {
         "type": "object",
@@ -550,8 +550,8 @@
       }
     },
     {
-      "name": "library.remove",
-      "description": "Remove a notebook from the local library. Destructive \u2014 requires explicit user confirmation.",
+      "name": "library_remove",
+      "description": "Remove a notebook from the local library. Destructive — requires explicit user confirmation.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -589,7 +589,7 @@
       }
     },
     {
-      "name": "library.search",
+      "name": "library_search",
       "description": "Search the local library by query across name, description, topics and tags.",
       "inputSchema": {
         "type": "object",
@@ -627,8 +627,8 @@
       }
     },
     {
-      "name": "library.select",
-      "description": "Set a notebook as the active default used by notebook.ask when no notebook is given.",
+      "name": "library_select",
+      "description": "Set a notebook as the active default used by notebook_ask when no notebook is given.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -665,7 +665,7 @@
       }
     },
     {
-      "name": "library.stats",
+      "name": "library_stats",
       "description": "Get statistics about the local notebook library (total notebooks, usage, etc.).",
       "inputSchema": {
         "type": "object",
@@ -697,7 +697,7 @@
       }
     },
     {
-      "name": "library.update",
+      "name": "library_update",
       "description": "Update a library notebook's metadata.",
       "inputSchema": {
         "type": "object",
@@ -775,7 +775,7 @@
       }
     },
     {
-      "name": "note.create",
+      "name": "note_create",
       "description": "Create a note in the NotebookLM Studio panel.",
       "inputSchema": {
         "type": "object",
@@ -825,7 +825,7 @@
       }
     },
     {
-      "name": "note.save_chat",
+      "name": "note_save_chat",
       "description": "Save the current NotebookLM chat/discussion to a note.",
       "inputSchema": {
         "type": "object",
@@ -870,7 +870,7 @@
       }
     },
     {
-      "name": "note.to_source",
+      "name": "note_to_source",
       "description": "Convert a note into a source document in NotebookLM.",
       "inputSchema": {
         "type": "object",
@@ -916,8 +916,8 @@
       }
     },
     {
-      "name": "notebook.ask",
-      "description": "Ask a question against a notebook's sources and get a citation-backed answer. Session-based \u2014 follow-ups keep prior context.",
+      "name": "notebook_ask",
+      "description": "Ask a question against a notebook's sources and get a citation-backed answer. Session-based — follow-ups keep prior context.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1045,7 +1045,7 @@
       }
     },
     {
-      "name": "notebook.create",
+      "name": "notebook_create",
       "description": "Create a brand-new empty notebook directly in NotebookLM.",
       "inputSchema": {
         "type": "object",
@@ -1086,7 +1086,7 @@
       }
     },
     {
-      "name": "notebook.delete",
+      "name": "notebook_delete",
       "description": "Delete one or more notebooks directly from NotebookLM (UI-level deletion, not just the local library).",
       "inputSchema": {
         "type": "object",
@@ -1132,7 +1132,7 @@
       }
     },
     {
-      "name": "notebook.list",
+      "name": "notebook_list",
       "description": "Scrape the NotebookLM homepage for the real list of all notebooks with their IDs and names.",
       "inputSchema": {
         "type": "object",
@@ -1169,7 +1169,7 @@
       }
     },
     {
-      "name": "server.cleanup",
+      "name": "server_cleanup",
       "description": "Deep-scan and clean up all NotebookLM MCP data files across the system.",
       "inputSchema": {
         "type": "object",
@@ -1213,7 +1213,7 @@
       }
     },
     {
-      "name": "server.health",
+      "name": "server_health",
       "description": "Get server health: authentication state, active sessions and configuration.",
       "inputSchema": {
         "type": "object",
@@ -1245,7 +1245,7 @@
       }
     },
     {
-      "name": "session.close",
+      "name": "session_close",
       "description": "Close a specific chat session by ID.",
       "inputSchema": {
         "type": "object",
@@ -1284,7 +1284,7 @@
       }
     },
     {
-      "name": "session.list",
+      "name": "session_list",
       "description": "List active chat sessions with age, message count and last activity.",
       "inputSchema": {
         "type": "object",
@@ -1316,7 +1316,7 @@
       }
     },
     {
-      "name": "session.reset",
+      "name": "session_reset",
       "description": "Reset a session's chat history while keeping the same session ID.",
       "inputSchema": {
         "type": "object",
@@ -1355,7 +1355,7 @@
       }
     },
     {
-      "name": "source.add",
+      "name": "source_add",
       "description": "Add a source (document, URL, text or YouTube video) to the current notebook.",
       "inputSchema": {
         "type": "object",
@@ -1418,7 +1418,7 @@
       }
     },
     {
-      "name": "source.delete",
+      "name": "source_delete",
       "description": "Delete a source from the current notebook.",
       "inputSchema": {
         "type": "object",
@@ -1468,7 +1468,7 @@
       }
     },
     {
-      "name": "vault.batch",
+      "name": "vault_batch",
       "description": "Run a list of questions against a notebook and persist each answer to disk as markdown + JSON artifacts.",
       "inputSchema": {
         "type": "object",
@@ -1503,7 +1503,7 @@
           },
           "sleep_between_ms": {
             "type": "number",
-            "description": "Pause between questions in ms. 1500\u20133000 is sane for batches above ~20."
+            "description": "Pause between questions in ms. 1500–3000 is sane for batches above ~20."
           },
           "session_id": {
             "type": "string",

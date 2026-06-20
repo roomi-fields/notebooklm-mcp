@@ -100,11 +100,11 @@ describe('ToolHandlers', () => {
       expect(tools.length).toBeGreaterThan(0);
     });
 
-    it('should include the notebook.ask tool', () => {
+    it('should include the notebook_ask tool', () => {
       const tools = buildToolDefinitions(mockLibrary);
 
-      // v2 advertises canonical dot-notation names.
-      const askQuestion = tools.find((t: any) => t.name === 'notebook.ask');
+      // v2 advertises canonical namespaced names (underscore-separated).
+      const askQuestion = tools.find((t: any) => t.name === 'notebook_ask');
       expect(askQuestion).toBeDefined();
       expect(askQuestion.inputSchema.required).toContain('question');
     });
@@ -113,35 +113,46 @@ describe('ToolHandlers', () => {
       const tools = buildToolDefinitions(mockLibrary);
 
       const toolNames = tools.map((t: any) => t.name);
-      expect(toolNames).toContain('session.list');
-      expect(toolNames).toContain('session.close');
-      expect(toolNames).toContain('session.reset');
+      expect(toolNames).toContain('session_list');
+      expect(toolNames).toContain('session_close');
+      expect(toolNames).toContain('session_reset');
     });
 
     it('should include notebook library tools', () => {
       const tools = buildToolDefinitions(mockLibrary);
 
       const toolNames = tools.map((t: any) => t.name);
-      expect(toolNames).toContain('library.list');
-      expect(toolNames).toContain('library.add');
-      expect(toolNames).toContain('library.get');
-      expect(toolNames).toContain('library.remove');
+      expect(toolNames).toContain('library_list');
+      expect(toolNames).toContain('library_add');
+      expect(toolNames).toContain('library_get');
+      expect(toolNames).toContain('library_remove');
     });
 
     it('should include auth tools', () => {
       const tools = buildToolDefinitions(mockLibrary);
 
       const toolNames = tools.map((t: any) => t.name);
-      expect(toolNames).toContain('auth.setup');
-      expect(toolNames).toContain('auth.logout');
-      expect(toolNames).toContain('server.health');
+      expect(toolNames).toContain('auth_setup');
+      expect(toolNames).toContain('auth_logout');
+      expect(toolNames).toContain('server_health');
     });
 
     it('should include cleanup tool', () => {
       const tools = buildToolDefinitions(mockLibrary);
 
-      const cleanup = tools.find((t: any) => t.name === 'server.cleanup');
+      const cleanup = tools.find((t: any) => t.name === 'server_cleanup');
       expect(cleanup).toBeDefined();
+    });
+
+    it('should advertise only MCP-spec-valid tool names', () => {
+      const tools = buildToolDefinitions(mockLibrary);
+
+      // MCP / Anthropic tool names must match this pattern — notably, dots are
+      // forbidden, which is why canonical names use `_` rather than `.`.
+      const NAME_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
+      for (const tool of tools) {
+        expect(tool.name).toMatch(NAME_PATTERN);
+      }
     });
 
     it('should have valid inputSchema for all tools', () => {
