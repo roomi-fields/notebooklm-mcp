@@ -1,6 +1,6 @@
 {
   "name": "@roomi-fields/notebooklm-mcp",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "mcpName": "io.github.roomi-fields/notebooklm-mcp",
   "description": "MCP server for NotebookLM API with HTTP REST API - Zero hallucinations from your notebooks",
   "type": "module",

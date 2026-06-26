@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] - 2026-06-26
+
+### Added — `note_list` and `note_get` MCP tools (#17)
+
+Two new Studio-panel tools, contributed by [@he0xwhale](https://github.com/he0xwhale):
+
+- `note_list` (legacy alias `list_notes`) — scrolls the Studio panel to
+  trigger lazy-load of older notes, then scrapes the note cards. Returns
+  `{ id?, title, details? }` per note (timestamp lives in `details`).
+- `note_get` (legacy alias `get_note`) — opens a note by title (or ID)
+  and serializes its DOM to markdown. Includes a structural walker over
+  `element-list-renderer` that preserves tables (with header row),
+  ordered/unordered lists, headings, code blocks, and inline
+  bold/italic/code/link spans. Falls back to the ProseMirror editor and
+  then to the legacy text-only extractor if the structural walker comes
+  back empty.
+
+Both tools are exposed over HTTP at `POST /content/notes/list` and
+`POST /content/notes/get`. Selectors use the durable `artifact-library-note`
+
+- `artifact-title` pattern, consistent with the id-pattern convention used
+  elsewhere in the scraper.
+
+Minor release: additive only, no behavioural change to any existing tool.
+
+---
+
 ## [2.0.4] - 2026-06-20
 
 ### Added — German UI selectors (closes #14 deferred item)
