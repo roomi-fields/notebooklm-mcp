@@ -1037,6 +1037,48 @@ app.post('/content/notes', async (req: Request, res: Response) => {
   }
 });
 
+// List notes in the notebook
+app.post('/content/notes/list', async (req: Request, res: Response) => {
+  try {
+    const { notebook_url, session_id } = req.body;
+    const result = await toolHandlers.handleListNotes({
+      notebook_url,
+      session_id,
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+// Get content of a specific note
+app.post('/content/notes/get', async (req: Request, res: Response) => {
+  try {
+    const { note_title, note_id, notebook_url, session_id } = req.body;
+    if (!note_title && !note_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required parameter: note_title or note_id',
+      });
+    }
+    const result = await toolHandlers.handleGetNote({
+      note_title,
+      note_id,
+      notebook_url,
+      session_id,
+    });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
 // Save chat/discussion to a note
 app.post('/content/chat-to-note', async (req: Request, res: Response) => {
   try {

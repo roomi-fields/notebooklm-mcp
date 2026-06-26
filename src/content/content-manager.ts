@@ -64,6 +64,7 @@ import type {
   NoteToSourceResult,
 } from './types.js';
 import { ContentGenerator } from './content-generator.js';
+import type { NotebookNote, NoteListResult, NoteGetInput, NoteGetResult } from '../types.js';
 
 // Note: UI selectors are defined inline in methods for better maintainability
 // as NotebookLM's UI may change frequently
@@ -4503,6 +4504,8 @@ export class ContentManager {
   ): Promise<import('patchright').ElementHandle<any> | null> {
     // Selectors for note items in the Studio panel
     const noteItemSelectors = [
+      'artifact-library-note',
+      '[class*="artifact-item-button"]',
       '.note-item',
       '[data-item="note"]',
       '.notes-list-item',
@@ -4545,7 +4548,7 @@ export class ContentManager {
             // Also check specific title elements
             try {
               const titleText = await el.$eval(
-                '.note-title, .title, [class*="title"], [class*="name"], h3, h4',
+                '.artifact-title, [class*="artifact-title"], .note-title, .title, [class*="title"], [class*="name"], h3, h4',
                 (e) => e.textContent?.trim() || ''
               );
               if (titleText.toLowerCase().includes(noteTitle.toLowerCase())) {
@@ -4763,7 +4766,228 @@ export class ContentManager {
       await noteElement.click();
       await randomDelay(500, 1000);
 
-      // Look for expanded note content
+      /* @SDD:T1.1.1:START Implement robust table and note content DOM walker serialization */
+      // Wait for the note viewer to be visible
+      try {
+        await this.page.waitForSelector(
+          'labs-tailwind-doc-viewer:visible, note-editor:visible, .ProseMirror:visible',
+          { timeout: 5000 }
+        );
+      } catch {
+        log.warning('  ⚠️ Timeout waiting for note viewer to be visible, attempting fallback...');
+      }
+
+      // Try serialization on the active viewer element
+      const activeViewerSelector =
+        'labs-tailwind-doc-viewer:visible, note-editor:visible, .ProseMirror:visible';
+      const activeViewer = await this.page.$(activeViewerSelector);
+      if (activeViewer) {
+        const serialized = await activeViewer.evaluate((viewerEl: any) => {
+          // Inline serialization helper for text nodes and elements
+          function serializeInline(node: any): string {
+            let text = '';
+            const childNodes = Array.from(node.childNodes) as any[];
+            if (childNodes.length === 0) {
+              return node.textContent || '';
+            }
+            for (const child of childNodes) {
+              if (child.nodeType === 3) {
+                // Node.TEXT_NODE
+                text += child.textContent;
+              } else if (child.nodeType === 1) {
+                // Node.ELEMENT_NODE
+                const elNode = child as any;
+                const tagName = elNode.tagName.toLowerCase();
+                const childText = serializeInline(elNode);
+                if (tagName === 'b' || tagName === 'strong') {
+                  text += `**${childText}**`;
+                } else if (tagName === 'i' || tagName === 'em') {
+                  text += `*${childText}*`;
+                } else if (tagName === 'code' || elNode.classList.contains('code')) {
+                  text += `\`${childText}\``;
+                } else if (tagName === 'a') {
+                  const href = elNode.getAttribute('href') || '';
+                  text += `[${childText}](${href})`;
+                } else {
+                  text += childText;
+                }
+              }
+            }
+            return text;
+          }
+
+          const elementListRenderer = viewerEl.querySelector('element-list-renderer');
+          if (!elementListRenderer) {
+            // ProseMirror / semantic HTML fallback
+            const editor = viewerEl.querySelector('.ProseMirror') || viewerEl;
+
+            function serializeNode(node: any): string {
+              if (node.nodeType === 3) {
+                // Node.TEXT_NODE
+                return node.textContent || '';
+              }
+              if (node.nodeType !== 1) {
+                // Node.ELEMENT_NODE
+                return '';
+              }
+
+              const elNode = node as any;
+              const tagName = elNode.tagName.toLowerCase();
+
+              if (tagName === 'b' || tagName === 'strong') {
+                return `**${(Array.from(elNode.childNodes) as any[]).map(serializeNode).join('')}**`;
+              }
+              if (tagName === 'i' || tagName === 'em') {
+                return `*${(Array.from(elNode.childNodes) as any[]).map(serializeNode).join('')}*`;
+              }
+              if (tagName === 'code') {
+                return `\`${elNode.textContent || ''}\``;
+              }
+
+              if (tagName === 'p') {
+                return `${(Array.from(elNode.childNodes) as any[]).map(serializeNode).join('')}\n\n`;
+              }
+              if (tagName === 'h1') {
+                return `# ${(Array.from(elNode.childNodes) as any[]).map(serializeNode).join('')}\n\n`;
+              }
+              if (tagName === 'h2') {
+                return `## ${(Array.from(elNode.childNodes) as any[]).map(serializeNode).join('')}\n\n`;
+              }
+              if (tagName === 'h3') {
+                return `### ${(Array.from(elNode.childNodes) as any[]).map(serializeNode).join('')}\n\n`;
+              }
+              if (tagName === 'ul') {
+                return `${(Array.from(elNode.childNodes) as any[]).map(serializeNode).join('')}\n`;
+              }
+              if (tagName === 'li') {
+                return `* ${(Array.from(elNode.childNodes) as any[]).map(serializeNode).join('')}\n`;
+              }
+              if (tagName === 'table') {
+                let tableMd = '\n';
+                const rows = Array.from(elNode.querySelectorAll('tr')) as any[];
+                rows.forEach((row: any, rowIndex: number) => {
+                  const cells = Array.from(row.querySelectorAll('th, td')) as any[];
+                  const cellTexts = cells.map((cell: any) =>
+                    (Array.from(cell.childNodes) as any[]).map(serializeNode).join('').trim()
+                  );
+                  tableMd += `| ${cellTexts.join(' | ')} |\n`;
+                  if (rowIndex === 0) {
+                    const separator = cellTexts.map(() => '---');
+                    tableMd += `| ${separator.join(' | ')} |\n`;
+                  }
+                });
+                return tableMd + '\n';
+              }
+              if (tagName === 'pre') {
+                return `\n\`\`\`\n${elNode.textContent?.trim() || ''}\n\`\`\`\n\n`;
+              }
+
+              return (Array.from(elNode.childNodes) as any[]).map(serializeNode).join('');
+            }
+
+            return (Array.from(editor.childNodes) as any[])
+              .map(serializeNode)
+              .join('')
+              .replace(/\n{3,}/g, '\n\n')
+              .trim();
+          }
+
+          let markdown = '';
+          const structuralElements = Array.from(elementListRenderer.children) as any[];
+
+          function processStructuralElement(el: any) {
+            const tableView = el.querySelector('table-element-view');
+            if (tableView) {
+              const table = tableView.querySelector('table');
+              if (table) {
+                const rows = Array.from(table.querySelectorAll('tr')) as any[];
+                if (rows.length === 0) return;
+
+                let tableMarkdown = '\n';
+                rows.forEach((row: any, rowIndex: number) => {
+                  const cells = Array.from(row.querySelectorAll('th, td')) as any[];
+                  const cellTexts = cells.map((cell: any) => {
+                    const paragraph = cell.querySelector('.paragraph') as any;
+                    if (paragraph) {
+                      return serializeInline(paragraph).trim();
+                    }
+                    return serializeInline(cell).trim();
+                  });
+
+                  tableMarkdown += `| ${cellTexts.join(' | ')} |\n`;
+
+                  if (rowIndex === 0) {
+                    const separator = cellTexts.map(() => '---');
+                    tableMarkdown += `| ${separator.join(' | ')} |\n`;
+                  }
+                });
+
+                markdown += tableMarkdown + '\n';
+              }
+              return;
+            }
+
+            const paragraphView = el.querySelector('paragraph-element-view');
+            if (paragraphView) {
+              const textContainer = paragraphView.querySelector('.paragraph');
+              if (textContainer) {
+                const text = serializeInline(textContainer).trim();
+                if (!text) return;
+
+                if (
+                  textContainer.classList.contains('list-item') ||
+                  textContainer.tagName.toLowerCase() === 'li'
+                ) {
+                  markdown += `* ${text}\n`;
+                } else if (textContainer.classList.contains('heading1')) {
+                  markdown += `\n# ${text}\n\n`;
+                } else if (textContainer.classList.contains('heading2')) {
+                  markdown += `\n## ${text}\n\n`;
+                } else if (textContainer.classList.contains('heading3')) {
+                  markdown += `\n### ${text}\n\n`;
+                } else {
+                  if (!textContainer.classList.contains('table-paragraph')) {
+                    markdown += `${text}\n\n`;
+                  }
+                }
+              }
+              return;
+            }
+
+            const preEl = el.querySelector('pre, code');
+            if (preEl) {
+              markdown += `\n\`\`\`\n${preEl.textContent?.trim() || ''}\n\`\`\`\n\n`;
+              return;
+            }
+          }
+
+          for (const structuralEl of structuralElements) {
+            const tagName = structuralEl.tagName.toLowerCase();
+            if (tagName !== 'labs-tailwind-structural-element-view-v2') {
+              if (tagName === 'ul' || tagName === 'ol') {
+                const nestedElements = Array.from(
+                  structuralEl.querySelectorAll('labs-tailwind-structural-element-view-v2')
+                ) as any[];
+                for (const nestedEl of nestedElements) {
+                  processStructuralElement(nestedEl);
+                }
+              }
+              continue;
+            }
+            processStructuralElement(structuralEl);
+          }
+
+          return markdown.replace(/\n{3,}/g, '\n\n').trim();
+        });
+
+        if (serialized && serialized.length > 10) {
+          log.info(`  ✅ Serialized note content via DOM walker (${serialized.length} chars)`);
+          return noteTitle ? `# ${noteTitle}\n\n${serialized}` : serialized;
+        }
+      }
+      /* @SDD:T1.1.1:END */
+
+      // Fallback method to existing selectors
       const contentSelectors = [
         // Note body/content areas
         '.note-content',
@@ -4835,6 +5059,145 @@ export class ContentManager {
     } catch (error) {
       log.warning(`  ⚠️ Error extracting note content: ${error}`);
       return null;
+    }
+  }
+
+  /**
+   * List all notes in the NotebookLM Studio panel.
+   * Handles scrolling inside the Studio panel to ensure all notes are loaded.
+   */
+  async listNotes(): Promise<NoteListResult> {
+    log.info(`📚 Listing notes in Studio panel...`);
+    try {
+      // Step 1: Ensure we are in the Studio panel
+      await this.navigateToStudio();
+      await randomDelay(1000, 2000);
+
+      // Step 2: Locate the scrollable container in the Studio panel
+      const scrollContainerSelector = '.studio-panel, [class*="studio-panel"]';
+      const containerExists = (await this.page.locator(scrollContainerSelector).count()) > 0;
+
+      if (containerExists) {
+        // Scroll the panel down a few times to trigger lazy load of old notes
+        log.info('  ⏳ Scrolling Studio panel to load all notes...');
+        for (let i = 0; i < 5; i++) {
+          await this.page.evaluate((selector) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const panel = (globalThis as any).document.querySelector(selector);
+            if (panel) {
+              panel.scrollTop = panel.scrollHeight;
+            }
+          }, scrollContainerSelector);
+          await randomDelay(300, 500);
+        }
+      }
+
+      // Step 3: Scrape note elements from the DOM
+      const notes: NotebookNote[] = [];
+      const seenTitles = new Set<string>();
+
+      // Selectors based on verified DOM structure
+      const noteItemSelector = 'artifact-library-note, [class*="artifact-item-button"]';
+      const noteElements = await this.page.locator(noteItemSelector).all();
+
+      log.info(`  🔍 Found ${noteElements.length} candidate note elements`);
+
+      for (const el of noteElements) {
+        try {
+          const titleText =
+            (await el
+              .locator('.artifact-title, [class*="artifact-title"]')
+              .first()
+              .textContent()) || '';
+          const detailsText =
+            (await el
+              .locator('.artifact-details, [class*="artifact-details"]')
+              .first()
+              .textContent()) || '';
+          const noteId =
+            (await el.getAttribute('data-note-id')) ||
+            (await el.getAttribute('data-id')) ||
+            undefined;
+
+          const title = titleText.trim();
+          if (title && !seenTitles.has(title)) {
+            seenTitles.add(title);
+            notes.push({
+              id: noteId,
+              title,
+              details: detailsText.trim() || undefined,
+            });
+          }
+        } catch {
+          continue;
+        }
+      }
+
+      log.success(`  ✅ Successfully listed ${notes.length} notes`);
+      return { success: true, notes };
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      log.error(`  ❌ Failed to list notes: ${errorMsg}`);
+      return { success: false, notes: [], error: errorMsg };
+    }
+  }
+
+  /**
+   * Get the title and text content of a specific note by title or ID.
+   */
+  async getNoteContent(input: NoteGetInput): Promise<NoteGetResult> {
+    const { noteTitle, noteId } = input;
+    log.info(`📄 Fetching content of note: "${noteTitle || noteId}"`);
+    try {
+      await this.navigateToStudio();
+      await randomDelay(500, 1000);
+
+      // Reuse existing helper to find the note element
+      const noteElement = await this.findNoteElement(noteTitle, noteId);
+      if (!noteElement) {
+        return {
+          success: false,
+          title: noteTitle || '',
+          content: '',
+          error: `Note not found: "${noteTitle || noteId}"`,
+        };
+      }
+
+      // Reuse existing helper to click note, wait, and extract content text
+      const content = await this.extractNoteContent(noteElement, noteTitle);
+
+      // Close the note popover/editor if open to return to clean state
+      try {
+        await this.page.keyboard.press('Escape');
+        await randomDelay(200, 400);
+      } catch {
+        // Ignore escape errors
+      }
+
+      if (content) {
+        log.success(`  ✅ Retrieved note content (${content.length} characters)`);
+        return {
+          success: true,
+          title: noteTitle || '',
+          content,
+        };
+      } else {
+        return {
+          success: false,
+          title: noteTitle || '',
+          content: '',
+          error: 'Could not extract content from note editor.',
+        };
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      log.error(`  ❌ Failed to get note content: ${errorMsg}`);
+      return {
+        success: false,
+        title: noteTitle || '',
+        content: '',
+        error: errorMsg,
+      };
     }
   }
 }

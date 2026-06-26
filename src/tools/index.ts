@@ -38,6 +38,8 @@ import type {
   Tool,
   ProgressCallback,
   SourceFormat,
+  NoteListResult,
+  NoteGetResult,
 } from '../types.js';
 import { RateLimitError } from '../errors.js';
 import { CleanupManager } from '../utils/cleanup-manager.js';
@@ -1477,6 +1479,48 @@ User: "Yes" → call remove_notebook`,
           },
         },
         required: ['notebook_ids'],
+      },
+    },
+    {
+      name: 'list_notes',
+      description:
+        'List all user notes in the NotebookLM Studio panel. Returns note titles, IDs, and timestamps (e.g. details).',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          notebook_url: {
+            type: 'string',
+            description: 'Optional NotebookLM URL. If not provided, uses the active notebook.',
+          },
+          session_id: {
+            type: 'string',
+            description: 'Optional Session ID to reuse an existing session.',
+          },
+        },
+      },
+    },
+    {
+      name: 'get_note',
+      description:
+        'Retrieve the full title and text content of a specific note in the NotebookLM Studio panel.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          note_title: {
+            type: 'string',
+            description: 'The title of the note to retrieve content for.',
+          },
+          note_id: { type: 'string', description: 'Optional note ID.' },
+          notebook_url: {
+            type: 'string',
+            description: 'Optional NotebookLM URL. If not provided, uses the active notebook.',
+          },
+          session_id: {
+            type: 'string',
+            description: 'Optional Session ID to reuse an existing session.',
+          },
+        },
+        required: ['note_title'],
       },
     },
   ];
@@ -3195,6 +3239,88 @@ export class ToolHandlers {
         success: false,
         error: errorMessage,
       };
+    }
+  }
+
+  /**
+   * Handle list_notes tool
+   *
+   * Lists all notes in the NotebookLM Studio panel.
+   */
+  async handleListNotes(args: {
+    notebook_url?: string;
+    session_id?: string;
+  }): Promise<ToolResult<NoteListResult>> {
+    const { notebook_url, session_id } = args;
+    log.info(`🔧 [TOOL] list_notes called`);
+    try {
+      const resolvedNotebookUrl =
+        notebook_url || this.library.getActiveNotebook()?.url || CONFIG.notebookUrl;
+      if (!resolvedNotebookUrl) {
+        return { success: false, error: 'No notebook URL provided and no active notebook set' };
+      }
+      const session = await this.sessionManager.getOrCreateSession(session_id, resolvedNotebookUrl);
+      const page = session.getPage();
+      if (!page) {
+        return { success: false, error: 'Could not access browser page' };
+      }
+      const contentManager = new ContentManager(page);
+      const result = await contentManager.listNotes();
+      if (result.success) {
+        log.success(`✅ [TOOL] list_notes completed: ${result.notes.length} notes found`);
+      } else {
+        log.error(`❌ [TOOL] list_notes failed: ${result.error}`);
+      }
+      return { success: result.success, data: result, error: result.error };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] list_notes failed: ${errorMessage}`);
+      return { success: false, error: errorMessage };
+    }
+  }
+
+  /**
+   * Handle get_note tool
+   *
+   * Retrieves the title and text content of a specific note.
+   */
+  async handleGetNote(args: {
+    note_title: string;
+    note_id?: string;
+    notebook_url?: string;
+    session_id?: string;
+  }): Promise<ToolResult<NoteGetResult>> {
+    const { note_title, note_id, notebook_url, session_id } = args;
+    log.info(`🔧 [TOOL] get_note called: "${note_title || note_id}"`);
+    try {
+      if (!note_title && !note_id) {
+        return { success: false, error: 'Note title or ID is required' };
+      }
+      const resolvedNotebookUrl =
+        notebook_url || this.library.getActiveNotebook()?.url || CONFIG.notebookUrl;
+      if (!resolvedNotebookUrl) {
+        return { success: false, error: 'No notebook URL provided and no active notebook set' };
+      }
+      const session = await this.sessionManager.getOrCreateSession(session_id, resolvedNotebookUrl);
+      const page = session.getPage();
+      if (!page) {
+        return { success: false, error: 'Could not access browser page' };
+      }
+      const contentManager = new ContentManager(page);
+      const result = await contentManager.getNoteContent({
+        noteTitle: note_title,
+        noteId: note_id,
+      });
+      if (result.success) {
+        log.success(`✅ [TOOL] get_note completed: "${result.title}"`);
+      } else {
+        log.error(`❌ [TOOL] get_note failed: ${result.error}`);
+      }
+      return { success: result.success, data: result, error: result.error };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] get_note failed: ${errorMessage}`);
+      return { success: false, error: errorMessage };
     }
   }
 

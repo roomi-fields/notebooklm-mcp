@@ -583,6 +583,26 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case 'list_notes':
+            result = await this.toolHandlers.handleListNotes(
+              args as {
+                notebook_url?: string;
+                session_id?: string;
+              }
+            );
+            break;
+
+          case 'get_note':
+            result = await this.toolHandlers.handleGetNote(
+              args as {
+                note_title: string;
+                note_id?: string;
+                notebook_url?: string;
+                session_id?: string;
+              }
+            );
+            break;
+
           case 'save_chat_to_note':
             result = await this.toolHandlers.handleSaveChatToNote(
               args as {

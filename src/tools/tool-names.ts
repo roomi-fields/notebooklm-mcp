@@ -44,6 +44,8 @@ export const LEGACY_TO_CANONICAL: Record<string, string> = {
   create_note: 'note_create',
   save_chat_to_note: 'note_save_chat',
   convert_note_to_source: 'note_to_source',
+  list_notes: 'note_list',
+  get_note: 'note_get',
   // auth_* — Google authentication
   setup_auth: 'auth_setup',
   de_auth: 'auth_logout',

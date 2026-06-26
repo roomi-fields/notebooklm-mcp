@@ -179,3 +179,27 @@ export interface ServerState {
   sessionManager: unknown;
   authManager: unknown;
 }
+
+export interface NotebookNote {
+  id?: string;
+  title: string;
+  details?: string;
+}
+
+export interface NoteListResult {
+  success: boolean;
+  notes: NotebookNote[];
+  error?: string;
+}
+
+export interface NoteGetInput {
+  noteTitle: string;
+  noteId?: string;
+}
+
+export interface NoteGetResult {
+  success: boolean;
+  title: string;
+  content: string;
+  error?: string;
+}
