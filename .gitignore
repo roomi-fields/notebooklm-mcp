@@ -111,3 +111,6 @@ C:\\Users\\*
 
 # RTFM local database
 .rtfm/
+
+# Audio files
+*.m4a

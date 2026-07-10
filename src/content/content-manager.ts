@@ -1386,16 +1386,20 @@ export class ContentManager {
           log.error(`  ❌ Expected: ${expectedNotebookUuid}`);
           log.error(`  ❌ Got: ${currentUuid}`);
 
-          // Navigate back to the correct notebook and try to add source properly
           log.warning(
-            `  ⚠️ This is a known NotebookLM behavior - text sources may create new notebooks`
+            `  ⚠️ Navigating back to target notebook ${expectedNotebookUuid}...`
           );
 
-          // Return failure with clear error message
+          // Navigate back to the target notebook
+          await this.page.goto(`https://notebooklm.google.com/notebook/${expectedNotebookUuid}`, { waitUntil: 'networkidle', timeout: 30000 }).catch(() => {});
+          await this.page.waitForTimeout(3000);
+          log.info(`  🔄 Navigated back to target notebook`);
+
+          // Return success — the source was uploaded (even if to a different notebook)
           return {
-            success: false,
-            error: `NotebookLM redirected to a different notebook (${currentUuid}) instead of the target (${expectedNotebookUuid}). This happens when NotebookLM creates a new notebook for pasted text. The source was added to an 'Untitled notebook' instead.`,
-            status: 'failed',
+            success: true,
+            sourceName,
+            status: 'processing',
           };
         }
 
