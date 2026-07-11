@@ -3929,10 +3929,17 @@ export class ToolHandlers {
           'button:has-text("Créer")',
           'button:has-text("New notebook")',
           'button:has-text("Nouveau")',
+          'button:has-text("สร้าง")',
+          'button:has-text("สร้างใหม่")',
+          'button:has-text("สร้างโน้ตบุ๊ก")',
           '[aria-label*="Create"]',
           '[aria-label*="Créer"]',
+          '[aria-label*="New notebook"]',
+          '[aria-label*="สร้าง"]',
+          '[aria-label*="โน้ตบุ๊ก"]',
           '.create-notebook-button',
           'button.mdc-button:has-text("Create")',
+          'button.mdc-button:has-text("สร้าง")',
         ];
 
         let clicked = false;
@@ -3955,7 +3962,15 @@ export class ToolHandlers {
           const allButtons = await page.locator('button').all();
           for (const btn of allButtons) {
             const text = await btn.textContent();
-            if (text && (text.includes('Create') || text.includes('Créer') || text.includes('+'))) {
+            if (
+              text &&
+              (text.includes('Create') ||
+                text.includes('Créer') ||
+                text.includes('New notebook') ||
+                text.includes('สร้าง') ||
+                text.includes('โน้ตบุ๊ก') ||
+                text.includes('+'))
+            ) {
               await btn.click();
               clicked = true;
               log.success(`  ✅ Clicked button with text: ${text}`);

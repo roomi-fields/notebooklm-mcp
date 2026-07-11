@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.1] - 2026-07-11
+
+### Added — Thai locale selectors for `notebook_create` (#18, partial)
+
+Added Thai text/`aria-label` selectors (`สร้าง`, `สร้างใหม่`, `สร้างโน้ตบุ๊ก`) to the
+"Create notebook" button detection, contributed by
+[@nontakiat](https://github.com/nontakiat). Without this, notebook creation
+failed on Thai-language NotebookLM accounts, the same class of issue German
+hit in [2.0.4].
+
+Only the selector addition from #18 is included in this release. The PR's
+second change — treating a NotebookLM notebook-redirect during text-source
+upload as success — was not merged: it reports `success: true` even though
+the source lands in the wrong (auto-created) notebook, not the one the
+caller asked for. See the PR discussion for details.
+
+---
+
 ## [2.1.0] - 2026-06-26
 
 ### Added — `note_list` and `note_get` MCP tools (#17)
