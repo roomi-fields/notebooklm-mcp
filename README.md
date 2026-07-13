@@ -248,14 +248,6 @@ I built this tool for myself and share it hoping it helps others, but I can't ta
 
 ---
 
-## Star History
-
-<a href="https://star-history.com/#roomi-fields/notebooklm-mcp&Date">
-  <img src="https://api.star-history.com/svg?repos=roomi-fields/notebooklm-mcp&type=Date" alt="Star History Chart" width="600">
-</a>
-
----
-
 <div align="center">
 
 Built with frustration about hallucinated APIs, powered by Google's NotebookLM
