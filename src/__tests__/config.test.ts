@@ -5,8 +5,11 @@ import type { BrowserOptions } from '../config.js';
 describe('Config Module', () => {
   describe('NOTEBOOKLM_AUTH_URL', () => {
     it('should export the correct auth URL', () => {
+      // Post-rebrand: the login continue-target is the new canonical host
+      // (notebook.google.com) so the minted session is checked against the same
+      // host it was issued for.
       expect(NOTEBOOKLM_AUTH_URL).toBe(
-        'https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fnotebooklm.google.com%2F&flowName=GlifWebSignIn&flowEntry=ServiceLogin'
+        'https://accounts.google.com/v3/signin/identifier?continue=https%3A%2F%2Fnotebook.google.com%2F&flowName=GlifWebSignIn&flowEntry=ServiceLogin'
       );
     });
 

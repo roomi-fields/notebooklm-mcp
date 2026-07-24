@@ -16,6 +16,7 @@
 import type { BrowserContext, Page } from 'patchright';
 import { existsSync } from 'fs';
 import { SharedContextManager } from './shared-context-manager.js';
+import { normalizeNotebookUrl } from '../utils/notebook-domain.js';
 import { AuthManager } from '../auth/auth-manager.js';
 import { getAccountManager } from '../accounts/account-manager.js';
 import { humanType, randomDelay } from '../utils/stealth-utils.js';
@@ -72,7 +73,9 @@ export class BrowserSession {
     this.sessionId = sessionId;
     this.sharedContextManager = sharedContextManager;
     this.authManager = authManager;
-    this.notebookUrl = notebookUrl;
+    // Normalise onto the canonical (post-rebrand) host so every navigation to
+    // this.notebookUrl targets the same host that minted the session cookies.
+    this.notebookUrl = normalizeNotebookUrl(notebookUrl);
     this.overrideHeadless = overrideHeadless;
     this.createdAt = Date.now();
     this.lastActivity = Date.now();
@@ -250,7 +253,7 @@ export class BrowserSession {
             `Please verify:\n` +
             `- The notebook URL is correct\n` +
             `- You have access to this notebook\n` +
-            `- The URL format: https://notebooklm.google.com/notebook/[id]`
+            `- The URL format: https://notebook.google.com/notebook/[id]`
         );
       }
     }

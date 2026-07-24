@@ -11,6 +11,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
 import { CONFIG, NOTEBOOKLM_AUTH_URL } from '../config.js';
+import { isNotebookUrl } from '../utils/notebook-domain.js';
 import { log } from '../utils/logger.js';
 import {
   humanType,
@@ -312,8 +313,7 @@ export class AutoLoginManager {
    */
   private async isOnNotebookLM(page: Page): Promise<boolean> {
     try {
-      const url = page.url();
-      return url.startsWith('https://notebooklm.google.com/');
+      return isNotebookUrl(page.url());
     } catch {
       return false;
     }
@@ -487,7 +487,7 @@ export class AutoLoginManager {
 
       // Before failing, check if we're already on NotebookLM (Google skipped 2FA)
       const currentUrl = page.url();
-      if (currentUrl.includes('notebooklm.google.com')) {
+      if (isNotebookUrl(currentUrl)) {
         log.info('  ✅ 2FA was skipped (trusted device), already on NotebookLM');
         return { success: true };
       }
