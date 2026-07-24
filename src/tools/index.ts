@@ -29,6 +29,7 @@ import type {
   LibraryStats,
 } from '../library/types.js';
 import { CONFIG, applyBrowserOptions, type BrowserOptions } from '../config.js';
+import { NOTEBOOK_BASE_URL } from '../utils/notebook-domain.js';
 import { log } from '../utils/logger.js';
 import type {
   AskQuestionResult,
@@ -543,7 +544,7 @@ export function buildToolDefinitions(library: NotebookLibrary): Tool[] {
 - ✅ Discovers topics user might not think of
 
 ## Example
-User: "Add this NotebookLM: https://notebooklm.google.com/notebook/abc123"
+User: "Add this NotebookLM: https://notebook.google.com/notebook/abc123"
 You: "Add this notebook with auto-generated metadata?"
 User: "Yes"
 You: Call auto_discover_notebook(url="https://...")
@@ -1398,7 +1399,7 @@ User: "Yes" → call remove_notebook`,
       name: 'list_notebooks_from_nblm',
       description:
         'Scrape the NotebookLM homepage to get a real list of all notebooks with their IDs and names.\n\n' +
-        'This tool navigates to notebooklm.google.com and extracts:\n' +
+        'This tool navigates to notebook.google.com and extracts:\n' +
         '- Notebook ID (UUID from URL)\n' +
         '- Notebook name (displayed title)\n' +
         '- Notebook URL\n\n' +
@@ -1605,7 +1606,7 @@ export class ToolHandlers {
                 `To add a notebook:\n` +
                 `  POST /notebooks with { url, name, description, topics }\n\n` +
                 `Or use notebook_url directly in your request:\n` +
-                `  { "question": "...", "notebook_url": "https://notebooklm.google.com/notebook/..." }`
+                `  { "question": "...", "notebook_url": "https://notebook.google.com/notebook/..." }`
             );
           } else {
             const availableIds = allNotebooks.map((n) => n.id).join(', ');
@@ -1639,7 +1640,7 @@ export class ToolHandlers {
                 `1. Add a notebook to the library:\n` +
                 `   POST /notebooks with { url, name, description, topics }\n\n` +
                 `2. Or specify notebook_url in your request:\n` +
-                `   { "question": "...", "notebook_url": "https://notebooklm.google.com/notebook/..." }\n\n` +
+                `   { "question": "...", "notebook_url": "https://notebook.google.com/notebook/..." }\n\n` +
                 `3. Or specify notebook_id from existing notebooks:\n` +
                 `   GET /notebooks to list available notebooks`
             );
@@ -1650,7 +1651,7 @@ export class ToolHandlers {
                 `Available notebooks:\n   - ${availableIds}\n\n` +
                 `Please specify one of:\n` +
                 `  - notebook_id: "${allNotebooks[0].id}"\n` +
-                `  - notebook_url: "https://notebooklm.google.com/notebook/..."\n\n` +
+                `  - notebook_url: "https://notebook.google.com/notebook/..."\n\n` +
                 `Or set an active notebook: PUT /notebooks/${allNotebooks[0].id}/activate`
             );
           }
@@ -3475,7 +3476,7 @@ export class ToolHandlers {
    * Handle list_notebooks_from_nblm tool
    *
    * Scrapes the NotebookLM homepage to get a real list of all notebooks.
-   * This navigates to notebooklm.google.com and extracts notebook info from the page.
+   * This navigates to notebook.google.com and extracts notebook info from the page.
    */
   async handleListNotebooksFromNblm(
     args: {
@@ -3515,7 +3516,7 @@ export class ToolHandlers {
         log.info('  📄 Navigating to NotebookLM homepage...');
 
         // Navigate to NotebookLM homepage
-        await page.goto('https://notebooklm.google.com/', {
+        await page.goto(NOTEBOOK_BASE_URL, {
           waitUntil: 'domcontentloaded',
           timeout: 60000,
         });
@@ -3614,7 +3615,7 @@ export class ToolHandlers {
         for (const { id, name } of scraped) {
           if (seenIds.has(id)) continue;
           seenIds.add(id);
-          const url = `https://notebooklm.google.com/notebook/${id}`;
+          const url = `https://notebook.google.com/notebook/${id}`;
           notebooks.push({ id, name, url });
           log.info(`    📓 Found: ${name} (${id.substring(0, 8)}...)`);
         }
@@ -3634,7 +3635,7 @@ export class ToolHandlers {
             const id = match.replace('project-', '');
             if (seenIds.has(id)) continue;
             seenIds.add(id);
-            const url = `https://notebooklm.google.com/notebook/${id}`;
+            const url = `https://notebook.google.com/notebook/${id}`;
             notebooks.push({ id, name: '', url });
             log.warning(
               `    📓 Found id only (no title hydrated): ${id.substring(0, 8)}... (name empty, not "Notebook")`
@@ -3722,7 +3723,7 @@ export class ToolHandlers {
 
           try {
             // Navigate to homepage
-            await page.goto('https://notebooklm.google.com/', {
+            await page.goto(NOTEBOOK_BASE_URL, {
               waitUntil: 'domcontentloaded',
               timeout: 30000,
             });
@@ -3914,7 +3915,7 @@ export class ToolHandlers {
         log.info('  📄 Navigating to NotebookLM homepage...');
 
         // Navigate to NotebookLM homepage
-        await page.goto('https://notebooklm.google.com/', {
+        await page.goto(NOTEBOOK_BASE_URL, {
           waitUntil: 'networkidle',
           timeout: 30000,
         });
@@ -3989,9 +3990,9 @@ export class ToolHandlers {
         // Wait for navigation to the FINAL notebook URL.
         //
         // NotebookLM redirects through a transitional URL like
-        //   https://notebooklm.google.com/notebook/creating/c
+        //   https://notebook.google.com/notebook/creating/c
         // before landing on the real
-        //   https://notebooklm.google.com/notebook/{UUID}
+        //   https://notebook.google.com/notebook/{UUID}
         //
         // The previous regex `/notebook\//` matched the transitional URL
         // immediately, so we returned `notebook/creating/c` to callers.

@@ -9,6 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 import { CONFIG } from '../config.js';
+import { isNotebookHost } from '../utils/notebook-domain.js';
 import { log } from '../utils/logger.js';
 import type {
   NotebookEntry,
@@ -181,10 +182,10 @@ export class NotebookLibrary {
     if (!this.isValidNotebookUrl(input.url)) {
       throw new Error(
         `Invalid NotebookLM URL: ${input.url}\n\n` +
-          `Expected format: https://notebooklm.google.com/notebook/[notebook-id]\n\n` +
-          `Example: https://notebooklm.google.com/notebook/abc-123-def-456\n\n` +
+          `Expected format: https://notebook.google.com/notebook/[notebook-id]\n\n` +
+          `Example: https://notebook.google.com/notebook/abc-123-def-456\n\n` +
           `To get the URL:\n` +
-          `1. Go to https://notebooklm.google.com\n` +
+          `1. Go to https://notebook.google.com\n` +
           `2. Open your notebook\n` +
           `3. Copy the URL from the address bar`
       );
@@ -237,7 +238,7 @@ export class NotebookLibrary {
     try {
       const urlObj = new URL(url);
       return (
-        urlObj.hostname === 'notebooklm.google.com' &&
+        isNotebookHost(urlObj.hostname) &&
         urlObj.pathname.startsWith('/notebook/') &&
         urlObj.pathname.length > '/notebook/'.length
       );
@@ -287,7 +288,7 @@ export class NotebookLibrary {
               `- You don't have access to this notebook\n` +
               `- The notebook ID in the URL is incorrect\n\n` +
               `Please verify the URL by:\n` +
-              `1. Go to https://notebooklm.google.com\n` +
+              `1. Go to https://notebook.google.com\n` +
               `2. Open the notebook manually\n` +
               `3. Copy the exact URL from the address bar`
           );

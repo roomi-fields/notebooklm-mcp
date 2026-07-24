@@ -15,6 +15,7 @@ import { NotebookLibrary } from './library/notebook-library.js';
 import { ToolHandlers } from './tools/index.js';
 import { AutoDiscovery } from './auto-discovery/auto-discovery.js';
 import { StartupManager } from './startup/startup-manager.js';
+import { isNotebookHost } from './utils/notebook-domain.js';
 import { log } from './utils/logger.js';
 
 // Extend Express Request to include requestId
@@ -539,10 +540,11 @@ app.post('/notebooks/auto-discover', async (req: Request, res: Response) => {
     // Validate it's a NotebookLM URL (proper URL parsing to prevent bypass)
     try {
       const parsedUrl = new URL(url);
-      if (parsedUrl.hostname !== 'notebooklm.google.com') {
+      if (!isNotebookHost(parsedUrl.hostname)) {
         return res.status(400).json({
           success: false,
-          error: 'Invalid URL: must be a NotebookLM URL (notebooklm.google.com)',
+          error:
+            'Invalid URL: must be a NotebookLM URL (notebook.google.com or notebooklm.google.com)',
         });
       }
     } catch {
