@@ -344,7 +344,7 @@ export class AuthManager {
    * Perform interactive login
    * User will see a browser window and login manually
    *
-   * SIMPLE & RELIABLE: Just wait for URL to change to notebook.google.com
+   * SIMPLE & RELIABLE: Just wait for URL to change to notebooklm.google.com
    */
   async performLogin(page: Page, sendProgress?: ProgressCallback): Promise<boolean> {
     try {
@@ -595,7 +595,7 @@ export class AuthManager {
   /**
    * Wait for Google to redirect to NotebookLM after successful login (SIMPLE & RELIABLE)
    *
-   * Just checks if URL changes to notebook.google.com - no complex UI element searching!
+   * Just checks if URL changes to notebooklm.google.com - no complex UI element searching!
    * Matches the simplified approach used in performLogin().
    */
   private async waitForRedirectAfterLogin(page: Page, deadline: number): Promise<boolean> {
@@ -626,7 +626,7 @@ export class AuthManager {
   /**
    * Wait for NotebookLM to load (SIMPLE & RELIABLE)
    *
-   * Just checks if URL starts with notebook.google.com - no complex UI element searching!
+   * Just checks if URL starts with notebooklm.google.com - no complex UI element searching!
    * Matches the simplified approach used in performLogin().
    */
   private async waitForNotebook(page: Page, timeoutMs: number): Promise<boolean> {

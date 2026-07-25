@@ -1,27 +1,36 @@
 /**
- * NotebookLM / Gemini Notebook domain handling.
+ * NotebookLM / Gemini Notebook host handling.
  *
- * Google rebranded "NotebookLM" and moved the product from
- *   notebooklm.google.com  ->  notebook.google.com
- * The old host still resolves and issues redirects, but a session minted on the
- * new host is bounced through a passive-auth flow when a later navigation targets
- * the OLD host — which the tool used to do everywhere. That mismatch made valid
- * sessions look "expired server-side".
+ * NotebookLM is reachable at TWO hosts that Google keeps in sync via redirects:
+ *   notebooklm.google.com   (Google's documented canonical host)
+ *   notebook.google.com     (the "Gemini Notebook" alias)
  *
- * This module centralises host handling so the rest of the codebase never
- * hardcodes a single domain again:
- *  - accept BOTH hosts when detecting "are we on the notebook app?"
- *  - always NAVIGATE to the new canonical host, and normalise any user-supplied
- *    URL onto it, so cookies are always checked against the host that minted them.
+ * Which host an AUTHENTICATED session actually lands on is account-dependent:
+ *  - Personal accounts generally resolve to notebooklm.google.com.
+ *  - Some Workspace tenants resolve to notebook.google.com (the service-session
+ *    cookie OSID/__Secure-OSID is bound there); notebooklm.google.com then
+ *    redirects to it via a passive-auth hop.
+ *
+ * Therefore we must NOT hardcode a single navigation host — doing so forces the
+ * other tenant through a fragile accounts.google.com re-auth detour, which is the
+ * "session expired server-side" symptom. Instead:
+ *  - DETECT the app by accepting BOTH hosts (isNotebookHost / isNotebookUrl),
+ *  - NAVIGATE using the URL as the user supplied it (it comes from their own
+ *    address bar = their resolved host) and follow Google's redirect,
+ *  - for host-less entry navigation (homepage/scrape) use the documented
+ *    canonical host and accept landing on either.
+ *
+ * isNotebookUrl parses the URL so a notebook host inside a query param (e.g. the
+ * sign-in `continue=` value on accounts.google.com) does NOT falsely match.
  */
 
-/** Hosts that identify the notebook web app (old + new). */
-const NOTEBOOK_HOSTS: readonly string[] = ['notebook.google.com', 'notebooklm.google.com'];
+/** Hosts that identify the notebook web app (both are valid). */
+const NOTEBOOK_HOSTS: readonly string[] = ['notebooklm.google.com', 'notebook.google.com'];
 
-/** The canonical host to navigate to (post-rebrand). */
-const NOTEBOOK_PRIMARY_HOST = 'notebook.google.com';
+/** Google's documented canonical host — used only for host-less entry navigation. */
+export const NOTEBOOK_PRIMARY_HOST = 'notebooklm.google.com';
 
-/** The canonical base URL to navigate to (post-rebrand). */
+/** Canonical base URL for entry navigation (homepage/scrape). Redirects are followed. */
 export const NOTEBOOK_BASE_URL = `https://${NOTEBOOK_PRIMARY_HOST}/`;
 
 /** True if the given hostname is one of the notebook app hosts. */
@@ -31,7 +40,7 @@ export function isNotebookHost(hostname: string): boolean {
 
 /**
  * True if the given string is a URL whose host is a notebook app host.
- * Parses the URL so query params like `?continue=https://notebook.google.com/`
+ * Parses the URL so query params like `?continue=https://notebooklm.google.com/`
  * on an accounts.google.com sign-in page do NOT falsely match.
  */
 export function isNotebookUrl(url: string): boolean {
@@ -39,22 +48,5 @@ export function isNotebookUrl(url: string): boolean {
     return isNotebookHost(new URL(url).hostname);
   } catch {
     return false;
-  }
-}
-
-/**
- * Rewrite a notebook URL onto the canonical (new) host.
- * Leaves non-notebook URLs and unparseable strings untouched.
- */
-export function normalizeNotebookUrl(url: string): string {
-  try {
-    const u = new URL(url);
-    if (isNotebookHost(u.hostname) && u.hostname !== NOTEBOOK_PRIMARY_HOST) {
-      u.hostname = NOTEBOOK_PRIMARY_HOST;
-      return u.toString();
-    }
-    return url;
-  } catch {
-    return url;
   }
 }

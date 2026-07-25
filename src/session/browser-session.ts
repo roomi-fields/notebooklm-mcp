@@ -16,7 +16,6 @@
 import type { BrowserContext, Page } from 'patchright';
 import { existsSync } from 'fs';
 import { SharedContextManager } from './shared-context-manager.js';
-import { normalizeNotebookUrl } from '../utils/notebook-domain.js';
 import { AuthManager } from '../auth/auth-manager.js';
 import { getAccountManager } from '../accounts/account-manager.js';
 import { humanType, randomDelay } from '../utils/stealth-utils.js';
@@ -73,9 +72,12 @@ export class BrowserSession {
     this.sessionId = sessionId;
     this.sharedContextManager = sharedContextManager;
     this.authManager = authManager;
-    // Normalise onto the canonical (post-rebrand) host so every navigation to
-    // this.notebookUrl targets the same host that minted the session cookies.
-    this.notebookUrl = normalizeNotebookUrl(notebookUrl);
+    // Use the URL as supplied — it comes from the user's own address bar, i.e.
+    // their account's resolved host (personal → notebooklm.google.com, some
+    // Workspace tenants → notebook.google.com). We follow Google's redirect and
+    // accept BOTH hosts on success; forcing a single host would push the other
+    // tenant through a fragile accounts.google.com re-auth ("session expired").
+    this.notebookUrl = notebookUrl;
     this.overrideHeadless = overrideHeadless;
     this.createdAt = Date.now();
     this.lastActivity = Date.now();
@@ -253,7 +255,7 @@ export class BrowserSession {
             `Please verify:\n` +
             `- The notebook URL is correct\n` +
             `- You have access to this notebook\n` +
-            `- The URL format: https://notebook.google.com/notebook/[id]`
+            `- The URL format: https://notebooklm.google.com/notebook/[id]`
         );
       }
     }

@@ -55,8 +55,8 @@ describe('BrowserSession', () => {
       );
 
       expect(session.sessionId).toBe('test-session-1');
-      // The old-domain input above is normalised onto the new canonical host.
-      expect(session.notebookUrl).toBe('https://notebook.google.com/notebook/test123');
+      // The notebook URL is used as supplied (no host rewriting).
+      expect(session.notebookUrl).toBe('https://notebooklm.google.com/notebook/test123');
       expect(session.messageCount).toBe(0);
     });
 
@@ -143,8 +143,8 @@ describe('BrowserSession', () => {
       const info = session.getInfo();
 
       expect(info.id).toBe('test-session-7');
-      // The old-domain input above is normalised onto the new canonical host.
-      expect(info.notebook_url).toBe('https://notebook.google.com/notebook/test123');
+      // The notebook URL is used as supplied (no host rewriting).
+      expect(info.notebook_url).toBe('https://notebooklm.google.com/notebook/test123');
       expect(info.message_count).toBe(0);
       expect(info.age_seconds).toBeGreaterThanOrEqual(0);
       expect(info.inactive_seconds).toBeGreaterThanOrEqual(0);
