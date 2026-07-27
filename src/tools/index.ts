@@ -3650,6 +3650,77 @@ export class ToolHandlers {
           }
         }
 
+        // Strategy 3 (2026-07 "Gemini Notebook" rebrand): the homepage no
+        // longer exposes `project-{UUID}` ids nor /notebook/<id> hrefs at all
+        // — list view renders plain mat-table rows whose only id-bearing
+        // artifact is the URL you land on AFTER clicking. When strategies 1-2
+        // find nothing but titled rows exist, resolve each id by clicking the
+        // row, capturing page.url(), and returning to the homepage. Slow
+        // (~3-4 s per notebook), but listing is a sync operation and the
+        // library caches the result.
+        if (notebooks.length === 0) {
+          const ROW = 'tr.mat-mdc-row';
+          const TITLE = '.project-table-title';
+          // Rows only exist in list view — switch if the account was in grid.
+          if ((await page.locator(ROW).count()) === 0) {
+            const listToggle = page
+              .locator('button:has(mat-icon:has-text("view_headline"))')
+              .first();
+            if (await listToggle.isVisible({ timeout: 1000 }).catch(() => false)) {
+              log.info('  🔁 Strategy 3: switching homepage to list view...');
+              await listToggle.click();
+              await page.waitForSelector(ROW, { timeout: 10000 }).catch(() => undefined);
+            }
+          }
+          const rowCount = await page.locator(ROW).count();
+          if (rowCount > 0) {
+            log.info(`  🔍 Strategy 3: click-through over ${rowCount} list rows...`);
+            const homeUrl = page.url();
+            for (let i = 0; i < rowCount; i++) {
+              try {
+                const row = page.locator(ROW).nth(i);
+                const titleEl = row.locator(TITLE);
+                const name = (
+                  (await titleEl.getAttribute('title').catch(() => null)) ??
+                  (await titleEl.textContent().catch(() => null)) ??
+                  ''
+                ).trim();
+                await row.click();
+                await page.waitForURL(/\/notebook\/[a-f0-9-]{36}/, { timeout: 15000 });
+                const id = page.url().match(/\/notebook\/([a-f0-9-]{36})/)?.[1];
+                if (id && !seenIds.has(id)) {
+                  seenIds.add(id);
+                  notebooks.push({
+                    id,
+                    name,
+                    url: `https://${NOTEBOOK_PRIMARY_HOST}/notebook/${id}`,
+                  });
+                  log.info(
+                    `    📓 Resolved by click-through: ${name || '(untitled)'} (${id.substring(0, 8)}...)`
+                  );
+                }
+                await sendProgress?.(`Resolving notebooks by click-through (${i + 1}/${rowCount})...`, 4, 5);
+              } catch (err) {
+                log.warning(
+                  `    ⚠️ Strategy 3 row ${i} failed: ${err instanceof Error ? err.message : String(err)}`
+                );
+              }
+              // Return to the homepage table for the next row — deterministic
+              // goto instead of goBack (SPA history can land elsewhere).
+              await page
+                .goto(homeUrl, { waitUntil: 'domcontentloaded', timeout: 30000 })
+                .catch(() => undefined);
+              await page.waitForSelector(ROW, { timeout: 15000 }).catch(() => undefined);
+              await randomDelay(400, 800);
+            }
+            if (notebooks.length < rowCount) {
+              log.warning(
+                `  ⚠️ Strategy 3 resolved ${notebooks.length}/${rowCount} rows — the rest failed above (not silently skipped)`
+              );
+            }
+          }
+        }
+
         await sendProgress?.('Done!', 5, 5);
         log.success(`  ✅ Found ${notebooks.length} notebooks`);
 
