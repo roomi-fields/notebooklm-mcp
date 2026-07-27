@@ -31,6 +31,7 @@ import {
   type CitationExtractionResult,
 } from '../utils/citation-extractor.js';
 import { CONFIG } from '../config.js';
+import { withUiLocale } from '../utils/notebook-domain.js';
 import { log } from '../utils/logger.js';
 import type { SessionInfo, ProgressCallback } from '../types.js';
 import { RateLimitError } from '../errors.js';
@@ -77,7 +78,9 @@ export class BrowserSession {
     // Workspace tenants → notebook.google.com). We follow Google's redirect and
     // accept BOTH hosts on success; forcing a single host would push the other
     // tenant through a fragile accounts.google.com re-auth ("session expired").
-    this.notebookUrl = notebookUrl;
+    // hl=<uiLocale> forces the UI language the text selectors were written for,
+    // regardless of the account's own language setting.
+    this.notebookUrl = withUiLocale(notebookUrl, CONFIG.uiLocale);
     this.overrideHeadless = overrideHeadless;
     this.createdAt = Date.now();
     this.lastActivity = Date.now();

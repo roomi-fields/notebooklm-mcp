@@ -29,7 +29,7 @@ import type {
   LibraryStats,
 } from '../library/types.js';
 import { CONFIG, applyBrowserOptions, type BrowserOptions } from '../config.js';
-import { NOTEBOOK_BASE_URL, NOTEBOOK_PRIMARY_HOST } from '../utils/notebook-domain.js';
+import { NOTEBOOK_BASE_URL, NOTEBOOK_PRIMARY_HOST, withUiLocale } from '../utils/notebook-domain.js';
 import { log } from '../utils/logger.js';
 import type {
   AskQuestionResult,
@@ -3516,7 +3516,7 @@ export class ToolHandlers {
         log.info('  📄 Navigating to NotebookLM homepage...');
 
         // Navigate to NotebookLM homepage
-        await page.goto(NOTEBOOK_BASE_URL, {
+        await page.goto(withUiLocale(NOTEBOOK_BASE_URL, CONFIG.uiLocale), {
           waitUntil: 'domcontentloaded',
           timeout: 60000,
         });
@@ -3730,7 +3730,7 @@ export class ToolHandlers {
 
           try {
             // Navigate to homepage
-            await page.goto(NOTEBOOK_BASE_URL, {
+            await page.goto(withUiLocale(NOTEBOOK_BASE_URL, CONFIG.uiLocale), {
               waitUntil: 'domcontentloaded',
               timeout: 30000,
             });
@@ -3922,7 +3922,7 @@ export class ToolHandlers {
         log.info('  📄 Navigating to NotebookLM homepage...');
 
         // Navigate to NotebookLM homepage
-        await page.goto(NOTEBOOK_BASE_URL, {
+        await page.goto(withUiLocale(NOTEBOOK_BASE_URL, CONFIG.uiLocale), {
           waitUntil: 'networkidle',
           timeout: 30000,
         });

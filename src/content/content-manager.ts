@@ -111,8 +111,16 @@ export class ContentManager {
         /* ignore — waitForSourceProcessing falls back to its own snapshot */
       }
 
-      // Click "Add source" button
-      await this.clickAddSource();
+      // A notebook with zero sources auto-opens the "Add sources" dialog (the
+      // app redirects to ?addSource=true) and Escape does not reliably dismiss
+      // it. In that state there is no "Add source" button anywhere — the
+      // dialog is already presented, so reuse it instead of searching.
+      if (await this.isUploadDialogOpen()) {
+        log.info('  ℹ️ Add-sources dialog already open (zero-source notebook) — reusing it');
+      } else {
+        // Click "Add source" button
+        await this.clickAddSource();
+      }
 
       // DEBUG: Screenshot after clicking add source to see what UI appeared
       try {
@@ -157,6 +165,24 @@ export class ContentManager {
   /**
    * Click the "Add source" button
    */
+  /**
+   * True when the "Add sources" upload dialog is already displayed — a
+   * notebook with zero sources auto-opens it via the ?addSource=true redirect.
+   * Detection is structural (drop-zone markup), so it is locale-independent;
+   * on a false negative the caller simply falls back to the button search.
+   */
+  private async isUploadDialogOpen(): Promise<boolean> {
+    try {
+      const dialog = this.page.locator('[role="dialog"]').first();
+      if (!(await dialog.isVisible({ timeout: 500 }))) {
+        return false;
+      }
+      return (await dialog.locator('[class*="drop-zone"], input[type="file"]').count()) > 0;
+    } catch {
+      return false;
+    }
+  }
+
   private async clickAddSource(): Promise<void> {
     // First, ensure we're on the Sources panel (left panel)
     await this.ensureSourcesPanel();

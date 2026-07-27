@@ -9,7 +9,7 @@
  * 5. Clear status messages
  */
 
-import { NOTEBOOK_BASE_URL } from '../utils/notebook-domain.js';
+import { NOTEBOOK_BASE_URL, withUiLocale } from '../utils/notebook-domain.js';
 import { AuthManager } from '../auth/auth-manager.js';
 import { getAccountManager, AccountManager } from '../accounts/account-manager.js';
 import { AutoLoginManager } from '../accounts/auto-login-manager.js';
@@ -349,7 +349,7 @@ export class StartupManager {
 
       // Navigate to NotebookLM
       log.info('  🌐 Navigating to NotebookLM to verify session...');
-      await page.goto(NOTEBOOK_BASE_URL, {
+      await page.goto(withUiLocale(NOTEBOOK_BASE_URL, CONFIG.uiLocale), {
         waitUntil: 'domcontentloaded',
         timeout: 30000,
       });

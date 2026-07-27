@@ -39,6 +39,30 @@ export function isNotebookHost(hostname: string): boolean {
 }
 
 /**
+ * Appends `hl=<locale>` to a notebook app URL so the UI renders in the locale
+ * the text-based selectors expect. Google renders the app in the ACCOUNT's
+ * language by default, which silently breaks every text selector when the
+ * account language differs from NOTEBOOKLM_UI_LOCALE (seen 2026-07-27: Spanish
+ * account → "Crear nuevo" ≠ buttons.create "Create"). Non-notebook URLs and
+ * URLs that already carry an hl param are returned unchanged.
+ */
+export function withUiLocale(url: string, locale: string | undefined): string {
+  if (!locale) {
+    return url;
+  }
+  try {
+    const parsed = new URL(url);
+    if (!isNotebookHost(parsed.hostname) || parsed.searchParams.has('hl')) {
+      return url;
+    }
+    parsed.searchParams.set('hl', locale);
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+/**
  * True if the given string is a URL whose host is a notebook app host.
  * Parses the URL so query params like `?continue=https://notebooklm.google.com/`
  * on an accounts.google.com sign-in page do NOT falsely match.
