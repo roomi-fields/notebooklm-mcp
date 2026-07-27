@@ -29,7 +29,11 @@ import type {
   LibraryStats,
 } from '../library/types.js';
 import { CONFIG, applyBrowserOptions, type BrowserOptions } from '../config.js';
-import { NOTEBOOK_BASE_URL, NOTEBOOK_PRIMARY_HOST, withUiLocale } from '../utils/notebook-domain.js';
+import {
+  NOTEBOOK_BASE_URL,
+  NOTEBOOK_PRIMARY_HOST,
+  withUiLocale,
+} from '../utils/notebook-domain.js';
 import { log } from '../utils/logger.js';
 import type {
   AskQuestionResult,
@@ -3699,7 +3703,11 @@ export class ToolHandlers {
                     `    📓 Resolved by click-through: ${name || '(untitled)'} (${id.substring(0, 8)}...)`
                   );
                 }
-                await sendProgress?.(`Resolving notebooks by click-through (${i + 1}/${rowCount})...`, 4, 5);
+                await sendProgress?.(
+                  `Resolving notebooks by click-through (${i + 1}/${rowCount})...`,
+                  4,
+                  5
+                );
               } catch (err) {
                 log.warning(
                   `    ⚠️ Strategy 3 row ${i} failed: ${err instanceof Error ? err.message : String(err)}`
