@@ -91,8 +91,6 @@ const timer = setInterval(() => {
   void syncNotebooks();
 }, intervalSeconds * 1000);
 
-timer.unref?.();
-
 await new Promise<void>((resolve) => {
   const stop = (): void => {
     clearInterval(timer);
