@@ -9,7 +9,7 @@ Replace the URL with the address of the NotebookLM HTTP server:
 ```bash
 claude mcp add notebooklm --scope user -- \
   npx -y --package @roomi-fields/notebooklm-mcp \
-  notebooklm-mcp-remote --url http://192.168.1.211:3000
+  notebooklm-mcp-remote --url https://mcp.example.com
 ```
 
 Verify the connection:
@@ -47,8 +47,8 @@ The server URL can be supplied in three ways, in priority order:
 Examples:
 
 ```bash
-notebooklm-mcp-remote http://192.168.1.211:3000
-NOTEBOOKLM_SERVER_URL=http://192.168.1.211:3000 notebooklm-mcp-remote
+notebooklm-mcp-remote https://mcp.example.com
+NOTEBOOKLM_SERVER_URL=https://mcp.example.com notebooklm-mcp-remote
 ```
 
 ## Security
