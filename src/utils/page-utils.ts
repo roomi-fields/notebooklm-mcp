@@ -322,11 +322,13 @@ export async function waitForLatestAnswer(
     pollIntervalMs?: number;
     ignoreTexts?: string[];
     /**
-     * Count of `.to-user-container` elements captured (via
-     * `countAnswerContainers`) BEFORE the question was submitted. When
-     * provided, the new answer is identified by DOM position (any container
-     * at index >= baseline) instead of by text-hash dedup, so a repeated
-     * answer text (e.g. two "Yes" answers) is still detected correctly.
+     * @deprecated No longer used. Position-based identity (DOM index vs. a
+     * pre-submission baseline) was tried and disproven empirically:
+     * NotebookLM's virtualized chat list does not keep DOM order in sync
+     * with message recency, so a newly-generated answer can land at an
+     * index *below* older, already-known ones. Every mounted container is
+     * now scanned and matched purely by content hash instead. Kept in the
+     * type only so existing call sites don't need to change.
      */
     baselineContainerCount?: number;
     debug?: boolean;
@@ -337,7 +339,6 @@ export async function waitForLatestAnswer(
     timeoutMs = 120000,
     pollIntervalMs = 1000,
     ignoreTexts = [],
-    baselineContainerCount,
     debug = false,
   } = options;
 
@@ -386,13 +387,7 @@ export async function waitForLatestAnswer(
     }
 
     // Extract latest NEW text
-    const candidate = await extractLatestText(
-      page,
-      knownHashes,
-      debug,
-      pollCount,
-      baselineContainerCount
-    );
+    const candidate = await extractLatestText(page, knownHashes, debug, pollCount);
 
     if (candidate) {
       const normalized = candidate.trim();
@@ -507,8 +502,7 @@ async function extractLatestText(
   page: Page,
   knownHashes: Set<number>,
   debug: boolean,
-  pollCount: number,
-  baselineContainerCount?: number
+  pollCount: number
 ): Promise<string | null> {
   // Scroll to bottom periodically to reveal new messages (every 5 polls)
   if (pollCount % 5 === 0) {
@@ -538,37 +532,16 @@ async function extractLatestText(
       );
     }
 
-    if (typeof baselineContainerCount === 'number') {
-      // Position-based identity: scan only containers added after the
-      // baseline, most recent first, and return the first with extractable
-      // text. Deliberately does NOT compare text content — a container at a
-      // new position IS the new answer, regardless of what it says.
-      for (let idx = containers.length - 1; idx >= baselineContainerCount; idx--) {
-        const container = containers[idx];
-        try {
-          const textElement = await container.$('.message-text-content');
-          if (textElement) {
-            const text = await textElement.innerText();
-            const sanitized = sanitizeResponseText(text || '');
-            if (sanitized) {
-              log.success(
-                `✅ [EXTRACT] Found new-position text in container[${idx}] (baseline ${baselineContainerCount}): ${sanitized.length} chars`
-              );
-              return sanitized;
-            }
-          }
-        } catch {
-          continue;
-        }
-      }
-      if (debug && pollCount % 5 === 0) {
-        log.dim(
-          `⏭️ [EXTRACT] No container past baseline ${baselineContainerCount} yet (${totalContainers} total)`
-        );
-      }
-      return null;
-    }
-
+    // Position-based identity (index/last-container relative to a
+    // pre-submission baseline) was tried and DISPROVEN empirically: dumping
+    // every container's text showed the genuinely new, unknown-hash answer
+    // sitting in the MIDDLE of the list (e.g. index 8 of 11) with older,
+    // already-known answers after it (indices 9, 10) — NotebookLM's
+    // virtualized chat list does not keep DOM order in sync with message
+    // recency. Position (first, last, or index >= baseline) is not a
+    // reliable signal at all here — only content identity is. So: always
+    // scan every mounted container and return the first whose text hash
+    // isn't in knownHashes, regardless of baselineContainerCount.
     if (containers.length > 0) {
       // Only log every 5th poll to reduce noise
       if (debug && pollCount % 5 === 0) {
