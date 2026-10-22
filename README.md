@@ -14,6 +14,8 @@
 
 [![MCP](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io/) [![Claude Code](https://img.shields.io/badge/Claude_Code-MCP-8A2BE2)](https://claude.ai/claude-code) [![n8n](https://img.shields.io/badge/n8n-HTTP_API-orange)](./deployment/docs/04-N8N-INTEGRATION.md) [![GitHub](https://img.shields.io/github/stars/roomi-fields/notebooklm-mcp?style=social)](https://github.com/roomi-fields/notebooklm-mcp) [![MCP Toplist](https://mcptoplist.com/badge/io.github.roomi-fields%2Fnotebooklm-mcp.svg)](https://mcptoplist.com/server/io.github.roomi-fields%2Fnotebooklm-mcp)
 
+[![LightNow capabilities](https://lightnow.ai/badge/io.github.roomi-fields/notebooklm-mcp)](https://lightnow.ai/servers/io.github.roomi-fields/notebooklm-mcp)
+
 <!-- End Badges -->
 
 </div>
