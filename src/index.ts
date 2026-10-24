@@ -60,6 +60,17 @@ const packageJson = JSON.parse(
 ) as { version: string };
 const SERVER_VERSION = packageJson.version;
 
+const SHUTDOWN_DEADLINE_MS = 10_000;
+const PARENT_CHECK_INTERVAL_MS = 5_000;
+
+/**
+ * True for the errors a write to a stdio pipe raises once the client has gone.
+ */
+function isDeadStdioError(error: unknown): boolean {
+  const code = (error as NodeJS.ErrnoException | undefined)?.code;
+  return code === 'EPIPE' || code === 'ERR_STREAM_DESTROYED' || code === 'ECONNRESET';
+}
+
 /**
  * Main MCP Server Class
  */
@@ -790,6 +801,10 @@ class NotebookLMMCPServer {
       }
       shuttingDown = true;
 
+      // Graceful cleanup must never keep the process alive on its own. If
+      // closing the browser or the server hangs, exit anyway.
+      setTimeout(() => process.exit(1), SHUTDOWN_DEADLINE_MS).unref();
+
       log.info(`\n🛑 Received ${signal}, shutting down gracefully...`);
 
       try {
@@ -824,7 +839,27 @@ class NotebookLMMCPServer {
     process.stdin.on('end', () => requestShutdown('stdin-end'));
     process.stdin.on('close', () => requestShutdown('stdin-close'));
 
+    // Once the client is gone, every write to stdout/stderr fails. Logging that
+    // failure writes to stderr again, which fails again: an orphaned server sat
+    // in that loop at 100% CPU for days. A dead stdio pipe means the client is
+    // gone, so exit at once and do not log.
+    process.stdout.on('error', () => process.exit(1));
+    process.stderr.on('error', () => process.exit(1));
+
+    // Last line of defence for a client that died without closing our stdin
+    // (e.g. the pipe was inherited by another process): when the parent that
+    // started us is gone, we are reparented and process.ppid changes.
+    const parentPid = process.ppid;
+    setInterval(() => {
+      if (process.ppid !== parentPid) {
+        requestShutdown('parent-exit');
+      }
+    }, PARENT_CHECK_INTERVAL_MS).unref();
+
     process.on('uncaughtException', (error) => {
+      if (isDeadStdioError(error)) {
+        process.exit(1);
+      }
       log.error(`💥 Uncaught exception: ${error}`);
       log.error(error.stack || '');
       requestShutdown('uncaughtException');
