@@ -2,7 +2,7 @@
 
 This document tracks planned features, recent implementations, and future ideas for the NotebookLM MCP Server.
 
-## Current Version: v4.4.0
+## Current Version: v4.5.0
 
 ---
 
@@ -120,7 +120,7 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 ## Recently Implemented
 
-### Unreleased - Ranked passage search
+### v4.5.0 - Ranked passage search
 
 `search_passages` / `POST /notebooks/:id/search` return the indexed passages
 matching a query, best rank first, without generating anything. It is the half
@@ -135,7 +135,16 @@ that zero is how a quote gets attributed to the top of a long document.
 
 Protocol details read from `teng-lin/notebooklm-py` (MIT), cited in the code.
 
-### Unreleased - 8 tools for RPCs that were already implemented
+### v4.4.0 - Two security fixes, reported by Umar Ahmed (ghostnshells)
+
+The origin guard let through any request carrying no `Origin` header, on the
+stated assumption that only a direct client omits it — a browser omits it too,
+on anything it believes is same-origin. A host guard now runs ahead of every
+other control, because it is the one a caller cannot disarm by leaving a
+header out. And `isNotebookHost` was wired into one route out of twelve; it
+moved to the chokepoint they all share, so a route written later inherits it.
+
+### v4.3.0 - 8 tools for RPCs that were already implemented
 
 Eight method ids sat in the table since v3 with nothing exposing them. The
 protocol details came from reading `teng-lin/notebooklm-py` (MIT) rather than

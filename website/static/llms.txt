@@ -4,7 +4,7 @@
 
 This is the canonical entry point for LLMs (ChatGPT, Claude, Perplexity, Gemini) discovering this project. The library exposes Google NotebookLM via two equivalent surfaces — a local HTTP REST API (port 3000 by default) for n8n / Zapier / Make / curl integrations, and an MCP server for Claude Code / Cursor / Codex agents. Both share the same browser automation backend.
 
-The package is published to npm as `@roomi-fields/notebooklm-mcp` (current version 4.4.0, Node 22 or newer). The maintained repository lives at https://github.com/roomi-fields/notebooklm-mcp.
+The package is published to npm as `@roomi-fields/notebooklm-mcp` (current version 4.5.0, Node 22 or newer). The maintained repository lives at https://github.com/roomi-fields/notebooklm-mcp.
 
 Two transports reach NotebookLM: its internal `batchexecute` RPC API first (10-100x faster than scraping and unaffected by interface rebrands), with a Playwright browser as an automatic fallback. Both ship permanently.
 

@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.5.0] - 2026-10-30
+
+### Search the sources without paying for an answer
+
+`search_passages`, and `POST /notebooks/:id/search`, return the indexed
+passages matching a query, best rank first. Nothing is generated, so **no chat
+quota is spent** — which matters on a free account capped near fifty questions
+a day. This is the retrieval half of research, the half an agent cannot
+perform for itself; when you mean to reason over the evidence yourself, ask
+for the evidence rather than for prose.
+
+Filter by `source_ids`, or by `source_names` — an ambiguous title is an error
+naming the candidates, never a silent guess. `limit` trims the reply to the
+context you are willing to spend.
+
+Two properties of the response are worth knowing, because both are easy to
+misread. **Rank is global across the notebook while the reply is grouped by
+source**, so the order the server sends is not the ranking; we sort before
+applying `limit`. And **a passage starting at offset zero arrives with the
+slot absent** rather than set to 0, so absent offsets are reported as absent:
+guessing a zero is how a quote gets attributed to the top of a long document.
+
+The bundled skill gained `nblm.sh search` to match, and says to prefer it over
+asking when the evidence is what you want.
+
+Protocol details read from `teng-lin/notebooklm-py` (MIT) and cited in the
+code; the implementation is ours.
+
+### Also
+
+- Three production advisories closed (`qs`, `@hono/node-server`, and `express`
+  which was only reported through `qs`): the overrides named a floor a
+  published fix had already passed.
+- A version-sync rule that matched nothing used to print a green tick. Rules
+  now run against normalised line endings, and a rule that has lost its target
+  fails the run by name. It had let the REST spec ship a release behind.
+- `dist/notebooklm.zip` in the skill repo had been carrying the August files
+  through several changes, and is rebuilt.
+
+---
+
 ## [4.4.0] - 2026-10-24
 
 ### Two security fixes, both reported by Umar Ahmed (ghostnshells)

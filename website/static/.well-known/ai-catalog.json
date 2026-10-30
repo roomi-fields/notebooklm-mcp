@@ -12,7 +12,7 @@
       "url": "https://raw.githubusercontent.com/roomi-fields/notebooklm-mcp/main/server.json",
       "displayName": "NotebookLM MCP",
       "description": "Drive Google NotebookLM from an agent: citation-backed answers, Studio generation, chat history, and a local REST API. Installed locally (npx), not a remote endpoint.",
-      "version": "4.4.0",
+      "version": "4.5.0",
       "tags": ["notebooklm", "mcp", "research", "citations", "rest-api"]
     },
     {
