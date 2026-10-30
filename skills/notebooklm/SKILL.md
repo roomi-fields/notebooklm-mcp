@@ -53,9 +53,16 @@ Use `scripts/nblm.sh` for the REST path (or the equivalent MCP tool):
 scripts/nblm.sh health                       # reachability + auth status
 scripts/nblm.sh notebooks                     # list notebooks (id + name)
 scripts/nblm.sh ask "<question>" <notebook_id>   # citation-backed answer (JSON citations)
+scripts/nblm.sh search "<query>" <notebook_id> [limit]  # ranked passages, no answer, no quota
 scripts/nblm.sh generate <notebook_id> report   # audio|report|video|infographic|presentation|data_table|flashcards|quiz|mind_map
 ```
 
+- **Search before you ask.** `search` returns the indexed passages matching a
+  query, ranked best first, and **spends no chat quota** because nothing is
+  generated. When you intend to reason over the evidence yourself, it is both
+  cheaper and faster than asking. Rank is global across sources and lower is
+  better; `start`/`end` are offsets into that source's full text, and are null
+  when the server gave none.
 - **Ask**: the script requests `source_format: json`, so the answer carries
   source names + cited excerpts. For a human-facing answer, prefer `expanded`
   (see `references/rest-api.md` to vary the format).
