@@ -3,7 +3,7 @@
 The `@roomi-fields/notebooklm-mcp` HTTP server (default `http://localhost:3000`,
 override with `NOTEBOOKLM_SERVER_URL`). All bodies are JSON. Every notebook op
 accepts either `notebook_id` (a UUID) or `notebook_url`. Only the endpoints most
-relevant to research are listed; see the project README for the full 53.
+relevant to research are listed; see the project README for the full 54.
 
 ## Health & auth
 
@@ -39,6 +39,7 @@ off the up-to-10-minute login).
 | GET     | `/notebooks/scrape`                      | —                                                             | Force a live scrape of the account                        |
 | POST    | `/content/sources`                       | `{ source_type, url\|text\|file_path, title?, notebook_url }` | Add a source (`url`/`text`/`file`/`youtube`)              |
 | GET/PUT | `/notebooks/:id/share`                   | `{ public }`                                                  | Read / set public-link status                             |
+| POST    | `/notebooks/:id/search`                  | `{ query, source_ids?, source_names?, limit? }`               | Ranked passages from the index — no generation, no quota  |
 | GET     | `/notebooks/:id/summary`                 | —                                                             | The notebook's own summary + suggested questions          |
 | GET     | `/notebooks/:id/freshness`               | `?source_id=`                                                 | Which URL/Drive sources drifted (`stale: null` = unknown) |
 | GET     | `/notebooks/:id/sources/:sourceId/guide` | —                                                             | NotebookLM's summary + key topics for one source          |

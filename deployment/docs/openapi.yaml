@@ -461,6 +461,44 @@ paths:
       responses:
         '200': { description: Summary and key topics }
 
+  /notebooks/{id}/search:
+    post:
+      tags: [Notebooks]
+      summary: Ranked passages from the notebook's index, without generating an answer
+      description: |
+        RPC-backed (no browser). Retrieval rather than question answering:
+        nothing is generated and no generation quota is spent. Rank is global
+        across sources and lower is better. `start` / `end` are character
+        offsets into the source's full text, and are `null` when the server
+        did not give them.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string }
+                source_ids:
+                  type: array
+                  items: { type: string }
+                  description: Restrict to these source UUIDs. Omit to search them all.
+                source_names:
+                  type: array
+                  items: { type: string }
+                  description: Restrict by source title; an ambiguous title is an error.
+                limit:
+                  type: number
+                  description: Keep at most this many passages, best rank first.
+      responses:
+        '200': { description: Ranked passages }
+
   /notebooks/{id}/summary:
     get:
       tags: [Notebooks]

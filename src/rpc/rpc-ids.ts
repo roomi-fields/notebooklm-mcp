@@ -32,6 +32,9 @@ export const RPC_IDS = {
   SYNC_DRIVE_SOURCE: 'FLmJqe',
   DELETE_SOURCE: 'tGMBJ',
   RENAME_SOURCE: 'b7Wfje',
+  // Registered by a lazily loaded module, so it never appears in the homepage
+  // bundle a drift scraper reads — a rotation here surfaces as a failing call.
+  SEARCH_PASSAGES: 'ASU5Oe',
 
   // Chat / conversation
   GET_CONVERSATIONS: 'hPTbtc',

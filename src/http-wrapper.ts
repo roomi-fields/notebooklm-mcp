@@ -788,6 +788,28 @@ app.post('/notebooks/:id/labels', async (req: Request, res: Response) => {
 });
 
 // A notebook's own summary of its sources + the questions it suggests — RPC extension.
+// Ranked passages matching a query, straight from the notebook's index.
+// POST rather than GET: the query and the source filter are a body, not a URL,
+// and a long question does not belong in a query string or a proxy's log.
+app.post('/notebooks/:id/search', async (req: Request, res: Response) => {
+  try {
+    const { query, source_ids, source_names, limit } = req.body ?? {};
+    res.json(
+      await toolHandlers.handleSearchPassages({
+        notebook_id: req.params.id,
+        query,
+        source_ids,
+        source_names,
+        limit,
+      })
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
 app.get('/notebooks/:id/summary', async (req: Request, res: Response) => {
   try {
     res.json(await toolHandlers.handleNotebookSummary({ notebook_id: req.params.id }));

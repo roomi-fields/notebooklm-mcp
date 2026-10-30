@@ -25,22 +25,21 @@ implementation and cite the source in the code, per `.claude/CLAUDE.md`.
 
 ### Then — new capabilities, highest value first
 
-| Capability                                        | RPC id                         | Notes                                                                                                                                          |
-| ------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ranked passage search across sources              | `ASU5Oe`                       | Retrieval without paying for generation — the single best addition for an agent. Payload `[nb_id, query, null, [1]]`, source filter in slot 4. |
-| Retry a failed artifact, same id                  | `Rytqqe`                       | Today a failed generation is final.                                                                                                            |
-| Quota meter and subscription tier                 | `EylDcb`, `ZwVcOc`             | Needed for long batch runs. Call `EylDcb` only when `SatQRc` reports metering enabled.                                                         |
-| Cancel a running answer or research               | `XgrPMd`, `Zbrupe`             | For research, cancel with the **report id**, not the task id — the task id is a silent no-op.                                                  |
-| Copy a notebook, sources, or artifacts            | `te3DCe`, `R27wvc`, `mKDdke`   | No MCP server exposes these.                                                                                                                   |
-| Independent conversations per notebook            | —                              | The most repeated user request on the competitor's tracker.                                                                                    |
-| Suggested follow-ups, prompts, report formats     | `OcvKNc`, `otmP3b`, `ciyUvf`   | Three trivial calls.                                                                                                                           |
-| Async URL ingestion; append text to a source      | `X1snv`, `QsNTEd`              | ~0.65 s vs ~2 s per source.                                                                                                                    |
-| Chat configuration: goal, persona, length         | `s0tc2d` variant               |                                                                                                                                                |
-| Read and set the account output language          | `ZwVcOc`, `hT54vc`             | Account-global — warn the caller.                                                                                                              |
-| Notebook collections                              | label ids with discriminator 3 |                                                                                                                                                |
-| Synchronous source discovery (~10 results)        | `Es3dTe`                       |                                                                                                                                                |
-| Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                                                                                    |
-| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 48 with no filter.                                                      |
+| Capability                                        | RPC id                         | Notes                                                                                         |
+| ------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
+| Retry a failed artifact, same id                  | `Rytqqe`                       | Today a failed generation is final.                                                           |
+| Quota meter and subscription tier                 | `EylDcb`, `ZwVcOc`             | Needed for long batch runs. Call `EylDcb` only when `SatQRc` reports metering enabled.        |
+| Cancel a running answer or research               | `XgrPMd`, `Zbrupe`             | For research, cancel with the **report id**, not the task id — the task id is a silent no-op. |
+| Copy a notebook, sources, or artifacts            | `te3DCe`, `R27wvc`, `mKDdke`   | No MCP server exposes these.                                                                  |
+| Independent conversations per notebook            | —                              | The most repeated user request on the competitor's tracker.                                   |
+| Suggested follow-ups, prompts, report formats     | `OcvKNc`, `otmP3b`, `ciyUvf`   | Three trivial calls.                                                                          |
+| Async URL ingestion; append text to a source      | `X1snv`, `QsNTEd`              | ~0.65 s vs ~2 s per source.                                                                   |
+| Chat configuration: goal, persona, length         | `s0tc2d` variant               |                                                                                               |
+| Read and set the account output language          | `ZwVcOc`, `hT54vc`             | Account-global — warn the caller.                                                             |
+| Notebook collections                              | label ids with discriminator 3 |                                                                                               |
+| Synchronous source discovery (~10 results)        | `Es3dTe`                       |                                                                                               |
+| Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                                   |
+| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 49 with no filter.     |
 
 ### Onboarding — the conversion half of being found
 
@@ -120,6 +119,21 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 ---
 
 ## Recently Implemented
+
+### Unreleased - Ranked passage search
+
+`search_passages` / `POST /notebooks/:id/search` return the indexed passages
+matching a query, best rank first, without generating anything. It is the half
+of research an agent cannot do for itself: retrieval costs no generation quota,
+so an agent that reasons over evidence no longer has to buy prose to get at it.
+
+Two facts the envelope makes easy to get wrong, both locked by tests: rank is
+**global across sources** while the reply is grouped by source, so the wire
+order is not the ranking; and a span starting at zero arrives with the slot
+absent, which is reported as "no offsets" rather than guessed at 0 — inventing
+that zero is how a quote gets attributed to the top of a long document.
+
+Protocol details read from `teng-lin/notebooklm-py` (MIT), cited in the code.
 
 ### Unreleased - 8 tools for RPCs that were already implemented
 

@@ -75,6 +75,7 @@ import {
 } from '../rpc/studio-rpc.js';
 import { SharingRpc, type ShareStatus } from '../rpc/sharing-rpc.js';
 import { ChatRpc, type ChatTurn } from '../rpc/chat-rpc.js';
+import { SearchRpc, type RelevantPassage } from '../rpc/search-rpc.js';
 import {
   MindMapRpc,
   LabelsRpc,
@@ -1767,6 +1768,43 @@ User: "Yes" → call remove_notebook`,
             description: 'Part of the source title (alternative to source_id).',
           },
         },
+      },
+    },
+    {
+      name: 'search_passages',
+      description:
+        'Find the passages in a notebook’s sources that match a query, ranked best first. ' +
+        'RPC-backed (no browser). This is retrieval, not an answer: nothing is generated, ' +
+        'no generation quota is spent, and you get the indexed text with its offsets. ' +
+        'Prefer this over ask_question when you want the evidence rather than the prose, ' +
+        'and when you intend to reason over the passages yourself.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'What to look for in the sources.' },
+          notebook_url: { type: 'string', description: 'NotebookLM notebook URL.' },
+          notebook_id: {
+            type: 'string',
+            description: 'Notebook UUID (alternative to notebook_url).',
+          },
+          source_ids: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Restrict the search to these source UUIDs. Omit to search them all.',
+          },
+          source_names: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              'Restrict the search to sources matched by title (alternative to source_ids). ' +
+              'An ambiguous title is an error naming the candidates, never a silent guess.',
+          },
+          limit: {
+            type: 'number',
+            description: 'Keep at most this many passages, best rank first. Omit to get them all.',
+          },
+        },
+        required: ['query'],
       },
     },
     {
@@ -4619,6 +4657,65 @@ export class ToolHandlers {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] get_source_guide failed: ${msg}`);
+      return { success: false, error: msg };
+    }
+  }
+
+  /**
+   * Ranked passages from the notebook's own index, without generating an answer.
+   *
+   * This is retrieval, not question answering: nothing is written, no model
+   * runs, and the reply is the indexed text itself. An agent that can reason
+   * over passages wants this rather than `ask_question` whenever it needs the
+   * evidence more than the prose — it is faster and it costs no generation
+   * quota.
+   */
+  async handleSearchPassages(args: {
+    notebook_url?: string;
+    notebook_id?: string;
+    query?: string;
+    source_ids?: string[];
+    source_names?: string[];
+    limit?: number;
+  }): Promise<
+    ToolResult<{ notebookId: string; query: string; passages: RelevantPassage[]; count: number }>
+  > {
+    log.info(`🔧 [TOOL] search_passages called`);
+    try {
+      const notebookId = this.resolveNotebookId(args.notebook_url, args.notebook_id);
+      if (!notebookId) {
+        return { success: false, error: 'No notebook specified (notebook_url or notebook_id)' };
+      }
+      const query = (args.query ?? '').trim();
+      if (!query) {
+        return { success: false, error: 'A non-empty query is required' };
+      }
+
+      const client = await this.getRpcClient();
+
+      // Names are resolved to ids one at a time, so an ambiguous or unknown
+      // name says which name it was — a filter that silently searched the
+      // whole notebook instead would look like a result, not a mistake.
+      const sourceIds = [...(args.source_ids ?? [])];
+      for (const source_name of args.source_names ?? []) {
+        sourceIds.push(await this.resolveSourceId(client, notebookId, { source_name }));
+      }
+
+      const passages = await new SearchRpc(client).searchPassages(notebookId, query, {
+        sourceIds,
+        limit: args.limit,
+      });
+      log.success(
+        `  ✅ (RPC) ${passages.length} passage(s)` +
+          (sourceIds.length ? ` across ${sourceIds.length} named source(s)` : ' across all sources')
+      );
+      return {
+        success: true,
+        data: { notebookId, query, passages, count: passages.length },
+      };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] search_passages failed: ${msg}`);
       return { success: false, error: msg };
     }
   }

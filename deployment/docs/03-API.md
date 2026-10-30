@@ -1,7 +1,7 @@
-# NotebookLM REST API reference — 53 HTTP endpoints
+# NotebookLM REST API reference — 54 HTTP endpoints
 
-> **Coverage.** All 53 endpoints the server exposes are documented below, and
-> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 53 —
+> **Coverage.** All 54 endpoints the server exposes are documented below, and
+> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 54 —
 > both checked against the routes declared in the code.
 
 > Complete reference for the NotebookLM HTTP REST API. Citation-backed Q&A,
@@ -27,7 +27,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## Available Endpoints (53 total)
+## Available Endpoints (54 total)
 
 ### Authentication
 
@@ -2602,6 +2602,57 @@ matches more than one source.
 | **Request timeout**       | 120 sec   | ❌ No (hardcoded)          |
 | **Max question size**     | Unlimited | ❌ No                      |
 | **NotebookLM rate limit** | 50/day    | ❌ No (Google limit)       |
+
+### `POST /notebooks/:id/search`
+
+Find the passages in a notebook's sources that match a query, ranked best first. RPC-backed (no browser).
+
+This is retrieval, not question answering: nothing is generated, **no generation quota is spent**, and you get the indexed text itself with its offsets. Reach for it instead of `/ask` when you want the evidence rather than the prose.
+
+**Body:**
+
+| Field          | Type     | Notes                                                                                                 |
+| -------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| `query`        | string   | Required.                                                                                             |
+| `source_ids`   | string[] | Restrict to these source UUIDs. Omit to search every source.                                          |
+| `source_names` | string[] | Restrict by source title. An ambiguous title is an error naming the candidates, never a silent guess. |
+| `limit`        | number   | Keep at most this many passages, best rank first.                                                     |
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0efd/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "how is ikigai defined", "limit": 2}'
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "notebookId": "74912e55-34a4-4027-bdcc-8e89badd0efd",
+    "query": "how is ikigai defined",
+    "count": 2,
+    "passages": [
+      {
+        "sourceId": "0f1a...",
+        "text": "Ikigai is described as the intersection of what you love and what the world needs.",
+        "rank": 0,
+        "start": 4821,
+        "end": 4903
+      }
+    ]
+  }
+}
+```
+
+**Rank is global across sources and lower is better** — `0` is the best match in the notebook, not a missing value. `start` and `end` are character offsets into that source's full text (the same text `GET /content/sources/:id` returns), and both are `null` when the server did not report a span rather than being guessed at `0`.
+
+A notebook whose sources are still being indexed returns no passages. That is an empty result, not an error.
+
+---
 
 ### `GET /notebooks/:id/summary`
 

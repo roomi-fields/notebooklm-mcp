@@ -716,6 +716,19 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case 'search_passages':
+            result = await this.toolHandlers.handleSearchPassages(
+              args as {
+                notebook_url?: string;
+                notebook_id?: string;
+                query?: string;
+                source_ids?: string[];
+                source_names?: string[];
+                limit?: number;
+              }
+            );
+            break;
+
           case 'get_notebook_summary':
             result = await this.toolHandlers.handleNotebookSummary(
               args as { notebook_url?: string; notebook_id?: string }
