@@ -16,6 +16,20 @@ package shipped 4.6.0 — nine releases missing, three of them security
 releases, on the page most readers never scroll past. It is generated from the
 changelog now, and a guard fails the build if it drifts or loses its markers.
 
+### A release can finish even when npm holds it back
+
+npm accepted 4.6.0, answered that the package was being processed, and then did
+not serve it for eighty minutes. The registry job waits ten, so it failed; and
+a re-run could not help, because npm refuses a republish over a version it has
+merely staged (`409 Cannot publish over previously staged version`). The
+release was neither lost nor recoverable by retrying — only by waiting.
+
+So the wait is now thirty minutes, its error says what is actually happening
+rather than implying the publish failed, and the registry half can be started
+on its own from the Actions tab against a version npm is already serving. The
+npm publish is skipped on that manual run, so it cannot collide with a staged
+upload.
+
 Four names were missing from the acknowledgments, and one was wrong: the open
 HTTP API was reported by @shinjiyu, not by @ghostnshells, who reported the
 other two advisories. Nils Friedrichs and Teodor Tenev are credited for their
