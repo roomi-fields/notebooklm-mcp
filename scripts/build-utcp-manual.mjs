@@ -100,11 +100,47 @@ function inputsOf(op) {
 }
 
 /** The successful response's schema, when the specification gives one. */
-function outputsOf(op) {
+/**
+ * Resolve every `$ref` against the specification's own components.
+ *
+ * A manual is a standalone document: it carries no components section, so a
+ * reference that leaves the specification is a reference its reader cannot
+ * follow. Shipping one looked fine in the file and described nothing at all.
+ *
+ * Cycles are broken with a plain object rather than by recursing forever —
+ * none exist today, and a schema that referred to itself would otherwise hang
+ * the release instead of failing it.
+ */
+function deref(node, spec, seen = new Set()) {
+  if (Array.isArray(node)) return node.map((n) => deref(n, spec, seen));
+  if (!node || typeof node !== 'object') return node;
+
+  if (typeof node.$ref === 'string') {
+    const path = node.$ref.replace(/^#\//, '').split('/');
+    if (seen.has(node.$ref)) return { type: 'object' };
+    let target = spec;
+    for (const step of path) target = target?.[step];
+    if (target === undefined) {
+      throw new Error(
+        `${node.$ref} is referenced but not defined, so the manual would describe nothing there.`
+      );
+    }
+    const next = new Set(seen);
+    next.add(node.$ref);
+    const { $ref, ...siblings } = node;
+    return { ...deref(target, spec, next), ...deref(siblings, spec, next) };
+  }
+
+  const out = {};
+  for (const [key, value] of Object.entries(node)) out[key] = deref(value, spec, seen);
+  return out;
+}
+
+function outputsOf(op, spec) {
   const responses = op.responses ?? {};
   const ok = responses['200'] ?? responses['201'] ?? responses.default;
   const schema = ok?.content?.['application/json']?.schema;
-  return schema ?? { type: 'object' };
+  return schema ? deref(schema, spec) : { type: 'object' };
 }
 
 export function buildManual(spec, version) {
@@ -142,8 +178,10 @@ export function buildManual(spec, version) {
         name: op.operationId,
         description: describe(op),
         tags: op.tags ?? [],
-        inputs,
-        outputs: outputsOf(op),
+        // The request body is a reference too, and a manual carries no
+        // components for its reader to follow.
+        inputs: deref(inputs, spec),
+        outputs: outputsOf(op, spec),
         tool_call_template: template,
       });
     }

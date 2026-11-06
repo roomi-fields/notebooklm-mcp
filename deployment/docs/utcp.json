@@ -13,7 +13,25 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "description": "The root route is not wrapped in the success envelope: it is the server's own banner, and it lists every other route.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "docs": {
+            "type": "string"
+          },
+          "endpoints": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_server_info",
@@ -40,7 +58,50 @@
         "properties": {}
       },
       "outputs": {
-        "$ref": "#/components/schemas/Health"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "authenticated": {
+                "type": "boolean"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "active_sessions": {
+                "type": "integer"
+              },
+              "max_sessions": {
+                "type": "integer"
+              },
+              "session_timeout": {
+                "type": "integer"
+              },
+              "total_messages": {
+                "type": "integer"
+              },
+              "headless": {
+                "type": "boolean"
+              },
+              "auto_login_enabled": {
+                "type": "boolean"
+              },
+              "stealth_enabled": {
+                "type": "boolean"
+              },
+              "troubleshooting_tip": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_health",
@@ -67,6 +128,7 @@
         "properties": {}
       },
       "outputs": {
+        "description": "A UTCP manual, whose shape belongs to the client's own model rather than to this server. Every url is rebased onto the address the request arrived at.",
         "type": "object",
         "properties": {
           "utcp_version": {
@@ -78,7 +140,58 @@
           "tools": {
             "type": "array",
             "items": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "inputs": {
+                  "type": "object"
+                },
+                "outputs": {
+                  "type": "object"
+                },
+                "tool_call_template": {
+                  "type": "object",
+                  "properties": {
+                    "call_template_type": {
+                      "type": "string"
+                    },
+                    "http_method": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "content_type": {
+                      "type": "string"
+                    },
+                    "body_field": {
+                      "type": "string"
+                    },
+                    "auth": {
+                      "type": "object",
+                      "properties": {
+                        "auth_type": {
+                          "type": "string"
+                        },
+                        "api_key": {
+                          "type": "string"
+                        },
+                        "var_name": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -121,7 +234,23 @@
         }
       },
       "outputs": {
-        "$ref": "#/components/schemas/Result"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "setup_auth",
@@ -149,7 +278,26 @@
         "properties": {}
       },
       "outputs": {
-        "$ref": "#/components/schemas/Result"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "authenticated": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "de_auth",
@@ -185,7 +333,29 @@
         }
       },
       "outputs": {
-        "$ref": "#/components/schemas/Result"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "authenticated": {
+                "type": "boolean"
+              },
+              "duration_seconds": {
+                "type": "number"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "re_auth",
@@ -212,7 +382,40 @@
         "type": "object",
         "properties": {
           "body": {
-            "$ref": "#/components/schemas/AskRequest"
+            "type": "object",
+            "required": [
+              "question"
+            ],
+            "properties": {
+              "question": {
+                "type": "string",
+                "example": "Summarize chapter 3"
+              },
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "source_format": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "inline",
+                  "footnotes",
+                  "json",
+                  "expanded"
+                ],
+                "default": "json"
+              },
+              "show_browser": {
+                "type": "boolean",
+                "default": false
+              }
+            }
           }
         },
         "required": [
@@ -220,7 +423,46 @@
         ]
       },
       "outputs": {
-        "$ref": "#/components/schemas/AskResponse"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "question": {
+                "type": "string"
+              },
+              "answer": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "session_info": {
+                "type": "object",
+                "properties": {
+                  "age_seconds": {
+                    "type": "integer"
+                  },
+                  "message_count": {
+                    "type": "integer"
+                  },
+                  "last_activity": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "ask_question",
@@ -248,7 +490,55 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebooks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "topics": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "use_cases": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "active": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "count": {
+                "type": "integer"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "list_notebooks",
@@ -304,7 +594,68 @@
         }
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebook": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "topics": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "content_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "use_cases": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "added_at": {
+                    "type": "string"
+                  },
+                  "last_used": {
+                    "type": "string"
+                  },
+                  "use_count": {
+                    "type": "integer"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {}
+                  },
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "add_notebook",
@@ -332,7 +683,40 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebooks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "total": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "list_notebooks_from_nblm",
@@ -359,7 +743,47 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "imported": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {}
+              },
+              "total_scraped": {
+                "type": "integer"
+              },
+              "total_imported": {
+                "type": "integer"
+              },
+              "total_errors": {
+                "type": "integer"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "import_scraped_notebooks",
@@ -398,7 +822,64 @@
         }
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebook": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "topics": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "content_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "use_cases": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "added_at": {
+                    "type": "string"
+                  },
+                  "last_used": {
+                    "type": "string"
+                  },
+                  "use_count": {
+                    "type": "integer"
+                  },
+                  "auto_generated": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "auto_discover_notebook",
@@ -433,7 +914,64 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebooks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "topics": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "content_types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "use_cases": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "added_at": {
+                      "type": "string"
+                    },
+                    "last_used": {
+                      "type": "string"
+                    },
+                    "use_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "search_notebooks",
@@ -460,7 +998,57 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "total_notebooks": {
+                "type": "integer"
+              },
+              "active_notebook_id": {
+                "type": "string"
+              },
+              "total_queries": {
+                "type": "integer"
+              },
+              "most_used_notebook": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "use_count": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "recently_added": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "added_at": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_library_stats",
@@ -499,7 +1087,32 @@
         }
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "deleted": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "failed": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "delete_notebooks_from_nblm",
@@ -534,7 +1147,43 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebook": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "topics": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_notebook",
@@ -568,7 +1217,40 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebook": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "topics": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "last_modified": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "update_notebook",
@@ -602,7 +1284,23 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "remove_notebook",
@@ -636,7 +1334,49 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "notebook": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "topics": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "last_used": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "select_notebook",
@@ -675,7 +1415,23 @@
         }
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebook_url": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "create_notebook",
@@ -703,7 +1459,49 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "sessions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "notebook_url": {
+                      "type": "string"
+                    },
+                    "message_count": {
+                      "type": "integer"
+                    },
+                    "age_seconds": {
+                      "type": "integer"
+                    },
+                    "inactive_seconds": {
+                      "type": "integer"
+                    },
+                    "last_activity": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              },
+              "count": {
+                "type": "integer"
+              },
+              "max_sessions": {
+                "type": "integer"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "list_sessions",
@@ -737,7 +1535,23 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "close_session",
@@ -771,7 +1585,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "previous_message_count": {
+                "type": "integer"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "reset_session",
@@ -797,7 +1630,40 @@
         "type": "object",
         "properties": {
           "body": {
-            "$ref": "#/components/schemas/AddSourceRequest"
+            "type": "object",
+            "required": [
+              "source_type"
+            ],
+            "properties": {
+              "source_type": {
+                "type": "string",
+                "enum": [
+                  "file",
+                  "url",
+                  "text",
+                  "youtube",
+                  "drive"
+                ]
+              },
+              "file_path": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            }
           }
         },
         "required": [
@@ -805,7 +1671,29 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "sourceId": {
+                "type": "string"
+              },
+              "sourceName": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "add_source",
@@ -840,7 +1728,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "sourceId": {
+                "type": "string"
+              },
+              "sourceName": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "delete_source",
@@ -874,7 +1781,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "sourceId": {
+                "type": "string"
+              },
+              "sourceName": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "delete_source_by_id",
@@ -914,7 +1840,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "contentId": {
+                "type": "string"
+              },
+              "deleted": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "delete_content",
@@ -948,7 +1893,37 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "list_sources",
@@ -1010,7 +1985,50 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "notebookId": {
+                "type": "string"
+              },
+              "format": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "totalChars": {
+                "type": "integer"
+              },
+              "pageChars": {
+                "type": "integer"
+              },
+              "offset": {
+                "type": "integer"
+              },
+              "hasMore": {
+                "type": "boolean"
+              },
+              "nextCursor": {
+                "type": "integer"
+              },
+              "continue": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "read_source",
@@ -1060,7 +2078,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "sourceId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "rename_source",
@@ -1099,7 +2136,32 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "keyTopics": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_source_guide",
@@ -1163,7 +2225,49 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "query": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer"
+              },
+              "passages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "sourceId": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "rank": {
+                      "type": "integer"
+                    },
+                    "start": {
+                      "type": "integer"
+                    },
+                    "end": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "search_passages",
@@ -1198,7 +2302,37 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "suggestedTopics": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_notebook_summary",
@@ -1235,7 +2369,43 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "checked": {
+                "type": "integer"
+              },
+              "stale": {
+                "type": "integer"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "stale": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "check_source_freshness",
@@ -1277,7 +2447,40 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "conversationId": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer"
+              },
+              "turns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "role": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_chat_history",
@@ -1314,7 +2517,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "conversationId": {
+                "type": "string"
+              },
+              "deleted": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "delete_chat_history",
@@ -1348,7 +2570,37 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "isPublic": {
+                "type": "boolean"
+              },
+              "publicLink": {
+                "type": "string"
+              },
+              "collaborators": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_share_status",
@@ -1394,7 +2646,27 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "isPublic": {
+                "type": "boolean"
+              },
+              "publicLink": {
+                "type": "string"
+              },
+              "collaborators": {
+                "type": "array",
+                "items": {}
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "share_notebook",
@@ -1441,7 +2713,29 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "contentId": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "retried": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "retry_content",
@@ -1500,7 +2794,29 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "artifactId": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "documentUrl": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "export_artifact",
@@ -1558,7 +2874,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "artifactId": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "revise_slide",
@@ -1593,7 +2928,37 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "labels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "emoji": {
+                      "type": "string"
+                    },
+                    "sourceCount": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "list_labels",
@@ -1653,7 +3018,37 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "labels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "emoji": {
+                      "type": "string"
+                    },
+                    "sourceCount": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "manage_labels",
@@ -1709,7 +3104,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "artifactId": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "generate_study_aid",
@@ -1755,7 +3169,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "mindMapId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "json": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "generate_mind_map",
@@ -1807,7 +3240,40 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "taskId": {
+                "type": "string"
+              },
+              "imported": {
+                "type": "integer"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "research_sources",
@@ -1834,7 +3300,77 @@
         "type": "object",
         "properties": {
           "body": {
-            "$ref": "#/components/schemas/GenerateRequest"
+            "type": "object",
+            "required": [
+              "content_type"
+            ],
+            "properties": {
+              "content_type": {
+                "type": "string",
+                "enum": [
+                  "audio_overview",
+                  "video",
+                  "infographic",
+                  "report",
+                  "presentation",
+                  "data_table"
+                ]
+              },
+              "language": {
+                "type": "string",
+                "example": "en"
+              },
+              "custom_instructions": {
+                "type": "string"
+              },
+              "video_style": {
+                "type": "string",
+                "enum": [
+                  "classroom",
+                  "documentary",
+                  "animated",
+                  "corporate",
+                  "cinematic",
+                  "minimalist"
+                ]
+              },
+              "video_format": {
+                "type": "string",
+                "enum": [
+                  "brief",
+                  "explainer"
+                ]
+              },
+              "infographic_format": {
+                "type": "string",
+                "enum": [
+                  "horizontal",
+                  "vertical"
+                ]
+              },
+              "report_format": {
+                "type": "string",
+                "enum": [
+                  "summary",
+                  "detailed"
+                ]
+              },
+              "presentation_style": {
+                "type": "string",
+                "enum": [
+                  "overview",
+                  "detailed"
+                ]
+              },
+              "presentation_length": {
+                "type": "string",
+                "enum": [
+                  "short",
+                  "medium",
+                  "long"
+                ]
+              }
+            }
           }
         },
         "required": [
@@ -1842,7 +3378,29 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "generate_content",
@@ -1877,7 +3435,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "filePath": {
+                "type": "string"
+              },
+              "mimeType": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "download_content",
@@ -1904,7 +3481,81 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "passageCount": {
+                      "type": "integer"
+                    },
+                    "addedAt": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "generatedContent": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "duration": {
+                      "type": "integer"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "sourceCount": {
+                "type": "integer"
+              },
+              "hasAudioOverview": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "list_content",
@@ -1931,7 +3582,26 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "noteTitle": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "create_note",
@@ -1958,7 +3628,26 @@
         "properties": {}
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "noteTitle": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "save_chat_to_note",
@@ -1992,7 +3681,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "noteTitle": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "convert_note_to_source",
@@ -2065,7 +3773,66 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "vault_dir": {
+                "type": "string"
+              },
+              "total": {
+                "type": "integer"
+              },
+              "succeeded": {
+                "type": "integer"
+              },
+              "failed": {
+                "type": "integer"
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "notebook": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "md_path": {
+                      "type": "string"
+                    },
+                    "json_path": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "citations_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "batch_to_vault",
@@ -2105,7 +3872,37 @@
         }
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "notes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "list_notes",
@@ -2154,7 +3951,26 @@
         ]
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean"
+              },
+              "title": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "get_note",
@@ -2191,7 +4007,29 @@
         }
       },
       "outputs": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "files_deleted": {
+                "type": "integer"
+              },
+              "space_freed_mb": {
+                "type": "number"
+              },
+              "library_preserved": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       },
       "tool_call_template": {
         "name": "cleanup_data",

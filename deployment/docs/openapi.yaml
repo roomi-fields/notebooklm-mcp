@@ -50,7 +50,11 @@ paths:
       tags: [Health]
       summary: Server identity, version, and a pointer to the docs
       responses:
-        '200': { description: Server descriptor }
+        '200':
+          description: 'Server descriptor'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ServerInfo' }
 
   /health:
     get:
@@ -59,10 +63,10 @@ paths:
       summary: Server health check
       responses:
         '200':
-          description: Server status, uptime, active sessions
+          description: 'Server status, uptime, active sessions'
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/Health' }
+              schema: { $ref: '#/components/schemas/GetHealthResponse' }
 
   /utcp:
     get:
@@ -81,15 +85,10 @@ paths:
         guard like every route but `/health`.
       responses:
         '200':
-          description: A UTCP manual — `utcp_version`, `manual_version`, `tools`
+          description: 'A UTCP manual — `utcp_version`, `manual_version`, `tools`'
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  utcp_version: { type: string }
-                  manual_version: { type: string }
-                  tools: { type: array, items: { type: object } }
+              schema: { $ref: '#/components/schemas/UtcpManual' }
 
   /setup-auth:
     post:
@@ -106,8 +105,10 @@ paths:
                 account: { type: string }
       responses:
         '200':
-          description: Auth completed
-          content: { application/json: { schema: { $ref: '#/components/schemas/Result' } } }
+          description: 'Auth completed'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SetupAuthResponse' }
 
   /de-auth:
     post:
@@ -116,8 +117,10 @@ paths:
       summary: Logout, clear all credentials
       responses:
         '200':
-          description: Logged out
-          content: { application/json: { schema: { $ref: '#/components/schemas/Result' } } }
+          description: 'Logged out'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeAuthResponse' }
 
   /re-auth:
     post:
@@ -133,8 +136,10 @@ paths:
                 account: { type: string }
       responses:
         '200':
-          description: Re-authenticated
-          content: { application/json: { schema: { $ref: '#/components/schemas/Result' } } }
+          description: 'Re-authenticated'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReAuthResponse' }
 
   /ask:
     post:
@@ -148,8 +153,10 @@ paths:
             schema: { $ref: '#/components/schemas/AskRequest' }
       responses:
         '200':
-          description: Answer with citations
-          content: { application/json: { schema: { $ref: '#/components/schemas/AskResponse' } } }
+          description: 'Answer with citations'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AskQuestionResponse' }
         '400':
           description: Missing question
         '500':
@@ -161,7 +168,11 @@ paths:
       tags: [Notebooks]
       summary: List all notebooks in the local library
       responses:
-        '200': { description: Notebook list }
+        '200':
+          description: 'Notebook list'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListNotebooksResponse' }
     post:
       operationId: add_notebook
       tags: [Notebooks]
@@ -179,7 +190,11 @@ paths:
                 description: { type: string }
                 topics: { type: array, items: { type: string } }
       responses:
-        '200': { description: Notebook added }
+        '200':
+          description: 'Notebook added'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddNotebookResponse' }
 
   /notebooks/scrape:
     get:
@@ -187,7 +202,11 @@ paths:
       tags: [Notebooks]
       summary: Scrape all notebooks from NotebookLM UI
       responses:
-        '200': { description: Live notebook list with ids and names }
+        '200':
+          description: 'Live notebook list with ids and names'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListNotebooksFromNblmResponse' }
 
   /notebooks/import-from-scrape:
     post:
@@ -195,7 +214,11 @@ paths:
       tags: [Notebooks]
       summary: Bulk import scraped notebooks into local library
       responses:
-        '200': { description: Import summary }
+        '200':
+          description: 'Import summary'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ImportScrapedNotebooksResponse' }
 
   /notebooks/auto-discover:
     post:
@@ -211,7 +234,11 @@ paths:
                 notebook_id: { type: string }
                 notebook_url: { type: string }
       responses:
-        '200': { description: Generated metadata }
+        '200':
+          description: 'Generated metadata'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AutoDiscoverNotebookResponse' }
 
   /notebooks/search:
     get:
@@ -224,7 +251,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Matching notebooks }
+        '200':
+          description: 'Matching notebooks'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchNotebooksResponse' }
 
   /notebooks/stats:
     get:
@@ -232,7 +263,11 @@ paths:
       tags: [Notebooks]
       summary: Library statistics
       responses:
-        '200': { description: Counts and aggregates }
+        '200':
+          description: 'Counts and aggregates'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GetLibraryStatsResponse' }
 
   /notebooks/bulk-delete:
     delete:
@@ -247,7 +282,11 @@ paths:
               properties:
                 ids: { type: array, items: { type: string } }
       responses:
-        '200': { description: Deletion summary }
+        '200':
+          description: 'Deletion summary'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeleteNotebooksFromNblmResponse' }
 
   /notebooks/{id}:
     get:
@@ -260,7 +299,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Notebook details }
+        '200':
+          description: 'Notebook details'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GetNotebookResponse' }
     put:
       operationId: update_notebook
       tags: [Notebooks]
@@ -271,7 +314,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Updated }
+        '200':
+          description: 'Updated'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UpdateNotebookResponse' }
     delete:
       operationId: remove_notebook
       tags: [Notebooks]
@@ -282,7 +329,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Deleted }
+        '200':
+          description: 'Deleted'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RemoveNotebookResponse' }
 
   /notebooks/{id}/activate:
     put:
@@ -295,7 +346,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Activated }
+        '200':
+          description: 'Activated'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SelectNotebookResponse' }
 
   /notebooks/create:
     post:
@@ -311,7 +366,11 @@ paths:
                 name: { type: string }
                 description: { type: string }
       responses:
-        '200': { description: Created notebook }
+        '200':
+          description: 'Created notebook'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreateNotebookResponse' }
 
   /sessions:
     get:
@@ -319,7 +378,11 @@ paths:
       tags: [Sessions]
       summary: List active sessions
       responses:
-        '200': { description: Active sessions }
+        '200':
+          description: 'Active sessions'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListSessionsResponse' }
 
   /sessions/{id}:
     delete:
@@ -332,7 +395,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Closed }
+        '200':
+          description: 'Closed'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CloseSessionResponse' }
 
   /sessions/{id}/reset:
     post:
@@ -345,7 +412,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Reset }
+        '200':
+          description: 'Reset'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResetSessionResponse' }
 
   /content/sources:
     post:
@@ -358,7 +429,11 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/AddSourceRequest' }
       responses:
-        '200': { description: Source added }
+        '200':
+          description: 'Source added'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddSourceResponse' }
     delete:
       operationId: delete_source
       tags: [Sources]
@@ -369,7 +444,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Deleted }
+        '200':
+          description: 'Deleted'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeleteSourceResponse' }
 
   /content/sources/{id}:
     delete:
@@ -382,7 +461,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Deleted }
+        '200':
+          description: 'Deleted'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeleteSourceByIdResponse' }
 
   /content/{contentId}:
     delete:
@@ -406,7 +489,11 @@ paths:
           required: false
           schema: { type: string }
       responses:
-        '200': { description: Deleted }
+        '200':
+          description: 'Deleted'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeleteContentResponse' }
 
   /notebooks/{id}/sources:
     get:
@@ -422,7 +509,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Source list }
+        '200':
+          description: 'Source list'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListSourcesResponse' }
 
   /notebooks/{id}/sources/{sourceId}:
     get:
@@ -469,7 +560,10 @@ paths:
           schema: { type: integer, minimum: 0 }
       responses:
         '200':
-          description: One page of the source's content, plus how to fetch the rest
+          description: "One page of the source's content, plus how to fetch the rest"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReadSourceResponse' }
 
     patch:
       operationId: rename_source
@@ -495,7 +589,11 @@ paths:
                 title: { type: string }
               required: [title]
       responses:
-        '200': { description: The source's new title }
+        '200':
+          description: "The source's new title"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RenameSourceResponse' }
         '400': { description: Missing or empty title }
 
   /notebooks/{id}/sources/{sourceId}/guide:
@@ -516,7 +614,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Summary and key topics }
+        '200':
+          description: 'Summary and key topics'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GetSourceGuideResponse' }
 
   /notebooks/{id}/search:
     post:
@@ -555,7 +657,11 @@ paths:
                   type: number
                   description: Keep at most this many passages, best rank first.
       responses:
-        '200': { description: Ranked passages }
+        '200':
+          description: 'Ranked passages'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchPassagesResponse' }
 
   /notebooks/{id}/summary:
     get:
@@ -571,7 +677,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Summary and suggested topics }
+        '200':
+          description: 'Summary and suggested topics'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GetNotebookSummaryResponse' }
 
   /notebooks/{id}/freshness:
     get:
@@ -592,7 +702,11 @@ paths:
           required: false
           schema: { type: string }
       responses:
-        '200': { description: Per-source freshness }
+        '200':
+          description: 'Per-source freshness'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CheckSourceFreshnessResponse' }
 
   /notebooks/{id}/chat:
     get:
@@ -616,7 +730,11 @@ paths:
           required: false
           schema: { type: integer, default: 20, minimum: 1 }
       responses:
-        '200': { description: Conversation turns }
+        '200':
+          description: 'Conversation turns'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GetChatHistoryResponse' }
     delete:
       operationId: delete_chat_history
       tags: [Notebooks]
@@ -635,7 +753,11 @@ paths:
           required: false
           schema: { type: string }
       responses:
-        '200': { description: What was deleted }
+        '200':
+          description: 'What was deleted'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DeleteChatHistoryResponse' }
 
   /notebooks/{id}/share:
     get:
@@ -648,7 +770,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Sharing status }
+        '200':
+          description: 'Sharing status'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GetShareStatusResponse' }
     put:
       operationId: share_notebook
       tags: [Notebooks]
@@ -668,7 +794,11 @@ paths:
                 public: { type: boolean }
               required: [public]
       responses:
-        '200': { description: Sharing status after the change }
+        '200':
+          description: 'Sharing status after the change'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShareNotebookResponse' }
 
   /content/{artifactId}/retry:
     post:
@@ -698,7 +828,11 @@ paths:
                 notebook_id: { type: string }
                 notebook_url: { type: string }
       responses:
-        '200': { description: 'Retry queued, with the unchanged id and new status' }
+        '200':
+          description: 'Retry queued, with the unchanged id and new status'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RetryContentResponse' }
 
   /content/{artifactId}/export:
     post:
@@ -725,7 +859,11 @@ paths:
                 target: { type: string, enum: [docs, sheets], default: docs }
                 title: { type: string, default: Export }
       responses:
-        '200': { description: 'The export, with the document link when sent' }
+        '200':
+          description: 'The export, with the document link when sent'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ExportArtifactResponse' }
 
   /content/{artifactId}/revise-slide:
     post:
@@ -753,7 +891,11 @@ paths:
                 prompt: { type: string }
               required: [slide_index, prompt]
       responses:
-        '200': { description: The deck's status after the revision }
+        '200':
+          description: "The deck's status after the revision"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviseSlideResponse' }
         '400': { description: Missing slide_index or prompt }
 
   /notebooks/{id}/labels:
@@ -767,7 +909,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Label list }
+        '200':
+          description: 'Label list'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListLabelsResponse' }
     post:
       operationId: manage_labels
       tags: [Notebooks]
@@ -789,7 +935,11 @@ paths:
                 emoji: { type: string }
                 label_ids: { type: array, items: { type: string } }
       responses:
-        '200': { description: Labels after the change }
+        '200':
+          description: 'Labels after the change'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ManageLabelsResponse' }
 
   /content/study-aid:
     post:
@@ -809,7 +959,11 @@ paths:
                 focus: { type: string }
               required: [kind]
       responses:
-        '200': { description: Generation result }
+        '200':
+          description: 'Generation result'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenerateStudyAidResponse' }
 
   /content/mind-map:
     post:
@@ -827,7 +981,11 @@ paths:
                 notebook_url: { type: string }
                 title: { type: string }
       responses:
-        '200': { description: Generation result }
+        '200':
+          description: 'Generation result'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenerateMindMapResponse' }
 
   /content/research:
     post:
@@ -847,7 +1005,11 @@ paths:
                 import: { type: boolean }
               required: [query]
       responses:
-        '200': { description: Discovered sources }
+        '200':
+          description: 'Discovered sources'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResearchSourcesResponse' }
 
   /content/generate:
     post:
@@ -860,7 +1022,11 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/GenerateRequest' }
       responses:
-        '200': { description: Generated artifact metadata }
+        '200':
+          description: 'Generated artifact metadata'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenerateContentResponse' }
 
   /content/download:
     get:
@@ -873,7 +1039,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Binary file }
+        '200':
+          description: 'Binary file'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DownloadContentResponse' }
 
   /content:
     get:
@@ -881,7 +1051,11 @@ paths:
       tags: [Content]
       summary: List sources and generated content for the active notebook
       responses:
-        '200': { description: Content list }
+        '200':
+          description: 'Content list'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListContentResponse' }
 
   /content/notes:
     post:
@@ -889,7 +1063,11 @@ paths:
       tags: [Content]
       summary: Create a note in the active notebook
       responses:
-        '200': { description: Note created }
+        '200':
+          description: 'Note created'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreateNoteResponse' }
 
   /content/chat-to-note:
     post:
@@ -897,7 +1075,11 @@ paths:
       tags: [Content]
       summary: Save the current chat discussion as a note
       responses:
-        '200': { description: Note saved }
+        '200':
+          description: 'Note saved'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SaveChatToNoteResponse' }
 
   /content/notes/{noteTitle}/to-source:
     post:
@@ -910,7 +1092,11 @@ paths:
           required: true
           schema: { type: string }
       responses:
-        '200': { description: Note converted to source }
+        '200':
+          description: 'Note converted to source'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ConvertNoteToSourceResponse' }
 
   /batch-to-vault:
     post:
@@ -938,7 +1124,11 @@ paths:
                 session_id: { type: string }
               required: [questions]
       responses:
-        '200': { description: 'Batch result, one entry per question' }
+        '200':
+          description: 'Batch result, one entry per question'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BatchToVaultResponse' }
 
   /content/notes/list:
     post:
@@ -955,7 +1145,11 @@ paths:
                 notebook_url: { type: string }
                 session_id: { type: string }
       responses:
-        '200': { description: Note list }
+        '200':
+          description: 'Note list'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ListNotesResponse' }
 
   /content/notes/get:
     post:
@@ -974,7 +1168,11 @@ paths:
                 notebook_url: { type: string }
                 session_id: { type: string }
       responses:
-        '200': { description: Note content }
+        '200':
+          description: 'Note content'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GetNoteResponse' }
         '400': { description: Neither note_title nor note_id was given }
 
   /cleanup-data:
@@ -990,7 +1188,11 @@ paths:
               properties:
                 confirm: { type: boolean }
       responses:
-        '200': { description: Cleaned }
+        '200':
+          description: 'Cleaned'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CleanupDataResponse' }
 
 components:
   securitySchemes:
@@ -999,20 +1201,1256 @@ components:
       scheme: bearer
       description: Value of NOTEBOOKLM_API_KEY, also accepted as the X-API-Key header.
   schemas:
-    Health:
+    ServerInfo:
+      description: >-
+        The root route is not wrapped in the success envelope: it is the
+        server's own banner, and it lists every other route.
       type: object
       properties:
-        status: { type: string, example: ok }
-        uptime_s: { type: number }
-        active_sessions: { type: integer }
-        version: { type: string, example: 1.5.9 }
+        name: { type: string }
+        version: { type: string }
+        docs: { type: string }
+        endpoints:
+          type: object
+          additionalProperties: { type: string }
 
-    Result:
+    UtcpManual:
+      description: >-
+        A UTCP manual, whose shape belongs to the client's own model rather
+        than to this server. Every url is rebased onto the address the
+        request arrived at.
       type: object
       properties:
-        success: { type: boolean }
-        message: { type: string }
-        error: { type: string }
+        utcp_version: { type: string }
+        manual_version: { type: string }
+        tools:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              description: { type: string }
+              inputs: { type: object }
+              outputs: { type: object }
+              tool_call_template:
+                type: object
+                properties:
+                  call_template_type: { type: string }
+                  http_method: { type: string }
+                  url: { type: string }
+                  content_type: { type: string }
+                  body_field: { type: string }
+                  auth:
+                    type: object
+                    properties:
+                      auth_type: { type: string }
+                      api_key: { type: string }
+                      var_name: { type: string }
+                      location: { type: string }
+
+    GetHealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+            authenticated:
+              type: boolean
+            notebook_url:
+              type: string
+            active_sessions:
+              type: integer
+            max_sessions:
+              type: integer
+            session_timeout:
+              type: integer
+            total_messages:
+              type: integer
+            headless:
+              type: boolean
+            auto_login_enabled:
+              type: boolean
+            stealth_enabled:
+              type: boolean
+            troubleshooting_tip:
+              type: string
+
+    SetupAuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+            message:
+              type: string
+
+    DeAuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+            message:
+              type: string
+            authenticated:
+              type: boolean
+
+    ReAuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+            message:
+              type: string
+            authenticated:
+              type: boolean
+            duration_seconds:
+              type: number
+
+    AskQuestionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+            question:
+              type: string
+            answer:
+              type: string
+            session_id:
+              type: string
+            notebook_url:
+              type: string
+            session_info:
+              type: object
+              properties:
+                age_seconds:
+                  type: integer
+                message_count:
+                  type: integer
+                last_activity:
+                  type: integer
+
+    ListNotebooksResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebooks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  url:
+                    type: string
+                  topics:
+                    type: array
+                    items:
+                      type: string
+                  use_cases:
+                    type: array
+                    items:
+                      type: string
+                  active:
+                    type: boolean
+            count:
+              type: integer
+
+    AddNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebook:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                url:
+                  type: string
+                topics:
+                  type: array
+                  items:
+                    type: string
+                content_types:
+                  type: array
+                  items:
+                    type: string
+                use_cases:
+                  type: array
+                  items:
+                    type: string
+                added_at:
+                  type: string
+                last_used:
+                  type: string
+                use_count:
+                  type: integer
+                tags:
+                  type: array
+                  items: {}
+                active:
+                  type: boolean
+
+    ListNotebooksFromNblmResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebooks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  url:
+                    type: string
+            total:
+              type: integer
+            message:
+              type: string
+
+    ImportScrapedNotebooksResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            imported:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  status:
+                    type: string
+            errors:
+              type: array
+              items: {}
+            total_scraped:
+              type: integer
+            total_imported:
+              type: integer
+            total_errors:
+              type: integer
+
+    AutoDiscoverNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebook:
+              type: object
+              properties:
+                id:
+                  type: string
+                url:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                topics:
+                  type: array
+                  items:
+                    type: string
+                content_types:
+                  type: array
+                  items:
+                    type: string
+                use_cases:
+                  type: array
+                  items:
+                    type: string
+                added_at:
+                  type: string
+                last_used:
+                  type: string
+                use_count:
+                  type: integer
+                auto_generated:
+                  type: boolean
+
+    SearchNotebooksResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebooks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  topics:
+                    type: array
+                    items:
+                      type: string
+                  content_types:
+                    type: array
+                    items:
+                      type: string
+                  use_cases:
+                    type: array
+                    items:
+                      type: string
+                  added_at:
+                    type: string
+                  last_used:
+                    type: string
+                  use_count:
+                    type: integer
+
+    GetLibraryStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            total_notebooks:
+              type: integer
+            active_notebook_id:
+              type: string
+            total_queries:
+              type: integer
+            most_used_notebook:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                use_count:
+                  type: integer
+            recently_added:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  added_at:
+                    type: string
+
+    DeleteNotebooksFromNblmResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            deleted:
+              type: array
+              items:
+                type: string
+            failed:
+              type: array
+              items:
+                type: string
+            message:
+              type: string
+
+    GetNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebook:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                url:
+                  type: string
+                topics:
+                  type: array
+                  items:
+                    type: string
+                active:
+                  type: boolean
+
+    UpdateNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebook:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                topics:
+                  type: array
+                  items:
+                    type: string
+                last_modified:
+                  type: string
+
+    RemoveNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+            id:
+              type: string
+
+    SelectNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+            notebook:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                url:
+                  type: string
+                topics:
+                  type: array
+                  items:
+                    type: string
+                active:
+                  type: boolean
+                last_used:
+                  type: string
+
+    CreateNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebook_url:
+              type: string
+            name:
+              type: string
+
+    ListSessionsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            sessions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  notebook_url:
+                    type: string
+                  message_count:
+                    type: integer
+                  age_seconds:
+                    type: integer
+                  inactive_seconds:
+                    type: integer
+                  last_activity:
+                    type: integer
+            count:
+              type: integer
+            max_sessions:
+              type: integer
+
+    CloseSessionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+            session_id:
+              type: string
+
+    ResetSessionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+            session_id:
+              type: string
+            previous_message_count:
+              type: integer
+
+    AddSourceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            sourceId:
+              type: string
+            sourceName:
+              type: string
+            status:
+              type: string
+
+    DeleteSourceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            sourceId:
+              type: string
+            sourceName:
+              type: string
+
+    DeleteSourceByIdResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            sourceId:
+              type: string
+            sourceName:
+              type: string
+
+    DeleteContentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            contentId:
+              type: string
+            deleted:
+              type: boolean
+
+    ListSourcesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            count:
+              type: integer
+            sources:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+
+    ReadSourceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+            notebookId:
+              type: string
+            format:
+              type: string
+            content:
+              type: string
+            totalChars:
+              type: integer
+            pageChars:
+              type: integer
+            offset:
+              type: integer
+            hasMore:
+              type: boolean
+            nextCursor:
+              type: integer
+            continue:
+              type: string
+
+    RenameSourceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            sourceId:
+              type: string
+            title:
+              type: string
+
+    GetSourceGuideResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            id:
+              type: string
+            summary:
+              type: string
+            keyTopics:
+              type: array
+              items:
+                type: string
+
+    SearchPassagesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            query:
+              type: string
+            count:
+              type: integer
+            passages:
+              type: array
+              items:
+                type: object
+                properties:
+                  sourceId:
+                    type: string
+                  text:
+                    type: string
+                  rank:
+                    type: integer
+                  start:
+                    type: integer
+                  end:
+                    type: integer
+
+    GetNotebookSummaryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            summary:
+              type: string
+            suggestedTopics:
+              type: array
+              items:
+                type: object
+                properties:
+                  question:
+                    type: string
+                  prompt:
+                    type: string
+
+    CheckSourceFreshnessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            checked:
+              type: integer
+            stale:
+              type: integer
+            sources:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  stale:
+                    type: [string, 'null']
+
+    GetChatHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            conversationId:
+              type: string
+            count:
+              type: integer
+            turns:
+              type: array
+              items:
+                type: object
+                properties:
+                  role:
+                    type: string
+                  text:
+                    type: string
+
+    DeleteChatHistoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            conversationId:
+              type: string
+            deleted:
+              type: boolean
+
+    GetShareStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            isPublic:
+              type: boolean
+            publicLink:
+              type: string
+            collaborators:
+              type: array
+              items:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  name:
+                    type: string
+
+    ShareNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            isPublic:
+              type: boolean
+            publicLink:
+              type: string
+            collaborators:
+              type: array
+              items: {}
+
+    RetryContentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            contentId:
+              type: string
+            status:
+              type: string
+            retried:
+              type: boolean
+
+    ExportArtifactResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            artifactId:
+              type: string
+            target:
+              type: string
+            documentUrl:
+              type: string
+
+    ReviseSlideResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            artifactId:
+              type: string
+            status:
+              type: string
+
+    ListLabelsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            labels:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  emoji:
+                    type: string
+                  sourceCount:
+                    type: integer
+
+    ManageLabelsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            labels:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  emoji:
+                    type: string
+                  sourceCount:
+                    type: integer
+
+    GenerateStudyAidResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+            title:
+              type: string
+            artifactId:
+              type: string
+
+    GenerateMindMapResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            mindMapId:
+              type: string
+            title:
+              type: string
+            json:
+              type: string
+
+    ResearchSourcesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            taskId:
+              type: string
+            imported:
+              type: integer
+            sources:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  title:
+                    type: string
+                  description:
+                    type: string
+
+    GenerateContentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            type:
+              type: string
+            status:
+              type: string
+            message:
+              type: string
+
+    DownloadContentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            filePath:
+              type: string
+            mimeType:
+              type: string
+
+    ListContentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            sources:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  type:
+                    type: string
+                  status:
+                    type: string
+                  passageCount:
+                    type: integer
+                  addedAt:
+                    type: string
+            generatedContent:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                  name:
+                    type: string
+                  status:
+                    type: string
+                  createdAt:
+                    type: string
+                  duration:
+                    type: integer
+                  url:
+                    type: string
+                  content:
+                    type: string
+            sourceCount:
+              type: integer
+            hasAudioOverview:
+              type: boolean
+
+    CreateNoteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            noteTitle:
+              type: string
+            status:
+              type: string
+
+    SaveChatToNoteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            noteTitle:
+              type: string
+            status:
+              type: string
+
+    ConvertNoteToSourceResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            noteTitle:
+              type: string
+            status:
+              type: string
+
+    BatchToVaultResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            vault_dir:
+              type: string
+            total:
+              type: integer
+            succeeded:
+              type: integer
+            failed:
+              type: integer
+            session_id:
+              type: string
+            notebook:
+              type: object
+              properties:
+                id:
+                  type: string
+                url:
+                  type: string
+            files:
+              type: array
+              items:
+                type: object
+                properties:
+                  question:
+                    type: string
+                  md_path:
+                    type: string
+                  json_path:
+                    type: string
+                  success:
+                    type: boolean
+                  citations_count:
+                    type: integer
+
+    ListNotesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            notes:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  details:
+                    type: string
+
+    GetNoteResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            success:
+              type: boolean
+            title:
+              type: string
+            content:
+              type: string
+
+    CleanupDataResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+            files_deleted:
+              type: integer
+            space_freed_mb:
+              type: number
+            library_preserved:
+              type: boolean
 
     AskRequest:
       type: object
@@ -1034,21 +2472,6 @@ components:
         show_browser:
           type: boolean
           default: false
-
-    AskResponse:
-      type: object
-      properties:
-        success: { type: boolean }
-        answer: { type: string }
-        citations:
-          type: array
-          items:
-            type: object
-            properties:
-              id: { type: integer }
-              source: { type: string }
-              excerpt: { type: string }
-        session_id: { type: string }
 
     AddSourceRequest:
       type: object
