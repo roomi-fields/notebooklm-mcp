@@ -119,6 +119,19 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 ## Recently Implemented
 
+### Unreleased - A Rust client, as a crate in this repository
+
+`crates/notebooklm-client` publishes as `notebooklm` on crates.io: a typed
+async client over this server's REST API, with a blocking feature. It owns no
+browser on purpose — the Google session is machine-bound, expires server-side,
+and needs a patched driver — so it is a client for the server that already
+handles those, and the crate documentation says so rather than implying a
+standalone library. CI holds it to the server's bar; the release chain keeps
+its version equal and publishes it without a stored token.
+
+**Still open:** the first publish needs one disposable crates.io token, since a
+crate that does not exist cannot be given a trusted publisher.
+
 ### v4.6.0 - A UTCP interface, and 56 named operations
 
 `GET /utcp` serves a Universal Tool Calling Protocol manual, generated from our

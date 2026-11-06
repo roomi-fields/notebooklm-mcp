@@ -194,6 +194,25 @@ Generated from the specification on every release and held in step by a build
 guard, so the manual cannot describe a version that is not the one you are
 running. Details: [REST API reference → `GET /utcp`](./deployment/docs/03-API.md).
 
+### Rust client
+
+A typed async client lives in this repository at
+[`crates/notebooklm-client`](./crates/notebooklm-client), and publishes to
+crates.io as **`notebooklm`** with each release. It covers reading and asking —
+health, the library, questions with their quotations, passage search, a
+source's indexed text — and returns the UTCP manual for everything else.
+
+```rust
+let client = notebooklm::Client::local()?;
+let answer = client.ask(&AskRequest::new("ikigai", "What is ikigai?")).await?;
+```
+
+It deliberately **does not own a browser**: the Google session is bound to the
+machine it was made on, expires server-side while local cookies still look
+valid, and needs a driver kept patched against detection. The crate talks to
+this server, which already does all three. The reasoning in full:
+[driving it from Rust](https://notebooklm.roomi-fields.com/blog/notebooklm-rust).
+
 ### Integration Options
 
 - **MCP Protocol** — Claude Code, Cursor, Codex, any MCP client

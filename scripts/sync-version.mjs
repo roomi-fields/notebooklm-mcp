@@ -108,6 +108,23 @@ const targets = [
     transform: (s, v) => s.replace(/(^info:\n(?:.*\n)*?  version:\s*)\d+\.\d+\.\d+/m, `$1${v}`),
   },
   {
+    path: 'crates/notebooklm-client/Cargo.toml',
+    label: 'Rust client crate',
+    // The crate tracks the server version on purpose: it is a client for one
+    // API, and a reader comparing the two should not have to map between two
+    // numbering schemes. Only the package's own version is rewritten — a
+    // dependency's `version = "1"` sits under a different key.
+    transform: (s, v) => s.replace(/(\[package\][\s\S]*?\nversion = )"\d+\.\d+\.\d+"/, `$1"${v}"`),
+  },
+  {
+    path: 'crates/notebooklm-client/README.md',
+    label: 'Rust crate README dependency line',
+    // What the README tells people to put in their Cargo.toml. A minor pin,
+    // because that is what semver-compatible means for a caller.
+    transform: (s, v) =>
+      s.replace(/notebooklm = "\d+\.\d+"/, `notebooklm = "${v.split('.').slice(0, 2).join('.')}"`),
+  },
+  {
     path: 'ROADMAP.md',
     label: 'ROADMAP current version',
     // The "## Current Version" header drifted to 1.5.4 while the package shipped

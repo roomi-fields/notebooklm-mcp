@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### A Rust client, in this repository
+
+`crates/notebooklm-client` publishes to crates.io as **`notebooklm`**: a typed
+async client for this server's REST API, with a `blocking` feature for programs
+that have no runtime. It covers health, the local library, questions with their
+quotations, passage search and a source's indexed text, and returns the UTCP
+manual for the other operations.
+
+The crate deliberately owns no browser. The Google session is bound to the
+machine it was created on, expires server-side while local cookies still look
+valid, and needs a driver kept patched against detection — three problems this
+server already solves, and three a crate would have to re-solve and then
+maintain against Google's redesigns. So the crate is a client, and says so.
+
+Its types encode the two shapes a careless client gets wrong: a passage
+starting at offset zero arrives with the field absent, and is reported as
+absent rather than guessed at; and a refusal arrives in the envelope with the
+server's own wording, which the error type carries through instead of
+flattening into a status code.
+
+It is held to the server's own bar — formatted, clippy-pedantic clean, twelve
+tests against a stubbed server — by a CI job, and its version is kept equal to
+the server's by the release chain. Publishing uses crates.io trusted
+publishing, so no token is stored; the first version needs one disposable
+token, exactly as npm did, because a crate that does not exist yet cannot have
+a trusted publisher.
+
 ### The README stopped telling the truth about its own releases
 
 The "Latest releases" list was hand-written, and had stopped at 3.0.1 while the

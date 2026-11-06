@@ -72,6 +72,50 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
+  # The Rust client ships from this repository too, so it is held to the same
+  # bar as the server: formatted, pedantic-clippy clean, and tested against a
+  # stubbed server. It is a separate job because nothing it needs is in
+  # node_modules.
+  rust:
+    name: Rust client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install the toolchain
+        run: rustup toolchain install stable --profile minimal --component rustfmt,clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            crates/notebooklm-client/target
+          key: cargo-${{ hashFiles('crates/notebooklm-client/Cargo.toml') }}
+          restore-keys: cargo-
+
+      - name: Check formatting
+        working-directory: crates/notebooklm-client
+        run: cargo fmt --check
+
+      - name: Lint
+        working-directory: crates/notebooklm-client
+        run: cargo clippy --all-features --all-targets -- -D warnings
+
+      - name: Test
+        working-directory: crates/notebooklm-client
+        run: cargo test --all-features
+
+      # A crate that cannot be packaged cannot be published, and finding that
+      # out during a release is finding out too late.
+      # No lock file is committed — it is a library, and a pinned lock would
+      # only hide what a caller's own resolution does.
+      - name: Check the package
+        working-directory: crates/notebooklm-client
+        run: cargo package
+
   security:
     runs-on: ubuntu-latest
 

@@ -68,6 +68,10 @@ Response shape:
 
 It declares 56 tools, named exactly as the MCP tools are, so `search_passages` is `search_passages` on both sides rather than something synthesised from a URL path. Every operation in the OpenAPI specification carries a matching `operationId`, so a client pointed straight at the specification converts it correctly on its own. Authentication is declared as an `api_key` in the `X-API-Key` header, which the server accepts alongside the bearer form; the key itself is never in the manual, only the literal `${NOTEBOOKLM_API_KEY}`, which is how a UTCP client asks for a value from its own environment.
 
+## Rust client
+
+A typed async Rust client is published from the same repository as the crate `notebooklm` (https://crates.io/crates/notebooklm, documentation at https://docs.rs/notebooklm). It covers health, the local library, questions with their citations, passage search and a source's indexed text, and returns the UTCP manual for the rest. It does not drive a browser itself: the Google session is bound to the machine it was created on, expires server-side while local cookies still look valid, and needs a patched driver, so the crate talks to the local server that already handles all three. Source: crates/notebooklm-client in https://github.com/roomi-fields/notebooklm-mcp
+
 ## Documentation index
 
 - [Overview](https://notebooklm.roomi-fields.com/)
