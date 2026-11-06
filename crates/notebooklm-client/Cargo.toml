@@ -2,7 +2,9 @@
 name = "notebooklm"
 version = "4.6.0"
 edition = "2021"
-rust-version = "1.82"
+# Verified by building with it, not asserted: 1.82 and 1.85 both fail on the
+# internationalisation crates the HTTP client pulls in, which require 1.88.
+rust-version = "1.88"
 description = "Async Rust client for the local Gemini Notebook (NotebookLM) REST API: citation-backed answers, passage search, and the UTCP manual."
 documentation = "https://docs.rs/notebooklm"
 homepage = "https://notebooklm.roomi-fields.com/"
