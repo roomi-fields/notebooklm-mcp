@@ -12,19 +12,19 @@
 //! use notebooklm::{AskRequest, Client};
 //!
 //! # async fn run() -> notebooklm::Result<()> {
-//! let client = Client::new("http://127.0.0.1:3000")?;
+//! let client = Client::local()?;
 //!
-//! let health = client.health().await?;
+//! let health = client.get_health().await?;
 //! if !health.authenticated {
 //!     // One setup command, once per machine.
 //!     return Ok(());
 //! }
 //!
-//! let library = client.library().await?;
+//! let library = client.list_notebooks().await?;
 //! let notebook = &library.notebooks[0];
 //!
 //! let answer = client
-//!     .ask(&AskRequest::new(&notebook.id, "What is this notebook about?"))
+//!     .ask_question(&AskRequest::new(&notebook.id, "What is this notebook about?"))
 //!     .await?;
 //! println!("{}", answer.answer);
 //! for citation in answer.citations() {
@@ -43,7 +43,7 @@
 //! # Everything else
 //!
 //! This crate covers reading and asking. The server exposes 56 operations in
-//! all, and [`Client::manual`] returns the UTCP manual describing every one of
+//! all, and [`Client::get_utcp_manual`] returns the UTCP manual describing every one of
 //! them — which a [UTCP](https://www.utcp.io/) client can call natively,
 //! without any of the types here.
 //!
@@ -64,24 +64,18 @@
 )]
 
 mod client;
+mod ergonomics;
 mod error;
-mod types;
+/// Every operation of the server's REST API, generated from its OpenAPI
+/// specification so that a route added upstream reaches a Rust caller on the
+/// release that ships it.
+pub mod generated;
 
+/// The synchronous twin of every call, behind the `blocking` feature.
 #[cfg(feature = "blocking")]
 pub mod blocking;
 
 pub use client::{Client, ClientBuilder};
+pub use ergonomics::SourceFormat;
 pub use error::{Error, Result};
-pub use types::{
-    Answer, AskRequest, CallTemplate, Citation, Health, Library, Manual, Notebook, Passage,
-    PassageSearch, SearchRequest, SourceFormat, SourceList, SourceSummary, SourceText, Sources,
-    Tool,
-};
-
-impl Answer {
-    /// The quotations behind this answer, or nothing when the question did not
-    /// ask for them. Saves callers an `Option` and a `Vec` dance.
-    pub fn citations(&self) -> impl Iterator<Item = &Citation> {
-        self.sources.iter().flat_map(|s| s.citations.iter())
-    }
-}
+pub use generated::*;

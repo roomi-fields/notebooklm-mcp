@@ -105,6 +105,12 @@ jobs:
           key: cargo-${{ hashFiles('crates/notebooklm-client/Cargo.toml') }}
           restore-keys: cargo-
 
+      # The typed surface is generated from the specification. A hand edit
+      # would be silently overwritten on the next release, so it fails here
+      # instead.
+      - name: Check the client matches the specification
+        run: npm ci --ignore-scripts && npm run rust:check
+
       - name: Check formatting
         working-directory: crates/notebooklm-client
         run: cargo fmt --check

@@ -5,7 +5,7 @@
 //! wire names that differ from Rust habit, the offset that is absent rather
 //! than zero, and the one document that is not wrapped at all.
 
-use notebooklm::{AskRequest, Client, Error, SearchRequest};
+use notebooklm::{AskRequest, Client, Error, SearchPassagesRequest};
 use wiremock::matchers::{body_json, header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -34,7 +34,7 @@ async fn health_reports_the_session_not_the_build() {
         .mount(&server)
         .await;
 
-    let health = client(&server).health().await.unwrap();
+    let health = client(&server).get_health().await.unwrap();
     assert_eq!(health.status, "ok");
     assert!(!health.authenticated);
     assert_eq!(health.max_sessions, 10);
@@ -52,7 +52,7 @@ async fn a_refusal_keeps_the_server_s_own_wording() {
         .mount(&server)
         .await;
 
-    let error = client(&server).library().await.unwrap_err();
+    let error = client(&server).list_notebooks().await.unwrap_err();
     match error {
         Error::Refused(reason) => assert_eq!(reason, "Notebook not found: ikigai"),
         other => panic!("expected a refusal, got {other:?}"),
@@ -73,7 +73,7 @@ async fn success_with_no_payload_is_reported_not_unwrapped() {
         .await;
 
     assert!(matches!(
-        client(&server).health().await.unwrap_err(),
+        client(&server).get_health().await.unwrap_err(),
         Error::EmptyPayload
     ));
 }
@@ -93,16 +93,16 @@ async fn the_library_is_an_object_around_an_array() {
                     "description": "",
                     "topics": [],
                 }],
-                "active_notebook_id": "ikigai",
+                "count": 1,
             }
         })))
         .mount(&server)
         .await;
 
-    let library = client(&server).library().await.unwrap();
+    let library = client(&server).list_notebooks().await.unwrap();
     assert_eq!(library.notebooks.len(), 1);
     assert_eq!(library.notebooks[0].name, "Ikigai");
-    assert_eq!(library.active_notebook_id.as_deref(), Some("ikigai"));
+    assert_eq!(library.count, 1);
 }
 
 #[tokio::test]
@@ -134,7 +134,7 @@ async fn asking_sends_the_json_source_format_and_reads_the_citations() {
         .await;
 
     let answer = client(&server)
-        .ask(&AskRequest::new("ikigai", "What is ikigai?"))
+        .ask_question(&AskRequest::new("ikigai", "What is ikigai?"))
         .await
         .unwrap();
     assert_eq!(answer.session_id, "9a580eee");
@@ -163,7 +163,7 @@ async fn an_answer_without_sources_yields_no_citations() {
         .await;
 
     let answer = client(&server)
-        .ask(&AskRequest::new("n", "q"))
+        .ask_question(&AskRequest::new("n", "q"))
         .await
         .unwrap();
     assert_eq!(answer.citations().count(), 0);
@@ -193,7 +193,7 @@ async fn a_passage_starting_at_zero_arrives_with_no_offset() {
         .await;
 
     let found = client(&server)
-        .search_passages("nb", &SearchRequest::new("ikigai").limit(2))
+        .search_passages("nb", &SearchPassagesRequest::new("ikigai").limit(2))
         .await
         .unwrap();
     assert_eq!(found.notebook_id, "nb");
@@ -219,7 +219,7 @@ async fn restricting_a_search_omits_the_empty_filters() {
         .mount(&server)
         .await;
 
-    let request = SearchRequest::new("ikigai").in_sources(["s1".to_string()]);
+    let request = SearchPassagesRequest::new("ikigai").in_sources(["s1".to_string()]);
     assert!(client(&server)
         .search_passages("nb", &request)
         .await
@@ -247,7 +247,7 @@ async fn the_manual_is_not_wrapped_in_the_envelope() {
         .mount(&server)
         .await;
 
-    let manual = client(&server).manual().await.unwrap();
+    let manual = client(&server).get_utcp_manual().await.unwrap();
     assert_eq!(manual.manual_version, "4.6.0");
     assert_eq!(manual.tools[0].name, "ask_question");
     assert_eq!(manual.tools[0].tool_call_template.http_method, "POST");
@@ -274,7 +274,7 @@ async fn the_api_key_travels_as_a_bearer_header() {
         .api_key("s3cret")
         .build()
         .unwrap();
-    assert!(client.health().await.unwrap().authenticated);
+    assert!(client.get_health().await.unwrap().authenticated);
     // And it is never printed.
     assert!(!format!("{client:?}").contains("s3cret"));
 }
@@ -283,7 +283,7 @@ async fn the_api_key_travels_as_a_bearer_header() {
 async fn a_server_that_is_not_running_is_a_transport_error() {
     // Port 1 is privileged and unbound: nothing will answer.
     let client = Client::new("http://127.0.0.1:1").unwrap();
-    let error = client.health().await.unwrap_err();
+    let error = client.get_health().await.unwrap_err();
     assert!(error.is_transport(), "got {error:?}");
     assert!(error.to_string().contains("127.0.0.1:1"));
 }

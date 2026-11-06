@@ -654,7 +654,7 @@ paths:
                   items: { type: string }
                   description: Restrict by source title; an ambiguous title is an error.
                 limit:
-                  type: number
+                  type: integer
                   description: Keep at most this many passages, best rank first.
       responses:
         '200':
@@ -1351,6 +1351,34 @@ components:
                   type: integer
                 last_activity:
                   type: integer
+            sources:
+              description: >-
+                Present when the question asked for a source format other than
+                `none`. The reference's second example, which its first does
+                not show.
+              type: object
+              properties:
+                format:
+                  type: string
+                extraction_success:
+                  type: boolean
+                citations:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      marker:
+                        type: string
+                      number:
+                        type: integer
+                      sourceText:
+                        description: >-
+                          The quoted passage. Empty when the citation resolved
+                          to a source with no excerpt — reported empty rather
+                          than filled with the filename.
+                        type: string
+                      sourceName:
+                        type: [string, 'null']
 
     ListNotebooksResponse:
       type: object
@@ -1573,7 +1601,7 @@ components:
             total_notebooks:
               type: integer
             active_notebook_id:
-              type: string
+              type: [string, 'null']
             total_queries:
               type: integer
             most_used_notebook:
@@ -1891,9 +1919,9 @@ components:
             hasMore:
               type: boolean
             nextCursor:
-              type: integer
+              type: [integer, 'null']
             continue:
-              type: string
+              type: [string, 'null']
 
     RenameSourceResponse:
       type: object
@@ -1955,9 +1983,9 @@ components:
                   rank:
                     type: integer
                   start:
-                    type: integer
+                    type: [integer, 'null']
                   end:
-                    type: integer
+                    type: [integer, 'null']
 
     GetNotebookSummaryResponse:
       type: object
@@ -2260,6 +2288,12 @@ components:
               type: string
             mimeType:
               type: string
+            googleSheetsUrl:
+              description: Present when the artifact was exported to Sheets.
+              type: [string, 'null']
+            googleSlidesUrl:
+              description: Present when the artifact was exported to Slides.
+              type: [string, 'null']
 
     ListContentResponse:
       type: object

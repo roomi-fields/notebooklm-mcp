@@ -4,10 +4,6 @@ use serde::Serialize;
 use url::Url;
 
 use crate::error::{Envelope, Error, Redacted, Result};
-use crate::types::{
-    Answer, AskRequest, Health, Library, Manual, PassageSearch, SearchRequest, SourceList,
-    SourceText,
-};
 
 /// A client for one local server.
 ///
@@ -99,69 +95,77 @@ impl Client {
         ClientBuilder::default()
     }
 
-    /// Whether a Google session exists on the machine running the server, and
-    /// how many chats are open. Every other call fails while
-    /// [`Health::authenticated`] is false.
-    pub async fn health(&self) -> Result<Health> {
-        self.get_enveloped("health", "/health").await
-    }
-
-    /// The local library: the notebooks registered with this server.
-    pub async fn library(&self) -> Result<Library> {
-        self.get_enveloped("library", "/notebooks").await
-    }
-
-    /// Ask a question and get the answer with its quotations.
-    pub async fn ask(&self, request: &AskRequest) -> Result<Answer> {
-        self.post_enveloped("ask", "/ask", request).await
-    }
-
-    /// The indexed passages matching a query, best rank first. Generates
-    /// nothing, so it spends no generation allowance.
-    pub async fn search_passages(
+    /// One request, for the generated surface: the route, an optional body,
+    /// an optional query block, and the envelope unwrapped.
+    ///
+    /// `name` is only ever used to say which call could not be read, which is
+    /// the difference between "the server changed" and "my code is wrong".
+    pub(crate) async fn send_json<T, B, Q>(
         &self,
-        notebook_id: &str,
-        request: &SearchRequest,
-    ) -> Result<PassageSearch> {
-        self.post_enveloped(
-            "search",
-            &format!("/notebooks/{notebook_id}/search"),
-            request,
-        )
-        .await
+        name: &'static str,
+        method: reqwest::Method,
+        path: &str,
+        body: Option<&B>,
+        query: Option<&Q>,
+    ) -> Result<T>
+    where
+        T: DeserializeOwned,
+        B: Serialize + ?Sized,
+        Q: Serialize + ?Sized,
+    {
+        let mut request = self.http.request(method, self.route(path)?);
+        if let Some(body) = body {
+            request = request.json(body);
+        }
+        if let Some(query) = query {
+            request = request.query(query);
+        }
+        let response = self.send(request).await?;
+        Self::read(name, response).await
     }
 
-    /// Every source in a notebook, with the ids the other source calls take.
-    pub async fn sources(&self, notebook_id: &str) -> Result<SourceList> {
-        self.get_enveloped("sources", &format!("/notebooks/{notebook_id}/sources"))
-            .await
-    }
-
-    /// The indexed text of one source. Long sources arrive in pages: follow
-    /// [`SourceText::next_cursor`] while [`SourceText::has_more`] is true.
-    pub async fn source(
+    /// Two routes answer with their own document rather than the envelope:
+    /// the server banner and the UTCP manual. Reading those through the
+    /// envelope fails on a missing `success` field, which is a confusing way
+    /// to say "this route was never wrapped".
+    pub(crate) async fn send_raw<T, Q>(
         &self,
-        notebook_id: &str,
-        source_id: &str,
-        cursor: Option<u64>,
-    ) -> Result<SourceText> {
-        let route = match cursor {
-            Some(cursor) => {
-                format!("/notebooks/{notebook_id}/sources/{source_id}?cursor={cursor}")
-            }
-            None => format!("/notebooks/{notebook_id}/sources/{source_id}"),
-        };
-        self.get_enveloped("source", &route).await
-    }
-
-    /// The UTCP manual: all 56 operations, named, with their addresses rebased
-    /// onto the address this call was made to.
-    pub async fn manual(&self) -> Result<Manual> {
-        let response = self.send(self.http.get(self.route("/utcp")?)).await?;
+        name: &'static str,
+        method: reqwest::Method,
+        path: &str,
+        query: Option<&Q>,
+    ) -> Result<T>
+    where
+        T: DeserializeOwned,
+        Q: Serialize + ?Sized,
+    {
+        let mut request = self.http.request(method, self.route(path)?);
+        if let Some(query) = query {
+            request = request.query(query);
+        }
+        let response = self.send(request).await?;
         response.json().await.map_err(|source| Error::Shape {
-            route: "utcp",
+            route: name,
             source,
         })
+    }
+
+    /// The same, for a call with no body — spelled out so the generated code
+    /// never has to name a body type it does not have.
+    pub(crate) async fn send_empty<T, Q>(
+        &self,
+        name: &'static str,
+        method: reqwest::Method,
+        path: &str,
+        _body: Option<&()>,
+        query: Option<&Q>,
+    ) -> Result<T>
+    where
+        T: DeserializeOwned,
+        Q: Serialize + ?Sized,
+    {
+        self.send_json::<T, (), Q>(name, method, path, None, query)
+            .await
     }
 
     fn route(&self, path: &str) -> Result<Url> {
@@ -173,27 +177,6 @@ impl Client {
             base: self.base.to_string(),
             source,
         })
-    }
-
-    async fn get_enveloped<T: DeserializeOwned>(
-        &self,
-        name: &'static str,
-        path: &str,
-    ) -> Result<T> {
-        let response = self.send(self.http.get(self.route(path)?)).await?;
-        Self::read(name, response).await
-    }
-
-    async fn post_enveloped<T: DeserializeOwned, B: Serialize>(
-        &self,
-        name: &'static str,
-        path: &str,
-        body: &B,
-    ) -> Result<T> {
-        let response = self
-            .send(self.http.post(self.route(path)?).json(body))
-            .await?;
-        Self::read(name, response).await
     }
 
     /// The envelope carries the refusal, so an HTTP status is not consulted:
