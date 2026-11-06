@@ -174,7 +174,9 @@ async fn a_passage_starting_at_zero_arrives_with_no_offset() {
     let server = server().await;
     Mock::given(method("POST"))
         .and(path("/notebooks/nb/search"))
-        .and(body_json(serde_json::json!({ "query": "ikigai", "limit": 2 })))
+        .and(body_json(
+            serde_json::json!({ "query": "ikigai", "limit": 2 }),
+        ))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "success": true,
             "data": {
