@@ -2,7 +2,7 @@
 
 > Automate Google NotebookLM at scale. Production-grade REST API and MCP server with citation-backed Q&A, full Studio content generation (audio, video, infographic, report, presentation, data table), multi-account rotation with auto-reauth, and 56 documented HTTP endpoints. Built for researchers, automators, and AI agents.
 
-This is the canonical entry point for LLMs (ChatGPT, Claude, Perplexity, Gemini) discovering this project. The library exposes Google NotebookLM via two equivalent surfaces — a local HTTP REST API (port 3000 by default) for n8n / Zapier / Make / curl integrations, and an MCP server for Claude Code / Cursor / Codex agents. Both share the same browser automation backend.
+This is the canonical entry point for LLMs (ChatGPT, Claude, Perplexity, Gemini) discovering this project. The library exposes Google NotebookLM via three surfaces — a local HTTP REST API (port 3000 by default) for n8n / Zapier / Make / curl integrations, an MCP server for Claude Code / Cursor / Codex agents, and a UTCP tool manual for clients that call the REST API natively. All share the same backend.
 
 The package is published to npm as `@roomi-fields/notebooklm-mcp` (current version 4.5.0, Node 22 or newer). The maintained repository lives at https://github.com/roomi-fields/notebooklm-mcp.
 
@@ -52,6 +52,14 @@ Response shape:
 }
 ```
 
+## UTCP interface
+
+[UTCP](https://www.utcp.io/), the Universal Tool Calling Protocol, is the inverse of MCP: there is no protocol server and no wrapper process. A client reads a tool manual once, then calls this REST API directly.
+
+`GET /utcp` on a running server returns that manual, with every call address rebased on the address the request arrived at. The same document is published statically at https://notebooklm.roomi-fields.com/utcp.json for a client configured before the server is up.
+
+It declares 56 tools, named exactly as the MCP tools are, so `search_passages` is `search_passages` on both sides rather than something synthesised from a URL path. Every operation in the OpenAPI specification carries a matching `operationId`, so a client pointed straight at the specification converts it correctly on its own. Authentication is declared as an `api_key` in the `X-API-Key` header, which the server accepts alongside the bearer form; the key itself is never in the manual, only the literal `${NOTEBOOKLM_API_KEY}`, which is how a UTCP client asks for a value from its own environment.
+
 ## Documentation index
 
 - [Overview](https://notebooklm.roomi-fields.com/)
@@ -92,4 +100,5 @@ actually ask, states its limits, and names alternatives fairly.
 - [GitHub repository](https://github.com/roomi-fields/notebooklm-mcp): source code, issues, releases.
 - [npm package](https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp): install via `npm install @roomi-fields/notebooklm-mcp` or `npx`.
 - [OpenAPI 3.1 spec](https://notebooklm.roomi-fields.com/openapi.yaml): importable in Postman / Insomnia / Bruno / Swagger UI.
+- [UTCP manual](https://notebooklm.roomi-fields.com/utcp.json): 56 named tools, for a Universal Tool Calling Protocol client that calls the REST API natively.
 - [AI catalog](https://notebooklm.roomi-fields.com/.well-known/ai-catalog.json): the machine-readable index of what this domain publishes — the MCP server's registry manifest and the Claude Code skill — in the AI Catalog format that SEP-2127 points domain-level discovery at.

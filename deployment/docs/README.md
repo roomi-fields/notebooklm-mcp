@@ -80,6 +80,7 @@
 | Endpoint                   | Method | Description                           |
 | -------------------------- | ------ | ------------------------------------- |
 | `/health`                  | GET    | Check server status                   |
+| `/utcp`                    | GET    | UTCP tool manual (56 named tools)     |
 | `/ask`                     | POST   | Ask a question to NotebookLM          |
 | `/notebooks`               | GET    | List notebooks                        |
 | `/notebooks`               | POST   | Add a notebook (with validation)      |
@@ -91,6 +92,22 @@
 | `/content/download`        | GET    | Download/export generated content     |
 
 **👉 [Complete API reference](./03-API.md)**
+
+### Three ways in
+
+The same server, the same backend, three protocols:
+
+- **HTTP REST** — 56 endpoints, for n8n / Zapier / Make / curl. See
+  [03-API.md](./03-API.md).
+- **MCP** — 50 tools over stdio, for Claude Code / Cursor / Codex.
+- **[UTCP](https://www.utcp.io/)** — the inverse of MCP: no protocol server and
+  no wrapper process. A client reads the manual at `GET /utcp` once, then calls
+  the REST endpoints directly. The manual declares the same 56 operations under
+  the same names the MCP tools use, and asks for the key as the `X-API-Key`
+  header. It is generated from
+  [`openapi.yaml`](./openapi.yaml) and also published statically at
+  [notebooklm.roomi-fields.com/utcp.json](https://notebooklm.roomi-fields.com/utcp.json).
+  See [`GET /utcp`](./03-API.md).
 
 ### Useful Scripts
 

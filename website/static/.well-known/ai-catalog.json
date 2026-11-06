@@ -16,6 +16,15 @@
       "tags": ["notebooklm", "mcp", "research", "citations", "rest-api"]
     },
     {
+      "identifier": "urn:air:roomi-fields.com:utcp:notebooklm",
+      "type": "application/utcp-manual+json",
+      "url": "https://notebooklm.roomi-fields.com/utcp.json",
+      "displayName": "NotebookLM UTCP manual",
+      "description": "Universal Tool Calling Protocol manual for the NotebookLM REST API: 56 named tools a client calls natively, with no protocol server in between.",
+      "version": "4.5.0",
+      "tags": ["notebooklm", "utcp", "rest-api", "research", "citations"]
+    },
+    {
       "identifier": "urn:air:roomi-fields.com:skill:notebooklm",
       "type": "application/agent-skills+md",
       "url": "https://raw.githubusercontent.com/roomi-fields/notebooklm-skill/main/skills/notebooklm/SKILL.md",

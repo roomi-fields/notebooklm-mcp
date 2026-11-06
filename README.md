@@ -2,7 +2,7 @@
 
 # NotebookLM REST API + MCP server
 
-**Automate Google NotebookLM at scale. 56-endpoint HTTP REST API for n8n / Zapier / Make / curl, plus an MCP server for Claude Code / Cursor / Codex. Citation-backed Q&A, full Studio generation (audio · video · infographic · report · presentation · data table), multi-account rotation with auto-reauth across personal and Google Workspace accounts.**
+**Automate Google NotebookLM at scale. 56-endpoint HTTP REST API for n8n / Zapier / Make / curl, an MCP server for Claude Code / Cursor / Codex, and a UTCP interface for clients that call the API natively. Citation-backed Q&A, full Studio generation (audio · video · infographic · report · presentation · data table), multi-account rotation with auto-reauth across personal and Google Workspace accounts.**
 
 > v4.5.0 — **Node 22 is now the floor, and the last four open advisories are gone with it.** The declared floor of Node 18 had quietly become fiction: three production dependencies already required Node 20 or newer, and the test matrix kept passing on 18 without exercising them. Raising it also let the third-party file globber go — its dependency chain carried four advisories with no fix upstream — replaced by Node's built-in search, now actually under test. Builds on **4.0.0**, where the HTTP API stopped being open to the network and to any web page ([GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/notebooklm-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)): it binds loopback, refuses unlisted origins, and takes a bearer token — **remote access and Docker require `NOTEBOOKLM_API_KEY`**, see [Securing the HTTP API](./deployment/docs/15-SECURITY.md). Built on a **dual transport** — the internal `batchexecute` RPC API (10-100× faster than scraping, immune to UI rebrands) with the Playwright browser as an automatic fallback. See the [changelog](./CHANGELOG.md).
 
@@ -12,7 +12,7 @@
 
 [![CI](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml) [![npm version](https://badge.fury.io/js/%40roomi-fields%2Fnotebooklm-mcp.svg)](https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp) [![npm downloads](https://img.shields.io/npm/dm/@roomi-fields/notebooklm-mcp.svg)](https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp) [![codecov](https://codecov.io/gh/roomi-fields/notebooklm-mcp/branch/main/graph/badge.svg)](https://codecov.io/gh/roomi-fields/notebooklm-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/) [![Node.js](https://img.shields.io/badge/Node.js->=22-green.svg)](https://nodejs.org/)
 
-[![MCP](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io/) [![Claude Code](https://img.shields.io/badge/Claude_Code-MCP-8A2BE2)](https://claude.ai/claude-code) [![n8n](https://img.shields.io/badge/n8n-HTTP_API-orange)](./deployment/docs/04-N8N-INTEGRATION.md) [![GitHub](https://img.shields.io/github/stars/roomi-fields/notebooklm-mcp?style=social)](https://github.com/roomi-fields/notebooklm-mcp) [![MCP Toplist](https://mcptoplist.com/badge/io.github.roomi-fields%2Fnotebooklm-mcp.svg)](https://mcptoplist.com/server/io.github.roomi-fields%2Fnotebooklm-mcp) [![LightNow capabilities](https://lightnow.ai/badge/io.github.roomi-fields/notebooklm-mcp)](https://lightnow.ai/servers/io.github.roomi-fields/notebooklm-mcp)
+[![MCP](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io/) [![UTCP](https://img.shields.io/badge/UTCP-compatible-blue.svg)](https://www.utcp.io/) [![Claude Code](https://img.shields.io/badge/Claude_Code-MCP-8A2BE2)](https://claude.ai/claude-code) [![n8n](https://img.shields.io/badge/n8n-HTTP_API-orange)](./deployment/docs/04-N8N-INTEGRATION.md) [![GitHub](https://img.shields.io/github/stars/roomi-fields/notebooklm-mcp?style=social)](https://github.com/roomi-fields/notebooklm-mcp) [![MCP Toplist](https://mcptoplist.com/badge/io.github.roomi-fields%2Fnotebooklm-mcp.svg)](https://mcptoplist.com/server/io.github.roomi-fields%2Fnotebooklm-mcp) [![LightNow capabilities](https://lightnow.ai/badge/io.github.roomi-fields/notebooklm-mcp)](https://lightnow.ai/servers/io.github.roomi-fields/notebooklm-mcp)
 
 <!-- End Badges -->
 
@@ -158,9 +158,46 @@ Flashcards and quizzes are generated via `generate_study_aid`; mind maps via `ge
 - **Personal _and_ Google Workspace accounts** — recognizes both NotebookLM hosts (`notebooklm.google.com` and the `notebook.google.com` Workspace alias), so Workspace sessions authenticate cleanly instead of looping on "session expired"
 - **UI-language-aware** — drives NotebookLM whether its interface is in English, French, German, or Japanese (`en` · `fr` · `de` · `ja`); [add a language](./docs/ADDING_A_LANGUAGE.md) in a single JSON file
 
+### UTCP Interface
+
+[UTCP](https://www.utcp.io/) — the Universal Tool Calling Protocol — is the
+inverse of MCP: **there is no protocol server and no wrapper process**. A
+client reads a tool manual once, then calls this REST API directly, so nothing
+sits between the agent and the endpoint.
+
+```bash
+# The manual. 56 tools, named the same as the MCP tools.
+curl -H "X-API-Key: $NOTEBOOKLM_API_KEY" http://localhost:3000/utcp
+```
+
+- **`GET /utcp`** — the manual for a running server, with every call address
+  rebased on the address the request arrived at, so one document serves a
+  loopback install and a reverse-proxied one alike.
+- **Also published statically** at
+  [notebooklm.roomi-fields.com/utcp.json](https://notebooklm.roomi-fields.com/utcp.json),
+  for a client configured before the server is up.
+- **56 named tools** — the manual reuses the MCP tool names, so
+  `search_passages` is `search_passages` on both sides rather than something
+  synthesised from a URL path. Every operation in the
+  [OpenAPI 3.1 spec](./deployment/docs/openapi.yaml) carries a matching
+  `operationId`, which also means a client pointed straight at the
+  specification converts it correctly on its own.
+- **Authentication is declared the way UTCP clients implement it** — as an
+  `api_key` in the `X-API-Key` header, which this server accepts alongside the
+  bearer form. The key itself is never in the manual, only the literal
+  `${NOTEBOOKLM_API_KEY}`, which is how a client asks for a value from its own
+  environment. (A client that converts the specification instead will not pick
+  up authentication at all, since the converter does not map bearer schemes —
+  one reason to prefer the manual.)
+
+Generated from the specification on every release and held in step by a build
+guard, so the manual cannot describe a version that is not the one you are
+running. Details: [REST API reference → `GET /utcp`](./deployment/docs/03-API.md).
+
 ### Integration Options
 
 - **MCP Protocol** — Claude Code, Cursor, Codex, any MCP client
+- **[UTCP](https://www.utcp.io/)** — a tool manual at `/utcp`, for clients that call the REST API natively with no protocol server in between ([see above](#utcp-interface))
 - **Agent Skill** — ships a bundled [`notebooklm` skill](./skills/notebooklm/SKILL.md) (also standalone: [`roomi-fields/notebooklm-skill`](https://github.com/roomi-fields/notebooklm-skill)) that teaches the agent citation formats, the batch-to-cache pattern, and when to use which transport
 - **HTTP REST API** — n8n, Zapier, Make.com, custom integrations
 - **Docker** — Isolated deployment with Docker or Docker Compose
@@ -255,7 +292,7 @@ See [Docker Guide](./deployment/docs/08-DOCKER.md) for NAS deployment (Synology,
 
 ## Documentation
 
-Full docs site: **<https://notebooklm.roomi-fields.com/>** · [OpenAPI 3.1 spec](./deployment/docs/openapi.yaml)
+Full docs site: **<https://notebooklm.roomi-fields.com/>** · [OpenAPI 3.1 spec](./deployment/docs/openapi.yaml) · [UTCP manual](https://notebooklm.roomi-fields.com/utcp.json)
 
 | Guide                                                                                        | Description                                                                                                                       |
 | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
