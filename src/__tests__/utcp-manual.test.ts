@@ -125,6 +125,44 @@ describe('the specification the manual is generated from', () => {
   });
 });
 
+describe('what gets published', () => {
+  /**
+   * The specification served at notebooklm.roomi-fields.com used to be a
+   * second, hand-maintained copy under `website/static/`. It sat frozen at
+   * version 1.5.9 with 27 of the 56 routes while every local guard stayed
+   * green, because they all read `deployment/docs/openapi.yaml`. The document
+   * an AI client actually fetches described an API two years of releases
+   * behind. A copy nobody regenerates is worse than no copy: it answers
+   * confidently and wrongly.
+   *
+   * Both files are now generated into `static/` by the docs sync and ignored
+   * by git. These assertions are what stops that loop being quietly removed
+   * again — the failure it caused was invisible from inside the repository.
+   */
+  const syncDocs = readFileSync(join(ROOT, 'website', 'scripts', 'sync-docs.mjs'), 'utf-8');
+
+  it('copies the specification and the manual into the published static files', () => {
+    expect(syncDocs).toMatch(/\['openapi\.yaml', 'utcp\.json'\]/);
+    expect(syncDocs).toMatch(/copyFileSync\(/);
+  });
+
+  it('keeps both out of git, so neither can be edited into a stale duplicate', () => {
+    const ignored = readFileSync(join(ROOT, 'website', '.gitignore'), 'utf-8');
+    expect(ignored).toMatch(/^\/static\/openapi\.yaml$/m);
+    expect(ignored).toMatch(/^\/static\/utcp\.json$/m);
+  });
+
+  it('rebuilds the manual whenever the version is synced', () => {
+    // The manual carries the release version. A bump that regenerated the
+    // specification but not the manual would ship a manual claiming the
+    // previous release — which is exactly the drift above, one file along.
+    const scripts = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8')).scripts;
+    expect(scripts['version:sync']).toMatch(/build-utcp-manual\.mjs/);
+    expect(scripts.version).toMatch(/version:sync/);
+    expect(scripts.version).toMatch(/deployment\/docs\/utcp\.json/);
+  });
+});
+
 describe('rebasing', () => {
   it('swaps the placeholder for the address the caller reached', () => {
     const out = rebaseManual(manual, 'https://nblm.example.org');

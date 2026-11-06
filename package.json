@@ -24,6 +24,7 @@
     "build:chmod-bin": "node -e \"require('fs').chmodSync('dist/index.js', 0o755); require('fs').chmodSync('dist/stdio-http-proxy.js', 0o755); require('fs').chmodSync('dist/cli/setup-auth.js', 0o755);\"",
     "version:sync": "node scripts/sync-version.mjs && node scripts/build-utcp-manual.mjs",
     "version:check": "node scripts/sync-version.mjs --check",
+    "version": "npm run version:sync && git add package.json .claude-plugin/plugin.json server.json website/docusaurus.config.ts website/static/llms.txt website/static/.well-known/ai-catalog.json README.md ROADMAP.md deployment/docs/openapi.yaml deployment/docs/utcp.json",
     "skill:check": "node scripts/check-skill-sync.mjs",
     "utcp:sync": "node scripts/build-utcp-manual.mjs",
     "utcp:check": "node scripts/build-utcp-manual.mjs --check",

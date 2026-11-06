@@ -39,6 +39,16 @@ RFC and the published documentation disagree with each other on them. A
 release guard regenerates the manual and fails on any difference, and refuses
 outright an operation added without a name.
 
+### Releases update the published documents by themselves
+
+`npm version <x>` now propagates the new version to all ten places that
+restate it — the plugin manifest, the registry manifest, the site config, the
+README, `llms.txt`, the AI catalogue, the roadmap, the OpenAPI specification
+and the UTCP manual — and stages them into the version commit. Pushing that
+commit triggers the docs deploy, which regenerates the specification and the
+manual into the published static files. Nothing in the chain is a step anyone
+has to remember, and three guards fail the release if one of them is skipped.
+
 ### Fixed
 
 - **The published OpenAPI specification was frozen at version 1.5.9, with 27
