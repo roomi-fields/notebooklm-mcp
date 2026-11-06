@@ -7,7 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [4.6.0] - 2026-11-06
+
+### Retry a failed generation without losing its id
+
+`retry_content`, and `POST /content/:id/retry`, re-queue a failed Studio
+artifact in place. A failed generation used to be final: the only recourse was
+to delete and regenerate, which mints a new id and invalidates every reference
+the caller held — a stored id, a poll loop already watching it, a queued
+download. The retry keeps the id, so all of those survive.
+
+Shipping it uncovered the half that made it unusable. `list_content` filtered
+on completed artifacts, so a failed generation vanished from the listing:
+indistinguishable from never having been asked for, and its id unreachable,
+which left the new tool with nothing to be called with. The status has carried
+three values since it was written — the filter was narrower than the type it
+was filling. The listing now reports all three.
+
+Two refusals rather than cheerful lies: a reply with no artifact row throws,
+naming the artifact, instead of reporting a queued retry the caller would then
+poll forever; and a media address is handed over only for a finished artifact,
+because a half-written one is a download that fails later for no stated reason.
+
+Protocol details read from `teng-lin/notebooklm-py` (MIT) and cited in the
+code; the implementation is ours.
 
 ### A UTCP interface, and 56 named operations
 
@@ -49,8 +72,27 @@ commit triggers the docs deploy, which regenerates the specification and the
 manual into the published static files. Nothing in the chain is a step anyone
 has to remember, and three guards fail the release if one of them is skipped.
 
+### Gemini Notebook, written where people and crawlers read
+
+Google renamed NotebookLM to Gemini Notebook in July 2026. Both names are now
+in prose on every surface that advertises us — the README, the registry
+manifest, the site metadata, `llms.txt`, the AI catalogue and all twelve blog
+posts — because the old name is still what people search for and the new one
+is what the product is called.
+
+Three use-case posts, one per interface: calling the API from a UTCP client,
+driving it from Python, and a literature-review agent over the MCP tools.
+Every response shape in them was read out of the handlers before publishing.
+A test holds each post to a contract — title and description lengths, a slug
+matching its filename, tags, keywords, a summary break and at least one
+internal link — so a post cannot ship unfit to be found.
+
 ### Fixed
 
+- **The site's social preview image was a 404 on every page.** `og:image` and
+  `twitter:image` had pointed at a file that was never committed, so every
+  share of every page rendered blank. The card now exists, and a test fails if
+  the configured image is absent from disk.
 - **The published OpenAPI specification was frozen at version 1.5.9, with 27
   of the 56 routes.** `website/static/openapi.yaml` was a hand-maintained
   second copy that nobody had regenerated since 24 October, so the document an
