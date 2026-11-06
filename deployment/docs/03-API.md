@@ -1,7 +1,7 @@
-# NotebookLM REST API reference — 55 HTTP endpoints
+# NotebookLM REST API reference — 56 HTTP endpoints
 
-> **Coverage.** All 55 endpoints the server exposes are documented below, and
-> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 55 —
+> **Coverage.** All 56 endpoints the server exposes are documented below, and
+> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 56 —
 > both checked against the routes declared in the code.
 
 > Complete reference for the NotebookLM HTTP REST API. Citation-backed Q&A,
@@ -27,7 +27,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## Available Endpoints (55 total)
+## Available Endpoints (56 total)
 
 ### Authentication
 
@@ -44,6 +44,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 | ------ | ----------------- | -------------------------------------------------- |
 | `GET`  | `/`               | Server identity, version, docs link                |
 | `GET`  | `/health`         | Server health check                                |
+| `GET`  | `/utcp`           | UTCP tool manual (for UTCP clients)                |
 | `POST` | `/ask`            | Ask a question to NotebookLM                       |
 | `POST` | `/batch-to-vault` | Run many questions, write each answer to the vault |
 
@@ -187,6 +188,72 @@ curl http://localhost:3000/health
 - `sessions` - Number of active sessions
 - `library_notebooks` - Number of configured notebooks
 - `context_age_hours` - Browser context age (hours)
+
+### `GET /utcp`
+
+The tool manual a [UTCP](https://www.utcp.io/) client reads before it calls
+anything.
+
+UTCP works the other way round from MCP: there is no protocol server. A client
+reads this manual once, then calls the REST routes below natively, with no
+intermediary. So the manual describes this same API — it is not a second way
+into it, and nothing here is reachable only through it.
+
+It is generated from `openapi.yaml` and kept in step by a release guard. The
+call addresses it hands out are rebased on the address the request arrived at,
+so one document serves a loopback install and a reverse-proxied one alike.
+Each tool asks for the key as the `X-API-Key` header, which this server
+accepts alongside the bearer form.
+
+A client can also be pointed straight at the published specification — UTCP's
+HTTP transport converts an OpenAPI document, in JSON or YAML, when what it
+fetched is not a manual. Two caveats make the manual the better target: the
+converter keeps only operations that carry an `operationId`, and it maps
+`apiKey`, `basic` and `oauth2` security schemes but not the `http`/`bearer`
+one the specification declares, so a converted manual calls everything
+unauthenticated.
+
+**Request:**
+
+```bash
+curl -H "X-API-Key: $NOTEBOOKLM_API_KEY" http://localhost:3000/utcp
+```
+
+**Success Response (200):**
+
+```json
+{
+  "utcp_version": "1.0.0",
+  "manual_version": "4.5.0",
+  "tools": [
+    {
+      "name": "search_passages",
+      "description": "Ranked passages from the notebook's index, without generating an answer",
+      "tags": ["Notebooks"],
+      "inputs": { "type": "object", "properties": { "id": { "type": "string" } } },
+      "outputs": { "type": "object" },
+      "tool_call_template": {
+        "name": "search_passages",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/{id}/search",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    }
+  ]
+}
+```
+
+`api_key` is published as the literal `${NOTEBOOKLM_API_KEY}`, which is how a
+UTCP client asks for a value from its own environment. The key itself is never
+in the document.
 
 ---
 

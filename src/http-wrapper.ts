@@ -19,6 +19,7 @@ import { ToolHandlers } from './tools/index.js';
 import { AutoDiscovery } from './auto-discovery/auto-discovery.js';
 import { StartupManager } from './startup/startup-manager.js';
 import { isNotebookHost } from './utils/notebook-domain.js';
+import { loadManual, rebaseManual } from './utcp/manual.js';
 import { log } from './utils/logger.js';
 
 const SERVER_VERSION = (
@@ -99,9 +100,39 @@ app.get('/', (_req: Request, res: Response) => {
       sources: 'GET /notebooks/:id/sources',
       read_source: 'GET /notebooks/:id/sources/:sourceId',
       sessions: 'GET /sessions',
+      utcp: 'GET /utcp',
     },
     docs: 'https://notebooklm.roomi-fields.com/',
   });
+});
+
+// UTCP tool manual — the discovery address the protocol's clients look for.
+// UTCP has no server of its own: a client reads this once and then calls the
+// REST routes below directly, so the manual is a description of this API, not
+// a second way into it. It is generated from our OpenAPI specification and
+// kept in step by a release guard; here we only rebase the call addresses on
+// whatever address the caller reached us at.
+//
+// It sits behind the token like every other route: the manual enumerates the
+// whole surface, which is exactly what an unauthenticated caller should not
+// be handed. A client that can call the API already holds the key.
+app.get('/utcp', (req: Request, res: Response) => {
+  try {
+    // `req.protocol` reads the forwarded scheme only when Express is told to
+    // trust a proxy, which we deliberately do not: trusting an unverified
+    // forwarding header would let a caller dictate the addresses we hand out.
+    // Behind a TLS terminator, point clients at the static manual instead.
+    // A request with no Host header cannot tell us where it reached us, so
+    // the published default stands rather than being guessed at.
+    const host = req.get('host');
+    const manual = loadManual();
+    res.json(host ? rebaseManual(manual, `${req.protocol}://${host}`) : manual);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 });
 
 // Health check

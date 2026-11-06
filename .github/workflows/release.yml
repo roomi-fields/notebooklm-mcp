@@ -32,6 +32,7 @@ jobs:
         run: |
           npm run version:check
           npm run facts:check
+          npm run utcp:check
 
       - name: Build
         run: npm run build

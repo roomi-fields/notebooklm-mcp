@@ -119,6 +119,19 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 ## Recently Implemented
 
+### Unreleased - A UTCP interface, and 56 named operations
+
+`GET /utcp` serves a Universal Tool Calling Protocol manual, generated from our
+OpenAPI specification. UTCP has no protocol server: a client reads the manual
+once and then calls this REST API natively. All 56 operations now carry a name,
+reusing our MCP tool names — without one, a UTCP client's converter drops an
+operation outright, so pointed at our specification it previously found nothing
+at all.
+
+Along the way: the publicly served specification turned out to be a stale
+hand-maintained duplicate, frozen at version 1.5.9 with 27 routes. The site now
+generates it.
+
 ### Unreleased - Retry a failed generation, keeping its id
 
 `retry_content` / `POST /content/:id/retry` re-queue a failed Studio artifact

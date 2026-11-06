@@ -11,6 +11,8 @@
 # Auto-synced by sync-docs.mjs (prebuild hook) — never edit here
 /docs/*.md
 /docs/CHANGELOG.md
+/static/openapi.yaml
+/static/utcp.json
 
 # Misc
 .DS_Store

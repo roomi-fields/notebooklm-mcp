@@ -3,13 +3,14 @@
 The `@roomi-fields/notebooklm-mcp` HTTP server (default `http://localhost:3000`,
 override with `NOTEBOOKLM_SERVER_URL`). All bodies are JSON. Every notebook op
 accepts either `notebook_id` (a UUID) or `notebook_url`. Only the endpoints most
-relevant to research are listed; see the project README for the full 55.
+relevant to research are listed; see the project README for the full 56.
 
 ## Health & auth
 
 | Method | Path          | Body               | Purpose                                                       |
 | ------ | ------------- | ------------------ | ------------------------------------------------------------- |
 | GET    | `/health`     | —                  | Reachability + `{ authenticated, headless, current_account }` |
+| GET    | `/utcp`       | —                  | UTCP tool manual, for a client that calls the API natively    |
 | POST   | `/setup-auth` | `{ show_browser }` | Interactive Google login (visible browser)                    |
 | POST   | `/re-auth`    | `{ show_browser }` | Switch account / fresh login (e.g. after daily quota)         |
 | POST   | `/de-auth`    | —                  | Log out, clear session                                        |

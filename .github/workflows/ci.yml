@@ -53,6 +53,7 @@ jobs:
         run: |
           npm run version:check
           npm run facts:check
+          npm run utcp:check
 
       - name: Check bundled skills match their canonical repos
         if: matrix.node-version == '22.x'

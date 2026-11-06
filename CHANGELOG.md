@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### A UTCP interface, and 56 named operations
+
+[UTCP](https://www.utcp.io/) inverts MCP: there is no protocol server. A
+client reads a manual once, then calls this REST API natively, with no
+intermediary. `GET /utcp` serves that manual, generated from our own OpenAPI
+specification and rebased on whatever address the request arrived at, so one
+document serves a loopback install and a reverse-proxied one alike.
+
+The manual exists because auto-conversion is not enough. A UTCP client will
+convert an OpenAPI document it fetches, in JSON or YAML — but the reference
+implementation keeps an operation **only if it carries an `operationId`**, and
+every one of our 56 operations was unnamed. Pointed at our specification, a
+client found no tools at all. All 56 are now named, with the names our MCP
+tools already use, so `search_passages` is `search_passages` on both sides
+rather than something synthesised from a URL path.
+
+The second gap the manual closes is authentication. Our specification declares
+a bearer scheme; the reference converter maps `apiKey`, `basic` and `oauth2`,
+not that one, so a converted manual calls everything unauthenticated and every
+call comes back 401. The published manual asks for the key as `X-API-Key`,
+which this server has always accepted alongside the bearer form, in the exact
+shape the client's own model defines. The key itself is never in the document —
+only the literal `${NOTEBOOKLM_API_KEY}`, which is how a client asks for a
+value from its own environment.
+
+Field names were taken from the reference client's source, not its prose: the
+RFC and the published documentation disagree with each other on them. A
+release guard regenerates the manual and fails on any difference, and refuses
+outright an operation added without a name.
+
+### Fixed
+
+- **The published OpenAPI specification was frozen at version 1.5.9, with 27
+  of the 56 routes.** `website/static/openapi.yaml` was a hand-maintained
+  second copy that nobody had regenerated since 24 October, so the document an
+  AI client or a UTCP converter actually fetches described an API two years of
+  releases behind the code. A copy nobody regenerates is worse than no copy,
+  because it answers confidently and wrongly. The duplicate is gone; the site
+  now generates it, and the manual, on every build.
+
+---
+
 ## [4.5.0] - 2026-10-30
 
 ### Search the sources without paying for an answer

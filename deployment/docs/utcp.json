@@ -1,0 +1,2212 @@
+{
+  "utcp_version": "1.0.0",
+  "manual_version": "4.5.0",
+  "tools": [
+    {
+      "name": "get_server_info",
+      "description": "Server identity, version, and a pointer to the docs",
+      "tags": [
+        "Health"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "get_server_info",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "get_health",
+      "description": "Server health check",
+      "tags": [
+        "Health"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "$ref": "#/components/schemas/Health"
+      },
+      "tool_call_template": {
+        "name": "get_health",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/health",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "get_utcp_manual",
+      "description": "UTCP tool manual for this server",
+      "tags": [
+        "Health"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "utcp_version": {
+            "type": "string"
+          },
+          "manual_version": {
+            "type": "string"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "tool_call_template": {
+        "name": "get_utcp_manual",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/utcp",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "setup_auth",
+      "description": "First-time Google authentication (opens visible browser)",
+      "tags": [
+        "Auth"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "show_browser": {
+                "type": "boolean",
+                "default": true
+              },
+              "account": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "$ref": "#/components/schemas/Result"
+      },
+      "tool_call_template": {
+        "name": "setup_auth",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/setup-auth",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "de_auth",
+      "description": "Logout, clear all credentials",
+      "tags": [
+        "Auth"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "$ref": "#/components/schemas/Result"
+      },
+      "tool_call_template": {
+        "name": "de_auth",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/de-auth",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "re_auth",
+      "description": "Re-authenticate or switch account",
+      "tags": [
+        "Auth"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "account": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "$ref": "#/components/schemas/Result"
+      },
+      "tool_call_template": {
+        "name": "re_auth",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/re-auth",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "ask_question",
+      "description": "Ask a question with citation-backed response",
+      "tags": [
+        "Q&A"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/AskRequest"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "outputs": {
+        "$ref": "#/components/schemas/AskResponse"
+      },
+      "tool_call_template": {
+        "name": "ask_question",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/ask",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "list_notebooks",
+      "description": "List all notebooks in the local library",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "list_notebooks",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "add_notebook",
+      "description": "Manually add a notebook to the library",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "url"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "topics": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "add_notebook",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "list_notebooks_from_nblm",
+      "description": "Scrape all notebooks from NotebookLM UI",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "list_notebooks_from_nblm",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/scrape",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "import_scraped_notebooks",
+      "description": "Bulk import scraped notebooks into local library",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "import_scraped_notebooks",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/import-from-scrape",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "auto_discover_notebook",
+      "description": "Generate notebook metadata autonomously via NotebookLM queries",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "auto_discover_notebook",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/auto-discover",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "search_notebooks",
+      "description": "Search the local library by keyword",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "q"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "search_notebooks",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/search",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "get_library_stats",
+      "description": "Library statistics",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "get_library_stats",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/stats",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "delete_notebooks_from_nblm",
+      "description": "Delete multiple notebooks at once",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "delete_notebooks_from_nblm",
+        "call_template_type": "http",
+        "http_method": "DELETE",
+        "url": "http://localhost:3000/notebooks/bulk-delete",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "get_notebook",
+      "description": "Get notebook details",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "get_notebook",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "update_notebook",
+      "description": "Update notebook metadata",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "update_notebook",
+        "call_template_type": "http",
+        "http_method": "PUT",
+        "url": "http://localhost:3000/notebooks/{id}",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "remove_notebook",
+      "description": "Delete a notebook from the library",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "remove_notebook",
+        "call_template_type": "http",
+        "http_method": "DELETE",
+        "url": "http://localhost:3000/notebooks/{id}",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "select_notebook",
+      "description": "Set notebook as the default active notebook",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "select_notebook",
+        "call_template_type": "http",
+        "http_method": "PUT",
+        "url": "http://localhost:3000/notebooks/{id}/activate",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "create_notebook",
+      "description": "Create a new notebook in NotebookLM",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "create_notebook",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/create",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "list_sessions",
+      "description": "List active sessions",
+      "tags": [
+        "Sessions"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "list_sessions",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/sessions",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "close_session",
+      "description": "Close a session",
+      "tags": [
+        "Sessions"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "close_session",
+        "call_template_type": "http",
+        "http_method": "DELETE",
+        "url": "http://localhost:3000/sessions/{id}",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "reset_session",
+      "description": "Reset a session's history",
+      "tags": [
+        "Sessions"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "reset_session",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/sessions/{id}/reset",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "add_source",
+      "description": "Add a source (file, url, text, youtube, drive) to the active notebook",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/AddSourceRequest"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "add_source",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/sources",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "delete_source",
+      "description": "Delete source by name (query parameter)",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "delete_source",
+        "call_template_type": "http",
+        "http_method": "DELETE",
+        "url": "http://localhost:3000/content/sources",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "delete_source_by_id",
+      "description": "Delete source by id",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "delete_source_by_id",
+        "call_template_type": "http",
+        "http_method": "DELETE",
+        "url": "http://localhost:3000/content/sources/{id}",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "delete_content",
+      "description": "Delete a generated Studio artifact",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "contentId": {
+            "type": "string"
+          },
+          "notebook_url": {
+            "type": "string"
+          },
+          "notebook_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contentId"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "delete_content",
+        "call_template_type": "http",
+        "http_method": "DELETE",
+        "url": "http://localhost:3000/content/{contentId}",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "list_sources",
+      "description": "List a notebook's sources with their ids and titles",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "list_sources",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}/sources",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "read_source",
+      "description": "Read a source's indexed text, one page at a time",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "html"
+            ],
+            "default": "text"
+          },
+          "paginate": {
+            "type": "boolean",
+            "default": true,
+            "description": "Set to `false` to return the whole document in one response."
+          },
+          "max_chars": {
+            "type": "integer",
+            "default": 20000,
+            "minimum": 1,
+            "description": "Page size in characters. Ignored when `paginate=false`."
+          },
+          "cursor": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Resume point — the `nextCursor` returned by the previous page."
+          }
+        },
+        "required": [
+          "id",
+          "sourceId"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "read_source",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}/sources/{sourceId}",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "rename_source",
+      "description": "Rename one source in place",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "sourceId",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "rename_source",
+        "call_template_type": "http",
+        "http_method": "PATCH",
+        "url": "http://localhost:3000/notebooks/{id}/sources/{sourceId}",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "get_source_guide",
+      "description": "NotebookLM's own summary and key topics for one source",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sourceId"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "get_source_guide",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}/sources/{sourceId}/guide",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "search_passages",
+      "description": "Ranked passages from the notebook's index, without generating an answer",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "query"
+            ],
+            "properties": {
+              "query": {
+                "type": "string"
+              },
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Restrict to these source UUIDs. Omit to search them all."
+              },
+              "source_names": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Restrict by source title; an ambiguous title is an error."
+              },
+              "limit": {
+                "type": "number",
+                "description": "Keep at most this many passages, best rank first."
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "search_passages",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/{id}/search",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "get_notebook_summary",
+      "description": "A notebook's own summary of its sources, and the questions it suggests",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "get_notebook_summary",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}/summary",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "check_source_freshness",
+      "description": "Have the notebook's URL / Drive sources drifted?",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "check_source_freshness",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}/freshness",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "get_chat_history",
+      "description": "Read back the recorded questions and answers, newest first",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "get_chat_history",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}/chat",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "delete_chat_history",
+      "description": "Clear the chat history",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "delete_chat_history",
+        "call_template_type": "http",
+        "http_method": "DELETE",
+        "url": "http://localhost:3000/notebooks/{id}/chat",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "get_share_status",
+      "description": "Read a notebook's sharing status",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "get_share_status",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}/share",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "share_notebook",
+      "description": "Toggle the public link",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "public": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "public"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "share_notebook",
+        "call_template_type": "http",
+        "http_method": "PUT",
+        "url": "http://localhost:3000/notebooks/{id}/share",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "retry_content",
+      "description": "Retry a failed generation, keeping the same artifact id",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "artifactId",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "retry_content",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/{artifactId}/retry",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "export_artifact",
+      "description": "Export a finished artifact to Google Docs or Sheets",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string",
+                "enum": [
+                  "docs",
+                  "sheets"
+                ],
+                "default": "docs"
+              },
+              "title": {
+                "type": "string",
+                "default": "Export"
+              }
+            }
+          }
+        },
+        "required": [
+          "artifactId",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "export_artifact",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/{artifactId}/export",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "revise_slide",
+      "description": "Revise one slide of an existing deck from a prompt",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "artifactId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "slide_index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "prompt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "slide_index",
+              "prompt"
+            ]
+          }
+        },
+        "required": [
+          "artifactId",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "revise_slide",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/{artifactId}/revise-slide",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "list_labels",
+      "description": "List a notebook's source labels",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "list_labels",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/notebooks/{id}/labels",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "manage_labels",
+      "description": "Create or delete source labels",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "list",
+                  "create",
+                  "delete"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "emoji": {
+                "type": "string"
+              },
+              "label_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "manage_labels",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/{id}/labels",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "generate_study_aid",
+      "description": "Generate a study aid (flashcards or quiz)",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "flashcards",
+                  "quiz"
+                ]
+              },
+              "focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "generate_study_aid",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/study-aid",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "generate_mind_map",
+      "description": "Generate and save a mind map",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "generate_mind_map",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/mind-map",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "research_sources",
+      "description": "Discover web sources for a notebook (Fast Research), optionally importing them",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "query": {
+                "type": "string"
+              },
+              "import": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "query"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "research_sources",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/research",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "generate_content",
+      "description": "Generate Studio content (audio, video, infographic, report, presentation, data table)",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/GenerateRequest"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "generate_content",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/generate",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "download_content",
+      "description": "Download a generated artifact (WAV, MP4, PNG)",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "content_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "content_id"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "download_content",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/content/download",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "list_content",
+      "description": "List sources and generated content for the active notebook",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "list_content",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/content",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "create_note",
+      "description": "Create a note in the active notebook",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "create_note",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/notes",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "save_chat_to_note",
+      "description": "Save the current chat discussion as a note",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "save_chat_to_note",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/chat-to-note",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "convert_note_to_source",
+      "description": "Convert a note into a NotebookLM source",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "noteTitle": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "noteTitle"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "convert_note_to_source",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/notes/{noteTitle}/to-source",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "batch_to_vault",
+      "description": "Run a batch of questions and write each answer to a vault directory",
+      "tags": [
+        "Q&A"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "questions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "notebook_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "vault_dir": {
+                "type": "string"
+              },
+              "slug_prefix": {
+                "type": "string"
+              },
+              "source_format": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "inline",
+                  "footnotes",
+                  "json",
+                  "expanded"
+                ]
+              },
+              "sleep_between_ms": {
+                "type": "integer"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "questions"
+            ]
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "batch_to_vault",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/batch-to-vault",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "list_notes",
+      "description": "List the notebook's notes",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "notebook_url": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "list_notes",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/notes/list",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "get_note",
+      "description": "Read one note's content, by title or id",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "note_title": {
+                "type": "string"
+              },
+              "note_id": {
+                "type": "string"
+              },
+              "notebook_url": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "get_note",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/content/notes/get",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "cleanup_data",
+      "description": "Wipe all local data (requires confirmation)",
+      "tags": [
+        "Auth"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "object",
+            "properties": {
+              "confirm": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "outputs": {
+        "type": "object"
+      },
+      "tool_call_template": {
+        "name": "cleanup_data",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/cleanup-data",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    }
+  ]
+}

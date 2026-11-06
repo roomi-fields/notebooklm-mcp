@@ -13,7 +13,7 @@
 
 import { execFileSync } from 'node:child_process';
 
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'fs';
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -100,9 +100,9 @@ const FRONTMATTER = {
     ],
   },
   '03-API.md': {
-    title: 'NotebookLM REST API reference — 55 HTTP endpoints',
+    title: 'NotebookLM REST API reference — 56 HTTP endpoints',
     description:
-      'HTTP REST API reference for NotebookLM, 55 endpoints: /ask, /content, /notebooks, /sources, /labels, /share, /health, /setup-auth. Request and response schemas, ready for n8n / Zapier / Make / curl.',
+      'HTTP REST API reference for NotebookLM, 56 endpoints: /ask, /content, /notebooks, /sources, /labels, /share, /health, /setup-auth. Request and response schemas, ready for n8n / Zapier / Make / curl.',
     keywords: [
       'notebooklm rest api',
       'notebooklm http api',
@@ -496,6 +496,23 @@ for (const file of readdirSync(sourceDir)) {
   body = body.replace(/^#\s+Changelog\s*\n+/, '');
   writeFileSync(changelogDst, fm + body, 'utf-8');
   console.log('  CHANGELOG.md');
+}
+
+/**
+ * Sync the machine-readable interface descriptions into static/.
+ *
+ * These used to be hand-maintained copies under `static/`, and the OpenAPI one
+ * had been frozen at version 1.5.9 with 27 of the 56 routes since long before
+ * anyone noticed: the published specification, the one an AI client or a UTCP
+ * converter actually reads, described an API two years of releases behind the
+ * code. A copy nobody regenerates is worse than no copy, because it answers
+ * confidently and wrongly. So they are generated on every build and ignored by
+ * git, exactly like `docs/*.md` above.
+ */
+for (const file of ['openapi.yaml', 'utcp.json']) {
+  const src = resolve(sourceDir, file);
+  copyFileSync(src, resolve(websiteRoot, 'static', file));
+  console.log(`  static/${file}`);
 }
 
 writeFileSync(

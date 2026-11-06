@@ -22,9 +22,11 @@
     "dev:proxy": "tsx watch src/stdio-http-proxy.ts",
     "build": "tsc && npm run build:i18n && npm run build:chmod-bin",
     "build:chmod-bin": "node -e \"require('fs').chmodSync('dist/index.js', 0o755); require('fs').chmodSync('dist/stdio-http-proxy.js', 0o755); require('fs').chmodSync('dist/cli/setup-auth.js', 0o755);\"",
-    "version:sync": "node scripts/sync-version.mjs",
+    "version:sync": "node scripts/sync-version.mjs && node scripts/build-utcp-manual.mjs",
     "version:check": "node scripts/sync-version.mjs --check",
     "skill:check": "node scripts/check-skill-sync.mjs",
+    "utcp:sync": "node scripts/build-utcp-manual.mjs",
+    "utcp:check": "node scripts/build-utcp-manual.mjs --check",
     "build:i18n": "node -e \"require('fs').cpSync('src/i18n', 'dist/i18n', {recursive: true, filter: (s) => s.endsWith('.json') || require('fs').statSync(s).isDirectory()})\"",
     "watch": "tsc --watch",
     "dev": "tsx watch src/index.ts",
@@ -121,7 +123,8 @@
     "tsx": "^4.7.0",
     "type-coverage": "^2.29.7",
     "typescript": "^5.3.3",
-    "typescript-eslint": "^8.48.0"
+    "typescript-eslint": "^8.48.0",
+    "yaml": "^2.9.1"
   },
   "engines": {
     "node": ">=22.0.0"

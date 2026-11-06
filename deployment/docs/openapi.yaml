@@ -46,6 +46,7 @@ tags:
 paths:
   /:
     get:
+      operationId: get_server_info
       tags: [Health]
       summary: Server identity, version, and a pointer to the docs
       responses:
@@ -53,6 +54,7 @@ paths:
 
   /health:
     get:
+      operationId: get_health
       tags: [Health]
       summary: Server health check
       responses:
@@ -62,8 +64,36 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Health' }
 
+  /utcp:
+    get:
+      operationId: get_utcp_manual
+      tags: [Health]
+      summary: UTCP tool manual for this server
+      description: |
+        The manual a Universal Tool Calling Protocol client reads before
+        calling anything. UTCP has no protocol server: the client reads this
+        once and then calls the routes below natively, so the manual is a
+        description of this same API rather than a second way into it.
+
+        Generated from this specification, with the call addresses rebased on
+        the address the request arrived at. The same document is published
+        statically at `/utcp.json` on the documentation site. Behind the token
+        guard like every route but `/health`.
+      responses:
+        '200':
+          description: A UTCP manual — `utcp_version`, `manual_version`, `tools`
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  utcp_version: { type: string }
+                  manual_version: { type: string }
+                  tools: { type: array, items: { type: object } }
+
   /setup-auth:
     post:
+      operationId: setup_auth
       tags: [Auth]
       summary: First-time Google authentication (opens visible browser)
       requestBody:
@@ -81,6 +111,7 @@ paths:
 
   /de-auth:
     post:
+      operationId: de_auth
       tags: [Auth]
       summary: Logout, clear all credentials
       responses:
@@ -90,6 +121,7 @@ paths:
 
   /re-auth:
     post:
+      operationId: re_auth
       tags: [Auth]
       summary: Re-authenticate or switch account
       requestBody:
@@ -106,6 +138,7 @@ paths:
 
   /ask:
     post:
+      operationId: ask_question
       tags: [Q&A]
       summary: Ask a question with citation-backed response
       requestBody:
@@ -124,11 +157,13 @@ paths:
 
   /notebooks:
     get:
+      operationId: list_notebooks
       tags: [Notebooks]
       summary: List all notebooks in the local library
       responses:
         '200': { description: Notebook list }
     post:
+      operationId: add_notebook
       tags: [Notebooks]
       summary: Manually add a notebook to the library
       requestBody:
@@ -148,6 +183,7 @@ paths:
 
   /notebooks/scrape:
     get:
+      operationId: list_notebooks_from_nblm
       tags: [Notebooks]
       summary: Scrape all notebooks from NotebookLM UI
       responses:
@@ -155,6 +191,7 @@ paths:
 
   /notebooks/import-from-scrape:
     post:
+      operationId: import_scraped_notebooks
       tags: [Notebooks]
       summary: Bulk import scraped notebooks into local library
       responses:
@@ -162,6 +199,7 @@ paths:
 
   /notebooks/auto-discover:
     post:
+      operationId: auto_discover_notebook
       tags: [Notebooks]
       summary: Generate notebook metadata autonomously via NotebookLM queries
       requestBody:
@@ -177,6 +215,7 @@ paths:
 
   /notebooks/search:
     get:
+      operationId: search_notebooks
       tags: [Notebooks]
       summary: Search the local library by keyword
       parameters:
@@ -189,6 +228,7 @@ paths:
 
   /notebooks/stats:
     get:
+      operationId: get_library_stats
       tags: [Notebooks]
       summary: Library statistics
       responses:
@@ -196,6 +236,7 @@ paths:
 
   /notebooks/bulk-delete:
     delete:
+      operationId: delete_notebooks_from_nblm
       tags: [Notebooks]
       summary: Delete multiple notebooks at once
       requestBody:
@@ -210,6 +251,7 @@ paths:
 
   /notebooks/{id}:
     get:
+      operationId: get_notebook
       tags: [Notebooks]
       summary: Get notebook details
       parameters:
@@ -220,6 +262,7 @@ paths:
       responses:
         '200': { description: Notebook details }
     put:
+      operationId: update_notebook
       tags: [Notebooks]
       summary: Update notebook metadata
       parameters:
@@ -230,6 +273,7 @@ paths:
       responses:
         '200': { description: Updated }
     delete:
+      operationId: remove_notebook
       tags: [Notebooks]
       summary: Delete a notebook from the library
       parameters:
@@ -242,6 +286,7 @@ paths:
 
   /notebooks/{id}/activate:
     put:
+      operationId: select_notebook
       tags: [Notebooks]
       summary: Set notebook as the default active notebook
       parameters:
@@ -254,6 +299,7 @@ paths:
 
   /notebooks/create:
     post:
+      operationId: create_notebook
       tags: [Notebooks]
       summary: Create a new notebook in NotebookLM
       requestBody:
@@ -269,6 +315,7 @@ paths:
 
   /sessions:
     get:
+      operationId: list_sessions
       tags: [Sessions]
       summary: List active sessions
       responses:
@@ -276,6 +323,7 @@ paths:
 
   /sessions/{id}:
     delete:
+      operationId: close_session
       tags: [Sessions]
       summary: Close a session
       parameters:
@@ -288,6 +336,7 @@ paths:
 
   /sessions/{id}/reset:
     post:
+      operationId: reset_session
       tags: [Sessions]
       summary: Reset a session's history
       parameters:
@@ -300,6 +349,7 @@ paths:
 
   /content/sources:
     post:
+      operationId: add_source
       tags: [Sources]
       summary: Add a source (file, url, text, youtube, drive) to the active notebook
       requestBody:
@@ -310,6 +360,7 @@ paths:
       responses:
         '200': { description: Source added }
     delete:
+      operationId: delete_source
       tags: [Sources]
       summary: Delete source by name (query parameter)
       parameters:
@@ -322,6 +373,7 @@ paths:
 
   /content/sources/{id}:
     delete:
+      operationId: delete_source_by_id
       tags: [Sources]
       summary: Delete source by id
       parameters:
@@ -334,6 +386,7 @@ paths:
 
   /content/{contentId}:
     delete:
+      operationId: delete_content
       tags: [Content]
       summary: Delete a generated Studio artifact
       description: |
@@ -357,6 +410,7 @@ paths:
 
   /notebooks/{id}/sources:
     get:
+      operationId: list_sources
       tags: [Sources]
       summary: List a notebook's sources with their ids and titles
       description: |
@@ -372,6 +426,7 @@ paths:
 
   /notebooks/{id}/sources/{sourceId}:
     get:
+      operationId: read_source
       tags: [Sources]
       summary: Read a source's indexed text, one page at a time
       description: |
@@ -417,6 +472,7 @@ paths:
           description: One page of the source's content, plus how to fetch the rest
 
     patch:
+      operationId: rename_source
       tags: [Sources]
       summary: Rename one source in place
       description: RPC-backed (no browser). An empty `title` is a 400.
@@ -444,6 +500,7 @@ paths:
 
   /notebooks/{id}/sources/{sourceId}/guide:
     get:
+      operationId: get_source_guide
       tags: [Sources]
       summary: NotebookLM's own summary and key topics for one source
       description: |
@@ -463,6 +520,7 @@ paths:
 
   /notebooks/{id}/search:
     post:
+      operationId: search_passages
       tags: [Notebooks]
       summary: Ranked passages from the notebook's index, without generating an answer
       description: |
@@ -501,6 +559,7 @@ paths:
 
   /notebooks/{id}/summary:
     get:
+      operationId: get_notebook_summary
       tags: [Notebooks]
       summary: A notebook's own summary of its sources, and the questions it suggests
       description: |
@@ -516,6 +575,7 @@ paths:
 
   /notebooks/{id}/freshness:
     get:
+      operationId: check_source_freshness
       tags: [Sources]
       summary: Have the notebook's URL / Drive sources drifted?
       description: |
@@ -536,6 +596,7 @@ paths:
 
   /notebooks/{id}/chat:
     get:
+      operationId: get_chat_history
       tags: [Notebooks]
       summary: Read back the recorded questions and answers, newest first
       description: |
@@ -557,6 +618,7 @@ paths:
       responses:
         '200': { description: Conversation turns }
     delete:
+      operationId: delete_chat_history
       tags: [Notebooks]
       summary: Clear the chat history
       description: |
@@ -577,6 +639,7 @@ paths:
 
   /notebooks/{id}/share:
     get:
+      operationId: get_share_status
       tags: [Notebooks]
       summary: Read a notebook's sharing status
       parameters:
@@ -587,6 +650,7 @@ paths:
       responses:
         '200': { description: Sharing status }
     put:
+      operationId: share_notebook
       tags: [Notebooks]
       summary: Toggle the public link
       parameters:
@@ -608,6 +672,7 @@ paths:
 
   /content/{artifactId}/retry:
     post:
+      operationId: retry_content
       tags: [Content]
       summary: Retry a failed generation, keeping the same artifact id
       description: |
@@ -637,6 +702,7 @@ paths:
 
   /content/{artifactId}/export:
     post:
+      operationId: export_artifact
       tags: [Content]
       summary: Export a finished artifact to Google Docs or Sheets
       description: |
@@ -663,6 +729,7 @@ paths:
 
   /content/{artifactId}/revise-slide:
     post:
+      operationId: revise_slide
       tags: [Content]
       summary: Revise one slide of an existing deck from a prompt
       description: |
@@ -691,6 +758,7 @@ paths:
 
   /notebooks/{id}/labels:
     get:
+      operationId: list_labels
       tags: [Notebooks]
       summary: List a notebook's source labels
       parameters:
@@ -701,6 +769,7 @@ paths:
       responses:
         '200': { description: Label list }
     post:
+      operationId: manage_labels
       tags: [Notebooks]
       summary: Create or delete source labels
       parameters:
@@ -724,6 +793,7 @@ paths:
 
   /content/study-aid:
     post:
+      operationId: generate_study_aid
       tags: [Content]
       summary: Generate a study aid (flashcards or quiz)
       requestBody:
@@ -743,6 +813,7 @@ paths:
 
   /content/mind-map:
     post:
+      operationId: generate_mind_map
       tags: [Content]
       summary: Generate and save a mind map
       requestBody:
@@ -760,6 +831,7 @@ paths:
 
   /content/research:
     post:
+      operationId: research_sources
       tags: [Content]
       summary: Discover web sources for a notebook (Fast Research), optionally importing them
       requestBody:
@@ -779,6 +851,7 @@ paths:
 
   /content/generate:
     post:
+      operationId: generate_content
       tags: [Content]
       summary: Generate Studio content (audio, video, infographic, report, presentation, data table)
       requestBody:
@@ -791,6 +864,7 @@ paths:
 
   /content/download:
     get:
+      operationId: download_content
       tags: [Content]
       summary: Download a generated artifact (WAV, MP4, PNG)
       parameters:
@@ -803,6 +877,7 @@ paths:
 
   /content:
     get:
+      operationId: list_content
       tags: [Content]
       summary: List sources and generated content for the active notebook
       responses:
@@ -810,6 +885,7 @@ paths:
 
   /content/notes:
     post:
+      operationId: create_note
       tags: [Content]
       summary: Create a note in the active notebook
       responses:
@@ -817,6 +893,7 @@ paths:
 
   /content/chat-to-note:
     post:
+      operationId: save_chat_to_note
       tags: [Content]
       summary: Save the current chat discussion as a note
       responses:
@@ -824,6 +901,7 @@ paths:
 
   /content/notes/{noteTitle}/to-source:
     post:
+      operationId: convert_note_to_source
       tags: [Content]
       summary: Convert a note into a NotebookLM source
       parameters:
@@ -836,6 +914,7 @@ paths:
 
   /batch-to-vault:
     post:
+      operationId: batch_to_vault
       tags: [Q&A]
       summary: Run a batch of questions and write each answer to a vault directory
       description: |
@@ -863,6 +942,7 @@ paths:
 
   /content/notes/list:
     post:
+      operationId: list_notes
       tags: [Content]
       summary: List the notebook's notes
       requestBody:
@@ -879,6 +959,7 @@ paths:
 
   /content/notes/get:
     post:
+      operationId: get_note
       tags: [Content]
       summary: Read one note's content, by title or id
       requestBody:
@@ -898,6 +979,7 @@ paths:
 
   /cleanup-data:
     post:
+      operationId: cleanup_data
       tags: [Auth]
       summary: Wipe all local data (requires confirmation)
       requestBody:
