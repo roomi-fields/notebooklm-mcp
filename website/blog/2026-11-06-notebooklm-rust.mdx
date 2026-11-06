@@ -1,0 +1,327 @@
+---
+title: 'NotebookLM from Rust: a client that compiles'
+description: 'There is no Rust client for consumer NotebookLM, and the reason is not HTTP — it is the browser session Google requires. Here is a typed Rust client against a local REST endpoint, compiled and run, plus the UTCP route that needs no structs at all.'
+slug: notebooklm-rust
+authors: [romain]
+tags: [notebooklm, rust, rest-api, utcp, citations]
+keywords:
+  - notebooklm rust
+  - notebooklm rust client
+  - notebooklm api rust
+  - gemini notebook rust
+  - rust notebooklm automation
+  - notebooklm rest api
+  - gemini notebook
+---
+
+Search crates.io for a NotebookLM client and you find one crate, `nblm-core`.
+It targets NotebookLM **Enterprise** — the Google Cloud product, not the one
+you log into with a personal account — it has not been published since
+November 2025, and it served 41 downloads in the last ninety days. For the
+consumer product, the Rust shelf is empty.
+
+That is not because Rust is unsuited to the job. It is because the hard part
+of this problem is not HTTP.
+
+{/* truncate */}
+
+> **A note on the name.** Google renamed NotebookLM to **Gemini Notebook** in
+> July 2026. It is the same product, old links redirect, and everything below
+> applies to both — the two names are used interchangeably here because that
+> is how people still search for it.
+
+## The part a crate cannot have
+
+Consumer NotebookLM has no public API. Everything any tool does, ours
+included, rides on the same internal endpoints the web app calls, and those
+require a logged-in Google session. Getting one means driving a real browser
+through a real login, and keeping it means three things that are easy to
+underestimate:
+
+- **The session is bound to the machine and the address it was created from.**
+  Copying cookies from another computer does not work: Google refuses them
+  even while their local expiry is still valid. We tested it; both hosts
+  redirect straight back to the sign-in page.
+- **Google expires sessions server-side** while the local cookies still look
+  fine. The only reliable check is navigating and seeing where you land.
+- **A plain automated browser gets flagged.** The driver has to be patched,
+  and the patches have to be maintained against a moving target.
+
+Rust has browser drivers. What it does not have is a maintained,
+detection-patched Chromium driver plus the login, re-login and session-reuse
+logic on top. Writing that is the project, and it is also the part that breaks
+whenever Google ships a redesign — twice in 2026 for us.
+
+So the useful shape for Rust is not a crate that owns a browser. It is a Rust
+program that talks to a process which already does, over
+[a local REST API](/blog/does-notebooklm-have-an-api).
+
+## The client
+
+One dependency set, no code generation:
+
+```toml
+[dependencies]
+reqwest = { version = "0.12", features = ["json", "blocking"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+```
+
+Every route answers with the same envelope — a success flag, then either the
+payload or an error string. Typing that once is the whole trick; after it, no
+route needs checking by hand.
+
+```rust
+use anyhow::{bail, Context, Result};
+use reqwest::blocking::Client;
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+// Without this bound the derive would demand `T: Default` from every payload
+// type, because of the `default` on the two optional fields below.
+#[serde(bound(deserialize = "T: Deserialize<'de>"))]
+struct Envelope<T> {
+    success: bool,
+    #[serde(default)]
+    data: Option<T>,
+    #[serde(default)]
+    error: Option<String>,
+}
+
+impl<T> Envelope<T> {
+    fn into_data(self) -> Result<T> {
+        match (self.success, self.data, self.error) {
+            (true, Some(data), _) => Ok(data),
+            (_, _, Some(error)) => bail!("the server refused: {error}"),
+            _ => bail!("the server answered success with no payload"),
+        }
+    }
+}
+```
+
+The payload types. Two of these cost me a compile-and-run cycle each, which is
+the argument for running the thing rather than trusting a guess: `/health`
+carries no version field — the version lives on `/` — and `/notebooks` returns
+an object with a `notebooks` array inside it, not a bare array.
+
+```rust
+/// `/health` reports the session, not the build.
+#[derive(Deserialize)]
+struct Health {
+    status: String,
+    authenticated: bool,
+    active_sessions: u32,
+}
+
+/// `/notebooks` is the *local* library the server keeps — the notebooks you
+/// registered, not everything in your Google account. `/notebooks/scrape`
+/// reads the account itself.
+#[derive(Deserialize)]
+struct Library {
+    notebooks: Vec<Notebook>,
+    active_notebook_id: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct Notebook {
+    id: String,
+    name: String,
+}
+
+#[derive(Deserialize)]
+struct Answer {
+    answer: String,
+    session_id: String,
+    #[serde(default)]
+    sources: Option<Sources>,
+}
+
+#[derive(Deserialize)]
+struct Sources {
+    #[serde(default)]
+    citations: Vec<Citation>,
+}
+
+#[derive(Deserialize)]
+struct Citation {
+    number: u32,
+    #[serde(rename = "sourceText")]
+    source_text: String,
+}
+```
+
+The client itself. The token is optional because the server needs none on
+loopback; it refuses to start without one as soon as you expose it.
+
+```rust
+struct NotebookLm {
+    base: String,
+    http: Client,
+}
+
+impl NotebookLm {
+    fn new(base: impl Into<String>, api_key: Option<&str>) -> Result<Self> {
+        let mut headers = HeaderMap::new();
+        if let Some(key) = api_key {
+            let mut value = HeaderValue::from_str(&format!("Bearer {key}"))?;
+            value.set_sensitive(true);
+            headers.insert(AUTHORIZATION, value);
+        }
+        Ok(Self {
+            base: base.into(),
+            http: Client::builder().default_headers(headers).build()?,
+        })
+    }
+
+    fn health(&self) -> Result<Health> {
+        self.http
+            .get(format!("{}/health", self.base))
+            .send()?
+            .json::<Envelope<Health>>()
+            .context("the health report was not the envelope we expect")?
+            .into_data()
+    }
+
+    fn library(&self) -> Result<Library> {
+        self.http
+            .get(format!("{}/notebooks", self.base))
+            .send()?
+            .json::<Envelope<Library>>()?
+            .into_data()
+    }
+
+    /// `source_format: "json"` is the one shape worth parsing: the quotations
+    /// arrive beside the answer instead of being spliced into it.
+    fn ask(&self, notebook_id: &str, question: &str) -> Result<Answer> {
+        self.http
+            .post(format!("{}/ask", self.base))
+            .json(&serde_json::json!({
+                "question": question,
+                "notebook_id": notebook_id,
+                "source_format": "json",
+            }))
+            .send()?
+            .json::<Envelope<Answer>>()?
+            .into_data()
+    }
+}
+```
+
+And the program:
+
+```rust
+fn main() -> Result<()> {
+    let key = std::env::var("NOTEBOOKLM_API_KEY").ok();
+    let client = NotebookLm::new("http://127.0.0.1:3000", key.as_deref())?;
+
+    let health = client.health()?;
+    println!(
+        "server {} · authenticated: {} · {} open sessions",
+        health.status, health.authenticated, health.active_sessions
+    );
+    if !health.authenticated {
+        println!("no Google session on this machine — run the setup command once");
+        return Ok(());
+    }
+
+    let library = client.library()?;
+    let Some(first) = library.notebooks.first() else {
+        return Ok(());
+    };
+
+    let answer = client.ask(&first.id, "What is this notebook about?")?;
+    println!("\n[{}] {}", first.name, answer.answer);
+    for citation in answer.sources.iter().flat_map(|s| &s.citations) {
+        println!("  [{}] {}", citation.number, citation.source_text);
+    }
+    println!("session {}", answer.session_id);
+    Ok(())
+}
+```
+
+`cargo clippy -- -D warnings` is silent on it, and `cargo run` against a
+server with no session prints:
+
+```text
+server ok · authenticated: false · 0 open sessions
+no Google session on this machine — run the setup command once
+```
+
+## Or no structs at all
+
+There is a second route, and for an agent it is the better one. The server
+publishes a [UTCP manual](/blog/notebooklm-utcp) at `GET /utcp`: 56 named
+operations, each with its method, its address, its inputs and its
+authentication, in the shape a [UTCP](https://www.utcp.io/) client already
+understands. A client reads it once and calls the API natively — no protocol
+server, no wrapper process, and no hand-written types.
+
+From Rust, reading it is four structs and one request:
+
+```rust
+#[derive(Deserialize)]
+struct Manual {
+    manual_version: String,
+    tools: Vec<Tool>,
+}
+
+#[derive(Deserialize)]
+struct Tool {
+    name: String,
+    tool_call_template: CallTemplate,
+}
+
+#[derive(Deserialize)]
+struct CallTemplate {
+    http_method: String,
+    url: String,
+}
+
+// The manual is not wrapped in the envelope: it is a UTCP document, and its
+// shape belongs to the client, not to us.
+fn manual(&self) -> Result<Manual> {
+    Ok(self
+        .http
+        .get(format!("{}/utcp", self.base))
+        .send()?
+        .json::<Manual>()?)
+}
+```
+
+Which prints, really:
+
+```text
+manual 4.6.0 · 56 named operations · first: get_server_info GET http://127.0.0.1:3000/
+```
+
+Note the address. The manual is generated from the OpenAPI specification at
+build time with a placeholder host, and rebased at request time onto whatever
+address you asked it from — so the same document serves a loopback install and
+one behind a reverse proxy, with nothing to configure.
+
+## What you are not writing
+
+Running a server next to your Rust program is a real cost: a process to
+supervise, a port, a dependency that is not a crate. What it buys, concretely,
+is everything in this list that a pure-Rust client would have to carry itself:
+
+- the interactive Google login, and the automatic re-login when the session
+  expires mid-run;
+- session reuse across questions, so a follow-up keeps its context instead of
+  starting a new chat;
+- citation extraction, including the source quotations behind each marker;
+- two transports — the internal RPC API, ten to a hundred times faster than
+  the browser, with a browser fallback when a call is refused — so a redesign
+  on Google's side degrades performance instead of breaking everything;
+- Studio generation, study aids, mind maps, source labels and offline caching,
+  all on the same envelope you already typed.
+
+If you want the pure crate anyway, that list is the work, and the first three
+items are the ones that will keep you busy after Google's next redesign. The
+REST route costs one process and gives you the rest today.
+
+The server is `npx -y @roomi-fields/notebooklm-mcp` and one setup command for
+the login; the [install guide](/install) has both, and the
+[API reference](/notebooklm-rest-api) has the other 52.

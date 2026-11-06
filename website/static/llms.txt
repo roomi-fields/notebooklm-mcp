@@ -103,6 +103,7 @@ actually ask, states its limits, and names alternatives fairly.
 - [Running across multiple Google accounts](https://notebooklm.roomi-fields.com/blog/notebooklm-multiple-google-accounts): rotation multiplies a compute budget, not a quota; where sessions live and why they do not travel.
 - [Your MCP server is probably listening on 0.0.0.0](https://notebooklm.roomi-fields.com/blog/mcp-server-listening-on-0-0-0-0): our own advisory, why loopback alone is not enough, and the three controls.
 - [Calling NotebookLM from a UTCP client](https://notebooklm.roomi-fields.com/blog/notebooklm-utcp): UTCP is the inverse of MCP — no protocol server; the manual, the client code, and why an OpenAPI operation without an `operationId` silently disappears.
+- [NotebookLM from Rust: a client that compiles](https://notebooklm.roomi-fields.com/blog/notebooklm-rust): why no Rust crate exists for the consumer product, a typed client over the local REST API, and the UTCP route that needs no types.
 - [Using NotebookLM from Python](https://notebooklm.roomi-fields.com/blog/notebooklm-python): no official SDK; the local REST endpoint, citations as JSON, retrieval that spends nothing, and overnight batching.
 - [A literature review an agent can actually run](https://notebooklm.roomi-fields.com/blog/notebooklm-literature-review-agent): the four-step MCP loop — survey, retrieve, ask, store — and the habits that keep a long review inside the compute allowance.
 
