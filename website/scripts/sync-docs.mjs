@@ -50,8 +50,9 @@ const FRONTMATTER = {
   'README.md': {
     title: 'Overview — NotebookLM MCP + HTTP REST API',
     description:
-      'Google NotebookLM over MCP plus a local HTTP REST API. Citation-backed Q&A, audio, video, content generation, multi-account rotation. Claude Code, Codex, Cursor, n8n, Zapier, Make.',
+      'Google Gemini Notebook (formerly NotebookLM) over MCP, a local HTTP REST API, and a UTCP manual. Citation-backed Q&A, audio, video, content generation, multi-account rotation. Claude Code, Codex, Cursor, n8n, Zapier, Make.',
     keywords: [
+      'gemini notebook',
       'notebooklm',
       'mcp',
       'mcp-server',
@@ -77,6 +78,7 @@ const FRONTMATTER = {
     description:
       'Install the NotebookLM MCP server and REST API. Clone, npm install, build, authenticate Google, register with Claude Code, Codex, Cursor, or run as a local HTTP REST API for n8n / Zapier / Make.',
     keywords: [
+      'gemini notebook',
       'notebooklm mcp install',
       'install notebooklm rest api',
       'notebooklm mcp setup',
@@ -92,6 +94,7 @@ const FRONTMATTER = {
     description:
       'Full configuration reference. Environment variables for headless mode, stealth, UI locale, data directory, session timeout, max sessions. Persistent auth layout and security notes.',
     keywords: [
+      'gemini notebook',
       'notebooklm mcp config',
       'notebooklm environment variables',
       'notebooklm headless',
@@ -104,6 +107,7 @@ const FRONTMATTER = {
     description:
       'HTTP REST API reference for NotebookLM, 56 endpoints: /ask, /content, /notebooks, /sources, /labels, /share, /health, /setup-auth. Request and response schemas, ready for n8n / Zapier / Make / curl.',
     keywords: [
+      'gemini notebook',
       'notebooklm rest api',
       'notebooklm http api',
       'notebooklm api endpoints',
@@ -119,6 +123,7 @@ const FRONTMATTER = {
     description:
       'Integrate NotebookLM into n8n workflows via the HTTP REST API. Webhook examples, scheduled queries, Slack integration, content generation flows, citation-backed responses. Works the same way for Zapier and Make.',
     keywords: [
+      'gemini notebook',
       'notebooklm n8n',
       'n8n notebooklm integration',
       'n8n http request notebooklm',
@@ -134,6 +139,7 @@ const FRONTMATTER = {
     description:
       'Common failure signatures and fixes for the NotebookLM MCP server. Doctor script, port conflicts, authentication loops, rate limits, browser profile locks, session expiry.',
     keywords: [
+      'gemini notebook',
       'notebooklm troubleshooting',
       'notebooklm mcp errors',
       'notebooklm authentication failed',
@@ -146,6 +152,7 @@ const FRONTMATTER = {
     description:
       'Manage a persistent library of NotebookLM notebooks. Add by URL, search by name or topics, set an active notebook, share across Codex and Claude Code via cross-client sharing.',
     keywords: [
+      'gemini notebook',
       'notebooklm library',
       'notebooklm notebook manager',
       'notebooklm search',
@@ -157,6 +164,7 @@ const FRONTMATTER = {
     description:
       'Use the auto_discover_notebook tool or /notebooks/auto-discover endpoint to extract notebook name, description, topics, and use cases from just a NotebookLM URL.',
     keywords: [
+      'gemini notebook',
       'notebooklm auto discovery',
       'notebooklm metadata extraction',
       'auto_discover_notebook',
@@ -168,6 +176,7 @@ const FRONTMATTER = {
     description:
       'Dockerfile and docker-compose setup for the NotebookLM MCP server. Build from source, visual authentication via noVNC, Synology and QNAP NAS deployment patterns.',
     keywords: [
+      'gemini notebook',
       'notebooklm docker',
       'notebooklm mcp container',
       'notebooklm novnc',
@@ -186,6 +195,7 @@ const FRONTMATTER = {
     description:
       'Use NotebookLM as an MCP stdio server for Claude Code AND as a local HTTP REST API for n8n, Zapier, curl, at the same time. Stdio-to-HTTP proxy pattern, no profile conflicts.',
     keywords: [
+      'gemini notebook',
       'notebooklm mcp http',
       'notebooklm stdio http proxy',
       'notebooklm claude desktop',
@@ -197,6 +207,7 @@ const FRONTMATTER = {
     description:
       'Generate NotebookLM Studio outputs — audio podcasts, video brief and explainer, infographics, reports, presentations, data tables — programmatically via MCP or HTTP API.',
     keywords: [
+      'gemini notebook',
       'notebooklm audio',
       'notebooklm video',
       'notebooklm podcast api',
@@ -210,6 +221,7 @@ const FRONTMATTER = {
     description:
       'Configure multiple Google accounts for NotebookLM. Automatic rotation on rate-limit detection, TOTP (2FA) auto-reauth, AES-256-GCM encrypted credential vault, per-account profile storage.',
     keywords: [
+      'gemini notebook',
       'notebooklm multi account',
       'notebooklm account rotation',
       'notebooklm rate limit',
@@ -225,6 +237,7 @@ const FRONTMATTER = {
     description:
       'Production pattern for running 1 000+ citation-backed Q&A queries against Google NotebookLM through a local HTTP REST API. Resilient batches, auto-reauth, multi-account rotation, JSON citation export, restart-safe progress, throttling.',
     keywords: [
+      'gemini notebook',
       'notebooklm batch processing',
       'notebooklm rest api',
       'notebooklm 1000 questions',
@@ -241,6 +254,7 @@ const FRONTMATTER = {
     description:
       'Pipeline pattern for academic research and competitive intelligence: use NotebookLM as a one-shot ingestion layer, RTFM as the retrieval layer. /batch-to-vault endpoint, nblm-answer-v1 JSON schema, RTFM index integration, offline unlimited queries.',
     keywords: [
+      'gemini notebook',
       'notebooklm rtfm',
       'notebooklm cache',
       'notebooklm vault',
@@ -259,6 +273,7 @@ const FRONTMATTER = {
     description:
       'PleasePrompto/notebooklm-mcp was archived in September 2026. How to migrate: 17 of its 19 tool names work unchanged, the environment variables that differ, the one variable that means something else here, and a full feature comparison.',
     keywords: [
+      'gemini notebook',
       'pleaseprompto notebooklm-mcp archived',
       'notebooklm-mcp unmaintained',
       'notebooklm-mcp alternative',
@@ -278,6 +293,7 @@ const FRONTMATTER = {
     description:
       'Secure the NotebookLM REST API: loopback by default, NOTEBOOKLM_API_KEY required to expose it, NOTEBOOKLM_ALLOWED_ORIGINS for browser clients, Docker requirements, and how to report a vulnerability.',
     keywords: [
+      'gemini notebook',
       'notebooklm mcp security',
       'notebooklm api token',
       'mcp server authentication',

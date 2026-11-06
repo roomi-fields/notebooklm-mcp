@@ -11,18 +11,18 @@
       "type": "application/mcp-registry-server+json",
       "url": "https://raw.githubusercontent.com/roomi-fields/notebooklm-mcp/main/server.json",
       "displayName": "NotebookLM MCP",
-      "description": "Drive Google NotebookLM from an agent: citation-backed answers, Studio generation, chat history, and a local REST API. Installed locally (npx), not a remote endpoint.",
+      "description": "Drive Google Gemini Notebook (formerly NotebookLM) from an agent: citation-backed answers, Studio generation, chat history, and a local REST API. Installed locally (npx), not a remote endpoint.",
       "version": "4.5.0",
-      "tags": ["notebooklm", "mcp", "research", "citations", "rest-api"]
+      "tags": ["notebooklm", "gemini-notebook", "mcp", "research", "citations", "rest-api"]
     },
     {
       "identifier": "urn:air:roomi-fields.com:utcp:notebooklm",
       "type": "application/utcp-manual+json",
       "url": "https://notebooklm.roomi-fields.com/utcp.json",
       "displayName": "NotebookLM UTCP manual",
-      "description": "Universal Tool Calling Protocol manual for the NotebookLM REST API: 56 named tools a client calls natively, with no protocol server in between.",
+      "description": "Universal Tool Calling Protocol manual for the Gemini Notebook (NotebookLM) REST API: 56 named tools a client calls natively, with no protocol server in between.",
       "version": "4.5.0",
-      "tags": ["notebooklm", "utcp", "rest-api", "research", "citations"]
+      "tags": ["notebooklm", "gemini-notebook", "utcp", "rest-api", "research", "citations"]
     },
     {
       "identifier": "urn:air:roomi-fields.com:skill:notebooklm",
@@ -30,7 +30,7 @@
       "url": "https://raw.githubusercontent.com/roomi-fields/notebooklm-skill/main/skills/notebooklm/SKILL.md",
       "displayName": "NotebookLM skill",
       "description": "Source-grounded research from your own documents: drives the MCP tools when present, the REST API otherwise.",
-      "tags": ["notebooklm", "agent-skill", "research"]
+      "tags": ["notebooklm", "gemini-notebook", "agent-skill", "research"]
     }
   ]
 }

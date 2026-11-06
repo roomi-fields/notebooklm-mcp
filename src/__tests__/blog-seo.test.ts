@@ -103,6 +103,37 @@ describe('blog posts carry what they need to be found', () => {
   });
 });
 
+describe("the product's current name", () => {
+  /**
+   * Google renamed NotebookLM to Gemini Notebook in July 2026. Both names are
+   * in use — people still search for the old one, so neither replaces the
+   * other — but a surface that writes only the old one is invisible to anyone
+   * searching the new one, and an engine has no way to learn they are the
+   * same product from a page that never says so.
+   *
+   * Keywords alone do not count: these check the prose and the descriptions
+   * a reader and a crawler actually see.
+   */
+  const NEW_NAME = /Gemini Notebook/i;
+
+  it.each(posts)('%s writes it in the post body, not only in the keywords', (file) => {
+    const body = readFileSync(join(BLOG, file), 'utf-8').split(/\n---\n/)[1] ?? '';
+    expect(body).toMatch(NEW_NAME);
+  });
+
+  it.each([
+    'README.md',
+    'package.json',
+    'server.json',
+    'website/static/llms.txt',
+    'website/docusaurus.config.ts',
+    'website/scripts/sync-docs.mjs',
+    'website/static/.well-known/ai-catalog.json',
+  ])('%s names it', (file) => {
+    expect(readFileSync(join(ROOT, file), 'utf-8')).toMatch(NEW_NAME);
+  });
+});
+
 describe('the preview image the whole site advertises', () => {
   const config = readFileSync(join(ROOT, 'website', 'docusaurus.config.ts'), 'utf-8');
 

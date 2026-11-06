@@ -34,7 +34,7 @@ const MODIFIED = lastModified();
 const config: Config = {
   title: 'NotebookLM MCP + HTTP REST API',
   tagline:
-    'Google NotebookLM over MCP + a local HTTP REST API — Q&A with citations, audio podcasts, video generation, multi-account rotation',
+    'Google Gemini Notebook (formerly NotebookLM) over MCP + a local HTTP REST API — Q&A with citations, audio podcasts, video generation, multi-account rotation',
   favicon: 'img/favicon.ico',
 
   future: {
@@ -171,12 +171,12 @@ const config: Config = {
       {
         name: 'keywords',
         content:
-          'notebooklm, mcp, mcp-server, claude-code, codex, cursor, gemini, google-notebooklm, http-api, rest-api, n8n, zapier, make, anthropic, playwright, citations, ai-agent',
+          'notebooklm, gemini notebook, gemini notebook api, google notebook, mcp, mcp-server, utcp, claude-code, codex, cursor, gemini, google-notebooklm, http-api, rest-api, n8n, zapier, make, anthropic, playwright, citations, ai-agent',
       },
       {
         name: 'description',
         content:
-          'Google NotebookLM over MCP + a local HTTP REST API. Q&A with citations, audio, video, content generation, multi-account rotation. Works with Claude Code, Codex, Cursor, n8n, Zapier, Make.',
+          'Google Gemini Notebook (formerly NotebookLM) over MCP, a local HTTP REST API, and a UTCP manual. Q&A with citations, audio, video, content generation, multi-account rotation. Works with Claude Code, Codex, Cursor, n8n, Zapier, Make.',
       },
       { name: 'robots', content: 'index, follow' },
       { property: 'og:type', content: 'website' },
