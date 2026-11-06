@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### The README stopped telling the truth about its own releases
+
+The "Latest releases" list was hand-written, and had stopped at 3.0.1 while the
+package shipped 4.6.0 — nine releases missing, three of them security
+releases, on the page most readers never scroll past. It is generated from the
+changelog now, and a guard fails the build if it drifts or loses its markers.
+
+Four names were missing from the acknowledgments, and one was wrong: the open
+HTTP API was reported by @shinjiyu, not by @ghostnshells, who reported the
+other two advisories. Nils Friedrichs and Teodor Tenev are credited for their
+merged work, and a test checks each reporter and contributor is still named.
+
+---
+
 ## [4.6.0] - 2026-11-06
 
 ### Retry a failed generation without losing its id

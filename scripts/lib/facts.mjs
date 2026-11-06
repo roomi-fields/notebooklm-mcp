@@ -38,3 +38,49 @@ export function nodeFloor() {
 export const ENDPOINTS = routes().length;
 export const TOOLS = toolNames().length;
 export const NODE = nodeFloor();
+
+// --------------------------------------------------------- the release list
+
+/**
+ * The newest releases, read out of the changelog's own headings.
+ *
+ * A category heading ("Fixed", "Security"…) is not a headline, so those are
+ * dropped; a release left with none is listed by version alone rather than
+ * silently omitted.
+ */
+const SHOWN = 10;
+const HEADLINES = 2;
+const CATEGORY = /^(Fixed|Added|Changed|Removed|Security|Deprecated|Breaking|Also|Notes?)$/i;
+
+export function releases(changelog) {
+  const found = [];
+  let current = null;
+  for (const line of changelog.split('\n')) {
+    const release = /^## \[(\d[^\]]*)\](?: - (\S+))?/.exec(line);
+    if (release) {
+      current = { version: release[1], date: release[2] ?? '', headlines: [] };
+      found.push(current);
+      continue;
+    }
+    if (/^## /.test(line)) {
+      current = null;
+      continue;
+    }
+    const heading = /^### (.+?)\s*$/.exec(line);
+    if (heading && current && !CATEGORY.test(heading[1])) current.headlines.push(heading[1]);
+  }
+  return found;
+}
+
+export function releaseList(changelog) {
+  return releases(changelog)
+    .slice(0, SHOWN)
+    .map(({ version, date, headlines }) => {
+      const shown = headlines.slice(0, HEADLINES);
+      if (headlines.length > HEADLINES) shown.push('and more');
+      const summary = shown.length ? ` — ${shown.join(' · ')}` : '';
+      const when = date ? ` (${date})` : '';
+      return `- **v${version}**${when}${summary}`;
+    })
+    .join('\n');
+}

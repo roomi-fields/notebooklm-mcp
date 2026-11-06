@@ -321,24 +321,22 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 **Latest releases:**
 
-- **v3.0.1** — Interactive Google login as a first-class CLI command (`notebooklm-mcp setup-auth`) for global / stdio-client installs; `setup_auth` / `re_auth` accept a top-level `headless` (#27)
-- **v3.0.0** — Major refactor: **dual transport** (NotebookLM's internal `batchexecute` RPC API with automatic DOM fallback), 10-100× faster and immune to UI rebrands; **5 new tools** (notebook sharing, study aids, mind maps, source labels, web research)
-- **v2.3.0** — Full support for Google's **"Gemini Notebook" rebrand**: create / list / rename / delete, sources, and every Studio generation type re-verified end-to-end (#23, #21)
-- **v2.2.1** — Recognize both NotebookLM hosts so **Google Workspace** accounts authenticate (the `notebook.google.com` alias); notebook listing no longer wastes ~30s after the "Gemini Notebook" rebrand; HTTP banner reads the real version. Diagnosis + patch by @kpietkaa (#19)
-- **v2.2.0** — Fix new-answer detection timing out when an answer repeats an earlier one (position-based identity, not text-hash); graceful shutdown on stdio disconnect; **Japanese** UI locale
-- **v2.1.1** — Thai UI selectors for `notebook_create` (partial, #18)
-- **v2.1.0** — `note_list` and `note_get` MCP tools (#17)
-- **v2.0.4** — German UI selectors (closes #14)
-- **v2.0.0** — Tools renamed to a namespaced tree (`notebook_ask`, `source_add`, `session_list`, `server_health`, `vault_batch`…) across 9 namespaces; `tools/list` advertises only the canonical names. **Backward compatible — the legacy flat names still work as aliases**, so existing scripts and configs keep running. Also adds MCP `annotations` (read-only / destructive / idempotent / open-world hints) and `outputSchema` + `structuredContent` on every tool. Published on the [Smithery registry](https://smithery.ai/servers/roomifields/notebooklm-mcp).
-- **v1.7.0** — `batch_to_vault` exposed as a first-class MCP tool (parity with the HTTP endpoint, no localhost server required); shared `runBatchToVault` helper deduplicates the loop across both transports
-- **v1.6.0** — `/batch-to-vault` endpoint + RTFM integration (`nblm-answer-v1` JSON Schema published at [schemas.roomi-fields.com/nblm-answer-v1.json](https://schemas.roomi-fields.com/nblm-answer-v1.json)) for caching NotebookLM answers as a searchable markdown vault
-- **v1.5.8** — NotebookLM 2026 UI adaptations (icon-label sanitization, Discussion-panel recovery, count-based source detection) — PR #5 by @KhizarJamshaidIqbal
-- **v1.5.7** — Citation extraction selector fix (`.highlighted`) and Docker multi-stage build — PR #1 by @JulienCANTONI
-- **v1.5.6** — Citation extraction major rewrite (97% success rate), browser-verified auth at startup, profile auto-sync
-- **v1.5.0** — Complete Studio content generation (video, infographic, presentation, data_table) + Notes management + Delete sources
-- **v1.4.0** — Content management (sources, audio, generation) + Multi-account
+<!-- releases:start — generated from CHANGELOG.md by scripts/sync-facts.mjs; do not edit by hand -->
 
-_Intermediate patch and hardening releases (1.5.x–1.7.x) are in the full [CHANGELOG](./CHANGELOG.md)._
+- **v4.6.0** (2026-11-06) — Retry a failed generation without losing its id · A UTCP interface, and 56 named operations · and more
+- **v4.5.0** (2026-10-30) — Search the sources without paying for an answer
+- **v4.4.0** (2026-10-24) — Two security fixes, both reported by Umar Ahmed (ghostnshells)
+- **v4.3.0** (2026-10-22) — Eight tools for calls the server already knew how to make · Two things the backlog had wrong
+- **v4.2.0** (2026-10-18) — Security — the session store is no longer reachable through a file path
+- **v4.1.0** (2026-10-18) — Changed — Node 22 is the floor, and the last four advisories left with it
+- **v4.0.0** (2026-10-18) — Security — the HTTP API is no longer open to the network or to any web page · Fixed — an account could vanish on creation · and more
+- **v3.2.0** (2026-09-03) — Added — `content_delete`: generated content can finally be removed · Closed — both open issues, settled by measurement rather than by waiting
+- **v3.1.2** (2026-08-21) — Fixed — 3.1.1's browser-path language fix covered one dialog shape out of two · Added — an unapplied language is now said out loud
+- **v3.1.1** (2026-08-21) — Fixed — generated content came out in the server's interface language, not the one you asked for · Fixed — the browser fallback ignored `language` too (#36) · and more
+
+<!-- releases:end -->
+
+_Every earlier release, with the whole story of each, is in the full [CHANGELOG](./CHANGELOG.md)._
 
 **Not yet implemented:**
 
@@ -379,6 +377,10 @@ Thanks to everyone who has contributed code, ideas, and bug reports:
 - **[@he0xwhale](https://github.com/he0xwhale)** — `note_list` / `note_get` MCP tools
 - **[@eminsnow](https://github.com/eminsnow)** — canonical tool names (`_` over `.`)
 - **Julien Cantoni** — [@JulienCANTONI](https://github.com/JulienCANTONI)
+- **Nils Friedrichs** — [@nils-friedrichs](https://github.com/nils-friedrichs), LightNow capability badge
+- **Teodor Tenev** — [@teodor-t-tenev](https://github.com/teodor-t-tenev), stdio mode exits when its client is gone instead of spinning a core
+- **[@shinjiyu](https://github.com/shinjiyu)** — reported the open HTTP API privately, with the fix (GHSA-p69m-c5rf-g2c3)
+- **Umar Ahmed** — [@ghostnshells](https://github.com/ghostnshells), reported two advisories: the origin guard that trusted a missing header, and forced browser navigation
 
 ---
 

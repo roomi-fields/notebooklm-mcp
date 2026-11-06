@@ -9,6 +9,11 @@
  * back at a user. The llms.txt written specifically for those engines was six
  * releases out of date.
  *
+ * It also regenerates the README's release list from the changelog. That list
+ * was hand-written, and had stopped at 3.0.1 while the package shipped 4.6.0 —
+ * a reader taking it at face value judged the project a year dormant. A list
+ * nobody regenerates is the same defect as a specification nobody regenerates.
+ *
  * It also checks coverage: every route declared in the server must appear in
  * the REST reference and in the OpenAPI spec. A new endpoint that nobody
  * documents now fails the build instead of going unnoticed for a year.
@@ -21,7 +26,7 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 
-import { ENDPOINTS, NODE, ROOT, TOOLS, read, routes } from './lib/facts.mjs';
+import { ENDPOINTS, NODE, ROOT, TOOLS, read, releaseList, routes } from './lib/facts.mjs';
 
 const CHECK = process.argv.includes('--check');
 
@@ -79,6 +84,22 @@ const TARGETS = [
   },
 ];
 
+// --------------------------------------------------------- the release list
+
+const REGION = /(<!-- releases:start[^>]*-->)[\s\S]*?(<!-- releases:end -->)/;
+
+function withReleaseList(input, changelog) {
+  // A CRLF working copy would defeat a multi-line pattern; the repository stores LF.
+  const readme = input.replace(/\r\n/g, '\n');
+  if (!REGION.test(readme)) {
+    throw new Error(
+      'README.md has lost its release-list markers, so the list would silently ' +
+        'stop being regenerated. Restore <!-- releases:start --> and <!-- releases:end -->.'
+    );
+  }
+  return readme.replace(REGION, (_, open, close) => `${open}\n\n${releaseList(changelog)}\n\n${close}`);
+}
+
 // -------------------------------------------------------------- the rewrite
 
 let drifted = 0;
@@ -87,6 +108,7 @@ for (const { path, rules } of TARGETS) {
   const before = read(path);
   let after = before;
   for (const [pattern, replacement] of rules) after = after.replace(pattern, replacement);
+  if (path === 'README.md') after = withReleaseList(after, read('CHANGELOG.md'));
 
   if (after === before) {
     console.log(`✓ ${path} already current`);

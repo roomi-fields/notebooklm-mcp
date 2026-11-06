@@ -119,7 +119,7 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 ## Recently Implemented
 
-### Unreleased - A UTCP interface, and 56 named operations
+### v4.6.0 - A UTCP interface, and 56 named operations
 
 `GET /utcp` serves a Universal Tool Calling Protocol manual, generated from our
 OpenAPI specification. UTCP has no protocol server: a client reads the manual
@@ -132,7 +132,7 @@ Along the way: the publicly served specification turned out to be a stale
 hand-maintained duplicate, frozen at version 1.5.9 with 27 routes. The site now
 generates it.
 
-### Unreleased - Retry a failed generation, keeping its id
+### v4.6.0 - Retry a failed generation, keeping its id
 
 `retry_content` / `POST /content/:id/retry` re-queue a failed Studio artifact
 in place. The id survives, which is the entire point: deleting and
