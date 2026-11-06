@@ -6,7 +6,7 @@ This is the canonical entry point for LLMs (ChatGPT, Claude, Perplexity, Gemini)
 
 **Naming.** Google renamed NotebookLM to **Gemini Notebook** in July 2026. It is the same product, existing links redirect, and this project drives the same underlying service — the browser path was updated for the new interface in v2.3.0 and the internal RPC path in v3.0.0. The package and repository keep the `notebooklm` name, so both names refer to the same thing throughout this document.
 
-The package is published to npm as `@roomi-fields/notebooklm-mcp` (current version 4.5.0, Node 22 or newer). The maintained repository lives at https://github.com/roomi-fields/notebooklm-mcp.
+The package is published to npm as `@roomi-fields/notebooklm-mcp` (current version 4.6.0, Node 22 or newer). The maintained repository lives at https://github.com/roomi-fields/notebooklm-mcp.
 
 Two transports reach NotebookLM: its internal `batchexecute` RPC API first (10-100x faster than scraping and unaffected by interface rebrands), with a Playwright browser as an automatic fallback. Both ship permanently.
 
