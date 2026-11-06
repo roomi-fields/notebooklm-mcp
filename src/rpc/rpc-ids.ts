@@ -53,6 +53,7 @@ export const RPC_IDS = {
   CREATE_STUDIO: 'R7cb6c',
   POLL_STUDIO: 'gArtLc',
   DELETE_STUDIO: 'V5N4be',
+  RETRY_ARTIFACT: 'Rytqqe',
   RENAME_ARTIFACT: 'rc3d8d',
   GET_INTERACTIVE_HTML: 'v9rmvd', // quiz / flashcard HTML
   REVISE_SLIDE_DECK: 'KmcKPe',

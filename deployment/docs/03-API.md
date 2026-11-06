@@ -1,7 +1,7 @@
-# NotebookLM REST API reference — 54 HTTP endpoints
+# NotebookLM REST API reference — 55 HTTP endpoints
 
-> **Coverage.** All 54 endpoints the server exposes are documented below, and
-> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 54 —
+> **Coverage.** All 55 endpoints the server exposes are documented below, and
+> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 55 —
 > both checked against the routes declared in the code.
 
 > Complete reference for the NotebookLM HTTP REST API. Citation-backed Q&A,
@@ -27,7 +27,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## Available Endpoints (54 total)
+## Available Endpoints (55 total)
 
 ### Authentication
 
@@ -2848,6 +2848,40 @@ curl http://localhost:3000/notebooks/74912e55-.../sources/4b9e1f22-.../guide
 ```
 
 A source NotebookLM has not summarised yet returns an empty `summary` and no topics.
+
+---
+
+### `POST /content/:artifactId/retry`
+
+Retry a Studio generation that failed. RPC-backed.
+
+**The artifact id survives.** It is not deleted and not replaced: the same id goes back to `generating`. That is the reason to prefer this over deleting and regenerating, which mints a new id and invalidates every reference you were holding — a saved id, a poll loop, a queued download.
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/content/5d2c.../retry \
+  -H "Content-Type: application/json" \
+  -d '{"notebook_id": "74912e55-34a4-4027-bdcc-8e89badd0efd"}'
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "notebookId": "74912e55-34a4-4027-bdcc-8e89badd0efd",
+    "contentId": "5d2c...",
+    "status": "in_progress",
+    "retried": true
+  }
+}
+```
+
+A refusal — rate limit, exhausted quota, or an artifact the backend will not retry — comes back as an error rather than a queued retry. An accepted retry can still fail again on Google's side; poll `GET /content` for the outcome, and whether to retry once more is your call.
+
+Failed artifacts appear in `GET /content` with `status: "failed"`, which is where their ids come from. That listing previously showed only finished artifacts, so a failure was invisible and its id unreachable — see the changelog entry for the release that introduced this endpoint.
 
 ---
 

@@ -606,6 +606,35 @@ paths:
       responses:
         '200': { description: Sharing status after the change }
 
+  /content/{artifactId}/retry:
+    post:
+      tags: [Content]
+      summary: Retry a failed generation, keeping the same artifact id
+      description: |
+        RPC-backed. The artifact is not deleted and not replaced: the same id
+        goes back to `generating`, so a reference the caller already holds
+        stays valid. Deleting and regenerating instead mints a new id.
+
+        A refusal (rate limit, quota, or an artifact the backend will not
+        retry) comes back as an error. An accepted retry can still fail again
+        on Google's side — poll `GET /content` for the outcome.
+      parameters:
+        - in: path
+          name: artifactId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notebook_id: { type: string }
+                notebook_url: { type: string }
+      responses:
+        '200': { description: Retry queued, with the unchanged id and new status }
+
   /content/{artifactId}/export:
     post:
       tags: [Content]

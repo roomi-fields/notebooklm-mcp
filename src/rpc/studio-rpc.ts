@@ -58,6 +58,20 @@ export interface GenerateResult {
   textContent?: string;
 }
 
+/**
+ * The capability blob a retry carries. It is type-agnostic — the same literal
+ * is sent whatever the artifact is — and the trailing list is a static
+ * artifact-type-code capability set, not a description of the artifact being
+ * retried. Sent verbatim.
+ */
+const RETRY_OPTIONS: unknown[] = [
+  2,
+  null,
+  null,
+  [1, null, null, null, null, null, null, null, null, null, [1]],
+  [[1, 4, 8, 2, 3, 6]],
+];
+
 export class StudioRpc {
   constructor(private readonly client: BatchExecuteClient) {}
 
@@ -163,6 +177,49 @@ export class StudioRpc {
    */
   async deleteArtifact(notebookId: string, artifactId: string): Promise<void> {
     await this.client.call('DELETE_STUDIO', [[2], artifactId], `/notebook/${notebookId}`);
+  }
+
+  /**
+   * Retry a failed artifact in place — the web UI's "Retry" button.
+   *
+   * The failed artifact is NOT deleted and NOT replaced: the same id is kept
+   * and the row goes back to in-progress, so anything already holding that id
+   * (a poll loop, a saved reference, a download that will be retried) keeps
+   * working. That is the whole reason to prefer this over deleting and
+   * regenerating, which mints a new id and orphans every reference to the old.
+   *
+   * Payload shape and the fixed options blob read from
+   * `teng-lin/notebooklm-py` (`_web/artifacts.py::retry_failed`, MIT), which
+   * validated it across video, audio and infographic artifacts.
+   *
+   * A server-side refusal — rate limit, quota, or an artifact the backend will
+   * not retry — arrives as a thrown RPC status rather than a result, so it
+   * reaches the caller as an error. A retry that is accepted can still fail
+   * again later on Google's side; that shows up as a terminal failed status on
+   * a subsequent poll, and whether to retry once more is the caller's call.
+   */
+  async retryArtifact(
+    notebookId: string,
+    artifactId: string
+  ): Promise<{ artifactId: string; status: StudioArtifact['status'] }> {
+    const result = (await this.client.call(
+      'RETRY_ARTIFACT',
+      [RETRY_OPTIONS, artifactId],
+      `/notebook/${notebookId}`
+    )) as unknown;
+
+    const row = Array.isArray(result) ? (result[0] as unknown) : undefined;
+    const id = Array.isArray(row) && typeof row[0] === 'string' ? row[0] : null;
+    if (!id) {
+      // No row back means the backend did not take the retry. Reporting that
+      // as a queued retry would have the caller poll an artifact that is
+      // still failed and conclude the retry had simply not worked yet.
+      throw new Error(
+        `NotebookLM did not accept the retry of artifact ${artifactId} ` +
+          `(it may not be retryable, or the feature is unavailable on this account)`
+      );
+    }
+    return { artifactId: id, status: normalizeStatus(row) };
   }
 
   /**

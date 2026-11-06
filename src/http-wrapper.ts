@@ -1456,6 +1456,26 @@ app.post('/content/notes/:noteTitle/to-source', async (req: Request, res: Respon
 
 // Export a finished artifact to Google Docs or Sheets — RPC extension.
 // Body: { notebook_id | notebook_url, target?: 'docs' | 'sheets', title? }
+// Retry a failed generation in place, keeping the same artifact id — RPC
+// extension. Deleting and regenerating would mint a new id and invalidate
+// every reference the caller holds.
+app.post('/content/:artifactId/retry', async (req: Request, res: Response) => {
+  try {
+    const { notebook_id, notebook_url } = req.body || {};
+    res.json(
+      await toolHandlers.handleRetryContent({
+        notebook_id,
+        notebook_url,
+        content_id: req.params.artifactId,
+      })
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
 app.post('/content/:artifactId/export', async (req: Request, res: Response) => {
   try {
     const { notebook_id, notebook_url, target, title } = req.body || {};

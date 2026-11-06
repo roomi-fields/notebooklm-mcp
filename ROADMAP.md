@@ -27,7 +27,6 @@ implementation and cite the source in the code, per `.claude/CLAUDE.md`.
 
 | Capability                                        | RPC id                         | Notes                                                                                         |
 | ------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
-| Retry a failed artifact, same id                  | `Rytqqe`                       | Today a failed generation is final.                                                           |
 | Quota meter and subscription tier                 | `EylDcb`, `ZwVcOc`             | Needed for long batch runs. Call `EylDcb` only when `SatQRc` reports metering enabled.        |
 | Cancel a running answer or research               | `XgrPMd`, `Zbrupe`             | For research, cancel with the **report id**, not the task id — the task id is a silent no-op. |
 | Copy a notebook, sources, or artifacts            | `te3DCe`, `R27wvc`, `mKDdke`   | No MCP server exposes these.                                                                  |
@@ -39,7 +38,7 @@ implementation and cite the source in the code, per `.claude/CLAUDE.md`.
 | Notebook collections                              | label ids with discriminator 3 |                                                                                               |
 | Synchronous source discovery (~10 results)        | `Es3dTe`                       |                                                                                               |
 | Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                                   |
-| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 49 with no filter.     |
+| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 50 with no filter.     |
 
 ### Onboarding — the conversion half of being found
 
@@ -119,6 +118,24 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 ---
 
 ## Recently Implemented
+
+### Unreleased - Retry a failed generation, keeping its id
+
+`retry_content` / `POST /content/:id/retry` re-queue a failed Studio artifact
+in place. The id survives, which is the entire point: deleting and
+regenerating — the only option before — mints a new id and invalidates every
+reference the caller held, including a poll loop already watching it.
+
+Shipping it exposed the half that made it unusable: `list_content` filtered on
+`status === 'completed'`, so a failed generation vanished from the listing and
+its id was unreachable. `GeneratedContent.status` had carried
+`generating | ready | failed` all along — the filter was narrower than the
+type it was filling. The listing now reports all three, and hands over a media
+URL only for a finished artifact, because a half-written one is a download
+that fails later for no stated reason.
+
+Payload and the fixed options blob read from `teng-lin/notebooklm-py` (MIT),
+cited in the code.
 
 ### v4.5.0 - Ranked passage search
 

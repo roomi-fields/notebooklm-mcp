@@ -85,6 +85,7 @@ import {
   type DiscoveredSource,
 } from '../rpc/extensions-rpc.js';
 import { ContentManager } from '../content/content-manager.js';
+import { toGeneratedContent } from '../content/artifact-overview.js';
 import { runBatchToVault, type BatchToVaultResult } from '../utils/vault-writer.js';
 import type {
   SourceUploadResult,
@@ -1867,6 +1868,29 @@ User: "Yes" → call remove_notebook`,
             description: 'A specific conversation. Defaults to the most recent one.',
           },
         },
+      },
+    },
+    {
+      name: 'retry_content',
+      description:
+        'Retry a Studio generation that failed, keeping the same content id. RPC-backed. ' +
+        'Prefer this over deleting and regenerating: that mints a new id and invalidates ' +
+        'every reference you were holding. The artifact goes back to generating; poll ' +
+        'list_content for the outcome. A retry can fail again on Google’s side.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          content_id: {
+            type: 'string',
+            description: 'The failed artifact’s id, as list_content reports it.',
+          },
+          notebook_url: { type: 'string', description: 'NotebookLM notebook URL.' },
+          notebook_id: {
+            type: 'string',
+            description: 'Notebook UUID (alternative to notebook_url).',
+          },
+        },
+        required: ['content_id'],
       },
     },
     {
@@ -3956,25 +3980,11 @@ export class ToolHandlers {
           const client = await this.getRpcClient();
           const srcs = await new NotebookRpc(client).getSources(lcNotebookId);
           const artifacts = await new StudioRpc(client).poll(lcNotebookId);
-          const TYPE_NAME: Record<number, ContentType> = {
-            1: 'audio_overview',
-            2: 'report',
-            3: 'video',
-            7: 'infographic',
-            8: 'presentation',
-            9: 'data_table',
-          };
-          const generatedContent = artifacts
-            .filter((a) => a.status === 'completed' && TYPE_NAME[a.typeCode])
-            .map((a) => ({
-              id: a.id,
-              type: TYPE_NAME[a.typeCode],
-              name: a.title || String(TYPE_NAME[a.typeCode]),
-              status: 'ready' as const,
-              createdAt: new Date().toISOString(),
-              url: a.mediaUrl,
-              content: a.textContent,
-            }));
+          // Everything the notebook holds, not only what finished: a failed
+          // generation used to be filtered out here, which made it look like
+          // it had never been asked for and left its id unreachable — so
+          // retry_content had nothing to be called with.
+          const generatedContent = toGeneratedContent(artifacts, new Date().toISOString());
           const overview: NotebookContentOverview = {
             sources: srcs.map((s) => ({
               id: s.id,
@@ -4823,6 +4833,48 @@ export class ToolHandlers {
   }
 
   /** Export a finished Studio artifact to Google Docs or Sheets. */
+  /**
+   * Retry a failed generation, keeping the same artifact id.
+   *
+   * The alternative callers reach for today is delete-and-regenerate, which
+   * mints a new id: every reference they were holding becomes stale. This
+   * keeps the id, so a poll loop or a stored reference survives the retry.
+   */
+  async handleRetryContent(args: {
+    notebook_url?: string;
+    notebook_id?: string;
+    content_id?: string;
+  }): Promise<
+    ToolResult<{ notebookId: string; contentId: string; status: string; retried: true }>
+  > {
+    log.info(`🔧 [TOOL] retry_content called`);
+    try {
+      if (!args.content_id) return { success: false, error: 'content_id is required' };
+      const notebookId = this.resolveNotebookId(args.notebook_url, args.notebook_id);
+      if (!notebookId) {
+        return { success: false, error: 'No notebook specified (notebook_url or notebook_id)' };
+      }
+      const result = await new StudioRpc(await this.getRpcClient()).retryArtifact(
+        notebookId,
+        args.content_id
+      );
+      log.success(`  ✅ (RPC) retry queued for ${result.artifactId} (${result.status})`);
+      return {
+        success: true,
+        data: {
+          notebookId,
+          contentId: result.artifactId,
+          status: result.status,
+          retried: true,
+        },
+      };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] retry_content failed: ${msg}`);
+      return { success: false, error: msg };
+    }
+  }
+
   async handleExportArtifact(args: {
     notebook_url?: string;
     notebook_id?: string;

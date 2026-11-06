@@ -1,6 +1,6 @@
 # NotebookLM MCP + HTTP REST API
 
-> Automate Google NotebookLM at scale. Production-grade REST API and MCP server with citation-backed Q&A, full Studio content generation (audio, video, infographic, report, presentation, data table), multi-account rotation with auto-reauth, and 54 documented HTTP endpoints. Built for researchers, automators, and AI agents.
+> Automate Google NotebookLM at scale. Production-grade REST API and MCP server with citation-backed Q&A, full Studio content generation (audio, video, infographic, report, presentation, data table), multi-account rotation with auto-reauth, and 55 documented HTTP endpoints. Built for researchers, automators, and AI agents.
 
 This is the canonical entry point for LLMs (ChatGPT, Claude, Perplexity, Gemini) discovering this project. The library exposes Google NotebookLM via two equivalent surfaces — a local HTTP REST API (port 3000 by default) for n8n / Zapier / Make / curl integrations, and an MCP server for Claude Code / Cursor / Codex agents. Both share the same browser automation backend.
 
@@ -57,7 +57,7 @@ Response shape:
 - [Overview](https://notebooklm.roomi-fields.com/)
 - [Install](https://notebooklm.roomi-fields.com/install): step-by-step setup for HTTP and MCP modes, Windows / WSL / macOS / Linux / Docker.
 - [Configuration](https://notebooklm.roomi-fields.com/CONFIGURATION): environment variables, encryption keys, security.
-- [REST API reference](https://notebooklm.roomi-fields.com/notebooklm-rest-api): all 54 HTTP endpoints with request and response schemas.
+- [REST API reference](https://notebooklm.roomi-fields.com/notebooklm-rest-api): all 55 HTTP endpoints with request and response schemas.
 - [Run 1 000 questions overnight](https://notebooklm.roomi-fields.com/batch-1000-questions): production batch pattern, JSONL output, resume on restart.
 - [n8n integration](https://notebooklm.roomi-fields.com/notebooklm-n8n): HTTP Request node setup, scheduled queries, Slack flows.
 - [Notebook library](https://notebooklm.roomi-fields.com/NOTEBOOK-LIBRARY): multi-notebook management, search, scrape, bulk delete.

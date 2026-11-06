@@ -756,6 +756,16 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case 'retry_content':
+            result = await this.toolHandlers.handleRetryContent(
+              args as {
+                notebook_url?: string;
+                notebook_id?: string;
+                content_id?: string;
+              }
+            );
+            break;
+
           case 'export_artifact':
             result = await this.toolHandlers.handleExportArtifact(
               args as {
