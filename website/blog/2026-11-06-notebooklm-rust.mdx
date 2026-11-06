@@ -15,8 +15,8 @@ keywords:
 ---
 
 Search crates.io for a NotebookLM client and you find one crate, `nblm-core`.
-It targets NotebookLM **Enterprise** — the Google Cloud product, not the one
-you log into with a personal account — it has not been published since
+It targets NotebookLM **Enterprise** — the Google Cloud product, not the
+Gemini Notebook you log into with a personal account — it has not been published since
 November 2025, and it served 41 downloads in the last ninety days. For the
 consumer product, the Rust shelf is empty.
 
@@ -32,7 +32,7 @@ of this problem is not HTTP.
 
 ## The part a crate cannot have
 
-Consumer NotebookLM has no public API. Everything any tool does, ours
+Consumer NotebookLM — Gemini Notebook, since the rename — has no public API. Everything any tool does, ours
 included, rides on the same internal endpoints the web app calls, and those
 require a logged-in Google session. Getting one means driving a real browser
 through a real login, and keeping it means three things that are easy to
@@ -322,6 +322,6 @@ If you want the pure crate anyway, that list is the work, and the first three
 items are the ones that will keep you busy after Google's next redesign. The
 REST route costs one process and gives you the rest today.
 
-The server is `npx -y @roomi-fields/notebooklm-mcp` and one setup command for
-the login; the [install guide](/install) has both, and the
+The server that owns the Gemini Notebook session is
+`npx -y @roomi-fields/notebooklm-mcp`, with one setup command for the login; the [install guide](/install) has both, and the
 [API reference](/notebooklm-rest-api) has the other 52.
