@@ -40,6 +40,26 @@ implementation and cite the source in the code, per `.claude/CLAUDE.md`.
 | Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                                   |
 | Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 50 with no filter.     |
 
+### From the Go tool, which is ahead of us on sources and notes
+
+`tmc/nlm` (MIT, 392 stars, active) covers several things we do not, and its
+source is readable. Same rule as `teng-lin/notebooklm-py`: read their code,
+cite the file in the comment, write our own implementation.
+
+| Capability                                                     | Where to read it                                                                  | Why it is worth it                                                                                      |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Idempotent local-directory sync, by content hash               | `nlmsync/files.go`, `cache.go`, `receipt.go`; `docs/dev/sync-receipts.md`         | Keeping a notebook equal to a folder is the request behind most "bulk import" asks. Re-running is free. |
+| Splitting an oversized file into chunked sources automatically | `nlmsync/autosplit.go`, `splitname.go`                                            | A source over the size limit currently fails and the caller has to cut it by hand.                      |
+| Selecting sources by name, label or regular expression         | `cmd/nlm/source_match.go`, `source_options.go`                                    | We take ids or exact titles. A pattern is what a batch run actually needs.                              |
+| Resolving a citation back to a local file and line             | `cmd/nlm/resolve_citations.go`                                                    | Turns a quotation into a position in the user's own tree — the thing that makes a citation checkable.   |
+| Rendering notes and answers to Markdown or HTML with excerpts  | `cmd/nlm/note_render_html.go`, `richrender_adapter.go`, `chat_render_markdown.go` | Our vault writer stores text; a rendered note keeps structure and the quoted passages.                  |
+| Generated labels, applied in bulk                              | `cmd/nlm/label_ingest.go`, `label_apply.go`, `nlmsync/labels.go`                  | We can create and list labels but not derive them.                                                      |
+| Flashcard export to Markdown, JSON, TSV or HTML                | `cmd/nlm/flashcard_export.go`                                                     | We generate study aids and then leave them inside the product.                                          |
+| Deep research as one self-contained Markdown document          | `cmd/nlm/research.go`, `command_specs_research.go`                                | We return the event stream; a single document is what a reader wants.                                   |
+
+They are missing mind-map export and native type-9 flashcards, which we have —
+so this is a trade, not a catch-up.
+
 ### Onboarding — the conversion half of being found
 
 Being placed where people search is wasted if arriving is hard. The competitor
