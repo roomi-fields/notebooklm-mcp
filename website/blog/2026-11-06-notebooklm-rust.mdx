@@ -30,6 +30,22 @@ of this problem is not HTTP.
 > applies to both — the two names are used interchangeably here because that
 > is how people still search for it.
 
+## There is one now
+
+Everything below is also packaged, as the [`notebooklm`](https://crates.io/crates/notebooklm)
+crate, built from the same repository as the server
+([documentation](https://docs.rs/notebooklm)):
+
+```toml
+[dependencies]
+notebooklm = "4.6"
+```
+
+It gives you the client from this post with its types, a `blocking` feature
+for programs with no runtime, and the manual call for everything the typed
+surface does not cover. The rest of this post is why it is shaped the way it
+is — worth reading before you depend on it, because the shape is the argument.
+
 ## The part a crate cannot have
 
 Consumer NotebookLM — Gemini Notebook, since the rename — has no public API. Everything any tool does, ours

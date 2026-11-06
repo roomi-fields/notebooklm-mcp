@@ -197,8 +197,9 @@ running. Details: [REST API reference → `GET /utcp`](./deployment/docs/03-API.
 ### Rust client
 
 A typed async client lives in this repository at
-[`crates/notebooklm-client`](./crates/notebooklm-client), and publishes to
-crates.io as **`notebooklm`** with each release. It covers reading and asking —
+[`crates/notebooklm-client`](./crates/notebooklm-client) and is published as
+[**`notebooklm`**](https://crates.io/crates/notebooklm) on crates.io
+([docs](https://docs.rs/notebooklm)), one version per release. It covers reading and asking —
 health, the library, questions with their quotations, passage search, a
 source's indexed text — and returns the UTCP manual for everything else.
 
