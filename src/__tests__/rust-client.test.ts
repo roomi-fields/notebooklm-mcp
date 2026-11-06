@@ -77,6 +77,51 @@ describe('the guards around it', () => {
   });
 });
 
+/**
+ * The one thing the release chain cannot do for the crate.
+ *
+ * A new REST route propagates to the OpenAPI specification and the UTCP manual
+ * by itself, and `facts:check` fails if it does not. It does NOT become a
+ * typed Rust method — those are hand-written, and a route added tomorrow
+ * reaches a Rust caller through `manual()`, not through the typed surface.
+ *
+ * That boundary is a choice, and an undocumented choice is how a
+ * hand-maintained copy starts rotting. So the typed surface is pinned here:
+ * adding a method means adding it to this list, and losing one fails the
+ * build instead of passing unnoticed.
+ */
+describe('the typed surface, which no generator maintains', () => {
+  const client = read(`${CRATE}/src/client.rs`);
+  const methods = [...client.matchAll(/pub async fn (\w+)/g)].map((m) => m[1]).sort();
+
+  it('is exactly the subset the crate claims to cover', () => {
+    expect(methods).toEqual([
+      'ask',
+      'health',
+      'library',
+      'manual',
+      'search_passages',
+      'source',
+      'sources',
+    ]);
+  });
+
+  it('offers every typed call in the blocking façade too', () => {
+    const blocking = read(`${CRATE}/src/blocking.rs`);
+    for (const method of methods) {
+      expect(blocking).toContain(`pub fn ${method}(`);
+    }
+  });
+
+  it('tells readers where the other operations are', () => {
+    // Without this sentence a reader would take the seven methods for the
+    // whole API and conclude the rest is unreachable from Rust.
+    // The sentence wraps across two doc-comment lines, prefix included.
+    expect(read(`${CRATE}/src/lib.rs`)).toMatch(/56 operations in(\s|\n|\/\/!)*all/);
+    expect(read(`${CRATE}/README.md`)).toMatch(/56 operations in all/);
+  });
+});
+
 describe('what the crate promises in its own documentation', () => {
   const lib = read(`${CRATE}/src/lib.rs`);
 
