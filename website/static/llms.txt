@@ -44,11 +44,17 @@ Response shape:
 ```json
 {
   "success": true,
-  "answer": "Chapter 3 covers …",
-  "citations": [
-    { "id": 1, "source": "thesis-ch3.pdf", "excerpt": "..." }
-  ],
-  "session_id": "..."
+  "data": {
+    "status": "success",
+    "question": "Summarize chapter 3",
+    "answer": "Chapter 3 covers …",
+    "session_id": "...",
+    "sources": {
+      "format": "json",
+      "citations": [{ "marker": "[1]", "number": 1, "sourceText": "..." }],
+      "extraction_success": true
+    }
+  }
 }
 ```
 
@@ -94,6 +100,9 @@ actually ask, states its limits, and names alternatives fairly.
 - [NotebookLM in n8n, Zapier and Make](https://notebooklm.roomi-fields.com/blog/notebooklm-n8n-zapier-make): no connector exists; the local HTTP endpoint workaround and where it must run.
 - [Running across multiple Google accounts](https://notebooklm.roomi-fields.com/blog/notebooklm-multiple-google-accounts): rotation multiplies a compute budget, not a quota; where sessions live and why they do not travel.
 - [Your MCP server is probably listening on 0.0.0.0](https://notebooklm.roomi-fields.com/blog/mcp-server-listening-on-0-0-0-0): our own advisory, why loopback alone is not enough, and the three controls.
+- [Calling NotebookLM from a UTCP client](https://notebooklm.roomi-fields.com/blog/notebooklm-utcp): UTCP is the inverse of MCP — no protocol server; the manual, the client code, and why an OpenAPI operation without an `operationId` silently disappears.
+- [Using NotebookLM from Python](https://notebooklm.roomi-fields.com/blog/notebooklm-python): no official SDK; the local REST endpoint, citations as JSON, retrieval that spends nothing, and overnight batching.
+- [A literature review an agent can actually run](https://notebooklm.roomi-fields.com/blog/notebooklm-literature-review-agent): the four-step MCP loop — survey, retrieve, ask, store — and the habits that keep a long review inside the compute allowance.
 
 ## Optional
 

@@ -1,0 +1,167 @@
+---
+title: 'Calling NotebookLM from a UTCP client'
+description: 'UTCP is the inverse of MCP: no protocol server, no wrapper process. The client reads a manual once and calls the REST API itself. Here is what that looks like against NotebookLM, and the one thing that silently breaks it.'
+slug: notebooklm-utcp
+authors: [romain]
+tags: [notebooklm, utcp, mcp, rest-api]
+keywords:
+  - notebooklm utcp
+  - utcp example
+  - utcp vs mcp
+  - utcp openapi
+  - universal tool calling protocol
+  - notebooklm api
+---
+
+MCP gives an agent a server to talk to. UTCP — the Universal Tool Calling
+Protocol — gives it a **description** and gets out of the way. There is no
+protocol server, no wrapper process, no second hop: the client reads a manual
+once at startup, and from then on it calls your API directly, the way any
+other HTTP client would.
+
+That difference is the whole protocol, and it decides what "supporting UTCP"
+means. It is not something you implement. It is something you **publish**.
+
+{/* truncate */}
+
+## What does a UTCP client actually need from you?
+
+A manual: a JSON document listing the tools, their inputs, and for each one
+the request to make. Ours is at `GET /utcp` on a running server, and
+published statically at
+[notebooklm.roomi-fields.com/utcp.json](https://notebooklm.roomi-fields.com/utcp.json)
+for a client configured before the server is up.
+
+```bash
+curl -H "X-API-Key: $NOTEBOOKLM_API_KEY" http://localhost:3000/utcp
+```
+
+One tool out of the 56, trimmed:
+
+```json
+{
+  "name": "search_passages",
+  "description": "Ranked passages from the notebook's index, without generating an answer",
+  "inputs": { "type": "object", "properties": { "id": { "type": "string" } } },
+  "tool_call_template": {
+    "call_template_type": "http",
+    "http_method": "POST",
+    "url": "http://localhost:3000/notebooks/{id}/search",
+    "body_field": "body",
+    "auth": {
+      "auth_type": "api_key",
+      "api_key": "${NOTEBOOKLM_API_KEY}",
+      "var_name": "X-API-Key",
+      "location": "header"
+    }
+  }
+}
+```
+
+Nothing in there is a protocol endpoint. `url` is the same REST route a `curl`
+would hit. The manual is a map, not a door.
+
+## What does the client code look like?
+
+With the reference Python implementation:
+
+```bash
+pip install utcp utcp-http
+```
+
+```python
+from utcp.utcp_client import UtcpClient
+
+client = await UtcpClient.create(config={
+    "variables": {"NOTEBOOKLM_API_KEY": "your-key"},
+    "manual_call_templates": [{
+        "name": "notebooklm",
+        "call_template_type": "http",
+        "url": "http://localhost:3000/utcp",
+        "auth": {
+            "auth_type": "api_key",
+            "api_key": "${NOTEBOOKLM_API_KEY}",
+            "var_name": "X-API-Key",
+            "location": "header",
+        },
+    }],
+})
+
+result = await client.call_tool("notebooklm.search_passages", {
+    "id": "your-notebook-id",
+    "body": {"query": "sampling bias", "limit": 5},
+})
+
+await client.close()
+```
+
+Tool names are namespaced by the manual, so it is
+`notebooklm.search_passages`. The `${NOTEBOOKLM_API_KEY}` in the published
+manual is resolved by the client from its own `variables` or environment —
+**the key is never in the document anyone can fetch.**
+
+## Why not just point it at the OpenAPI spec?
+
+You can, and it works: the HTTP transport converts an OpenAPI document — JSON
+or YAML — when what it fetched is not a manual. Our
+[spec](https://notebooklm.roomi-fields.com/openapi.yaml) is served publicly,
+so this is a one-line config.
+
+Two things make the manual the better target, and the first one is the trap.
+
+**Every operation needs an `operationId`, or it disappears.** The converter
+builds a tool per operation and skips any that has no identifier. Until
+November 2026 none of our 56 had one, which meant a client pointed at our
+specification found **zero tools** — not badly named tools, none at all. It
+failed quietly, because an empty manual is a perfectly valid manual. If you
+are publishing a spec for this purpose, that is the thing to check first.
+
+**Authentication may not survive conversion.** Our spec declares a bearer
+scheme; the converter maps `apiKey`, `basic` and `oauth2` and not that one, so
+every converted call goes out unauthenticated and comes back 401 against a
+key-protected server. The published manual declares `X-API-Key` instead, which
+the server accepts alongside the bearer form.
+
+## Is the specification stable enough to hand-write a manual?
+
+Not quite, and this is worth knowing before you write one by hand. The RFC is
+marked Draft 1.0.0 while the documentation site is at 1.1, and **the two
+disagree on field names** — one calls the per-tool descriptor
+`tool_transport` with a `transport_type`, the other `tool_call_template` with
+a `call_template_type`. The page aimed at tool providers 404s.
+
+We resolved it by reading the reference client's source rather than its prose:
+the code uses `tool_call_template` and `call_template_type`. If you generate
+your manual from a spec you already maintain, a rename costs you one script
+change. If you hand-write 56 of them, it costs you an afternoon.
+
+## When is UTCP the wrong choice?
+
+- **When you want sampling, prompts, or anything stateful.** UTCP calls your
+  API. MCP has a session and a richer surface; if you need that, use MCP.
+- **When your API is not already a good API.** UTCP publishes what you have.
+  A confusing REST surface becomes a confusing tool list — MCP at least lets
+  you design a façade in between.
+- **When your auth is anything unusual.** The client models API keys, basic
+  and OAuth2. Signed requests or per-call tokens have no slot.
+- **When nothing you use speaks it yet.** The ecosystem is young. Publishing a
+  manual costs little, so it is a reasonable bet — but it is a bet.
+
+For NotebookLM specifically, all three interfaces reach the same backend: the
+[REST API](/notebooklm-rest-api) for workflows, MCP for agents in a host, UTCP
+for a client that would rather not run one.
+
+## Trying this one
+
+```bash
+git clone https://github.com/roomi-fields/notebooklm-mcp.git
+cd notebooklm-mcp && npm install && npm run build
+npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth
+HTTP_PORT=3000 node dist/http-wrapper.js
+curl http://localhost:3000/utcp
+```
+
+Node 22 or newer. The manual is generated from the specification on every
+release, so it describes the version you are actually running. Full route
+documentation is in [the API reference](/notebooklm-rest-api); if you would
+rather run an agent host, [start here](/notebooklm-from-claude-code) instead.

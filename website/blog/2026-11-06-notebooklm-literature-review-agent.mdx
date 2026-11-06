@@ -1,0 +1,137 @@
+---
+title: 'A literature review an agent can actually run'
+description: 'Ask, cite, store, move on. The MCP loop that turns NotebookLM into a research assistant an agent drives on its own — and the three habits that stop it burning the compute allowance by lunchtime.'
+slug: notebooklm-literature-review-agent
+authors: [romain]
+tags: [notebooklm, mcp, research, citations, claude-code]
+keywords:
+  - notebooklm literature review
+  - notebooklm mcp
+  - ai research assistant citations
+  - notebooklm claude code
+  - automated literature review
+---
+
+An agent with a web search tool writes a literature review that sounds right.
+An agent with your own sources writes one you can check. The difference is
+not the model — it is whether every claim comes back with the passage it came
+from.
+
+That is the job MCP is good at here: the agent is already in a conversation
+with you, it already has a plan, and it needs a tool that answers **from your
+documents** and hands back the evidence. Here is the loop that works, and the
+parts that waste your allowance if you skip them.
+
+{/* truncate */}
+
+## What does the loop look like?
+
+Four moves, in this order:
+
+1. **Survey the sources** — `list_sources`, then `get_source_guide` on the
+   ones that matter. The guide is NotebookLM's own summary and key topics for
+   a single document, so the agent learns what is in the notebook without
+   reading it.
+2. **Retrieve before asking** — `search_passages` returns ranked passages for
+   a query. Nothing is generated, so **nothing is spent**.
+3. **Ask only the questions retrieval cannot answer** — `ask_question` with
+   `source_format: "json"`, so the answer arrives with its citations as data
+   rather than as markers in prose.
+4. **Store the answer** — `batch_to_vault` writes each answer as markdown plus
+   a JSON sidecar, which means the next session can read it instead of
+   re-asking.
+
+Step 2 is the one people skip, and it is the one that decides whether the
+review finishes.
+
+## Why retrieve before asking?
+
+Because NotebookLM meters compute on a rolling five-hour window, not a count
+of questions. Every generated answer draws on that allowance; retrieval does
+not generate anything.
+
+Most of what a literature review needs is retrieval. _Where does this author
+discuss selection effects?_ is a search. _Reconcile these two authors'
+positions on selection effects_ is a question. An agent that asks the first
+kind as a question will run out of allowance before it reaches the second.
+
+In practice: ask for the evidence when you intend to reason over it yourself —
+and an agent is a thing that reasons over evidence.
+
+## What does "citations as data" buy you?
+
+A citation you can act on rather than read. With `source_format: "json"` each
+answer comes back with a `citations` array carrying the marker, its number,
+and the cited passage text. The agent can then:
+
+- drop a claim whose citation came back empty, rather than keeping a sentence
+  nobody can trace;
+- group claims by source document, which is what a review's structure
+  actually is;
+- diff two notebooks on the same question and see which sources disagree.
+
+The web app shows citations as clickable markers and exports none of them —
+[how we get them back](/blog/notebooklm-citations-as-json) is its own story.
+
+## How do you keep a long review from falling over?
+
+Three habits, each earned the hard way.
+
+**Store every answer the first time.** The expensive step is NotebookLM, not
+your disk. A vault directory of markdown plus sidecars means a session that
+dies at question 60 resumes at 61. It also means the review becomes
+searchable offline, which is the [RTFM pattern](/notebooklm-rtfm).
+
+**Keep one session for a line of questioning.** Questions in a session carry
+the context of the previous ones, so a follow-up does not need to restate the
+setup. Start a new session when you change subject, not when you change
+question.
+
+**Use a dedicated Google account, and more than one if the volume is real.**
+Rotation multiplies the allowance and re-authenticates on its own —
+[how that works](/notebooklm-multi-account). Do not run a long batch on the
+account you use for everything else.
+
+## Does the agent need to be Claude Code?
+
+No. It is an MCP server, so any MCP host reaches it — Claude Code, Cursor,
+Codex. [Setup is three commands](/blog/notebooklm-from-claude-code).
+
+If you would rather not run an agent host at all, the same 56 operations are
+reachable two other ways: as a [plain REST API](/notebooklm-rest-api) from
+any language, or as a [UTCP manual](/blog/notebooklm-utcp) a client reads and
+then calls directly, with no protocol server in between. Same backend, same
+notebooks; pick the one that matches how your code is already shaped.
+
+## When is this the wrong tool?
+
+- **When the sources are not yours.** This answers from documents you put in a
+  notebook. It is not a discovery tool for literature you have not found yet.
+- **When you need exhaustive recall.** Retrieval returns what ranks well, not
+  everything that matches. For a systematic review with inclusion criteria,
+  this is one input, not the method.
+- **When the notebook is still indexing.** A freshly uploaded source answers
+  with no passages. That is an empty result, not an error, and an agent should
+  be told to treat it as "wait", not "nothing there".
+- **When you need an official, supported API.** This drives the same
+  undocumented interfaces the web app uses —
+  [what Google actually publishes](/blog/does-notebooklm-have-an-api).
+
+## Trying this one
+
+In Claude Code, via the marketplace:
+
+```text
+/plugin marketplace add roomi-fields/claude-plugins
+/plugin install notebooklm@roomi-fields
+```
+
+Then once, in a terminal, to log into Google:
+
+```bash
+npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth
+```
+
+Node 22 or newer. The bundled skill teaches the agent the loop above — the
+citation formats, when to search instead of ask, and the store-once pattern —
+so you do not have to re-explain it each session.

@@ -1,0 +1,161 @@
+---
+title: 'Using NotebookLM from Python'
+description: 'There is no official Python SDK for consumer NotebookLM. The practical route is a local REST endpoint you call like any other API — with citations as JSON, Studio generation, and batching that respects the compute allowance.'
+slug: notebooklm-python
+authors: [romain]
+tags: [notebooklm, python, rest-api, automation, citations]
+keywords:
+  - notebooklm python
+  - notebooklm python api
+  - notebooklm rest api
+  - notebooklm automation python
+  - notebooklm citations json
+---
+
+The NotebookLM automation projects that work tend to be written in Python,
+and ours is not — it is TypeScript. That turns out not to matter, because the
+thing you integrate against is an HTTP endpoint on `localhost`, and Python
+talks to those perfectly well.
+
+There is no official SDK for the consumer product. What there is: a local
+server you run, and ordinary `requests` calls into it.
+
+{/* truncate */}
+
+## What does the minimal call look like?
+
+Start the server once, then:
+
+```python
+import requests
+
+BASE = "http://localhost:3000"
+HEAD = {"X-API-Key": "your-key"}   # only needed if you set NOTEBOOKLM_API_KEY
+
+r = requests.post(f"{BASE}/ask", headers=HEAD, json={
+    "question": "What does chapter 3 conclude about sampling bias?",
+    "notebook_id": "your-notebook-id",
+    "source_format": "json",
+})
+data = r.json()["data"]
+
+print(data["answer"])
+for c in data["sources"]["citations"]:
+    print(f'{c["marker"]} {c["sourceText"][:120]}')
+```
+
+Every route answers in the same envelope — `{"success": ..., "data": ...}` on
+the way out, `{"success": false, "error": "..."}` when something went wrong —
+so one helper around `requests` covers all 56 of them.
+
+`source_format: "json"` is the part worth remembering. Without it you get the
+answer as prose with citation markers in it; with it you get the source names
+and the cited passages as data you can file, diff, or put in a table. The web
+app exports none of that — [how that extraction works](/blog/notebooklm-citations-as-json).
+
+## How do I get evidence without spending an answer?
+
+This is the call most people miss. Asking a question costs compute; retrieving
+passages does not generate anything.
+
+```python
+r = requests.post(f"{BASE}/notebooks/{nb}/search", headers=HEAD, json={
+    "query": "sampling bias",
+    "limit": 5,
+})
+for p in r.json()["data"]["passages"]:
+    print(p["rank"], p["sourceId"], "—", p["text"][:160])
+```
+
+Two properties of that reply are easy to misread. **Rank is global across the
+whole notebook while the server groups the reply by source**, so the order on
+the wire is not the ranking — we sort before applying `limit`, but if you
+decode the RPC yourself, do not take the first N off the wire. And a passage
+that starts at offset zero arrives with the slot **absent** rather than set to
+`0`, so `start` and `end` are `null` when the server did not give them;
+guessing a zero is how a quote ends up attributed to the top of a long
+document.
+
+When what you actually want is the evidence, and the reasoning is going to
+happen in your own code or your own model, ask for the passages rather than
+for prose. On a free account metered by a rolling compute allowance, that is
+the difference between a pipeline that finishes and one that stalls halfway.
+
+## How do I run a few hundred questions overnight?
+
+Not with a `for` loop around `/ask`, or at least not naively. Two things bite:
+the allowance, and the fact that you will want the results on disk in a form
+you can search later.
+
+```python
+r = requests.post(f"{BASE}/batch-to-vault", headers=HEAD, json={
+    "notebook_id": nb,
+    "questions": ["...", "...", "..."],
+    "vault_dir": "/home/me/research/vault",
+    "slug_prefix": "thesis",
+    "sleep_between_ms": 2000,
+})
+```
+
+Each answer lands as markdown with a JSON sidecar carrying the citations, in a
+documented schema. The pattern that pays is **answer once, then store** — the
+expensive step is NotebookLM, so re-asking the same question on every run
+spends your allowance for nothing. The
+[overnight batch guide](/batch-1000-questions) covers the rotation and
+auto-reauth side.
+
+## What about audio overviews and the rest of Studio?
+
+Same shape, one call:
+
+```python
+requests.post(f"{BASE}/content/generate", headers=HEAD, json={
+    "notebook_url": nb_url,             # this route takes the URL, not the id
+    "content_type": "audio_overview",   # or report, video, infographic,
+    "language": "en",                   # presentation, data_table
+})
+```
+
+Generation is asynchronous on NotebookLM's side; poll `GET /content` for the
+status and the download URL. A failed generation keeps its id, so
+`POST /content/{id}/retry` re-queues it in place rather than minting a new one
+your poll loop has never heard of.
+
+## Should this have been written in Python?
+
+Honest answer: the browser fallback is why it is not. The RPC path handles
+nearly everything now, but login, re-authentication and the fallback transport
+drive a real Chromium, and the mature driver for that is Node's. Rewriting in
+Python would mean reimplementing the half that is hardest to test, to gain an
+import statement that `requests` already replaces.
+
+So the split is deliberate: the engine is Node, the integration surface is
+HTTP, and your pipeline stays in whatever language it was already in.
+
+## When is this the wrong approach?
+
+- **When you need millisecond latency.** An answer takes seconds. Do not put
+  it in a request path a user is waiting on.
+- **When you would expose the server publicly to reach it.** It binds loopback
+  and refuses a wider address without a key, deliberately. Move the consumer,
+  not the server. See [securing the API](/security).
+- **When a plain Gemini API call would do.** If you do not need grounding in
+  your own documents, none of this earns its complexity.
+- **When you need an official, supported contract.** This drives the same
+  undocumented interfaces the web app uses. They move; we fix. That is a
+  different risk profile from a GA API —
+  [what Google actually publishes](/blog/does-notebooklm-have-an-api).
+
+## Trying this one
+
+```bash
+git clone https://github.com/roomi-fields/notebooklm-mcp.git
+cd notebooklm-mcp && npm install && npm run build
+npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth
+HTTP_PORT=3000 node dist/http-wrapper.js
+```
+
+Node 22 or newer for the server; any Python for the client. All 56 routes are
+in [the API reference](/notebooklm-rest-api), and the OpenAPI 3.1
+specification is [published](https://notebooklm.roomi-fields.com/openapi.yaml)
+if you would rather generate a client than write one.
