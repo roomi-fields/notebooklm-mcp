@@ -698,7 +698,7 @@ paths:
                 notebook_id: { type: string }
                 notebook_url: { type: string }
       responses:
-        '200': { description: Retry queued, with the unchanged id and new status }
+        '200': { description: 'Retry queued, with the unchanged id and new status' }
 
   /content/{artifactId}/export:
     post:
@@ -725,7 +725,7 @@ paths:
                 target: { type: string, enum: [docs, sheets], default: docs }
                 title: { type: string, default: Export }
       responses:
-        '200': { description: The export, with the document link when sent }
+        '200': { description: 'The export, with the document link when sent' }
 
   /content/{artifactId}/revise-slide:
     post:
@@ -938,7 +938,7 @@ paths:
                 session_id: { type: string }
               required: [questions]
       responses:
-        '200': { description: Batch result, one entry per question }
+        '200': { description: 'Batch result, one entry per question' }
 
   /content/notes/list:
     post:

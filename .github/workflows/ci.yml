@@ -42,6 +42,15 @@ jobs:
       - name: Run type coverage
         run: npx type-coverage --at-least 95
 
+      # The published specification is what an AI client fetches and what a
+      # code generator reads. Ours was invalid for months and nothing noticed:
+      # three response descriptions contained an unquoted comma inside a flow
+      # mapping, so YAML split them into a second, meaningless key and every
+      # generator refused the document outright. Our own guards only ever
+      # counted routes.
+      - name: Validate the OpenAPI specification
+        run: npx --yes @redocly/cli@1.34.3 lint deployment/docs/openapi.yaml --format=stylish
+
       # Bundled skills are published twice on purpose (standalone repo for
       # discovery + bundled copy so plugin installs ship them). Fail loudly if
       # the copies drift. One node version is enough — it is a network check.
