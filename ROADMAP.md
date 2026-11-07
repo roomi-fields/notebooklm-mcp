@@ -80,6 +80,22 @@ because the appended site name made every one of them 71 to 117 characters.
 | Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                                   |
 | Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 50 with no filter.     |
 
+### Reach — a remote MCP transport we do not have
+
+Found while assessing `VoidenHQ/voiden` (1 785 stars, Apache-2.0, an offline git-native
+API client that is also an MCP client). Its MCP client speaks **streamable HTTP only**
+(`StreamableHTTPClientTransport`), and so does every other remote MCP consumer: hosted
+agent platforms, web-based connectors, workflow runners that call an MCP server over the
+network. Our server speaks **stdio only** — `src/index.ts` and `src/stdio-http-proxy.ts`
+both sit on a stdio transport, while our HTTP surface is the REST API, not MCP. So any
+client that cannot spawn a local process cannot use us at all, whatever the directory
+listings say.
+
+| Item                                                     | Notes                                                                                                                                                                                                   |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MCP over streamable HTTP, mounted on the existing server | One route on the wrapper, reusing the token, the host guard and the origin check that 4.0.0–4.4.0 put there. The tool definitions and the dispatch switch already exist; only the transport is missing. |
+| Say which transports we speak, where we are listed       | Directories and our own docs imply a network-reachable server. Today that is only true of the REST API.                                                                                                 |
+
 ### From the Go tool, which is ahead of us on sources and notes
 
 `tmc/nlm` (MIT, 392 stars, active) covers several things we do not, and its
