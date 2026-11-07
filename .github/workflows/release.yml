@@ -284,8 +284,20 @@ jobs:
         working-directory: nodes/n8n-nodes-gemini-notebook
         run: npm install && npm run build
 
+      # npm's CLI prefers OIDC and falls back to a token only when no trusted
+      # publisher exists for the package. A publisher cannot be configured for
+      # a package npm has never seen — its settings page does not exist yet —
+      # so the first publish of this name needs one throwaway granular token
+      # in `NPM_TOKEN`.
+      #
+      # BOOTSTRAP ONLY. After the first successful publish: configure the
+      # trusted publisher on npmjs.com for this workflow file, delete the
+      # `NPM_TOKEN` secret, and revoke the token. OIDC then takes over and this
+      # variable goes inert — it is read only when the secret exists.
       - name: Publish
         working-directory: nodes/n8n-nodes-gemini-notebook
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
 
   # Publish server.json to the official MCP Registry. Separate job so a registry

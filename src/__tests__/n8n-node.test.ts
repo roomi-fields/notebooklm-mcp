@@ -118,12 +118,19 @@ describe('the release that publishes it', () => {
     expect(release).toContain('npm publish --provenance --access public');
   });
 
-  it('publishes without storing a token', () => {
+  it('prefers OIDC, and names its one bootstrap secret as temporary', () => {
     const job = release.slice(
       release.indexOf('publish-n8n-node:'),
       release.indexOf('publish-registry:')
     );
-    expect(job).not.toMatch(/secrets\.|NODE_AUTH_TOKEN/);
+    // npm cannot be given a trusted publisher for a package it has never
+    // seen, so the first publish of a new name needs one throwaway token.
+    // The guard is not "no secret" but "no undocumented secret": the only one
+    // allowed is NPM_TOKEN, and the job must say it is to be revoked.
+    const secrets = [...job.matchAll(/secrets\.(\w+)/g)].map((m) => m[1]);
+    expect([...new Set(secrets)]).toEqual(['NPM_TOKEN']);
+    expect(job).toContain('BOOTSTRAP ONLY');
+    expect(job).toMatch(/revoke the token/);
     expect(job).toContain("node-version: '24'");
   });
 
