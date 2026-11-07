@@ -17,6 +17,46 @@ Sources for the imported items: a read of `teng-lin/notebooklm-py` v0.8.5
 Both are MIT-ish prior art for protocol facts only — we write our own
 implementation and cite the source in the code, per `.claude/CLAUDE.md`.
 
+### Search — where we can actually break through (measured 2026-11-07)
+
+Search Console, first reading: **187 impressions, 0 clicks in 28 days**, and the one
+query with volume, `notebooklm mcp`, sits at **position 93**. Three sources were crossed
+to find out what to do about it: our own impressions, a harvest of Google's autocomplete
+(669 suggestions from 22 seeds, `~/.local/share/mcp-competitor-tracker/suggest.mjs` —
+rank and presence, not volume), and who actually ranks today.
+
+**What owns this results page is not documentation.** It is package-registry pages
+(PyPI × 4 for `notebooklm-py`, npm, now crates.io and RubyGems), MCP directories
+(lobehub, conare, enterprisedna, mcp.directory, glama) and question-shaped blog posts.
+Two findings follow from that, and both are about us:
+
+- **We are outranked by copies of ourselves.** For `notebooklm n8n`, Google returns
+  three `glama.ai` mirrors of our own `04-N8N-INTEGRATION.md` and the retired
+  `roomi-fields.github.io` URL — not the documentation site. Directory mirrors carry
+  more authority than a three-week-old domain, and nothing canonical says otherwise.
+- **A registry page is an SEO asset**, so each package's description and README are
+  worth as much care as a documentation page. All four now link to the documentation
+  site (they pointed at the repository until 4.7.0).
+
+**The gaps, ranked by intent × how well we answer them:**
+
+| Query family (autocomplete rank)                                                                                                          | Who answers it today                                                            | What we need                                                                                                                                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `does gemini notebook have an api` (8), `notebooklm unofficial api` (0), `notebooklm api key` (1), `gemini notebook api pricing` (2)      | a Portuguese blog, a RAG vendor, a Google forum thread                          | **One explainer**: there is no consumer API, the Enterprise one needs 15 licences, and a local server is the third option. Highest intent in the whole space, and we are literally the answer.   |
+| `gemini notebook mcp` (0), `+ server` (1), `+ cli` (2), `+ for claude` (3), `+ github` (4)                                                | `jacob-bd/gemini-notebook-mcp-cli` — **the new name is in his repository name** | A page titled on the new name. The home page now carries both; the rebrand query family is growing and we are invisible in it.                                                                   |
+| `notebooklm n8n node` (2), `n8n nodes notebooklm sdk` (3)                                                                                 | nobody — the results are Fiverr gigs                                            | People want a **node**, not a webhook recipe. A community `n8n-nodes-notebooklm` package is its own registry, its own listing and its own query family.                                          |
+| `notebooklm javascript` (0), `notebooklm nodejs` (1), `notebooklm node` (2)                                                               | nobody                                                                          | Uncontested, and we _are_ the npm package. One page, in the language of the query.                                                                                                               |
+| `notebooklm python` (0), `+ sdk` (8), `+ library` (5)                                                                                     | `notebooklm-py` owns PyPI with ~16k stars                                       | Not winnable head-on. Worth one honest comparison page, not a client.                                                                                                                            |
+| `notebooklm rust` (0), `golang notebooklm` (0)                                                                                            | nobody — we are now the only Rust client                                        | Already shipped; the crates.io page is the ranking asset. Go is open.                                                                                                                            |
+| `notebooklm exporter` (0), `notebooklm scraper` (0), `export sources` (6), `export flashcards` (7), `export quiz` (5), `batch delete` (0) | Chrome extensions                                                               | We do all of it except flashcard export — which is already in the Go-tool list above. One page per export, named as the query.                                                                   |
+| `notebooklm agent skill` (1), `notebooklm claude skill` (3), `notebooklm claude code` (2)                                                 | nobody with a published repository                                              | **The skill is built and unpublished.** A published skill repository is both a ranking page and the funnel the competitor's own numbers argue for (his skill outranks his server more than 2:1). |
+
+**What was already fixed on the day of the measurement:** the repository's Website field
+still pointed at the retired github.io address; npm, RubyGems and the plugin manifest
+pointed at the repository rather than the documentation; the subdomain's sitemap had
+never been submitted; and all seventeen documentation titles were truncated by Google
+because the appended site name made every one of them 71 to 117 characters.
+
 ### Next — the one row the previous batch could not ship
 
 | Tool                   | RPC id                       | Why it is still here                                                                                                                                                                                                                                                                                                                                         |
