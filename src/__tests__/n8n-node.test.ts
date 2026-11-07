@@ -128,7 +128,9 @@ describe('the release that publishes it', () => {
     // The guard is not "no secret" but "no undocumented secret": the only one
     // allowed is NPM_TOKEN, and the job must say it is to be revoked.
     const secrets = [...job.matchAll(/secrets\.(\w+)/g)].map((m) => m[1]);
-    expect([...new Set(secrets)]).toEqual(['NPM_TOKEN']);
+    // Not NPM_TOKEN: that secret still holds the Automation token this project
+    // stopped reading, and an expired one answers 404 rather than 401.
+    expect([...new Set(secrets)]).toEqual(['NPM_TOK2']);
     expect(job).toContain('BOOTSTRAP ONLY');
     expect(job).toMatch(/revoke the token/);
     expect(job).toContain("node-version: '24'");
