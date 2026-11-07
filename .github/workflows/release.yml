@@ -312,7 +312,7 @@ jobs:
       - name: Publish
         working-directory: nodes/n8n-nodes-gemini-notebook
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOK2 }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
 
   # Publish server.json to the official MCP Registry. Separate job so a registry
