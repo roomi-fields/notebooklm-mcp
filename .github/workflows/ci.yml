@@ -162,6 +162,58 @@ jobs:
         working-directory: gems/notebooklm
         run: gem build notebooklm.gemspec
 
+  # The n8n community node ships from this repository too. n8n's verification
+  # rules are strict about the package — the `n8n-community-node-package`
+  # keyword, no runtime dependency, one service per package — so the package is
+  # checked here rather than at submission time.
+  n8n:
+    name: n8n community node
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The node's surface is generated from the specification. A hand edit
+      # would be silently overwritten on the next release, so it fails here
+      # instead.
+      - name: Check the node matches the specification
+        run: npm ci --ignore-scripts && npm run n8n:check
+
+      - name: Build
+        working-directory: nodes/n8n-nodes-notebooklm
+        run: npm install && npm run build
+
+      # A node n8n cannot load is a node nobody can install, and finding that
+      # out during a release is finding out too late.
+      - name: Check the package n8n will load
+        working-directory: nodes/n8n-nodes-notebooklm
+        run: |
+          set -euo pipefail
+          node -e "
+            const assert = require('node:assert');
+            const pkg = require('./package.json');
+            assert(pkg.keywords.includes('n8n-community-node-package'), 'the community keyword is required');
+            assert(pkg.name.startsWith('n8n-nodes-'), 'the package name must start with n8n-nodes-');
+            assert(pkg.n8n.n8nNodesApiVersion === 1, 'n8nNodesApiVersion must be 1');
+            assert(!pkg.dependencies, 'a verified node carries no runtime dependency');
+            for (const f of [...pkg.n8n.nodes, ...pkg.n8n.credentials]) require('fs').accessSync(f);
+            const { NotebookLm } = require('./dist/nodes/NotebookLm/NotebookLm.node.js');
+            const node = new NotebookLm();
+            const ops = node.description.properties.filter((p) => p.name === 'operation');
+            const total = ops.reduce((n, p) => n + p.options.length, 0);
+            assert.equal(total, 56, 'expected 56 operations, found ' + total);
+            console.log('the node declares ' + total + ' operations across ' + ops.length + ' resources');
+          "
+
+      - name: Pack
+        working-directory: nodes/n8n-nodes-notebooklm
+        run: npm pack --dry-run
+
   security:
     runs-on: ubuntu-latest
 

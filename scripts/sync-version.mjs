@@ -144,6 +144,13 @@ const targets = [
       ),
   },
   {
+    path: 'nodes/n8n-nodes-notebooklm/package.json',
+    label: 'n8n community node',
+    // The node tracks the server version for the same reason the crate and the
+    // gem do: it is a client for one API.
+    transform: (s, v) => s.replace(/("version":\s*)"\d+\.\d+\.\d+"/, `$1"${v}"`),
+  },
+  {
     path: 'ROADMAP.md',
     label: 'ROADMAP current version',
     // The "## Current Version" header drifted to 1.5.4 while the package shipped

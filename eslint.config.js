@@ -13,6 +13,10 @@ export default tseslint.config(
       'src/__tests__/**',
       'scripts/**',
       'website/**',
+      // The n8n node is a separate package with its own tsconfig and its own
+      // compile step in CI; linting it against the server's tsconfig only
+      // produces "that TSConfig does not include this file".
+      'nodes/**',
     ],
   },
   {
