@@ -1,6 +1,6 @@
-# n8n-nodes-notebooklm
+# n8n-nodes-gemini-notebook
 
-[![npm version](https://img.shields.io/npm/v/n8n-nodes-notebooklm.svg)](https://www.npmjs.com/package/n8n-nodes-notebooklm)
+[![npm version](https://img.shields.io/npm/v/n8n-nodes-gemini-notebook.svg)](https://www.npmjs.com/package/n8n-nodes-gemini-notebook)
 [![CI](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -11,7 +11,7 @@ NotebookLM): citation-backed answers, passage retrieval, Studio generation —
 ## Installation
 
 In n8n: **Settings → Community nodes → Install**, then
-`n8n-nodes-notebooklm`. Self-hosted n8n only, as with every community node.
+`n8n-nodes-gemini-notebook`. Self-hosted n8n only, as with every community node.
 
 ## Credentials
 

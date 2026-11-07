@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-notebooklm",
+  "name": "n8n-nodes-gemini-notebook",
   "version": "4.7.0",
   "description": "n8n community node for Google Gemini Notebook (formerly NotebookLM): citation-backed answers, passage retrieval, Studio generation — all 56 operations of a local notebooklm-mcp server.",
   "keywords": [
@@ -19,7 +19,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/roomi-fields/notebooklm-mcp.git",
-    "directory": "nodes/n8n-nodes-notebooklm"
+    "directory": "nodes/n8n-nodes-gemini-notebook"
   },
   "main": "index.js",
   "engines": {

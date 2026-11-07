@@ -244,7 +244,7 @@ jobs:
   # The n8n community node, a second npm package from the same tag.
   #
   # npm's trusted publishing is configured per package, so this one needs its
-  # own publisher on `n8n-nodes-notebooklm` pointing at this workflow file. A
+  # own publisher on `n8n-nodes-gemini-notebook` pointing at this workflow file. A
   # newly created configuration expires unless its first publish lands within
   # two days, which is npm's way of saying a configuration may exist before the
   # package does — the same pending model RubyGems uses.
@@ -268,7 +268,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Verify the node carries the tagged version
-        working-directory: nodes/n8n-nodes-notebooklm
+        working-directory: nodes/n8n-nodes-gemini-notebook
         run: |
           set -euo pipefail
           TAG="${{ github.event.inputs.version || '' }}"
@@ -281,11 +281,11 @@ jobs:
           echo "node and tag agree on ${TAG}"
 
       - name: Build
-        working-directory: nodes/n8n-nodes-notebooklm
+        working-directory: nodes/n8n-nodes-gemini-notebook
         run: npm install && npm run build
 
       - name: Publish
-        working-directory: nodes/n8n-nodes-notebooklm
+        working-directory: nodes/n8n-nodes-gemini-notebook
         run: npm publish --provenance --access public
 
   # Publish server.json to the official MCP Registry. Separate job so a registry

@@ -17,14 +17,19 @@ import { fileURLToPath } from 'url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf-8').replace(/\r\n/g, '\n');
 
-const NODE = 'nodes/n8n-nodes-notebooklm';
+const NODE = 'nodes/n8n-nodes-gemini-notebook';
 const pkg = JSON.parse(read(`${NODE}/package.json`));
 const version = JSON.parse(read('package.json')).version as string;
 const source = read(`${NODE}/nodes/NotebookLm/NotebookLm.node.ts`);
 
 describe("the package n8n's registry will see", () => {
   it('is named so that n8n can find it at all', () => {
-    expect(pkg.name).toBe('n8n-nodes-notebooklm');
+    // `n8n-nodes-notebooklm` existed from October 2025 and was unpublished in
+    // April 2026; npm does not let an unpublished name be reused, so the name
+    // carries the current product name instead — which is also the family of
+    // searches we are invisible in.
+    expect(pkg.name).toBe('n8n-nodes-gemini-notebook');
+    expect(pkg.name.startsWith('n8n-nodes-')).toBe(true);
   });
 
   it('carries the keyword without which it is never listed', () => {

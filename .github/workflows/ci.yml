@@ -185,13 +185,13 @@ jobs:
         run: npm ci --ignore-scripts && npm run n8n:check
 
       - name: Build
-        working-directory: nodes/n8n-nodes-notebooklm
+        working-directory: nodes/n8n-nodes-gemini-notebook
         run: npm install && npm run build
 
       # A node n8n cannot load is a node nobody can install, and finding that
       # out during a release is finding out too late.
       - name: Check the package n8n will load
-        working-directory: nodes/n8n-nodes-notebooklm
+        working-directory: nodes/n8n-nodes-gemini-notebook
         run: |
           set -euo pipefail
           node -e "
@@ -211,7 +211,7 @@ jobs:
           "
 
       - name: Pack
-        working-directory: nodes/n8n-nodes-notebooklm
+        working-directory: nodes/n8n-nodes-gemini-notebook
         run: npm pack --dry-run
 
   security:

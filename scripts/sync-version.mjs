@@ -144,7 +144,7 @@ const targets = [
       ),
   },
   {
-    path: 'nodes/n8n-nodes-notebooklm/package.json',
+    path: 'nodes/n8n-nodes-gemini-notebook/package.json',
     label: 'n8n community node',
     // The node tracks the server version for the same reason the crate and the
     // gem do: it is a client for one API.

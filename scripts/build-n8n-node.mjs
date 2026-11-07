@@ -9,7 +9,7 @@
  * fails the build when the file on disk is not what it produces.
  *
  * n8n's own contract, which this respects:
- *   - the package is `n8n-nodes-notebooklm` and carries the
+ *   - the package is `n8n-nodes-gemini-notebook` and carries the
  *     `n8n-community-node-package` keyword;
  *   - a verified node has **no runtime dependency**, so the node calls the
  *     server through n8n's own HTTP helper and nothing else;
@@ -28,7 +28,7 @@ import { parse } from 'yaml';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SPEC = join(ROOT, 'deployment', 'docs', 'openapi.yaml');
-const OUT = join(ROOT, 'nodes', 'n8n-nodes-notebooklm', 'nodes', 'NotebookLm', 'NotebookLm.node.ts');
+const OUT = join(ROOT, 'nodes', 'n8n-nodes-gemini-notebook', 'nodes', 'NotebookLm', 'NotebookLm.node.ts');
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 
 /** The specification's tags, as n8n resources. */
