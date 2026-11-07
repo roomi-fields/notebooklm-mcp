@@ -13,6 +13,10 @@ on:
       version:
         description: 'Version already on npm to register (e.g. 4.6.0)'
         required: true
+      only:
+        description: 'Limit the run to one publisher (gem, n8n, registry). Empty runs them all.'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -169,7 +173,10 @@ jobs:
     needs: release
     # Startable on its own, like the registry job: a publish that failed for
     # its own reasons must not need a second tag to retry.
-    if: always() && (needs.release.result == 'success' || github.event_name == 'workflow_dispatch')
+    if: >-
+      always() && (needs.release.result == 'success'
+      || (github.event_name == 'workflow_dispatch'
+      && (inputs.only == '' || inputs.only == 'gem')))
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -255,7 +262,10 @@ jobs:
     name: Publish the n8n node to npm
     runs-on: ubuntu-latest
     needs: release
-    if: always() && (needs.release.result == 'success' || github.event_name == 'workflow_dispatch')
+    if: >-
+      always() && (needs.release.result == 'success'
+      || (github.event_name == 'workflow_dispatch'
+      && (inputs.only == '' || inputs.only == 'n8n')))
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -314,7 +324,10 @@ jobs:
     name: Publish to MCP Registry
     runs-on: ubuntu-latest
     needs: release
-    if: always() && (needs.release.result == 'success' || github.event_name == 'workflow_dispatch')
+    if: >-
+      always() && (needs.release.result == 'success'
+      || (github.event_name == 'workflow_dispatch'
+      && (inputs.only == '' || inputs.only == 'registry')))
     steps:
       - name: Checkout
         uses: actions/checkout@v4
