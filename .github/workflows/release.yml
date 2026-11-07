@@ -194,13 +194,44 @@ jobs:
           fi
           echo "gem and tag agree on ${TAG}"
 
-      # The action that turns the OIDC token into gem credentials. It is
-      # `configure-rubygems-credentials`, not something named after trusted
-      # publishing — the composite action rubygems/release-gem calls this one
-      # underneath. Pinned to a tag that exists, because an unresolvable
-      # action fails the job before any step runs.
+      # Trusted publishing, exchanged by hand rather than through
+      # rubygems/configure-rubygems-credentials, for one reason: creating a
+      # *new* gem from a pending trusted publisher requires the workflow to
+      # assert which RubyGems account will own it, and neither that action nor
+      # rubygems/release-gem can pass `owner` yet. The OIDC token proves the
+      # workflow is this repository's; `owner` says whose pending publisher it
+      # should match. Once the gem exists, the assertion is no longer needed —
+      # harmless to keep sending.
+      #
+      # RUBYGEMS_OWNER is the account handle or numeric id shown on the
+      # account's Pending Trusted Publishers page. It is not a credential.
       - name: Authenticate to RubyGems
-        uses: rubygems/configure-rubygems-credentials@v2.1.0
+        env:
+          RUBYGEMS_OWNER: ${{ vars.RUBYGEMS_OWNER }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RUBYGEMS_OWNER}" ]; then
+            echo "::error::set the repository variable RUBYGEMS_OWNER to the           RubyGems account handle (or numeric id) shown on its Pending Trusted           Publishers page. A first publish cannot create the gem without it."
+            exit 1
+          fi
+          JWT="$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=rubygems.org" | jq -r '.value')"
+          [ -n "${JWT}" ] && [ "${JWT}" != "null" ] || { echo "::error::no OIDC token"; exit 1; }
+          RESPONSE="$(curl -sS -X POST \
+            https://rubygems.org/api/v1/oidc/trusted_publisher/exchange_token \
+            -H 'Content-Type: application/json' \
+            -d "$(jq -n --arg jwt "${JWT}" --arg owner "${RUBYGEMS_OWNER}" \
+                  '{jwt: $jwt, owner: $owner}')")"
+          KEY="$(printf '%s' "${RESPONSE}" | jq -r '.rubygems_api_key // empty')"
+          if [ -z "${KEY}" ]; then
+            # The reply holds the reason; it carries no key, so printing it
+            # leaks nothing.
+            echo "::error::RubyGems refused the token exchange: ${RESPONSE}"
+            exit 1
+          fi
+          echo "::add-mask::${KEY}"
+          echo "GEM_HOST_API_KEY=${KEY}" >> "${GITHUB_ENV}"
+          echo "exchanged an OIDC token for a 15-minute push key"
 
       - name: Publish
         working-directory: gems/notebooklm

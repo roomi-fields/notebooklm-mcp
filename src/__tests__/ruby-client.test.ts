@@ -62,12 +62,24 @@ describe('the guards around it', () => {
   });
 
   it('releases the gem without storing a token', () => {
-    // RubyGems is the one registry of the three that needs no bootstrap
-    // token: a pending trusted publisher can be configured before the first
-    // version exists.
-    expect(release).toContain('rubygems/configure-rubygems-credentials@v2.1.0');
+    // RubyGems needs no stored credential: the workflow exchanges its OIDC
+    // token for a key that lives fifteen minutes. The exchange is done by
+    // hand because creating a *new* gem from a pending trusted publisher
+    // requires asserting the owning account, which neither official action
+    // can pass yet.
+    expect(release).toContain('oidc/trusted_publisher/exchange_token');
+    expect(release).toContain('vars.RUBYGEMS_OWNER');
     expect(release).toContain('gem push');
-    expect(release).not.toMatch(/RUBYGEMS_API_KEY|GEM_HOST_API_KEY/);
+    // No secret of any kind on the RubyGems path.
+    const job = release.slice(
+      release.indexOf('publish-gem:'),
+      release.indexOf('publish-registry:')
+    );
+    expect(job).not.toMatch(/secrets\./);
+  });
+
+  it('masks the exchanged key before it can reach a log', () => {
+    expect(release).toContain('::add-mask::${KEY}');
   });
 
   it('can be started on its own, without cutting a second tag', () => {
