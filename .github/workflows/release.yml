@@ -166,7 +166,9 @@ jobs:
     name: Publish the Ruby client to RubyGems
     runs-on: ubuntu-latest
     needs: release
-    if: github.event_name == 'push'
+    # Startable on its own, like the registry job: a publish that failed for
+    # its own reasons must not need a second tag to retry.
+    if: always() && (needs.release.result == 'success' || github.event_name == 'workflow_dispatch')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -183,7 +185,8 @@ jobs:
         working-directory: gems/notebooklm
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME#v}"
+          TAG="${{ github.event.inputs.version || '' }}"
+          [ -n "$TAG" ] || TAG="${GITHUB_REF_NAME#v}"
           GEM="$(ruby -Ilib -e 'require "notebooklm/version"; print NotebookLM::VERSION')"
           if [ "$TAG" != "$GEM" ]; then
             echo "::error::the tag says ${TAG} and the gem says ${GEM}"
@@ -191,8 +194,13 @@ jobs:
           fi
           echo "gem and tag agree on ${TAG}"
 
+      # The action that turns the OIDC token into gem credentials. It is
+      # `configure-rubygems-credentials`, not something named after trusted
+      # publishing — the composite action rubygems/release-gem calls this one
+      # underneath. Pinned to a tag that exists, because an unresolvable
+      # action fails the job before any step runs.
       - name: Authenticate to RubyGems
-        uses: rubygems/configure-trusted-publisher@v1
+        uses: rubygems/configure-rubygems-credentials@v2.1.0
 
       - name: Publish
         working-directory: gems/notebooklm

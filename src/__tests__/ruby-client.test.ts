@@ -65,9 +65,16 @@ describe('the guards around it', () => {
     // RubyGems is the one registry of the three that needs no bootstrap
     // token: a pending trusted publisher can be configured before the first
     // version exists.
-    expect(release).toContain('rubygems/configure-trusted-publisher');
+    expect(release).toContain('rubygems/configure-rubygems-credentials@v2.1.0');
     expect(release).toContain('gem push');
     expect(release).not.toMatch(/RUBYGEMS_API_KEY|GEM_HOST_API_KEY/);
+  });
+
+  it('can be started on its own, without cutting a second tag', () => {
+    // The first attempt failed on an action name that does not exist, and a
+    // re-run of a push-triggered job uses the old workflow file — so the
+    // publish has to be startable from the Actions tab too.
+    expect(release).toMatch(/publish-gem:[\s\S]{0,400}workflow_dispatch/);
   });
 
   it('refuses to publish a gem whose version disagrees with the tag', () => {
