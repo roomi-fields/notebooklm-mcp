@@ -112,7 +112,7 @@ const config: Config = {
               url: 'https://github.com/roomi-fields',
             },
             license: 'https://opensource.org/licenses/MIT',
-            softwareVersion: '4.6.0',
+            softwareVersion: '4.7.0',
             datePublished: PUBLISHED,
             dateModified: MODIFIED,
             offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

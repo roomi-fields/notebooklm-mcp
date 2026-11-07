@@ -39,7 +39,7 @@ server's REST API with types rather than `serde_json::Value`.
 
 ```toml
 [dependencies]
-notebooklm = "4.6"
+notebooklm = "4.7"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
