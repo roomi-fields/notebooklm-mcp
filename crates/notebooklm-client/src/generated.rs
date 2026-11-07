@@ -299,7 +299,7 @@ pub struct AddNotebookDataNotebook {
     #[serde(default)]
     pub use_count: i64,
     #[serde(default)]
-    pub tags: Vec<serde_json::Value>,
+    pub tags: Vec<String>,
     #[serde(default)]
     pub active: bool,
 }
@@ -346,7 +346,7 @@ pub struct ImportScrapedNotebooksData {
     #[serde(default)]
     pub imported: Vec<ImportScrapedNotebooksDataImportedItem>,
     #[serde(default)]
-    pub errors: Vec<serde_json::Value>,
+    pub errors: Vec<ImportScrapedNotebooksDataErrorsItem>,
     #[serde(default)]
     pub total_scraped: i64,
     #[serde(default)]
@@ -364,6 +364,17 @@ pub struct ImportScrapedNotebooksDataImportedItem {
     pub name: String,
     #[serde(default)]
     pub status: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ImportScrapedNotebooksDataErrorsItem {
+    #[serde(default)]
+    pub id: String,
+    #[serde(default)]
+    pub name: String,
+    #[serde(default)]
+    pub error: String,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -1030,7 +1041,16 @@ pub struct ShareNotebookData {
     #[serde(default)]
     pub public_link: String,
     #[serde(default)]
-    pub collaborators: Vec<serde_json::Value>,
+    pub collaborators: Vec<ShareNotebookDataCollaboratorsItem>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ShareNotebookDataCollaboratorsItem {
+    #[serde(default)]
+    pub email: String,
+    #[serde(default)]
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

@@ -682,7 +682,9 @@
                   },
                   "tags": {
                     "type": "array",
-                    "items": {}
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "active": {
                     "type": "boolean"
@@ -806,7 +808,20 @@
               },
               "errors": {
                 "type": "array",
-                "items": {}
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
               },
               "total_scraped": {
                 "type": "integer"
@@ -2713,7 +2728,17 @@
               },
               "collaborators": {
                 "type": "array",
-                "items": {}
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
               }
             }
           }

@@ -1453,7 +1453,8 @@ components:
                   type: integer
                 tags:
                   type: array
-                  items: {}
+                  items:
+                    type: string
                 active:
                   type: boolean
 
@@ -1502,7 +1503,15 @@ components:
                     type: string
             errors:
               type: array
-              items: {}
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  error:
+                    type: string
             total_scraped:
               type: integer
             total_imported:
@@ -2108,7 +2117,13 @@ components:
               type: string
             collaborators:
               type: array
-              items: {}
+              items:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  name:
+                    type: string
 
     RetryContentResponse:
       type: object
