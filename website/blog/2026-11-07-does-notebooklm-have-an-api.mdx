@@ -1,0 +1,132 @@
+---
+title: 'Does Gemini Notebook have an API?'
+description: 'There is no public API for consumer NotebookLM, and no API key to find. One official API exists for Enterprise — in preview, and unable to ask a notebook a question. Here are the three routes, with what each one can actually do.'
+slug: does-notebooklm-have-an-api
+authors: [romain]
+tags: [notebooklm, rest-api, mcp, automation, enterprise]
+keywords:
+  - notebooklm api
+  - gemini notebook api
+  - notebooklm api key
+  - notebooklm unofficial api
+  - gemini notebook api pricing
+  - does notebooklm have an api
+  - notebooklm api access
+---
+
+**Short answer: no.** The **Gemini Notebook** you log into with a personal
+Google account — the product called NotebookLM until July 2026 — has no public
+API and no API key. There is exactly one official API, it belongs to the
+Enterprise edition, it is in preview, and it cannot ask a notebook a question.
+
+That last clause is the part every comparison leaves out, so this post starts
+there.
+
+{/* truncate */}
+
+## Route 1 — the official Enterprise API
+
+It exists, it is documented, and it is narrower than its name suggests. The
+package is
+[`google.cloud.notebooklm.v1alpha`](https://docs.cloud.google.com/gemini/enterprise/docs/reference/rpc/google.cloud.notebooklm.v1alpha),
+served under Discovery Engine, and it holds five services:
+
+| Service                  | What it can do                                                            |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `NotebookService`        | create a notebook, get one, batch-delete, list recently viewed, share     |
+| `SourceService`          | batch-create sources, batch-delete, get one                              |
+| `AudioOverviewService`   | create one audio overview, delete it — one per notebook at a time        |
+| `LabelService`           | labels                                                                    |
+| `DiscoverSourcesService` | source discovery                                                          |
+
+Read that list again for what is absent. **No method asks a notebook anything.**
+There is no chat, no grounded answer, no citation — and none of the Studio
+outputs beyond audio: no report, no video, no infographic, no slide deck, no
+mind map, no flashcards, no quiz, no notes. The thing the product is *for* —
+answers grounded in your own sources, with the passage behind each claim — is
+not in the API.
+
+The access conditions are the second filter. Calls are signed with a Google
+Cloud OAuth token belonging to **a user account that holds a Gemini Notebook
+Enterprise licence**; the documented flow is a human's token, not a service
+account. Third-party sources consistently report **$9 per licence per month
+with a 15-licence minimum** after a 30-day trial — figures worth confirming
+against Google Cloud's own SKU list before you budget on them. Either way, the
+smallest viable purchase is a team, not a developer.
+
+So: a real API, in preview, for notebook and source management plus audio, at a
+team-sized minimum.
+
+## Route 2 — the API key that does not exist
+
+`notebooklm api key` is one of the most-typed completions in this whole
+subject, and it has no answer. The consumer product does not authenticate with
+a key at all: it authenticates with a **logged-in Google session**, and
+everything the web application does, it does by calling endpoints Google never
+published.
+
+That is why every tool in this space — the Python libraries, the command-line
+tools, the MCP servers, the browser extensions — works the same way: it carries
+your session into those internal endpoints. There is no key to issue, no quota
+page, no console. Anything advertising a NotebookLM API key is selling you a
+proxy in front of exactly this.
+
+It also sets the real constraint, which is not HTTP. A Google session is **bound
+to the machine it was created on** — copied cookies are refused even while their
+local expiry still looks valid. It **expires server-side** while those cookies
+still look fine, so the only reliable check is to navigate and see where you
+land. And an unpatched automated browser **gets flagged**. Three problems, and
+any tool that hides them from you has not solved them.
+
+## Route 3 — a local server you run
+
+The third route accepts that constraint instead of pretending it away: one
+process on your own machine holds the session, and exposes it as an ordinary
+REST API on loopback. That is what this project is.
+
+```bash
+npx -y @roomi-fields/notebooklm-mcp                                # the server
+npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth   # once
+```
+
+```bash
+curl -s localhost:3000/ask -H 'content-type: application/json' \
+  -d '{"notebook_id":"<id>","question":"How is ikigai defined?","source_format":"json"}'
+```
+
+The answer comes back with the quoted passage behind every marker, as data. The
+server exposes **56 operations** — asking, passage retrieval without generating
+anything, source management, the whole of Studio generation, notes, labels,
+sharing, exports — documented in the
+[REST API reference](/notebooklm-rest-api), and the same 56 are available as
+[MCP](/install) tools, as a [UTCP](/blog/notebooklm-utcp) manual, and as typed
+clients in [Rust](/blog/notebooklm-rust) and [Ruby](/blog/notebooklm-ruby). Any
+other language [generates one from the specification](/blog/notebooklm-client-any-language)
+in about ten seconds.
+
+The honest costs: it is unofficial, so the internal endpoints it drives can
+change without notice; it needs that one-time browser login per machine; and it
+runs where the session lives rather than in a datacentre.
+
+## Which route
+
+| Question | Route |
+| --- | --- |
+| I have a Workspace org and need notebook + source management under IAM | the Enterprise API |
+| I need an audio overview generated for a notebook, under a licence | the Enterprise API |
+| I want a question answered with its citations, from a script | a local server |
+| I want Studio outputs — report, video, infographic, slides — programmatically | a local server |
+| I want it for free, on a personal account | a local server |
+| I want a hosted key with an SLA | neither exists today |
+
+## The question behind the question
+
+People search for a NotebookLM API because they have a corpus they trust and
+want answers from it in a pipeline rather than in a browser tab. Both official
+routes answer a narrower question than that. Until Google ships a consumer API —
+and nothing announced suggests it is coming — the gap is filled by running the
+session yourself.
+
+If that is where you land: [install](/install) takes one command and one login,
+and [usage limits](/blog/notebooklm-usage-limits-automation) explains what you
+can actually spend once you are automating it.
