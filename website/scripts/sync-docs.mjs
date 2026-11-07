@@ -48,7 +48,7 @@ const SCHEMA_TYPE = {
 // For any file not listed here, the sync still copies but without frontmatter.
 const FRONTMATTER = {
   'README.md': {
-    title: 'Overview — NotebookLM MCP + HTTP REST API',
+    title: 'Gemini Notebook over MCP and a REST API',
     description:
       'Google Gemini Notebook (formerly NotebookLM) over MCP, a local HTTP REST API, and a UTCP manual. Citation-backed Q&A, audio, video, content generation, multi-account rotation. Claude Code, Codex, Cursor, n8n, Zapier, Make.',
     keywords: [
@@ -74,7 +74,7 @@ const FRONTMATTER = {
     sidebar_position: 1,
   },
   '01-INSTALL.md': {
-    title: 'Install NotebookLM MCP + REST API on Windows, macOS, Linux, WSL',
+    title: 'Install on Windows, macOS, Linux, WSL',
     description:
       'Install the NotebookLM MCP server and REST API. Clone, npm install, build, authenticate Google, register with Claude Code, Codex, Cursor, or run as a local HTTP REST API for n8n / Zapier / Make.',
     keywords: [
@@ -90,7 +90,7 @@ const FRONTMATTER = {
     slug: '/install',
   },
   '02-CONFIGURATION.md': {
-    title: 'Configure NotebookLM MCP — env vars, headless, stealth, locale',
+    title: 'Configuration — env vars and stealth',
     description:
       'Full configuration reference. Environment variables for headless mode, stealth, UI locale, data directory, session timeout, max sessions. Persistent auth layout and security notes.',
     keywords: [
@@ -103,7 +103,7 @@ const FRONTMATTER = {
     ],
   },
   '03-API.md': {
-    title: 'NotebookLM REST API reference — 56 HTTP endpoints',
+    title: 'REST API reference — 56 endpoints',
     description:
       'HTTP REST API reference for NotebookLM, 56 endpoints: /ask, /content, /notebooks, /sources, /labels, /share, /health, /setup-auth. Request and response schemas, ready for n8n / Zapier / Make / curl.',
     keywords: [
@@ -119,7 +119,7 @@ const FRONTMATTER = {
     slug: '/notebooklm-rest-api',
   },
   '04-N8N-INTEGRATION.md': {
-    title: 'NotebookLM in n8n — HTTP workflows with citations',
+    title: 'n8n workflows with citations',
     description:
       'Integrate NotebookLM into n8n workflows via the HTTP REST API. Webhook examples, scheduled queries, Slack integration, content generation flows, citation-backed responses. Works the same way for Zapier and Make.',
     keywords: [
@@ -135,7 +135,7 @@ const FRONTMATTER = {
     slug: '/notebooklm-n8n',
   },
   '05-TROUBLESHOOTING.md': {
-    title: 'Troubleshooting — doctor scripts, common failures and fixes',
+    title: 'Troubleshooting — failures and fixes',
     description:
       'Common failure signatures and fixes for the NotebookLM MCP server. Doctor script, port conflicts, authentication loops, rate limits, browser profile locks, session expiry.',
     keywords: [
@@ -148,7 +148,7 @@ const FRONTMATTER = {
     ],
   },
   '06-NOTEBOOK-LIBRARY.md': {
-    title: 'Notebook library — save, search, activate, auto-discover',
+    title: 'Notebook library — save and search',
     description:
       'Manage a persistent library of NotebookLM notebooks. Add by URL, search by name or topics, set an active notebook, share across Codex and Claude Code via cross-client sharing.',
     keywords: [
@@ -160,7 +160,7 @@ const FRONTMATTER = {
     ],
   },
   '07-AUTO-DISCOVERY.md': {
-    title: 'Auto-discover NotebookLM notebook metadata from a URL',
+    title: 'Auto-discover notebook metadata',
     description:
       'Use the auto_discover_notebook tool or /notebooks/auto-discover endpoint to extract notebook name, description, topics, and use cases from just a NotebookLM URL.',
     keywords: [
@@ -172,7 +172,7 @@ const FRONTMATTER = {
     ],
   },
   '08-DOCKER.md': {
-    title: 'Deploy NotebookLM MCP with Docker and noVNC',
+    title: 'Docker and noVNC deployment',
     description:
       'Dockerfile and docker-compose setup for the NotebookLM MCP server. Build from source, visual authentication via noVNC, Synology and QNAP NAS deployment patterns.',
     keywords: [
@@ -185,13 +185,13 @@ const FRONTMATTER = {
     ],
   },
   '08-WSL-USAGE.md': {
-    title: 'Use NotebookLM MCP from WSL on Windows',
+    title: 'Use it from WSL on Windows',
     description:
       'WSL workflow for the NotebookLM MCP server. Run the server on the Windows side, call it from WSL via a helper, manage the Chrome profile across WSL and Windows.',
     keywords: ['notebooklm wsl', 'notebooklm windows subsystem linux', 'notebooklm mcp wsl setup'],
   },
   '09-MULTI-INTERFACE.md': {
-    title: 'Run NotebookLM MCP + HTTP server simultaneously',
+    title: 'Run MCP and HTTP side by side',
     description:
       'Use NotebookLM as an MCP stdio server for Claude Code AND as a local HTTP REST API for n8n, Zapier, curl, at the same time. Stdio-to-HTTP proxy pattern, no profile conflicts.',
     keywords: [
@@ -203,7 +203,7 @@ const FRONTMATTER = {
     ],
   },
   '10-CONTENT-MANAGEMENT.md': {
-    title: 'Generate audio, video, infographics, reports from NotebookLM',
+    title: 'Generate audio, video and reports',
     description:
       'Generate NotebookLM Studio outputs — audio podcasts, video brief and explainer, infographics, reports, presentations, data tables — programmatically via MCP or HTTP API.',
     keywords: [
@@ -217,7 +217,7 @@ const FRONTMATTER = {
     ],
   },
   '11-MULTI-ACCOUNT.md': {
-    title: 'NotebookLM multi-account rotation with TOTP auto-reauth',
+    title: 'Multi-account rotation with TOTP',
     description:
       'Configure multiple Google accounts for NotebookLM. Automatic rotation on rate-limit detection, TOTP (2FA) auto-reauth, AES-256-GCM encrypted credential vault, per-account profile storage.',
     keywords: [
@@ -233,7 +233,7 @@ const FRONTMATTER = {
     slug: '/notebooklm-multi-account',
   },
   '12-BATCH-1000.md': {
-    title: 'Run 1 000 NotebookLM questions overnight — REST API batch pattern',
+    title: 'A thousand questions overnight',
     description:
       'Production pattern for running 1 000+ citation-backed Q&A queries against Google NotebookLM through a local HTTP REST API. Resilient batches, auto-reauth, multi-account rotation, JSON citation export, restart-safe progress, throttling.',
     keywords: [
@@ -250,7 +250,7 @@ const FRONTMATTER = {
     slug: '/batch-1000-questions',
   },
   '14-RTFM-INTEGRATION.md': {
-    title: 'NotebookLM + RTFM — cache batch outputs as a searchable markdown vault',
+    title: 'Cache answers as a searchable vault',
     description:
       'Pipeline pattern for academic research and competitive intelligence: use NotebookLM as a one-shot ingestion layer, RTFM as the retrieval layer. /batch-to-vault endpoint, nblm-answer-v1 JSON schema, RTFM index integration, offline unlimited queries.',
     keywords: [
@@ -269,7 +269,7 @@ const FRONTMATTER = {
     slug: '/notebooklm-rtfm',
   },
   '13-COMPARE.md': {
-    title: 'Migrating from PleasePrompto/notebooklm-mcp (archived) — tool mapping and comparison',
+    title: 'Migrating from PleasePrompto',
     description:
       'PleasePrompto/notebooklm-mcp was archived in September 2026. How to migrate: 17 of its 19 tool names work unchanged, the environment variables that differ, the one variable that means something else here, and a full feature comparison.',
     keywords: [
@@ -289,7 +289,7 @@ const FRONTMATTER = {
     slug: '/compare',
   },
   '15-SECURITY.md': {
-    title: 'Securing the NotebookLM HTTP API — token, bind address, allowed origins',
+    title: 'Securing the HTTP API',
     description:
       'Secure the NotebookLM REST API: loopback by default, NOTEBOOKLM_API_KEY required to expose it, NOTEBOOKLM_ALLOWED_ORIGINS for browser clients, Docker requirements, and how to report a vulnerability.',
     keywords: [

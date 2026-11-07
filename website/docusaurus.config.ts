@@ -32,7 +32,10 @@ function lastModified(): string {
 const MODIFIED = lastModified();
 
 const config: Config = {
-  title: 'NotebookLM MCP + HTTP REST API',
+  // This string is appended to every page title as " | <title>", so it spends
+  // the sixty characters a results page shows. The long form stays where it
+  // costs nothing: og:site_name and the schema.org blocks below.
+  title: 'NotebookLM MCP',
   tagline:
     'Google Gemini Notebook (formerly NotebookLM) over MCP + a local HTTP REST API — Q&A with citations, audio podcasts, video generation, multi-account rotation',
   favicon: 'img/favicon.ico',
