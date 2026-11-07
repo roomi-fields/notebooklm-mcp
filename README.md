@@ -361,6 +361,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 <!-- releases:start — generated from CHANGELOG.md by scripts/sync-facts.mjs; do not edit by hand -->
 
+- **v4.7.0** (2026-11-07) — The published specification was invalid, and nothing checked · The Rust client covers the whole API, and is generated · and more
 - **v4.6.0** (2026-11-06) — Retry a failed generation without losing its id · A UTCP interface, and 56 named operations · and more
 - **v4.5.0** (2026-10-30) — Search the sources without paying for an answer
 - **v4.4.0** (2026-10-24) — Two security fixes, both reported by Umar Ahmed (ghostnshells)
@@ -370,7 +371,6 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 - **v4.0.0** (2026-10-18) — Security — the HTTP API is no longer open to the network or to any web page · Fixed — an account could vanish on creation · and more
 - **v3.2.0** (2026-09-03) — Added — `content_delete`: generated content can finally be removed · Closed — both open issues, settled by measurement rather than by waiting
 - **v3.1.2** (2026-08-21) — Fixed — 3.1.1's browser-path language fix covered one dialog shape out of two · Added — an unapplied language is now said out loud
-- **v3.1.1** (2026-08-21) — Fixed — generated content came out in the server's interface language, not the one you asked for · Fixed — the browser fallback ignored `language` too (#36) · and more
 
 <!-- releases:end -->
 

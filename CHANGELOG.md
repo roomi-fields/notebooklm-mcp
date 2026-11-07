@@ -7,60 +7,92 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [4.7.0] - 2026-11-07
 
-### A Rust client, in this repository
+### The published specification was invalid, and nothing checked
 
-`crates/notebooklm-client` publishes to crates.io as **`notebooklm`**: a typed
-async client for this server's REST API, with a `blocking` feature for programs
-that have no runtime. It covers health, the local library, questions with their
-quotations, passage search and a source's indexed text, and returns the UTCP
-manual for the other operations.
+Three descriptions in `openapi.yaml` held a comma inside a YAML flow mapping,
+which parses as a second key. The document was therefore invalid, and every
+client generator refused it outright — not a route, the whole file. It had been
+that way through several releases, with every guard green, because nothing in
+the build had ever asked a parser.
 
-The crate deliberately owns no browser. The Google session is bound to the
-machine it was created on, expires server-side while local cookies still look
-valid, and needs a driver kept patched against detection — three problems this
-server already solves, and three a crate would have to re-solve and then
-maintain against Google's redesigns. So the crate is a client, and says so.
+Reading the document did not find it. Generating a client from it found it in
+one run, which is the lesson worth keeping: **a generator is the first reader
+of a specification that does not forgive.**
 
-Its types encode the two shapes a careless client gets wrong: a passage
-starting at offset zero arrives with the field absent, and is reported as
-absent rather than guessed at; and a refusal arrives in the envelope with the
-server's own wording, which the error type carries through instead of
-flattening into a status code.
+The document is now linted on every push, and a second defect came out with the
+first: only six of fifty-six responses declared a schema, and those six were
+wrong. All fifty-six now carry a named schema, reconstructed from the reference
+examples and the handler types, including the citation shape that only the
+reference's _second_ example showed. Three arrays that said "array of
+something" without saying of what — a notebook's tags, an import's errors, a
+notebook's collaborators — now say it; a generator turned each of them into an
+untyped blob the caller had to inspect at runtime.
 
-It is held to the server's own bar — formatted, clippy-pedantic clean, twelve
-tests against a stubbed server — by a CI job, and its version is kept equal to
-the server's by the release chain. Publishing uses crates.io trusted
-publishing, so no token is stored; the first version needs one disposable
-token, exactly as npm did, because a crate that does not exist yet cannot have
-a trusted publisher.
+The UTCP manual is generated from that specification, so it inherited
+everything: all 56 operations now describe what they answer, and the manual no
+longer points at definitions it does not carry.
 
-### The README stopped telling the truth about its own releases
+### The Rust client covers the whole API, and is generated
 
-The "Latest releases" list was hand-written, and had stopped at 3.0.1 while the
-package shipped 4.6.0 — nine releases missing, three of them security
-releases, on the page most readers never scroll past. It is generated from the
-changelog now, and a guard fails the build if it drifts or loses its markers.
+The crate started with seven methods written by hand, which meant a route added
+tomorrow reached no Rust caller and no guard noticed. The entire surface — 56
+operations, 119 types, plus the synchronous twin — is now generated from the
+specification and formatted before it is written, so the drift guard never
+cries wolf.
 
-### A release can finish even when npm holds it back
+Generation exposed four defects a hand-written client makes by accident. A
+field we send and a field we receive want opposite defaults, because sending an
+empty string asks the server for a notebook named empty string. Closing a
+struct against future fields is right for what we receive and wrong for what
+the caller sends — it stopped them building the request at all. An integer the
+specification marks as possibly absent was becoming an untyped value, and
+therefore **zero** on reading: exactly the trap this crate documents, where a
+null offset attributes a quotation to the top of a long document. And the two
+routes that answer with their own document rather than the envelope failed on
+a missing `success` field.
 
-npm accepted 4.6.0, answered that the package was being processed, and then did
-not serve it for eighty minutes. The registry job waits ten, so it failed; and
-a re-run could not help, because npm refuses a republish over a version it has
-merely staged (`409 Cannot publish over previously staged version`). The
-release was neither lost nor recoverable by retrying — only by waiting.
+The minimum supported Rust version is 1.88, verified by building with it rather
+than claimed.
 
-So the wait is now thirty minutes, its error says what is actually happening
-rather than implying the publish failed, and the registry half can be started
-on its own from the Actions tab against a version npm is already serving. The
-npm publish is skipped on that manual run, so it cannot collide with a staged
-upload.
+### A Ruby client, from the same specification
 
-Four names were missing from the acknowledgments, and one was wrong: the open
-HTTP API was reported by @shinjiyu, not by @ghostnshells, who reported the
-other two advisories. Nils Friedrichs and Teodor Tenev are credited for their
-merged work, and a test checks each reporter and contributor is still named.
+`gems/notebooklm` publishes to RubyGems as **`notebooklm`**: the same 56
+operations, generated the same way, with every response shape documented field
+by field. The Ruby shelf for the consumer product was empty — no gem at all —
+and the gem that fills it has **no runtime dependencies**, and none in its
+tests either: the stub server they run against is built out of `TCPServer`,
+which exercises the real HTTP path where a mocking library would replace the
+part worth testing.
+
+Ruby needs fewer helpers than Rust, and the gem ships none: keyword arguments
+with defaults already read like a builder. What it does guarantee is the
+honesty the generated types buy in Rust — an absent scalar reads as nil, never
+as zero or an empty string; an absent nested shape reads as an empty shape, so
+a chain holds without a guard at every hop; a field the server adds later stays
+reachable, so an unknown shape is never a wall; and a refusal keeps the
+server's own wording, separate from a request that never arrived.
+
+Publishing uses RubyGems trusted publishing, which — unlike npm and crates.io —
+needs no bootstrap token at all: a pending publisher can be configured before
+the first version exists. So there is no gem token anywhere.
+
+### Eight capabilities to take from the Go tool
+
+The Go command-line tool is ahead of us on sources and notes. Its eight
+capabilities worth having are now in the roadmap, each naming the file to read
+in its MIT-licensed source rather than a vague aspiration: content-addressed
+sync with receipts, automatic splitting of oversized sources, source matching
+by name, citation resolution, note rendering, label ingestion, flashcard export
+and research sourcing.
+
+### Two articles
+
+[Driving it from Ruby](https://notebooklm.roomi-fields.com/blog/notebooklm-ruby),
+and [generating a client for any language in ten seconds](https://notebooklm.roomi-fields.com/blog/notebooklm-client-any-language)
+— measured across Python, Go and Ruby, with an honest account of what a
+generated client does not give you.
 
 ---
 
