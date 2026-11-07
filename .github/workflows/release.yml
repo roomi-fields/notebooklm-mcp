@@ -295,20 +295,20 @@ jobs:
         run: npm install && npm run build
 
       # npm's CLI prefers OIDC and falls back to a token only when no trusted
-      # publisher exists for the package. A publisher cannot be configured for
-      # a package npm has never seen — its settings page does not exist yet —
-      # so the first publish of this name needs one throwaway granular token
-      # in `NPM_TOK2`.
+      # publisher exists for the package. The first publish of 4.7.0 went out
+      # on the Automation token in `NPM_TOKEN` — an Automation token bypasses
+      # 2FA by design, which is why it works unattended and why npm is phasing
+      # that property out.
       #
-      # It is deliberately *not* `NPM_TOKEN`: that secret still holds the
-      # Automation token this project stopped reading in September 2026, and an
-      # expired Automation token answers `404 Not Found - PUT` rather than an
-      # authentication error — which cost two hours the last time.
+      # The clean end state, whenever it is convenient: configure a trusted
+      # publisher on npmjs.com for this workflow file with `npm publish`
+      # allowed, then delete both `NPM_TOKEN` and `NPM_TOK2` and revoke them.
+      # OIDC takes over and this variable goes inert — it is read only when the
+      # secret exists. Until then releases keep working with no manual step.
       #
-      # BOOTSTRAP ONLY. After the first successful publish: configure the
-      # trusted publisher on npmjs.com for this workflow file, delete the
-      # `NPM_TOK2` secret, and revoke the token. OIDC then takes over and this
-      # variable goes inert — it is read only when the secret exists.
+      # Not `NPM_TOK2`: that token is stage-only, so a publish with it lands in
+      # the staging area and waits for an interactive approval no runner can
+      # give.
       - name: Publish
         working-directory: nodes/n8n-nodes-gemini-notebook
         env:

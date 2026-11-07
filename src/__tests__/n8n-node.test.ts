@@ -124,15 +124,14 @@ describe('the release that publishes it', () => {
       release.indexOf('publish-registry:')
     );
     // npm cannot be given a trusted publisher for a package it has never
-    // seen, so the first publish of a new name needs one throwaway token.
-    // The guard is not "no secret" but "no undocumented secret": the only one
-    // allowed is NPM_TOKEN, and the job must say it is to be revoked.
+    // seen, so the first publish of a new name went out on a token. The guard
+    // is not "no secret" but "no undocumented secret": one secret, named, with
+    // the route out of it written beside it.
     const secrets = [...job.matchAll(/secrets\.(\w+)/g)].map((m) => m[1]);
-    // Not NPM_TOKEN: that secret still holds the Automation token this project
-    // stopped reading, and an expired one answers 404 rather than 401.
-    expect([...new Set(secrets)]).toEqual(['NPM_TOK2']);
-    expect(job).toContain('BOOTSTRAP ONLY');
-    expect(job).toMatch(/revoke the token/);
+    expect([...new Set(secrets)]).toEqual(['NPM_TOKEN']);
+    // The words wrap across comment lines, so match them loosely.
+    expect(job).toMatch(/trusted[\s#]+publisher/);
+    expect(job).toMatch(/revoke them/);
     expect(job).toContain("node-version: '24'");
   });
 
