@@ -211,7 +211,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${RUBYGEMS_OWNER}" ]; then
-            echo "::error::set the repository variable RUBYGEMS_OWNER to the           RubyGems account handle (or numeric id) shown on its Pending Trusted           Publishers page. A first publish cannot create the gem without it."
+            echo "::error::set the repository variable RUBYGEMS_OWNER to the RubyGems account handle (or numeric id) shown on its Pending Trusted Publishers page. A first publish cannot create the gem without it."
             exit 1
           fi
           JWT="$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
@@ -279,7 +279,7 @@ jobs:
             echo "attempt ${attempt}: ${VERSION} not on npm yet, waiting 20s"
             sleep 20
           done
-          echo "::error::npm has not served ${VERSION} in 30 minutes. It accepted           the publish — the tarball sits in its staging queue, which has taken over           an hour. Nothing is lost and a republish would fail 409: wait for the           version to appear, then re-run this workflow from the Actions tab with           that version as input."
+          echo "::error::npm has not served ${VERSION} in 30 minutes. It accepted the publish — the tarball sits in its staging queue, which has taken over an hour. Nothing is lost and a republish would fail 409: wait for the version to appear, then re-run this workflow from the Actions tab with that version as input."
           exit 1
 
       - name: Publish server.json (GitHub OIDC auth)
