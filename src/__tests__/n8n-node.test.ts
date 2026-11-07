@@ -104,6 +104,33 @@ describe('the generated node', () => {
   });
 });
 
+describe('the release that publishes it', () => {
+  const release = read('.github/workflows/release.yml');
+
+  it('publishes with provenance, which n8n requires to verify a node', () => {
+    // Since 1 May 2026 n8n only verifies community nodes published from CI
+    // with a provenance statement.
+    expect(release).toContain('npm publish --provenance --access public');
+  });
+
+  it('publishes without storing a token', () => {
+    const job = release.slice(
+      release.indexOf('publish-n8n-node:'),
+      release.indexOf('publish-registry:')
+    );
+    expect(job).not.toMatch(/secrets\.|NODE_AUTH_TOKEN/);
+    expect(job).toContain("node-version: '24'");
+  });
+
+  it('refuses to publish a node whose version disagrees with the tag', () => {
+    expect(release).toContain('the tag says ${TAG} and the node says ${PKG}');
+  });
+
+  it('can be started on its own, without cutting a second tag', () => {
+    expect(release).toMatch(/publish-n8n-node:[\s\S]{0,400}workflow_dispatch/);
+  });
+});
+
 describe('the credential', () => {
   const credential = read(`${NODE}/credentials/NotebookLmApi.credentials.ts`);
 

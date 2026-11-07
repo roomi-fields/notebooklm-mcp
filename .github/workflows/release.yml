@@ -160,8 +160,9 @@ jobs:
   # The Ruby gem, published with RubyGems trusted publishing: the pending
   # publisher configured on rubygems.org names this repository and this
   # workflow file, so there is no token anywhere — not in a secret, not in a
-  # file. RubyGems is the one registry of the three that needs no bootstrap
-  # token for a first publish.
+  # file. What RubyGems does need for a *new* gem is the owning account
+  # asserted at the token exchange, which is why that step is done by hand
+  # below rather than through the official action.
   publish-gem:
     name: Publish the Ruby client to RubyGems
     runs-on: ubuntu-latest
@@ -239,6 +240,53 @@ jobs:
           set -euo pipefail
           gem build notebooklm.gemspec
           gem push "notebooklm-$(ruby -Ilib -e 'require "notebooklm/version"; print NotebookLM::VERSION').gem"
+
+  # The n8n community node, a second npm package from the same tag.
+  #
+  # npm's trusted publishing is configured per package, so this one needs its
+  # own publisher on `n8n-nodes-notebooklm` pointing at this workflow file. A
+  # newly created configuration expires unless its first publish lands within
+  # two days, which is npm's way of saying a configuration may exist before the
+  # package does — the same pending model RubyGems uses.
+  #
+  # `--provenance` is not decoration here: since 1 May 2026 n8n only verifies
+  # community nodes published from CI with a provenance statement.
+  publish-n8n-node:
+    name: Publish the n8n node to npm
+    runs-on: ubuntu-latest
+    needs: release
+    if: always() && (needs.release.result == 'success' || github.event_name == 'workflow_dispatch')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Node 24 for npm >= 11.5.1, which is what speaks OIDC to the registry.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Verify the node carries the tagged version
+        working-directory: nodes/n8n-nodes-notebooklm
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.version || '' }}"
+          [ -n "$TAG" ] || TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::the tag says ${TAG} and the node says ${PKG}"
+            exit 1
+          fi
+          echo "node and tag agree on ${TAG}"
+
+      - name: Build
+        working-directory: nodes/n8n-nodes-notebooklm
+        run: npm install && npm run build
+
+      - name: Publish
+        working-directory: nodes/n8n-nodes-notebooklm
+        run: npm publish --provenance --access public
 
   # Publish server.json to the official MCP Registry. Separate job so a registry
   # hiccup can be re-run alone without re-attempting the npm publish, and gated
