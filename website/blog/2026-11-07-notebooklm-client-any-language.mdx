@@ -1,0 +1,131 @@
+---
+title: 'Generate a NotebookLM client for any language in ten seconds'
+description: 'The server publishes an OpenAPI 3.1 specification covering all 56 operations. One command turns it into a client for Python, Go, Java, C#, PHP, Swift, Kotlin or 160 other targets — measured, with what you get and what you do not.'
+slug: notebooklm-client-any-language
+authors: [romain]
+tags: [notebooklm, openapi, rest-api, utcp, automation]
+keywords:
+  - notebooklm api client
+  - notebooklm openapi
+  - notebooklm python client
+  - notebooklm go client
+  - gemini notebook api
+  - openapi generator notebooklm
+  - gemini notebook
+---
+
+There is a [Rust crate](/blog/notebooklm-rust) and a [Ruby gem](/blog/notebooklm-ruby)
+for **Gemini Notebook** (formerly NotebookLM), both built from this server's
+REST API. If your language is neither, you do not have to wait for someone to
+write one. The server publishes a specification, and a specification is a
+client generator's input.
+
+{/* truncate */}
+
+## One command
+
+```bash
+curl -O https://notebooklm.roomi-fields.com/openapi.yaml
+
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/work" \
+  openapitools/openapi-generator-cli generate \
+  -i /work/openapi.yaml -g python -o /work/client-python
+```
+
+Measured here, on generator 7.28, against the 4.6 specification:
+
+| Target | Time | Files | Operations | Model classes |
+| ------ | ---- | ----- | ---------- | ------------- |
+| python | 9 s  | 523   | 56         | 160           |
+| go     | 7 s  | 353   | 56         | 159           |
+| ruby   | 7 s  | 518   | 56         | 159           |
+
+All 56 operations of the Gemini Notebook server in each, with names identical
+to the specification's own operation ids — `ask_question` is `ask_question`, not something synthesised
+from a URL path. `-g` takes 166 other values, including `java`, `csharp`,
+`php`, `typescript-fetch`, `swift6`, `kotlin`, `rust`, `dart`, `elixir`,
+`crystal` and `r`.
+
+The `--user "$(id -u):$(id -g)"` is not optional in practice: without it the
+container writes root-owned files into your working directory, and you cannot
+even delete the output.
+
+## What you get, and what you do not
+
+You get every route, every request body, every response shape, and request
+validation for free. You do not get a library anyone designed:
+
+- **The envelope stays.** Every route answers `{success, data}`, so a
+  generated call hands you an `AskQuestionResponse` and the answer is one hop
+  down, in `.data`. Our two published clients unwrap it and return the payload,
+  because that is what the caller asked for.
+- **The names are machine names.** A real class in the generated Python client
+  is `ask_question_response_data_sources_citations_inner`. Correct, and nobody
+  would have chosen it.
+- **There are no ergonomics.** No "ask this notebook and give me the citations",
+  no enumeration of the five source formats, no distinction between a refusal
+  and a request that never arrived.
+
+That is the whole argument for a curated client in languages where one is worth
+maintaining, and the whole argument for generation everywhere else. A generated
+client you have in ten seconds beats a hand-written one that does not exist.
+
+## What makes a specification generatable
+
+This is where it is worth being honest, because our own specification failed
+every one of these until very recently, and nothing in our build complained.
+
+**Every operation needs an `operationId`.** Without one, generators invent a
+method name from the HTTP method and the path, and the same route gets a
+different name in each language. All 56 of ours are named.
+
+**Every response needs a named schema.** A response documented only by an
+example generates a method returning an untyped blob — which is a hash with a
+fluent interface, not a client. Fifty of our fifty-six responses used to be
+exactly that.
+
+**Absence must be stated.** An integer offset that can be missing has to say
+so (`type: [integer, 'null']`), or the generated client reports `0` — and a
+zero offset attributes a quotation to the top of a long document instead of to
+the sentence it came from.
+
+**The document has to be valid.** Ours was not: a description containing a
+comma, written inside a YAML flow mapping, parsed as two keys. Every generator
+refused the file, and no amount of reading the document found it. Generating a
+client did, in one run. **A generator is the first reader of a specification
+that does not forgive.**
+
+Both are now held shut in continuous integration — the document is linted on
+every push, and a test asserts that all 56 operations declare a response
+schema. See the [REST API reference](/notebooklm-rest-api) for the routes
+themselves.
+
+## Or no client at all
+
+If you would rather not carry generated code, the server also publishes a
+[UTCP](/blog/notebooklm-utcp) manual at `/utcp`, describing all 56 operations
+with their inputs and outputs:
+
+```bash
+curl -s http://127.0.0.1:3000/utcp | jq '.tools | length'   # 56
+```
+
+A UTCP client reads that manual and calls the REST API directly, with no
+protocol server and no generated types in between. It is the same API
+described twice, for two different appetites.
+
+## The part no generator can give you
+
+Whatever the language, the client talks to a local server, and that server
+exists for a reason no library can replace: Google publishes no API for
+consumer Gemini Notebook, and the session that reaches the internal one is bound to
+the machine it was created on, expires server-side while its cookies still
+look valid, and needs a browser kept patched against detection.
+
+```bash
+npx -y @roomi-fields/notebooklm-mcp                                # the server
+npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth   # once
+```
+
+[Install](/install) covers the full sequence. After that, the client you
+generated in ten seconds is talking to loopback, and loopback needs no token.

@@ -1,0 +1,184 @@
+---
+title: 'NotebookLM from Ruby: a gem that owns no browser'
+description: 'The Ruby shelf for consumer NotebookLM is empty — zero gems. Here is one, generated from the server OpenAPI specification: all 56 operations, every response shape documented, citations as data, and no runtime dependencies.'
+slug: notebooklm-ruby
+authors: [romain]
+tags: [notebooklm, ruby, rest-api, citations, rubygems]
+keywords:
+  - notebooklm ruby
+  - notebooklm ruby client
+  - notebooklm api ruby
+  - gemini notebook ruby
+  - ruby notebooklm automation
+  - notebooklm rubygems
+  - gemini notebook
+---
+
+Search RubyGems for a NotebookLM client and you get an empty array. Search
+GitHub and you get two repositories, one star between them, neither published
+as a gem. For the consumer product — the **Gemini Notebook** you log into with
+a personal Google account, not the Cloud Enterprise one — the Ruby shelf is
+bare.
+
+That is not because Ruby is unsuited to the job. It is because the hard part of
+this problem is not HTTP.
+
+{/* truncate */}
+
+> **A note on the name.** Google renamed NotebookLM to **Gemini Notebook** in
+> July 2026. It is the same product, old links redirect, and everything below
+> applies to both — the two names are used interchangeably here because that
+> is how people still search for it.
+
+## There is one now
+
+```ruby
+# Gemfile
+gem 'notebooklm', '~> 4.6'
+```
+
+The [`notebooklm`](https://rubygems.org/gems/notebooklm) gem is built from the
+same repository as the server it talks to, and it covers all 56 operations of
+its REST API. No runtime dependencies: Net::HTTP and JSON, both in the standard
+library.
+
+```ruby
+require 'notebooklm'
+
+client = NotebookLM.local
+abort 'no Google session yet' unless client.get_health.authenticated
+
+notebook = client.list_notebooks.notebooks.first
+
+answer = client.ask(notebook.id, 'How is ikigai defined?')
+puts answer.answer
+
+answer.citations.each do |citation|
+  puts "  [#{citation.number}] #{citation.source_name}: #{citation.source_text}"
+end
+```
+
+That is the whole program. The citations are not a parsing exercise on the
+answer text: the server extracts them and the gem hands them over as objects
+with a number, a source name and the quoted passage.
+
+## Why the gem owns no browser
+
+Google publishes no API for the consumer product. Everything any tool does —
+this gem, the competing command-line tools, the browser extensions — rides on
+the endpoints the web application itself calls, and those need a logged-in
+Google session. Keeping one is three problems, and all three are worse than
+they look:
+
+- **the session is bound to the machine it was created on.** Copying cookies to
+  another host fails even while their local expiry still looks valid; Google
+  checks device and address server-side;
+- **sessions expire server-side while the cookies look fine.** The only
+  reliable test is to navigate and see where you land, which means owning a
+  browser;
+- **an unpatched automated browser gets flagged**, and the patches have to be
+  maintained against a target that moves.
+
+A gem that solved those would be a browser automation project with a Ruby API
+on top, and it would break every few months. So this one does not try. It talks
+to a process that already does all three:
+
+```bash
+npx -y @roomi-fields/notebooklm-mcp                                # the server
+npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth   # once
+```
+
+One setup, once per machine. After that the gem is talking to loopback, and
+loopback needs no token. See [install](/install) for the full sequence.
+
+## What a generated client gets right
+
+The surface is generated from the server's OpenAPI specification rather than
+written by hand, which is why it covers 56 operations instead of the seven
+someone would have remembered. Generation also forces decisions a hand-written
+client makes by accident:
+
+**An absent value reads as `nil`, never as zero.** A passage whose offset is
+missing could read as `0`, and a zero offset attributes a quotation to the top
+of a long document. The specification says "an integer, or absent", and the
+gem says `nil`.
+
+```ruby
+passage = client.search_passages(id: notebook.id, query: 'ikigai').passages.first
+passage.start   # => nil when the server did not send it, not 0
+```
+
+**A nested shape is never nil**, so a chain holds even when the server sent
+nothing:
+
+```ruby
+client.ask_question(question: 'Is it?', notebook_id: id).citations  # => [] — no guard needed
+```
+
+**A field the server adds tomorrow is still reachable.** Readers cover what the
+specification documents; `[]` and `to_h` cover everything else. An unknown
+shape is never a wall.
+
+**A refusal keeps the server's words.** `NotebookLM::Refused` carries the
+server's own explanation, meant to be shown to a human, and a request that
+never arrived raises `NotebookLM::TransportError` instead — `error.transport?`
+tells you whether retrying can possibly help.
+
+## Ruby needs fewer helpers than Rust
+
+The [Rust crate](/blog/notebooklm-rust) ships builder methods: `AskRequest::new`
+, `.in_session`, `.with_source_format`. The gem ships none of them, because
+keyword arguments with defaults already read like a builder:
+
+```ruby
+client.ask_question(question: 'How is ikigai defined?', notebook_id: id,
+                    session_id: previous.session_id, source_format: 'json')
+```
+
+Everything the Rust crate expresses as a type, Ruby expresses as a documented
+parameter name — which is the same information, arriving at a different point
+in time.
+
+## Retrieval costs nothing
+
+Generation in Gemini Notebook is metered. Retrieval is not:
+
+```ruby
+client.search_passages(id: notebook.id, query: 'ikigai', limit: 5).passages.each do |p|
+  puts "#{p.rank} — #{p.text}"
+end
+```
+
+The passages come back from the index with no model run behind them, so when
+you mean to reason over the evidence yourself, ask for the evidence. Same for
+`read_source`, which returns the text the service actually extracted from a PDF
+— the web interface only ever shows you fragments of it.
+
+## Everything else
+
+The gem covers all 56 operations, so "everything else" is not a gap any more —
+Studio generation (audio, video, infographic, report, presentation, data table),
+study aids, mind maps, labels, notes, sharing, source management. The
+[REST API reference](/notebooklm-rest-api) documents each one, and the gem's
+method names are the specification's own operation ids:
+
+```ruby
+NotebookLM::Operations::OPERATION_IDS.size  # => 56
+client.generate_report(id: notebook.id, prompt: 'A literature review')
+```
+
+If you would rather have no client at all, the server also publishes a
+[UTCP](/blog/notebooklm-utcp) manual describing every operation, which a UTCP
+client calls natively. And if your language is neither Ruby nor Rust, the
+specification generates a client for it in about a minute:
+[generating one for any language](/blog/notebooklm-client-any-language).
+
+## Tested against a real socket
+
+The gem has no runtime dependencies, and its tests have none either. The stub
+server they run against is thirty lines of `TCPServer`, which exercises the
+real Net::HTTP path — connection reuse, headers, bodies — where a mocking
+library would replace exactly the part worth testing.
+
+Source, issues and the generator that writes the surface:
+[roomi-fields/notebooklm-mcp](https://github.com/roomi-fields/notebooklm-mcp).
