@@ -131,6 +131,37 @@ jobs:
         working-directory: crates/notebooklm-client
         run: cargo package
 
+  # The Ruby gem ships from this repository too, and is held to the same bar:
+  # its surface matches the specification, and it is tested against a stub
+  # server built out of the standard library — the gem has no runtime
+  # dependencies and its tests have none either.
+  ruby:
+    name: Ruby client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      # The surface is generated from the specification. A hand edit would be
+      # silently overwritten on the next release, so it fails here instead.
+      - name: Check the client matches the specification
+        run: npm ci --ignore-scripts && npm run ruby:check
+
+      - name: Test
+        working-directory: gems/notebooklm
+        run: rake test
+
+      # A gem that cannot be built cannot be published, and finding that out
+      # during a release is finding out too late.
+      - name: Check the package
+        working-directory: gems/notebooklm
+        run: gem build notebooklm.gemspec
+
   security:
     runs-on: ubuntu-latest
 

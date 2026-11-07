@@ -157,6 +157,50 @@ jobs:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
         run: cargo publish
 
+  # The Ruby gem, published with RubyGems trusted publishing: the pending
+  # publisher configured on rubygems.org names this repository and this
+  # workflow file, so there is no token anywhere — not in a secret, not in a
+  # file. RubyGems is the one registry of the three that needs no bootstrap
+  # token for a first publish.
+  publish-gem:
+    name: Publish the Ruby client to RubyGems
+    runs-on: ubuntu-latest
+    needs: release
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      # The gem version is kept equal to the server version by version:sync,
+      # and version:check in `release` has already failed the release if it
+      # drifted. This is the second half of that check: the tag must match too.
+      - name: Verify the gem carries the tagged version
+        working-directory: gems/notebooklm
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME#v}"
+          GEM="$(ruby -Ilib -e 'require "notebooklm/version"; print NotebookLM::VERSION')"
+          if [ "$TAG" != "$GEM" ]; then
+            echo "::error::the tag says ${TAG} and the gem says ${GEM}"
+            exit 1
+          fi
+          echo "gem and tag agree on ${TAG}"
+
+      - name: Authenticate to RubyGems
+        uses: rubygems/configure-trusted-publisher@v1
+
+      - name: Publish
+        working-directory: gems/notebooklm
+        run: |
+          set -euo pipefail
+          gem build notebooklm.gemspec
+          gem push "notebooklm-$(ruby -Ilib -e 'require "notebooklm/version"; print NotebookLM::VERSION').gem"
+
   # Publish server.json to the official MCP Registry. Separate job so a registry
   # hiccup can be re-run alone without re-attempting the npm publish, and gated
   # on `release` so npm ships first. Auth is GitHub Actions OIDC (id-token:

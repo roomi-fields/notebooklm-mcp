@@ -70,7 +70,11 @@ It declares 56 tools, named exactly as the MCP tools are, so `search_passages` i
 
 ## Rust client
 
-A typed async Rust client is published from the same repository as the crate `notebooklm` (https://crates.io/crates/notebooklm, documentation at https://docs.rs/notebooklm). It covers health, the local library, questions with their citations, passage search and a source's indexed text, and returns the UTCP manual for the rest. It does not drive a browser itself: the Google session is bound to the machine it was created on, expires server-side while local cookies still look valid, and needs a patched driver, so the crate talks to the local server that already handles all three. Source: crates/notebooklm-client in https://github.com/roomi-fields/notebooklm-mcp
+A typed async Rust client is published from the same repository as the crate `notebooklm` (https://crates.io/crates/notebooklm, documentation at https://docs.rs/notebooklm). It covers all 56 operations, generated from the OpenAPI specification, with a synchronous twin behind a feature flag. It does not drive a browser itself: the Google session is bound to the machine it was created on, expires server-side while local cookies still look valid, and needs a patched driver, so the crate talks to the local server that already handles all three. Source: crates/notebooklm-client in https://github.com/roomi-fields/notebooklm-mcp
+
+## Ruby client
+
+A Ruby client is published from the same repository as the gem `notebooklm` (https://rubygems.org/gems/notebooklm). It covers the same 56 operations, generated from the same specification, with every response shape documented field by field and no runtime dependencies — Net::HTTP and JSON only. Parameters are keyword arguments under the names the specification gives them; an absent value reads as nil rather than as zero or an empty string. Like the Rust crate it owns no browser and talks to the local server. Source: gems/notebooklm in https://github.com/roomi-fields/notebooklm-mcp
 
 ## Documentation index
 
@@ -108,6 +112,7 @@ actually ask, states its limits, and names alternatives fairly.
 - [Your MCP server is probably listening on 0.0.0.0](https://notebooklm.roomi-fields.com/blog/mcp-server-listening-on-0-0-0-0): our own advisory, why loopback alone is not enough, and the three controls.
 - [Calling NotebookLM from a UTCP client](https://notebooklm.roomi-fields.com/blog/notebooklm-utcp): UTCP is the inverse of MCP — no protocol server; the manual, the client code, and why an OpenAPI operation without an `operationId` silently disappears.
 - [NotebookLM from Rust: a client that compiles](https://notebooklm.roomi-fields.com/blog/notebooklm-rust): why no Rust crate exists for the consumer product, a typed client over the local REST API, and the UTCP route that needs no types.
+- [NotebookLM from Ruby](https://notebooklm.roomi-fields.com/blog/notebooklm-ruby): the gem, what a generated client gets right that a hand-written one does not, and how to generate one for any language from the specification.
 - [Using NotebookLM from Python](https://notebooklm.roomi-fields.com/blog/notebooklm-python): no official SDK; the local REST endpoint, citations as JSON, retrieval that spends nothing, and overnight batching.
 - [A literature review an agent can actually run](https://notebooklm.roomi-fields.com/blog/notebooklm-literature-review-agent): the four-step MCP loop — survey, retrieve, ask, store — and the habits that keep a long review inside the compute allowance.
 

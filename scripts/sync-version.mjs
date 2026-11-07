@@ -125,6 +125,25 @@ const targets = [
       s.replace(/notebooklm = "\d+\.\d+"/, `notebooklm = "${v.split('.').slice(0, 2).join('.')}"`),
   },
   {
+    path: 'gems/notebooklm/lib/notebooklm/version.rb',
+    label: 'Ruby gem version',
+    // The gem tracks the server version for the same reason the crate does:
+    // it is a client for one API, and a reader comparing the two should not
+    // have to map between two numbering schemes.
+    transform: (s, v) => s.replace(/(VERSION = ')\d+\.\d+\.\d+'/, `$1${v}'`),
+  },
+  {
+    path: 'gems/notebooklm/README.md',
+    label: 'Ruby gem README dependency line',
+    // What the README tells people to put in their Gemfile. A minor pin,
+    // because that is what semver-compatible means for a caller.
+    transform: (s, v) =>
+      s.replace(
+        /gem 'notebooklm', '~> \d+\.\d+'/,
+        `gem 'notebooklm', '~> ${v.split('.').slice(0, 2).join('.')}'`
+      ),
+  },
+  {
     path: 'ROADMAP.md',
     label: 'ROADMAP current version',
     // The "## Current Version" header drifted to 1.5.4 while the package shipped
