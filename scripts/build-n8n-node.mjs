@@ -20,6 +20,7 @@
  *   node scripts/build-n8n-node.mjs --check   # exit 1 if it would change
  */
 
+import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -453,9 +454,33 @@ ${fieldProperties}
 `;
 }
 
+/**
+ * Hand the output to prettier before writing or comparing it.
+ *
+ * Without this the commit hook reformats what the generator just wrote, and
+ * `--check` then reports drift on every run — a guard that cries wolf is a
+ * guard people switch off. Same reason the Rust generator pipes through
+ * rustfmt.
+ */
+function formatted(source) {
+  try {
+    return execFileSync('npx', ['prettier', '--parser', 'typescript'], {
+      input: source,
+      encoding: 'utf-8',
+      cwd: ROOT,
+      maxBuffer: 32 * 1024 * 1024,
+    });
+  } catch (error) {
+    throw new Error(
+      `prettier could not format the generated node, so it cannot be compared ` +
+        `against what is on disk: ${error.message}`
+    );
+  }
+}
+
 function main() {
   const spec = parse(readFileSync(SPEC, 'utf-8'));
-  const source = build(spec);
+  const source = formatted(build(spec));
   const count = (source.match(/^  '[a-z]+:[a-z_]+': \{$/gm) ?? []).length;
   if (process.argv.includes('--check')) {
     const current = readFileSync(OUT, 'utf-8').replace(/\r\n/g, '\n');
