@@ -1,0 +1,125 @@
+---
+title: 'Gemini Notebook MCP servers compared'
+description: 'Four live MCP servers for Gemini Notebook (formerly NotebookLM), measured the same day: stars, monthly installs, language, what each one is actually shaped for — and the constraint all of them share. Including where this one loses.'
+slug: gemini-notebook-mcp-servers-compared
+authors: [romain]
+tags: [notebooklm, mcp, rest-api, comparison, automation]
+keywords:
+  - gemini notebook mcp
+  - gemini notebook mcp server
+  - notebooklm mcp
+  - notebooklm mcp server
+  - notebooklm mcp comparison
+  - best notebooklm mcp server
+---
+
+Search for a **Gemini Notebook** MCP server — the product called NotebookLM
+until Google renamed it in July 2026 — and you find at least five projects,
+four of them alive, plus a layer of directory pages ranking them without
+measuring anything.
+
+So here are the measurements, taken the same afternoon, with the commands to
+retake them. This project is one of the five, and it is not the biggest: that
+is stated below rather than buried.
+
+{/* truncate */}
+
+## The numbers, 7 November 2026
+
+| Project | Stars | Language | Installs / 30 days | Last push |
+| --- | --- | --- | --- | --- |
+| [teng-lin/notebooklm-py](https://github.com/teng-lin/notebooklm-py) | 20 151 | Python | **134 206** (PyPI `notebooklm-py`) | same day |
+| [jacob-bd/gemini-notebook-mcp-cli](https://github.com/jacob-bd/gemini-notebook-mcp-cli) | 6 472 | Python | **66 615** (`notebooklm-mcp-cli` + `notebooklm-mcp-server`) | day before |
+| [PleasePrompto/notebooklm-mcp](https://github.com/PleasePrompto/notebooklm-mcp) | 3 443 | TypeScript | **11 724** (npm `notebooklm-mcp`) | **archived** 10 Sep 2026 |
+| [roomi-fields/notebooklm-mcp](https://github.com/roomi-fields/notebooklm-mcp) (this one) | 228 | TypeScript | **5 411** (npm `@roomi-fields/notebooklm-mcp`) | same day |
+| [PavelGuzenfeld/notebooklm-mcp](https://github.com/PavelGuzenfeld/notebooklm-mcp) | 2 | Python | 45 (PyPI `mcp-notebooklm`) | Sep 2026 |
+
+Retake it yourself — no key, no account:
+
+```bash
+gh api repos/teng-lin/notebooklm-py --jq '.stargazers_count'
+curl -s https://pypistats.org/api/packages/notebooklm-py/recent | jq .data.last_month
+curl -s https://api.npmjs.org/downloads/point/last-month/notebooklm-mcp | jq .downloads
+```
+
+Read install counts as orders of magnitude, not headcounts: mirrors, proxies
+and continuous-integration runs are in there, and a fresh package can show
+dozens of downloads within hours of a release with nobody involved.
+
+## What each one is shaped for
+
+**notebooklm-py** is a Python library first, with a CLI, an MCP server and an
+agent skill around it. It covers the internal API more broadly than anything
+else here, and it is used thirty times more than the next TypeScript project.
+If you write Python, start there — we read its source before building anything
+new, and say so in our own contributor notes.
+
+**gemini-notebook-mcp-cli** is a command line with an MCP server attached, 43
+tools by its own count, and the only project that put the current product name
+in its repository name — which is why it owns the `gemini notebook mcp` search
+outright.
+
+**PleasePrompto/notebooklm-mcp** was **archived on 10 September 2026** and is
+still the second-most installed package in this list, which is worth knowing
+before you build on it: it works until Google next changes something. This
+project grew out of it — 17 of its 19 tool names still work here unchanged —
+and the [migration page](/compare) exists for exactly that.
+
+**This project** is the only one where the HTTP REST API is the product rather
+than a side effect: **56 endpoints**, the same 56 as MCP tools, the same 56
+described in a [UTCP](/blog/notebooklm-utcp) manual, and typed clients in
+[Rust](/blog/notebooklm-rust) and [Ruby](/blog/notebooklm-ruby) generated from
+the specification. That shape exists because an agent is not the only caller:
+n8n, Zapier, Make, cron and `curl` all speak HTTP and none of them speak MCP.
+
+**mcp-notebooklm** wraps notebooklm-py for MCP. At 45 installs a month it is a
+weekend project, listed here because directories list it.
+
+## Where this one loses
+
+- **Reach.** 228 stars against 20 151, and 5 411 installs against 134 206. If
+  you are choosing by community size, the choice is not this one.
+- **Breadth of the internal API.** The Python projects got to several internal
+  endpoints first; our own contributor notes tell us to read theirs before
+  writing anything new.
+- **Node, and a browser.** It needs Node 22+ and a Chromium it drives; the
+  Python tools need Python and the same browser. Nobody here escapes the
+  browser.
+
+## Where it wins
+
+- **A REST API with a published, valid OpenAPI 3.1 specification** — all 56
+  operations named and typed, so a client [generates in about ten
+  seconds](/blog/notebooklm-client-any-language) in any language.
+- **Citations as data.** `ask_question` returns the quoted passage behind every
+  marker, with its source name, as JSON — not markers to parse out of prose.
+  [How, and what the shape is](/blog/notebooklm-citations-as-json).
+- **Retrieval that spends no generation allowance**: `search_passages` returns
+  the indexed passages for a query without generating anything.
+- **Multi-account rotation with automatic re-authentication**, because the
+  allowance is per account.
+- **Security handled in the open**: three advisories found, fixed and published
+  with their CVSS, and a build that fails on an unjustified exception.
+
+## The constraint all of them share
+
+None of these is official. Google publishes no API for the consumer product, so
+every project here carries a logged-in Google session into endpoints Google
+never documented — which is why they all need a browser login, and why they all
+break together when something changes upstream. The three properties of that
+session, and the one official API that exists, are in
+[does Gemini Notebook have an API?](/blog/does-notebooklm-have-an-api).
+
+## Pick by what you are building
+
+| If you are… | Pick |
+| --- | --- |
+| writing Python | notebooklm-py |
+| wanting a command line at hand | gemini-notebook-mcp-cli |
+| calling it from n8n, Zapier, Make, cron or curl | this project |
+| wanting citations as structured data | this project |
+| wanting a typed client in Rust or Ruby | this project |
+| running several Google accounts | this project |
+| already on the archived PleasePrompto server | [migrate when convenient](/compare) |
+
+[Install](/install) is one command and one login.

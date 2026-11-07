@@ -32,10 +32,35 @@ notebook operations and audio overviews — a notebook holds one audio overview
 at a time, created through `notebooks.audioOverviews.create`. It is marked
 pre-GA, which means the terms and the shape can both move.
 
-The access path is the part people miss. It needs a Google Cloud project and a
-Gemini Enterprise or Education Premium licence, set up by an administrator. It
-is not a key you sign up for on a developer console, and it does not reach the
-notebooks in your personal account.
+The package is
+[`google.cloud.notebooklm.v1alpha`](https://docs.cloud.google.com/gemini/enterprise/docs/reference/rpc/google.cloud.notebooklm.v1alpha),
+served under Discovery Engine, and it holds exactly five services:
+
+| Service                  | What it can do                                                        |
+| ------------------------ | --------------------------------------------------------------------- |
+| `NotebookService`        | create a notebook, get one, batch-delete, list recently viewed, share |
+| `SourceService`          | batch-create sources, batch-delete, get one                           |
+| `AudioOverviewService`   | create one audio overview, delete it — one per notebook at a time     |
+| `LabelService`           | labels                                                                |
+| `DiscoverSourcesService` | source discovery                                                      |
+
+**Read that list for what is absent.** No method asks a notebook anything.
+There is no chat, no grounded answer, no citation — and no Studio output beyond
+audio: no report, no video, no infographic, no slide deck, no mind map, no
+flashcards, no quiz, no notes. The thing the product is *for* — answers
+grounded in your own sources, with the passage behind each claim — is not in
+its API. That single fact decides most people's choice, and almost no
+comparison states it.
+
+The access path is the rest of the filter. It needs a Google Cloud project and
+a Gemini Enterprise or Education Premium licence, set up by an administrator,
+and calls are signed with the OAuth token of a user account holding that
+licence rather than with a service account. Third-party sources consistently
+report **$9 per licence per month with a 15-licence minimum** after a 30-day
+trial — figures worth checking against Google Cloud's own SKU list before you
+budget on them. Either way the smallest viable purchase is a team, not a
+developer. It is not a key you sign up for on a developer console, and it does
+not reach the notebooks in your personal account.
 
 ## What about the Podcast API?
 
@@ -53,6 +78,16 @@ They also share one honest caveat: nothing about those interfaces is promised.
 Google can change them, and when it does the project breaks until someone
 fixes it. That has happened — the mid-2026 interface rebuild broke every such
 tool at once.
+
+And they share the reason there is no consumer key to find. The consumer
+product authenticates with **a logged-in Google session**, which carries three
+properties worth knowing before you pick a tool: it is **bound to the machine**
+it was created on, so copied cookies are refused even while their local expiry
+still looks valid; it **expires server-side** while those cookies look fine, so
+the only reliable check is to navigate and see where you land; and an unpatched
+automated browser **gets flagged**. Any tool that hides those three from you
+has not solved them. The four projects that exist, measured side by side, are in
+[Gemini Notebook MCP servers compared](/blog/gemini-notebook-mcp-servers-compared).
 
 ## Which should you pick?
 
