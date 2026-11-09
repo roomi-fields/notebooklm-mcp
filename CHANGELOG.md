@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.8.0] - 2026-11-09
+
+### The live compute-meter quota, read with one call
+
+NotebookLM's quota is compute-based: a single meter with a five-hour window and
+a weekly window, each a percentage, plus a per-action table that says what kind
+of work still has quota. There is no daily cap and no balance. `get_usage`
+(REST `GET /usage`) reads it account-wide — no notebook — so a long batch of
+questions or generations can check headroom before it starts, rather than
+discovering the ceiling halfway through.
+
+Two account-scoped reads back it: `GetAccount` for the compute-metering bit,
+and `ListQuotaSummary` only when the bit is on, because a direct call on an
+account without the meter returns prices over empty windows. The roadmap had
+named the wrong RPC — `ZwVcOc`, which is `GetUserSettings`, not the meter —
+caught by reading the protocol at its source before writing anything.
+
+The decoder is pure and unit-tested: window elision (the server omits whichever
+of used/remaining is zero), the frontend's active-window rule, and the exact
+action-name map. The response carries a named schema, so the Rust, Ruby, n8n
+and UTCP clients regenerated with it — fifty-seven operations now.
+
+### Also
+
+The operation count is restated by hand in a few guards and in the standalone
+skill repo; all of them moved to fifty-seven together. A test that had been red
+on `main` since 4.7.0 — its secret-free check on the gem publish job swept in
+the n8n job added after it — is fixed.
+
 ## [4.7.0] - 2026-11-07
 
 ### The published specification was invalid, and nothing checked
