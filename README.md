@@ -176,7 +176,7 @@ curl -H "X-API-Key: $NOTEBOOKLM_API_KEY" http://localhost:3000/utcp
 - **Also published statically** at
   [notebooklm.roomi-fields.com/utcp.json](https://notebooklm.roomi-fields.com/utcp.json),
   for a client configured before the server is up.
-- **56 named tools** — the manual reuses the MCP tool names, so
+- **57 named tools** — the manual reuses the MCP tool names, so
   `search_passages` is `search_passages` on both sides rather than something
   synthesised from a URL path. Every operation in the
   [OpenAPI 3.1 spec](./deployment/docs/openapi.yaml) carries a matching
@@ -200,7 +200,7 @@ A typed async client lives in this repository at
 [`crates/notebooklm-client`](./crates/notebooklm-client) and is published as
 [**`notebooklm`**](https://crates.io/crates/notebooklm) on crates.io
 ([docs](https://docs.rs/notebooklm)), one version per release. It covers **all
-56 operations** — generated from the specification, with a synchronous twin
+57 operations** — generated from the specification, with a synchronous twin
 behind one feature flag.
 
 ```rust
@@ -220,7 +220,7 @@ this server, which already does all three. The reasoning in full:
 The same surface as a gem, in this repository at
 [`gems/notebooklm`](./gems/notebooklm) and published as
 [**`notebooklm`**](https://rubygems.org/gems/notebooklm) on RubyGems, also one
-version per release. All 56 operations, generated from the same specification,
+version per release. All 57 operations, generated from the same specification,
 every response shape documented field by field — and no runtime dependencies.
 
 ```ruby

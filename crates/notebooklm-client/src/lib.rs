@@ -42,7 +42,7 @@
 //!
 //! # Everything else
 //!
-//! This crate covers reading and asking. The server exposes 56 operations in
+//! This crate covers reading and asking. The server exposes 57 operations in
 //! all, and [`Client::get_utcp_manual`] returns the UTCP manual describing every one of
 //! them — which a [UTCP](https://www.utcp.io/) client can call natively,
 //! without any of the types here.
