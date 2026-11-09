@@ -212,6 +212,11 @@ export class ContentManager {
       'button[aria-label*="Téléverser" i]',
       'button[aria-label*="Importer" i]',
       'button[aria-label*="Choose" i]',
+      // Language-independent: the "Add source" button lives in the sources panel
+      // (<source-picker>). Scoping to it matters because the header's "Create
+      // notebook" button carries the same add_2 icon and the generic "add"
+      // selector below would click that one instead.
+      'source-picker button:has(mat-icon:text-is("add_2"))',
       // Icon button with "add" icon specifically
       'button:has(mat-icon:has-text("add"))',
       'button:has(mat-icon:has-text("add_circle"))',
@@ -459,46 +464,74 @@ export class ContentManager {
     try {
       // Click on file upload option (bilingual via i18n)
       const fileTypeSelectors = [
+        // Language-independent: the button carries the Material icon ligature
+        // "upload" whatever the UI language. The translated labels below only
+        // cover fr/en/de/ja, so e.g. a Czech UI ("Nahrát soubory") never
+        // matched and the file input was never created.
+        'button:has(mat-icon:text-is("upload"))',
         ...i18nSelectors('button:has-text("{text}")', 'sourceTypes', 'uploadFiles'),
         ...i18nSelectors('button:has-text("{text}")', 'buttons', 'upload'),
         '[data-type="file"]',
       ];
 
+      // The 2026 UI does not keep an <input type="file">: clicking the button
+      // opens the native chooser. Catch that chooser rather than hunting for an
+      // input, and keep the input path as a fallback for older layouts.
+      let selected = false;
       for (const selector of fileTypeSelectors) {
         try {
           const btn = this.page.locator(selector).first();
-          if (await btn.isVisible({ timeout: 1000 })) {
-            await btn.click();
-            await randomDelay(300, 500);
-            break;
+          if (!(await btn.isVisible({ timeout: 1000 }))) continue;
+
+          const chooserPromise = this.page.waitForEvent('filechooser', { timeout: 5000 });
+          await btn.click();
+          try {
+            const chooser = await chooserPromise;
+            await chooser.setFiles(resolvedPath);
+            selected = true;
+          } catch {
+            // No chooser opened — an <input type="file"> may have appeared instead.
+            chooserPromise.catch(() => undefined);
           }
+          await randomDelay(300, 500);
+          break;
         } catch {
           continue;
         }
       }
 
-      // Find file input and upload
-      const fileInput = await this.page.waitForSelector('input[type="file"]', {
-        state: 'attached',
-        timeout: 5000,
-      });
+      if (!selected) {
+        const fileInput = await this.page.waitForSelector('input[type="file"]', {
+          state: 'attached',
+          timeout: 5000,
+        });
 
-      if (!fileInput) {
-        throw new Error('File input not found');
+        if (!fileInput) {
+          throw new Error('File input not found');
+        }
+
+        await fileInput.setInputFiles(resolvedPath);
       }
-
-      await fileInput.setInputFiles(input.filePath);
       log.info(`  ✅ File selected`);
 
       // Wait for upload to start
       await randomDelay(1000, 2000);
 
-      // Click upload/confirm button
-      await this.clickUploadButton();
+      // With the native file chooser the upload starts as soon as the file is
+      // picked; there is no confirm button. Searching for one is actively
+      // harmful: `button:has-text("Add")` also matches the header's
+      // "Create notebook" button (its text is "add_2Create notebook"), which
+      // silently creates and navigates to an empty notebook.
+      if (!selected) {
+        await this.clickUploadButton();
+      }
 
       // Wait for processing
+      // NotebookLM names an uploaded file after the file itself and ignores any
+      // caller-supplied title, so verify against the file name — matching on
+      // `input.title` made every upload with a title look like a failure.
       const result = await this.waitForSourceProcessing(
-        input.title || path.basename(input.filePath),
+        path.basename(resolvedPath),
         undefined,
         expectedNotebookUuid,
         previousSourceNames

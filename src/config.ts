@@ -122,7 +122,10 @@ const DEFAULTS: Config = {
   // Browser Settings
   headless: true,
   browserTimeout: 600000, // 10 minutes (NotebookLM can be slow)
-  viewport: { width: 1024, height: 768 },
+  // Wide enough for NotebookLM's desktop layout. At 1024px it switches to the
+  // narrow layout (Sources / Chat / Studio tabs) where the "Add source" button
+  // is hidden behind a tab and the header "+" is "Create notebook".
+  viewport: { width: 1440, height: 900 },
 
   // Session Management
   maxSessions: 10,
