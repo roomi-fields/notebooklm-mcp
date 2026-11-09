@@ -118,6 +118,204 @@
       }
     },
     {
+      "name": "get_usage",
+      "description": "Live compute-meter usage (quota)",
+      "tags": [
+        "Health"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "disabled",
+                  "ready",
+                  "skipped",
+                  "failed"
+                ],
+                "description": "disabled when the account has no meter; ready when windows/actions are filled."
+              },
+              "metering_enabled": {
+                "type": "boolean",
+                "description": "False only when the account's compute-meter bit is off."
+              },
+              "windows": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "five_hour",
+                        "weekly",
+                        "unknown"
+                      ],
+                      "description": "Which rolling window this row measures."
+                    },
+                    "code": {
+                      "type": "integer",
+                      "description": "Raw window code (1 five-hour, 2 weekly)."
+                    },
+                    "used_percent": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "description": "Percent of the window already spent (0–100), or null."
+                    },
+                    "remaining_percent": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "description": "Percent still available (0–100), or null."
+                    },
+                    "resets_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "When the window resets, ISO 8601 UTC, or null."
+                    }
+                  }
+                }
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Raw action code (1–22 at time of writing)."
+                    },
+                    "kind": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Named action (e.g. qna, audio_overview), or null for an unknown code."
+                    },
+                    "has_sufficient_quota": {
+                      "type": "boolean",
+                      "description": "Whether this kind of work can still be started now."
+                    },
+                    "cost_tier": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "low",
+                        "medium",
+                        "high",
+                        "very_high",
+                        null
+                      ],
+                      "description": "Relative cost band, or null."
+                    },
+                    "remaining_deferred_artifact_generations": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "description": "Literal count of deferred artifact generations left, or null."
+                    },
+                    "estimated_cost_percent": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "description": "The server's current cost estimate as a percent of budget, or null."
+                    }
+                  }
+                }
+              },
+              "active_window": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "five_hour",
+                          "weekly",
+                          "unknown"
+                        ],
+                        "description": "Which rolling window this row measures."
+                      },
+                      "code": {
+                        "type": "integer",
+                        "description": "Raw window code (1 five-hour, 2 weekly)."
+                      },
+                      "used_percent": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "description": "Percent of the window already spent (0–100), or null."
+                      },
+                      "remaining_percent": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "description": "Percent still available (0–100), or null."
+                      },
+                      "resets_at": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "When the window resets, ISO 8601 UTC, or null."
+                      }
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "The window the frontend would show (weekly once weekly ≥ 100%, else five-hour). Null unless ready."
+              },
+              "is_exhausted": {
+                "type": [
+                  "boolean",
+                  "null"
+                ],
+                "description": "Whether the active window is spent. Null unless ready."
+              }
+            }
+          }
+        }
+      },
+      "tool_call_template": {
+        "name": "get_usage",
+        "call_template_type": "http",
+        "http_method": "GET",
+        "url": "http://localhost:3000/usage",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
       "name": "get_utcp_manual",
       "description": "UTCP tool manual for this server",
       "tags": [

@@ -1,7 +1,7 @@
-# NotebookLM REST API reference — 56 HTTP endpoints
+# NotebookLM REST API reference — 57 HTTP endpoints
 
-> **Coverage.** All 56 endpoints the server exposes are documented below, and
-> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 56 —
+> **Coverage.** All 57 endpoints the server exposes are documented below, and
+> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 57 —
 > both checked against the routes declared in the code.
 
 > Complete reference for the NotebookLM HTTP REST API. Citation-backed Q&A,
@@ -27,7 +27,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## Available Endpoints (56 total)
+## Available Endpoints (57 total)
 
 ### Authentication
 
@@ -256,6 +256,81 @@ UTCP client asks for a value from its own environment. The key itself is never
 in the document.
 
 ---
+
+## 1b. Usage (compute meter)
+
+### `GET /usage`
+
+Read the account's live compute-meter usage. NotebookLM's quota is
+compute-based: one meter with a five-hour window and a weekly window, each a
+percentage, plus a per-action table of what still has quota. There is no daily
+cap and no balance. Account-scoped — no notebook. RPC-backed.
+
+**Request:**
+
+```bash
+curl http://localhost:3000/usage
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "status": "ready",
+    "metering_enabled": true,
+    "windows": [
+      {
+        "kind": "five_hour",
+        "code": 1,
+        "used_percent": 1.87,
+        "remaining_percent": 98.13,
+        "resets_at": "2026-11-09T18:00:00.000Z"
+      },
+      {
+        "kind": "weekly",
+        "code": 2,
+        "used_percent": 0.09,
+        "remaining_percent": 99.91,
+        "resets_at": "2026-11-14T09:00:00.000Z"
+      }
+    ],
+    "actions": [
+      {
+        "code": 18,
+        "kind": "qna",
+        "has_sufficient_quota": true,
+        "cost_tier": "low",
+        "remaining_deferred_artifact_generations": null,
+        "estimated_cost_percent": 0.1
+      }
+    ],
+    "active_window": {
+      "kind": "five_hour",
+      "code": 1,
+      "used_percent": 1.87,
+      "remaining_percent": 98.13,
+      "resets_at": "2026-11-09T18:00:00.000Z"
+    },
+    "is_exhausted": false
+  }
+}
+```
+
+**Fields:**
+
+- `status` - `disabled` (account has no meter), `ready` (windows/actions filled), `skipped` (server declined), or the call fails on a server `failed`
+- `metering_enabled` - false only when the account's compute-meter bit is off
+- `windows[].kind` - `five_hour`, `weekly`, or `unknown`
+- `windows[].used_percent` / `remaining_percent` - 0–100, or null
+- `windows[].resets_at` - ISO 8601 UTC, or null
+- `actions[].kind` - named action (e.g. `qna`, `audio_overview`), or null for an unknown code
+- `actions[].has_sufficient_quota` - whether that kind of work can still be started now
+- `active_window` - the window the frontend would show; null unless `ready`
+- `is_exhausted` - whether the active window is spent; null unless `ready`
+
+Use it to check headroom before a long batch of questions or generations.
 
 ## 2. Ask Question
 

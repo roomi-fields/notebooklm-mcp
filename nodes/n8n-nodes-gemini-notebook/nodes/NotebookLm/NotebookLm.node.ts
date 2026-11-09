@@ -51,6 +51,14 @@ const ROUTES: Record<string, Route> = {
     query: [],
     enveloped: true,
   },
+  'health:get_usage': {
+    method: 'GET',
+    path: '/usage',
+    pathParams: [],
+    body: [],
+    query: [],
+    enveloped: true,
+  },
   'health:get_utcp_manual': {
     method: 'GET',
     path: '/utcp',
@@ -650,6 +658,13 @@ export class NotebookLm implements INodeType {
             value: 'get_health',
             action: 'Server health check',
             description: 'Server health check',
+          },
+          {
+            name: 'Get Usage',
+            value: 'get_usage',
+            action: 'Live compute-meter usage (quota)',
+            description:
+              "The account's live compute-meter usage. NotebookLM's quota is compute-based: one meter with a five-hour window and a weekly window, each a percentage, plus a per-action table saying what still has quota. There is no daily cap and no balance. Account-scoped — no notebook. `status` is `disabled` when the account has no compute meter, `ready` with the windows and actions filled when it does, `skipped` when the server declined to report, and the call fails on a server `failed`.",
           },
           {
             name: 'Get UTCP Manual',

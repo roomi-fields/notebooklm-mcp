@@ -46,6 +46,67 @@ module NotebookLM
     field :troubleshooting_tip, 'troubleshooting_tip'
   end
 
+  # The `GetUsageData` shape.
+  class GetUsageData < Model
+    # disabled when the account has no meter; ready when windows/actions are filled.
+    # @return [String]
+    field :status, 'status'
+    # False only when the account's compute-meter bit is off.
+    # @return [Boolean]
+    field :metering_enabled, 'metering_enabled'
+    # @return [Array<UsageWindow>]
+    field :windows, 'windows', type: 'UsageWindow', array: true
+    # @return [Array<UsageAction>]
+    field :actions, 'actions', type: 'UsageAction', array: true
+    # The window the frontend would show (weekly once weekly ≥ 100%, else five-hour). Null unless ready.
+    # @return [Object]
+    field :active_window, 'active_window'
+    # Whether the active window is spent. Null unless ready.
+    # @return [Boolean, nil]
+    field :is_exhausted, 'is_exhausted'
+  end
+
+  # The `UsageWindow` shape.
+  class UsageWindow < Model
+    # Which rolling window this row measures.
+    # @return [String]
+    field :kind, 'kind'
+    # Raw window code (1 five-hour, 2 weekly).
+    # @return [Integer]
+    field :code, 'code'
+    # Percent of the window already spent (0–100), or null.
+    # @return [Float, nil]
+    field :used_percent, 'used_percent'
+    # Percent still available (0–100), or null.
+    # @return [Float, nil]
+    field :remaining_percent, 'remaining_percent'
+    # When the window resets, ISO 8601 UTC, or null.
+    # @return [String, nil]
+    field :resets_at, 'resets_at'
+  end
+
+  # The `UsageAction` shape.
+  class UsageAction < Model
+    # Raw action code (1–22 at time of writing).
+    # @return [Integer]
+    field :code, 'code'
+    # Named action (e.g. qna, audio_overview), or null for an unknown code.
+    # @return [String, nil]
+    field :kind, 'kind'
+    # Whether this kind of work can still be started now.
+    # @return [Boolean]
+    field :has_sufficient_quota, 'has_sufficient_quota'
+    # Relative cost band, or null.
+    # @return [String, nil]
+    field :cost_tier, 'cost_tier'
+    # Literal count of deferred artifact generations left, or null.
+    # @return [Integer, nil]
+    field :remaining_deferred_artifact_generations, 'remaining_deferred_artifact_generations'
+    # The server's current cost estimate as a percent of budget, or null.
+    # @return [Float, nil]
+    field :estimated_cost_percent, 'estimated_cost_percent'
+  end
+
   # A UTCP manual, whose shape belongs to the client's own model rather than to this server. Every url is rebased onto the address the request arrived at.
   class UtcpManual < Model
     # @return [String]
@@ -1069,10 +1130,11 @@ module NotebookLM
   # and the documentation of the API stay separate things.
   module Operations
     # Every operation id, in specification order. The server exposes
-    # 56 of them.
+    # 57 of them.
     OPERATION_IDS = %w[
       get_server_info
       get_health
+      get_usage
       get_utcp_manual
       setup_auth
       de_auth
@@ -1149,6 +1211,26 @@ module NotebookLM
     def get_health
       payload = call('get_health', :get, '/health')
       GetHealthData.new(payload)
+    end
+
+    # Live compute-meter usage (quota)
+    #
+    # The account's live compute-meter usage. NotebookLM's quota is
+    # compute-based: one meter with a five-hour window and a weekly window,
+    # each a percentage, plus a per-action table saying what still has quota.
+    # There is no daily cap and no balance. Account-scoped — no notebook.
+    #
+    # `status` is `disabled` when the account has no compute meter, `ready`
+    # with the windows and actions filled when it does, `skipped` when the
+    # server declined to report, and the call fails on a server `failed`.
+    #
+    # `GET /usage`
+    #
+    # @return [GetUsageData]
+    # @raise [NotebookLM::Refused] when the server declines the request
+    def get_usage
+      payload = call('get_usage', :get, '/usage')
+      GetUsageData.new(payload)
     end
 
     # UTCP tool manual for this server

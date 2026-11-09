@@ -844,6 +844,10 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case 'get_usage':
+            result = await this.toolHandlers.handleGetUsage();
+            break;
+
           default:
             log.error(`❌ [MCP] Unknown tool: ${name}`);
             return {

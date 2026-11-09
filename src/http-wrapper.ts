@@ -156,6 +156,17 @@ app.get('/health', async (_req: Request, res: Response) => {
   }
 });
 
+// Live compute-meter usage (account-scoped, RPC-backed). No notebook.
+app.get('/usage', async (_req: Request, res: Response) => {
+  try {
+    res.json(await toolHandlers.handleGetUsage());
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
 // Ask question
 app.post('/ask', async (req: Request, res: Response) => {
   const reqId = req.requestId.substring(0, 8); // Short ID for logs

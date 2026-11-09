@@ -71,9 +71,12 @@ describe('the guards around it', () => {
     expect(release).toContain('vars.RUBYGEMS_OWNER');
     expect(release).toContain('gem push');
     // No secret of any kind on the RubyGems path.
+    // End at the next job: publish-n8n-node sits between gem and registry and
+    // legitimately carries secrets.NPM_TOKEN (npm has no OIDC for a scoped
+    // first publish), so the slice must stop before it to test the gem alone.
     const job = release.slice(
       release.indexOf('publish-gem:'),
-      release.indexOf('publish-registry:')
+      release.indexOf('publish-n8n-node:')
     );
     expect(job).not.toMatch(/secrets\./);
   });
@@ -110,7 +113,7 @@ describe('the generated surface', () => {
   const methods = [...generated.matchAll(/^    def (\w+)/gm)].map((m) => m[1]);
 
   it('covers every operation in the specification', () => {
-    expect(operations.length).toBe(56);
+    expect(operations.length).toBe(57);
     expect([...methods].sort()).toEqual([...operations].sort());
   });
 

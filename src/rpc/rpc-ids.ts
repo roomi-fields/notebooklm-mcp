@@ -82,6 +82,10 @@ export const RPC_IDS = {
 
   // Export (to Google Docs / Sheets)
   EXPORT_ARTIFACT: 'Krh3pd',
+
+  // Account / live compute-meter usage (account-scoped, no notebook)
+  GET_ACCOUNT: 'SatQRc', // GetAccount — carries PremiumUserInfo.computeMeteringEnabled
+  LIST_QUOTA_SUMMARY: 'EylDcb', // ListQuotaSummary — the unified compute meter
 } as const;
 
 export type RpcName = keyof typeof RPC_IDS;

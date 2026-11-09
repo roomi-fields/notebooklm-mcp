@@ -61,6 +61,70 @@ pub struct GetHealthData {
     pub troubleshooting_tip: String,
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct GetUsageData {
+    /// disabled when the account has no meter; ready when windows/actions are filled.
+    #[serde(default)]
+    pub status: String,
+    /// False only when the account's compute-meter bit is off.
+    #[serde(default)]
+    pub metering_enabled: bool,
+    #[serde(default)]
+    pub windows: Vec<UsageWindow>,
+    #[serde(default)]
+    pub actions: Vec<UsageAction>,
+    /// The window the frontend would show (weekly once weekly ≥ 100%, else five-hour). Null unless ready.
+    #[serde(default)]
+    pub active_window: serde_json::Value,
+    /// Whether the active window is spent. Null unless ready.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_exhausted: Option<bool>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct UsageWindow {
+    /// Which rolling window this row measures.
+    #[serde(default)]
+    pub kind: String,
+    /// Raw window code (1 five-hour, 2 weekly).
+    #[serde(default)]
+    pub code: i64,
+    /// Percent of the window already spent (0–100), or null.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub used_percent: Option<f64>,
+    /// Percent still available (0–100), or null.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remaining_percent: Option<f64>,
+    /// When the window resets, ISO 8601 UTC, or null.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resets_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct UsageAction {
+    /// Raw action code (1–22 at time of writing).
+    #[serde(default)]
+    pub code: i64,
+    /// Named action (e.g. qna, audio_overview), or null for an unknown code.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<String>,
+    /// Whether this kind of work can still be started now.
+    #[serde(default)]
+    pub has_sufficient_quota: bool,
+    /// Relative cost band, or null.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cost_tier: Option<String>,
+    /// Literal count of deferred artifact generations left, or null.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remaining_deferred_artifact_generations: Option<i64>,
+    /// The server's current cost estimate as a percent of budget, or null.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub estimated_cost_percent: Option<f64>,
+}
+
 /// A UTCP manual, whose shape belongs to the client's own model rather than to this server. Every url is rebased onto the address the request arrived at.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -1580,6 +1644,29 @@ impl Client {
             "get_health",
             reqwest::Method::GET,
             "/health",
+            None::<&()>,
+            None::<&()>,
+        )
+        .await
+    }
+
+    /// Live compute-meter usage (quota)
+    ///
+    /// The account's live compute-meter usage. NotebookLM's quota is
+    /// compute-based: one meter with a five-hour window and a weekly window,
+    /// each a percentage, plus a per-action table saying what still has quota.
+    /// There is no daily cap and no balance. Account-scoped — no notebook.
+    ///
+    /// `status` is `disabled` when the account has no compute meter, `ready`
+    /// with the windows and actions filled when it does, `skipped` when the
+    /// server declined to report, and the call fails on a server `failed`.
+    ///
+    /// `GET /usage`
+    pub async fn get_usage(&self) -> Result<GetUsageData> {
+        self.send_empty(
+            "get_usage",
+            reqwest::Method::GET,
+            "/usage",
             None::<&()>,
             None::<&()>,
         )

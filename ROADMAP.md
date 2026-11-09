@@ -78,7 +78,7 @@ because the appended site name made every one of them 71 to 117 characters.
 | Notebook collections                              | label ids with discriminator 3 |                                                                                               |
 | Synchronous source discovery (~10 results)        | `Es3dTe`                       |                                                                                               |
 | Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                                   |
-| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 50 with no filter.     |
+| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 51 with no filter.     |
 
 ### Reach — a remote MCP transport we do not have
 

@@ -76,6 +76,7 @@ import {
 import { SharingRpc, type ShareStatus } from '../rpc/sharing-rpc.js';
 import { ChatRpc, type ChatTurn } from '../rpc/chat-rpc.js';
 import { SearchRpc, type RelevantPassage } from '../rpc/search-rpc.js';
+import { UsageRpc, type UsageSummary } from '../rpc/usage-rpc.js';
 import {
   MindMapRpc,
   LabelsRpc,
@@ -2064,6 +2065,18 @@ User: "Yes" → call remove_notebook`,
           },
         },
         required: ['query'],
+      },
+    },
+    {
+      name: 'get_usage',
+      description:
+        'Read the account’s live compute-meter usage (RPC-backed, account-scoped — no notebook). ' +
+        'Returns the five-hour and weekly quota windows as percentages, their reset times, and a ' +
+        'per-action table of what still has quota. status=disabled when the account has no meter. ' +
+        'Use it to check headroom before a long batch of questions or generations.',
+      inputSchema: {
+        type: 'object',
+        properties: {},
       },
     },
   ];
@@ -5145,6 +5158,25 @@ export class ToolHandlers {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] research_sources failed: ${msg}`);
+      return { success: false, error: msg };
+    }
+  }
+
+  /**
+   * Read the account's live compute-meter usage (RPC-only extension). No
+   * notebook — the meter is account-scoped. Returns a `disabled` status when
+   * the account has no compute meter; otherwise the five-hour and weekly
+   * windows and the per-action quota table.
+   */
+  async handleGetUsage(): Promise<ToolResult<UsageSummary>> {
+    log.info(`🔧 [TOOL] get_usage called`);
+    try {
+      const usage = await new UsageRpc(await this.getRpcClient()).getUsage();
+      log.success(`  ✅ (RPC) usage: ${usage.status}`);
+      return { success: true, data: usage };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] get_usage failed: ${msg}`);
       return { success: false, error: msg };
     }
   }

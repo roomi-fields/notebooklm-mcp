@@ -53,7 +53,7 @@ The rest:
 | ------------------------------------- | -------------------------------------------------------------- |
 | `NOTEBOOKLM_PORT` / `NOTEBOOKLM_HOST` | `HTTP_PORT` / `HTTP_HOST`                                      |
 | `NOTEBOOKLM_BROWSER_CHANNEL`          | `BROWSER_CHANNEL`                                              |
-| `NOTEBOOKLM_PROFILE` (tool profiles)  | no equivalent — all 50 tools are exposed                       |
+| `NOTEBOOKLM_PROFILE` (tool profiles)  | no equivalent — all 51 tools are exposed                       |
 | `NOTEBOOKLM_DISABLED_TOOLS`           | no equivalent yet                                              |
 | `NOTEBOOKLM_ACCOUNT`                  | a different multi-account system — see the multi-account guide |
 | `NOTEBOOKLM_AI_MARKER` / `_PREFIX`    | no equivalent                                                  |

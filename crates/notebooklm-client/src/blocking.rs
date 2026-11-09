@@ -52,6 +52,11 @@ impl Client {
         self.runtime.block_on(self.inner.get_health())
     }
 
+    /// See [`crate::Client::get_usage`].
+    pub fn get_usage(&self) -> Result<GetUsageData> {
+        self.runtime.block_on(self.inner.get_usage())
+    }
+
     /// See [`crate::Client::get_utcp_manual`].
     pub fn get_utcp_manual(&self) -> Result<UtcpManual> {
         self.runtime.block_on(self.inner.get_utcp_manual())
