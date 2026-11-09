@@ -67,7 +67,6 @@ because the appended site name made every one of them 71 to 117 characters.
 
 | Capability                                        | RPC id                         | Notes                                                                                         |
 | ------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
-| Quota meter and subscription tier                 | `EylDcb`, `ZwVcOc`             | Needed for long batch runs. Call `EylDcb` only when `SatQRc` reports metering enabled.        |
 | Cancel a running answer or research               | `XgrPMd`, `Zbrupe`             | For research, cancel with the **report id**, not the task id — the task id is a silent no-op. |
 | Copy a notebook, sources, or artifacts            | `te3DCe`, `R27wvc`, `mKDdke`   | No MCP server exposes these.                                                                  |
 | Independent conversations per notebook            | —                              | The most repeated user request on the competitor's tracker.                                   |
@@ -194,6 +193,15 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 ---
 
 ## Recently Implemented
+
+### Unreleased - The live compute-meter quota (`get_usage`)
+
+Read the account's compute meter — the five-hour and weekly windows as
+percentages, their reset times, and the per-action table of what still has
+quota — so a long batch of questions or generations can check headroom first.
+Account-scoped, RPC-backed (`GetAccount` / `ListQuotaSummary`). The roadmap had
+cited `ZwVcOc`, which is `GetUserSettings`, not the meter. GET `/usage`, the
+`get_usage` tool, and a named response schema that regenerated the four clients.
 
 ### Unreleased - A Rust client, as a crate in this repository
 
