@@ -32,8 +32,8 @@ describe('Config Module', () => {
 
     it('should have valid viewport dimensions', () => {
       expect(CONFIG.viewport).toBeDefined();
-      expect(CONFIG.viewport.width).toBe(1024);
-      expect(CONFIG.viewport.height).toBe(768);
+      expect(CONFIG.viewport.width).toBe(1440);
+      expect(CONFIG.viewport.height).toBe(900);
       expect(CONFIG.viewport.width).toBeGreaterThan(0);
       expect(CONFIG.viewport.height).toBeGreaterThan(0);
     });
