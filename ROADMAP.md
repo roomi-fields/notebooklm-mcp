@@ -79,6 +79,33 @@ because the appended site name made every one of them 71 to 117 characters.
 | Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                                   |
 | Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 51 with no filter.     |
 
+### Source file upload over RPC — delete our most fragile DOM flow
+
+`add_source` with `type: file` is the only ingest path still driven through the browser: it
+locates a button by its visible text, so it broke on every UI language we do not translate
+(#41, a Czech UI) and depends on the viewport/layout. `teng-lin/notebooklm-py` does it over
+the wire, language-independent — and it would have avoided the bug entirely. This is the
+single highest-value DOM→RPC migration left.
+
+The mechanism is a four-step pipeline, not a one-shot call — the file bytes never travel
+through `batchexecute`. (1) Acquire a **Scotty** resumable-upload URL (Scotty is Google's
+shared large-file upload service, used by Gmail/Drive/Photos; the headers carry the
+`x-goog-upload-*` prefix). (2) POST `x-goog-upload-command: start` announcing size +
+content-type → the server hands back a one-time upload URL. (3) PUT the bytes with
+`x-goog-upload-command: upload, finalize`. (4) Register the staged blob as a source through
+`batchexecute` `ADD_SOURCE_FILE` (`o4cbdc`), then poll until ready. Only step 4 is a
+`batchexecute` RPC; steps 1–3 are direct Scotty HTTP — **net-new plumbing** in our RPC
+transport, which today only sends small command arrays, not streamed binary with
+offset/resume.
+
+Two honest risks: `o4cbdc` is marked **unconfirmed even in notebooklm-py**, and the Scotty
+responses must be observed on a live authenticated account (Windows-side) before merge. So
+this is feature-sized, not a quick win: implement the pipeline + decoders + tests against the
+documented shapes, validate one real upload live, then ship RPC-first with the DOM path as
+fallback. Protocol map collected in session memory (`project_source_upload_rpc`); source of
+truth is notebooklm-py `_web/sources/upload.py`, `_web/params/sources.py`,
+`_web/sources/_upload_decode.py`, `rpc/_identifiers.py`.
+
 ### Reach — a remote MCP transport we do not have
 
 Found while assessing `VoidenHQ/voiden` (1 785 stars, Apache-2.0, an offline git-native
