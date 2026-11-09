@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-gemini-notebook",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "description": "n8n community node for Google Gemini Notebook (formerly NotebookLM): citation-backed answers, passage retrieval, Studio generation — all 57 operations of a local notebooklm-mcp server.",
   "keywords": [
     "n8n-community-node-package",

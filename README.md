@@ -4,7 +4,7 @@
 
 **Automate Google Gemini Notebook — formerly, and still widely known as, NotebookLM — at scale. 57-endpoint HTTP REST API for n8n / Zapier / Make / curl, an MCP server for Claude Code / Cursor / Codex, a UTCP interface for clients that call the API natively, and Rust and Ruby clients. Citation-backed Q&A, full Studio generation (audio · video · infographic · report · presentation · data table), multi-account rotation with auto-reauth across personal and Google Workspace accounts.**
 
-> v4.7.0 — **Node 22 is now the floor, and the last four open advisories are gone with it.** The declared floor of Node 18 had quietly become fiction: three production dependencies already required Node 20 or newer, and the test matrix kept passing on 18 without exercising them. Raising it also let the third-party file globber go — its dependency chain carried four advisories with no fix upstream — replaced by Node's built-in search, now actually under test. Builds on **4.0.0**, where the HTTP API stopped being open to the network and to any web page ([GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/notebooklm-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)): it binds loopback, refuses unlisted origins, and takes a bearer token — **remote access and Docker require `NOTEBOOKLM_API_KEY`**, see [Securing the HTTP API](./deployment/docs/15-SECURITY.md). Built on a **dual transport** — the internal `batchexecute` RPC API (10-100× faster than scraping, immune to UI rebrands) with the Playwright browser as an automatic fallback. See the [changelog](./CHANGELOG.md).
+> v4.8.0 — **Node 22 is now the floor, and the last four open advisories are gone with it.** The declared floor of Node 18 had quietly become fiction: three production dependencies already required Node 20 or newer, and the test matrix kept passing on 18 without exercising them. Raising it also let the third-party file globber go — its dependency chain carried four advisories with no fix upstream — replaced by Node's built-in search, now actually under test. Builds on **4.0.0**, where the HTTP API stopped being open to the network and to any web page ([GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/notebooklm-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)): it binds loopback, refuses unlisted origins, and takes a bearer token — **remote access and Docker require `NOTEBOOKLM_API_KEY`**, see [Securing the HTTP API](./deployment/docs/15-SECURITY.md). Built on a **dual transport** — the internal `batchexecute` RPC API (10-100× faster than scraping, immune to UI rebrands) with the Playwright browser as an automatic fallback. See the [changelog](./CHANGELOG.md).
 
 > **Note (July 2026):** Google rebranded **NotebookLM** to **Gemini Notebook**. It is the same product, existing links redirect, and this project drives the same underlying service — the browser path was updated for the new DOM in v2.3.0 and the RPC path in v3.0.0. Package and repository keep the `notebooklm` name.
 
@@ -361,6 +361,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 <!-- releases:start — generated from CHANGELOG.md by scripts/sync-facts.mjs; do not edit by hand -->
 
+- **v4.8.0** (2026-11-09) — The live compute-meter quota, read with one call
 - **v4.7.0** (2026-11-07) — The published specification was invalid, and nothing checked · The Rust client covers the whole API, and is generated · and more
 - **v4.6.0** (2026-11-06) — Retry a failed generation without losing its id · A UTCP interface, and 56 named operations · and more
 - **v4.5.0** (2026-10-30) — Search the sources without paying for an answer
@@ -370,7 +371,6 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 - **v4.1.0** (2026-10-18) — Changed — Node 22 is the floor, and the last four advisories left with it
 - **v4.0.0** (2026-10-18) — Security — the HTTP API is no longer open to the network or to any web page · Fixed — an account could vanish on creation · and more
 - **v3.2.0** (2026-09-03) — Added — `content_delete`: generated content can finally be removed · Closed — both open issues, settled by measurement rather than by waiting
-- **v3.1.2** (2026-08-21) — Fixed — 3.1.1's browser-path language fix covered one dialog shape out of two · Added — an unapplied language is now said out loud
 
 <!-- releases:end -->
 
