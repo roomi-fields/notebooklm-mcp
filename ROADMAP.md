@@ -121,6 +121,30 @@ listings say.
 | MCP over streamable HTTP, mounted on the existing server | One route on the wrapper, reusing the token, the host guard and the origin check that 4.0.0–4.4.0 put there. The tool definitions and the dispatch switch already exist; only the transport is missing. |
 | Say which transports we speak, where we are listed       | Directories and our own docs imply a network-reachable server. Today that is only true of the REST API.                                                                                                 |
 
+### Zapier public integration — directory presence, gated on real demand
+
+Search Console shows people looking for "zapier notebooklm" (position 18, but only ~3
+impressions in 28 days — a thread, not a flood). There is no Zapier app for NotebookLM, and
+our REST API already covers the gap: a **Webhooks by Zapier → Custom Request** calls `/ask`
+with an `X-API-Key` header and reads `data.answer` + `data.sources.citations` — documented in
+the blog post `notebooklm-zapier-webhooks`, which captures the query with zero maintenance.
+
+A listed, public Zapier integration is the next step up, and it is a real project, not a
+quick win:
+
+| Item                                   | Note                                                                                                                                        |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build the app (triggers + actions)     | Zapier Platform UI or the code-first CLI. An `ask` action maps cleanly to `/ask`; a notebook picker needs `/notebooks`.                     |
+| Auth: API key works, OAuth is smoother | Zapier accepts API-key auth but prefers OAuth for review. We only expose a bearer/`X-API-Key` token — publishable, but it is what they eye. |
+| Publication is gated on active users   | Zapier keeps an integration **private until it has enough unique users with live Zaps**. Chicken-and-egg: the blog recipe seeds that usage. |
+| Review cycle                           | Submit in the Platform UI; a reviewer replies in ~1 week (a ~10-day backlog was reported April 2026). A maintenance surface we would own.   |
+
+**Decision (2026-11-11): not now.** The demand signal is a filet, the app is a gatekept
+maintenance surface, and the free blog recipe already serves the search intent. Revisit when
+"zapier notebooklm" climbs in the daily tracker, or when a user actually asks for the listed
+app. Unlike the n8n community node — which we publish freely with no gatekeeper — a public
+Zapier app cannot be shipped on our own schedule.
+
 ### From the Go tool, which is ahead of us on sources and notes
 
 `tmc/nlm` (MIT, 392 stars, active) covers several things we do not, and its

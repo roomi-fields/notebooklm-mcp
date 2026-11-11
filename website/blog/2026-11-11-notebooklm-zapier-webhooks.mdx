@@ -1,0 +1,150 @@
+---
+title: 'Connect Gemini Notebook to Zapier using a Webhooks step'
+description: 'Zapier has no NotebookLM app, but you do not need one. A Webhooks by Zapier custom request can call your own Gemini Notebook HTTP endpoint and pull a citation-backed answer straight into any Zap.'
+slug: notebooklm-zapier-webhooks
+authors: [romain]
+tags: [notebooklm, zapier, automation, rest-api]
+keywords:
+  - notebooklm zapier
+  - zapier notebooklm
+  - gemini notebook zapier
+  - webhooks by zapier notebooklm
+  - notebooklm automation
+  - notebooklm api zapier
+  - gemini notebook
+---
+
+Search Zapier's app directory for NotebookLM and you find a page that says the
+integration has not been built. There is no trigger, no action, no module. That
+is still true in late 2026.
+
+You do not need one. Zapier ships a generic HTTP action — **Webhooks by
+Zapier** — and your Gemini Notebook server already speaks plain HTTP with a key.
+Point one at the other and a Zap can ask a notebook a question and read the
+citation-backed answer like any other step.
+
+{/* truncate */}
+
+> **A note on the name.** Google renamed NotebookLM to **Gemini Notebook** in
+> July 2026. Same product, old links redirect, and everything below applies to
+> both — the two names are used interchangeably here because that is how people
+> still search for it.
+
+## Why is there no Zapier app?
+
+A Zapier app needs an API with a key, and the consumer Gemini Notebook has
+neither. Google's documented API is the enterprise one, behind a Cloud project
+and an administrator — an app built on it would serve only the users who could
+already script it.
+
+So the piece Zapier is missing is the thing our server adds: a small HTTP
+endpoint that holds your Google session and exposes the operations as ordinary
+routes. Once that exists, the "no app" problem is a non-problem, because the
+generic Webhooks action reaches any HTTP endpoint.
+
+## What is the recipe?
+
+One step: **Webhooks by Zapier → Custom Request**.
+
+- **Method:** `POST`
+- **URL:** `https://your-host/ask`
+- **Data** (JSON body):
+
+```json
+{
+  "question": "What changed in this week's board pack?",
+  "notebook_id": "<your-notebook-id>",
+  "source_format": "markdown"
+}
+```
+
+- **Headers:**
+
+```
+X-API-Key: your-token
+Content-Type: application/json
+```
+
+Set the _Data Pass-Through?_ field to `false` so Zapier sends the JSON body
+above rather than the trigger's fields. The server also accepts
+`Authorization: Bearer your-token` if you prefer the standard header.
+
+The one field people forget is `source_format`. It defaults to `none`, and with
+`none` the answer comes back without citations. Set it to `markdown` (or `text`)
+and the sources arrive with the answer.
+
+## What does Zapier get back?
+
+A JSON object you can map straight into the next step:
+
+```json
+{
+  "success": true,
+  "data": {
+    "status": "success",
+    "answer": "The pack adds a cash-runway slide and revises Q4 guidance…",
+    "session_id": "…",
+    "sources": {
+      "format": "markdown",
+      "citations": [
+        {
+          "marker": "[1]",
+          "number": 1,
+          "sourceText": "Runway extended to 14 months…",
+          "sourceName": "Q3 board pack.pdf"
+        }
+      ],
+      "extraction_success": true
+    }
+  }
+}
+```
+
+In the Zap's later steps, `data__answer` is the text, and each entry under
+`data__sources__citations` carries a `marker`, a `number`, the quoted
+`sourceText` and, when known, the `sourceName`. Keep `data__session_id` if a
+follow-up step should continue the same thread instead of starting fresh.
+
+The answer is just data from there: it can land in a sheet row, a Slack message,
+a database, or a document, like anything else in a Zap.
+
+## Where does the endpoint have to run?
+
+Somewhere Zapier's cloud can reach — that is the real constraint, and it is the
+same one the [n8n, Zapier and Make overview](/notebooklm-n8n-zapier-make)
+describes.
+
+Zapier runs in Google's cloud, not on your laptop, so the server has to sit on a
+host Zapier can see. The moment it does, you are exposing an endpoint that holds
+a live Google session, so set a token: our server refuses to start on a public
+interface without one, which is deliberate — the failure is louder than a leak.
+
+## When is this the wrong tool?
+
+- **When latency matters.** An answer takes seconds, not milliseconds. Do not
+  put it in front of someone waiting on a synchronous Zap.
+- **When the Zap must never stall.** Usage is a compute allowance that refreshes
+  every few hours and can run out mid-run.
+- **When exposing the server to the public internet is the only way to reach
+  Zapier.** Weigh that against keeping the work on a self-hosted automation tool
+  on the same machine instead.
+- **When a plain Gemini API call would do.** If you do not need grounding in your
+  own documents, you do not need any of this.
+
+## Trying it
+
+Run the server, then send the exact request your Zap will send:
+
+```bash
+npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth
+NOTEBOOKLM_API_KEY=your-token HTTP_PORT=3000 node dist/http-wrapper.js
+
+curl -s -X POST http://localhost:3000/ask \
+  -H "X-API-Key: your-token" \
+  -H "Content-Type: application/json" \
+  -d '{"question":"What changed this week?","notebook_id":"<id>","source_format":"markdown"}'
+```
+
+Node 22 or newer. The full endpoint list is in
+[the API reference](/notebooklm-rest-api), and if you self-host your automation
+the [n8n guide](/notebooklm-n8n) wires the same call as a native node.
