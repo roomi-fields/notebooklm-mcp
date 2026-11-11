@@ -7,12 +7,12 @@
     "url": "https://github.com/roomi-fields/notebooklm-mcp",
     "source": "github"
   },
-  "version": "4.8.0",
+  "version": "4.9.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@roomi-fields/notebooklm-mcp",
-      "version": "4.8.0",
+      "version": "4.9.0",
       "transport": {
         "type": "stdio"
       }
