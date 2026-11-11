@@ -118,20 +118,21 @@ describe('the release that publishes it', () => {
     expect(release).toContain('npm publish --provenance --access public');
   });
 
-  it('prefers OIDC, and names its one bootstrap secret as temporary', () => {
+  it('publishes over OIDC, reading no npm token at all', () => {
     const job = release.slice(
       release.indexOf('publish-n8n-node:'),
       release.indexOf('publish-registry:')
     );
-    // npm cannot be given a trusted publisher for a package it has never
-    // seen, so the first publish of a new name went out on a token. The guard
-    // is not "no secret" but "no undocumented secret": one secret, named, with
-    // the route out of it written beside it.
+    // The package now has a trusted publisher on npm (configured 2026-11-11,
+    // first OIDC publish 4.9.0), so this job publishes over OIDC exactly like
+    // the main one — nothing to store or rotate. The invariant is no npm token
+    // is read here any more: a reintroduced `secrets.NPM_TOKEN` would be a
+    // silent relapse into the 90-day-expiry trap that 404'd 4.8.0 and 4.9.0.
     const secrets = [...job.matchAll(/secrets\.(\w+)/g)].map((m) => m[1]);
-    expect([...new Set(secrets)]).toEqual(['NPM_TOKEN']);
+    expect(secrets).toEqual([]);
     // The words wrap across comment lines, so match them loosely.
-    expect(job).toMatch(/trusted[\s#]+publisher/);
-    expect(job).toMatch(/revoke them/);
+    expect(job).toMatch(/trusted[\s#]+publish(er|ing)/);
+    expect(job).toMatch(/OIDC/);
     expect(job).toContain("node-version: '24'");
   });
 
