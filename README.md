@@ -361,6 +361,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 <!-- releases:start — generated from CHANGELOG.md by scripts/sync-facts.mjs; do not edit by hand -->
 
+- **v4.9.0** (2026-11-11) — Stop a running answer or research
 - **v4.8.0** (2026-11-09) — The live compute-meter quota, read with one call
 - **v4.7.0** (2026-11-07) — The published specification was invalid, and nothing checked · The Rust client covers the whole API, and is generated · and more
 - **v4.6.0** (2026-11-06) — Retry a failed generation without losing its id · A UTCP interface, and 56 named operations · and more
@@ -370,7 +371,6 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 - **v4.2.0** (2026-10-18) — Security — the session store is no longer reachable through a file path
 - **v4.1.0** (2026-10-18) — Changed — Node 22 is the floor, and the last four advisories left with it
 - **v4.0.0** (2026-10-18) — Security — the HTTP API is no longer open to the network or to any web page · Fixed — an account could vanish on creation · and more
-- **v3.2.0** (2026-09-03) — Added — `content_delete`: generated content can finally be removed · Closed — both open issues, settled by measurement rather than by waiting
 
 <!-- releases:end -->
 

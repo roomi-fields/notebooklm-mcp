@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.9.0] - 2026-11-11
+
+### Stop a running answer or research
+
+A long answer or a Fast Research run that has gone wrong can now be cut short
+instead of waited out. `cancel_answer` (REST `POST /notebooks/:id/chat/cancel`)
+stops the active chat turn — the web UI's "Stop" — and `cancel_research`
+(`POST /notebooks/:id/research/cancel`) cancels a discovery run. Both default
+their target to the notebook's most recent conversation / current research task,
+so a second connection can abort a batch that is still blocking the first.
+
+Each is a single account-cheap RPC (`CancelGeneration`,
+`CancelDiscoverSourcesJob`) and fire-and-forget: NotebookLM replies empty and
+does not confirm, so `cancelled: true` means the stop was sent, not that a turn
+was necessarily running — confirm by reading the chat or the research status.
+For Fast Research the task id we already return is the correct cancel id; the
+report-id caveat is Deep-only, which we do not expose.
+
+Two new operations, regenerated into the Rust, Ruby, n8n and UTCP clients —
+fifty-nine operations now.
+
+---
+
 ## [4.8.0] - 2026-11-09
 
 ### The live compute-meter quota, read with one call
