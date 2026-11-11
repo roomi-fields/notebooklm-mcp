@@ -97,4 +97,17 @@ export class ChatRpc {
       `/notebook/${notebookId}`
     );
   }
+
+  /**
+   * Cancel the active answer generation for a conversation — the web UI's
+   * "Stop" during a streaming answer.
+   *
+   * Fire-and-forget and idempotent: the server stops the running turn and
+   * replies empty whether or not a turn was in flight, so there is no success
+   * signal to read. Cancelling a conversation that is not generating is a
+   * silent no-op. The only way to confirm is to re-read the conversation.
+   */
+  async cancelGeneration(notebookId: string, conversationId: string): Promise<void> {
+    await this.client.call('CANCEL_GENERATION', [null, conversationId], `/notebook/${notebookId}`);
+  }
 }

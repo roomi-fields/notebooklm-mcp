@@ -44,7 +44,7 @@ const okResponse = (op: Operation) => op.responses?.['200'] ?? op.responses?.['2
 
 describe('the published specification', () => {
   it('declares every operation', () => {
-    expect(operations.length).toBe(57);
+    expect(operations.length).toBe(59);
   });
 
   it.each(operations.map((op) => [op.operationId as string, op] as const))(

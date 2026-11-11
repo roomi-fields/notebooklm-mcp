@@ -3,7 +3,7 @@
 The `@roomi-fields/notebooklm-mcp` HTTP server (default `http://localhost:3000`,
 override with `NOTEBOOKLM_SERVER_URL`). All bodies are JSON. Every notebook op
 accepts either `notebook_id` (a UUID) or `notebook_url`. Only the endpoints most
-relevant to research are listed; see the project README for the full 57.
+relevant to research are listed; see the project README for the full 59.
 
 ## Health & auth
 

@@ -913,6 +913,36 @@ app.delete('/notebooks/:id/chat', async (req: Request, res: Response) => {
   }
 });
 
+// Stop a notebook's in-flight answer — RPC extension. Fire-and-forget; confirm by reading chat.
+app.post('/notebooks/:id/chat/cancel', async (req: Request, res: Response) => {
+  try {
+    const conversation_id =
+      (typeof req.body?.conversation_id === 'string' && req.body.conversation_id) ||
+      (typeof req.query.conversation_id === 'string' ? req.query.conversation_id : undefined);
+    res.json(
+      await toolHandlers.handleCancelAnswer({ notebook_id: req.params.id, conversation_id })
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
+// Cancel a notebook's in-flight Fast Research run — RPC extension. Fire-and-forget.
+app.post('/notebooks/:id/research/cancel', async (req: Request, res: Response) => {
+  try {
+    const run_id =
+      (typeof req.body?.run_id === 'string' && req.body.run_id) ||
+      (typeof req.query.run_id === 'string' ? req.query.run_id : undefined);
+    res.json(await toolHandlers.handleCancelResearch({ notebook_id: req.params.id, run_id }));
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
 // List a notebook's sources with their IDs — RPC extension.
 app.get('/notebooks/:id/sources', async (req: Request, res: Response) => {
   try {

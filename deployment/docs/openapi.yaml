@@ -780,6 +780,58 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/DeleteChatHistoryResponse' }
 
+  /notebooks/{id}/chat/cancel:
+    post:
+      operationId: cancel_answer
+      tags: [Notebooks]
+      summary: Stop an in-flight answer
+      description: |
+        The web UI's "Stop" on a streaming answer. RPC-backed and
+        fire-and-forget: the server does not confirm, so `cancelled: true` means
+        the stop was sent, not that a turn was necessarily running. Defaults to
+        the most recent conversation.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: conversation_id
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: 'What was cancelled'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CancelAnswerResponse' }
+
+  /notebooks/{id}/research/cancel:
+    post:
+      operationId: cancel_research
+      tags: [Notebooks]
+      summary: Cancel an in-flight research run
+      description: |
+        Cancels a Fast Research run. RPC-backed and fire-and-forget: the server
+        keys on the run id alone and does not validate it, so `cancelled: true`
+        means the cancel was sent; confirm with research_sources. `run_id`
+        defaults to the notebook's current research task.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: run_id
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: 'What was cancelled'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CancelResearchResponse' }
+
   /notebooks/{id}/share:
     get:
       operationId: get_share_status
@@ -2171,6 +2223,36 @@ components:
             conversationId:
               type: string
             deleted:
+              type: boolean
+
+    CancelAnswerResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            conversationId:
+              type: string
+            cancelled:
+              type: boolean
+
+    CancelResearchResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            runId:
+              type: string
+            cancelled:
               type: boolean
 
     GetShareStatusResponse:

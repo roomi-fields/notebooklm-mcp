@@ -1,7 +1,7 @@
-# NotebookLM REST API reference — 57 HTTP endpoints
+# NotebookLM REST API reference — 59 HTTP endpoints
 
-> **Coverage.** All 57 endpoints the server exposes are documented below, and
-> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 57 —
+> **Coverage.** All 59 endpoints the server exposes are documented below, and
+> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 59 —
 > both checked against the routes declared in the code.
 
 > Complete reference for the NotebookLM HTTP REST API. Citation-backed Q&A,
@@ -27,7 +27,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## Available Endpoints (57 total)
+## Available Endpoints (59 total)
 
 ### Authentication
 
@@ -2927,6 +2927,64 @@ curl -X DELETE http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0
 ```
 
 Nothing to delete is reported as `deleted: false`, not as a failure.
+
+---
+
+### `POST /notebooks/:id/chat/cancel`
+
+Stop an in-flight answer — the web UI's "Stop" on a streaming reply. Useful to abort a question that has gone wrong without waiting for it to finish, for example from a second connection while a long batch runs.
+
+**Query Parameters:**
+
+| Parameter         | Type   | Required | Description                                          |
+| ----------------- | ------ | -------- | ---------------------------------------------------- |
+| `conversation_id` | string | No       | A specific conversation; defaults to the most recent |
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0efd/chat/cancel
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": { "notebookId": "74912e55-...", "conversationId": "a1b2c3d4-...", "cancelled": true }
+}
+```
+
+Fire-and-forget: NotebookLM replies empty and does not confirm, so `cancelled: true` means the stop was sent, not that a turn was necessarily running. Idempotent. With no conversation yet, it answers `conversationId: null` and `cancelled: false`. Confirm the effect by reading the chat.
+
+---
+
+### `POST /notebooks/:id/research/cancel`
+
+Cancel an in-flight Fast Research run. `run_id` is the task id `POST /content/research` returns; it defaults to the notebook's current research task.
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Description                                       |
+| --------- | ------ | -------- | ------------------------------------------------- |
+| `run_id`  | string | No       | The research task id; defaults to the current one |
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0efd/research/cancel
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": { "notebookId": "74912e55-...", "runId": "f1e2d3c4-...", "cancelled": true }
+}
+```
+
+Fire-and-forget: the server keys the cancel on the run id alone (the notebook is routing only) and does not validate it, so an unknown id is a silent no-op and `cancelled: true` means the cancel was sent. A cancelled run turns to a failed state within a few seconds; confirm with `POST /content/research`. With no active task it answers `runId: null` and `cancelled: false`.
 
 ---
 

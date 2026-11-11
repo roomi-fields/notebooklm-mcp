@@ -10,7 +10,7 @@ server's REST API as documented methods rather than hashes you have to guess at.
 
 ## Features
 
-- **All 57 operations**, generated from the server's OpenAPI specification, so
+- **All 59 operations**, generated from the server's OpenAPI specification, so
   a route added upstream reaches this gem on the release that ships it —
   rather than whenever someone remembers to add a method.
 - **Every shape documented**: each field the specification describes has a

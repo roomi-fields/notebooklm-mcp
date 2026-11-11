@@ -206,7 +206,7 @@ jobs:
             const node = new NotebookLm();
             const ops = node.description.properties.filter((p) => p.name === 'operation');
             const total = ops.reduce((n, p) => n + p.options.length, 0);
-            assert.equal(total, 57, 'expected 57 operations, found ' + total);
+            assert.equal(total, 59, 'expected 59 operations, found ' + total);
             console.log('the node declares ' + total + ' operations across ' + ops.length + ' resources');
           "
 

@@ -87,3 +87,18 @@ describe('ChatRpc.deleteConversation', () => {
     expect(calls[0].path).toBe(`/notebook/${NB}`);
   });
 });
+
+describe('ChatRpc.cancelGeneration', () => {
+  it('sends [null, conversationId] scoped to the notebook', async () => {
+    const { chat, calls } = rpcReturning([]);
+    await chat.cancelGeneration(NB, CONV);
+    expect(calls[0].method).toBe('CANCEL_GENERATION');
+    expect(calls[0].params).toEqual([null, CONV]);
+    expect(calls[0].path).toBe(`/notebook/${NB}`);
+  });
+
+  it('resolves even when the server replies empty (fire-and-forget)', async () => {
+    const { chat } = rpcReturning([]);
+    await expect(chat.cancelGeneration(NB, CONV)).resolves.toBeUndefined();
+  });
+});

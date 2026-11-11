@@ -1075,6 +1075,48 @@ pub struct DeleteChatHistoryQuery {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[non_exhaustive]
+pub struct CancelAnswerData {
+    #[serde(rename = "notebookId")]
+    #[serde(default)]
+    pub notebook_id: String,
+    #[serde(rename = "conversationId")]
+    #[serde(default)]
+    pub conversation_id: String,
+    #[serde(default)]
+    pub cancelled: bool,
+}
+
+/// Query parameters for [`Client::cancel_answer`].
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CancelAnswerQuery {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conversation_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CancelResearchData {
+    #[serde(rename = "notebookId")]
+    #[serde(default)]
+    pub notebook_id: String,
+    #[serde(rename = "runId")]
+    #[serde(default)]
+    pub run_id: String,
+    #[serde(default)]
+    pub cancelled: bool,
+}
+
+/// Query parameters for [`Client::cancel_research`].
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CancelResearchQuery {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub run_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct GetShareStatusData {
     #[serde(rename = "isPublic")]
     #[serde(default)]
@@ -2235,6 +2277,52 @@ impl Client {
             "delete_chat_history",
             reqwest::Method::DELETE,
             &format!("/notebooks/{id}/chat"),
+            None::<&()>,
+            Some(query),
+        )
+        .await
+    }
+
+    /// Stop an in-flight answer
+    ///
+    /// The web UI's "Stop" on a streaming answer. RPC-backed and
+    /// fire-and-forget: the server does not confirm, so `cancelled: true` means
+    /// the stop was sent, not that a turn was necessarily running. Defaults to
+    /// the most recent conversation.
+    ///
+    /// `POST /notebooks/{id}/chat/cancel`
+    pub async fn cancel_answer(
+        &self,
+        id: &str,
+        query: &CancelAnswerQuery,
+    ) -> Result<CancelAnswerData> {
+        self.send_empty(
+            "cancel_answer",
+            reqwest::Method::POST,
+            &format!("/notebooks/{id}/chat/cancel"),
+            None::<&()>,
+            Some(query),
+        )
+        .await
+    }
+
+    /// Cancel an in-flight research run
+    ///
+    /// Cancels a Fast Research run. RPC-backed and fire-and-forget: the server
+    /// keys on the run id alone and does not validate it, so `cancelled: true`
+    /// means the cancel was sent; confirm with research_sources. `run_id`
+    /// defaults to the notebook's current research task.
+    ///
+    /// `POST /notebooks/{id}/research/cancel`
+    pub async fn cancel_research(
+        &self,
+        id: &str,
+        query: &CancelResearchQuery,
+    ) -> Result<CancelResearchData> {
+        self.send_empty(
+            "cancel_research",
+            reqwest::Method::POST,
+            &format!("/notebooks/{id}/research/cancel"),
             None::<&()>,
             Some(query),
         )

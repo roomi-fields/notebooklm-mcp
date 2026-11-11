@@ -2817,6 +2817,118 @@
       }
     },
     {
+      "name": "cancel_answer",
+      "description": "Stop an in-flight answer",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "conversationId": {
+                "type": "string"
+              },
+              "cancelled": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "tool_call_template": {
+        "name": "cancel_answer",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/{id}/chat/cancel",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
+      "name": "cancel_research",
+      "description": "Cancel an in-flight research run",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "runId": {
+                "type": "string"
+              },
+              "cancelled": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "tool_call_template": {
+        "name": "cancel_research",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/{id}/research/cancel",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        }
+      }
+    },
+    {
       "name": "get_share_status",
       "description": "Read a notebook's sharing status",
       "tags": [

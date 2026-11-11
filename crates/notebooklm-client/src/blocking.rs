@@ -272,6 +272,20 @@ impl Client {
             .block_on(self.inner.delete_chat_history(id, query))
     }
 
+    /// See [`crate::Client::cancel_answer`].
+    pub fn cancel_answer(&self, id: &str, query: &CancelAnswerQuery) -> Result<CancelAnswerData> {
+        self.runtime.block_on(self.inner.cancel_answer(id, query))
+    }
+
+    /// See [`crate::Client::cancel_research`].
+    pub fn cancel_research(
+        &self,
+        id: &str,
+        query: &CancelResearchQuery,
+    ) -> Result<CancelResearchData> {
+        self.runtime.block_on(self.inner.cancel_research(id, query))
+    }
+
     /// See [`crate::Client::get_share_status`].
     pub fn get_share_status(&self, id: &str) -> Result<GetShareStatusData> {
         self.runtime.block_on(self.inner.get_share_status(id))

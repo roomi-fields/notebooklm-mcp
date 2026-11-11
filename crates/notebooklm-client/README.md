@@ -11,7 +11,7 @@ server's REST API with types rather than `serde_json::Value`.
 
 ## Features
 
-- **All 57 operations**, generated from the server's OpenAPI specification, so
+- **All 59 operations**, generated from the server's OpenAPI specification, so
   a route added upstream reaches this crate on the release that ships it —
   rather than whenever someone remembers to add a method.
 - **Citation-backed answers**: `ask_question` returns the answer and the quoted

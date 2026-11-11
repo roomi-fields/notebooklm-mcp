@@ -386,6 +386,22 @@ const ROUTES: Record<string, Route> = {
     query: [{ name: 'conversationId', wire: 'conversation_id', kind: 'string', required: false }],
     enveloped: true,
   },
+  'notebook:cancel_answer': {
+    method: 'POST',
+    path: '/notebooks/{id}/chat/cancel',
+    pathParams: [{ name: 'id', wire: 'id', kind: 'string', required: true }],
+    body: [],
+    query: [{ name: 'conversationId', wire: 'conversation_id', kind: 'string', required: false }],
+    enveloped: true,
+  },
+  'notebook:cancel_research': {
+    method: 'POST',
+    path: '/notebooks/{id}/research/cancel',
+    pathParams: [{ name: 'id', wire: 'id', kind: 'string', required: true }],
+    body: [],
+    query: [{ name: 'runId', wire: 'run_id', kind: 'string', required: false }],
+    enveloped: true,
+  },
   'notebook:get_share_status': {
     method: 'GET',
     path: '/notebooks/{id}/share',
@@ -847,6 +863,20 @@ export class NotebookLm implements INodeType {
               'The web UI\'s "Delete history". NotebookLM has no per-turn delete, so the whole conversation goes. Nothing to delete is reported as `deleted: false`, not as a failure.',
           },
           {
+            name: 'Cancel Answer',
+            value: 'cancel_answer',
+            action: 'Stop an in-flight answer',
+            description:
+              'The web UI\'s "Stop" on a streaming answer. RPC-backed and fire-and-forget: the server does not confirm, so `cancelled: true` means the stop was sent, not that a turn was necessarily running. Defaults to the most recent conversation.',
+          },
+          {
+            name: 'Cancel Research',
+            value: 'cancel_research',
+            action: 'Cancel an in-flight research run',
+            description:
+              "Cancels a Fast Research run. RPC-backed and fire-and-forget: the server keys on the run id alone and does not validate it, so `cancelled: true` means the cancel was sent; confirm with research_sources. `run_id` defaults to the notebook's current research task.",
+          },
+          {
             name: 'Get Share Status',
             value: 'get_share_status',
             action: "Read a notebook's sharing status",
@@ -1207,6 +1237,8 @@ export class NotebookLm implements INodeType {
               'check_source_freshness',
               'get_chat_history',
               'delete_chat_history',
+              'cancel_answer',
+              'cancel_research',
               'get_share_status',
               'share_notebook',
               'list_labels',
@@ -1526,7 +1558,19 @@ export class NotebookLm implements INodeType {
         displayOptions: {
           show: {
             resource: ['notebook'],
-            operation: ['get_chat_history', 'delete_chat_history'],
+            operation: ['get_chat_history', 'delete_chat_history', 'cancel_answer'],
+          },
+        },
+      },
+      {
+        displayName: 'Run ID',
+        name: 'runId',
+        type: 'string',
+        default: '',
+        displayOptions: {
+          show: {
+            resource: ['notebook'],
+            operation: ['cancel_research'],
           },
         },
       },

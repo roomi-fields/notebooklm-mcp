@@ -187,6 +187,20 @@ export class ResearchRpc {
     );
   }
 
+  /**
+   * Cancel an in-flight research run. `runId` is the task id from {@link start}
+   * / {@link poll} — the same value `research_sources` returns, which is the
+   * correct cancel id for Fast research (the report-id caveat is Deep-only).
+   *
+   * Fire-and-forget: the server keys the cancel on `runId` alone (the notebook
+   * is routing only), replies empty, and does not validate the id, so an
+   * unknown id is a silent no-op. A cancelled in-progress run turns FAILED
+   * within a few seconds; confirm by polling.
+   */
+  async cancel(notebookId: string, runId: string): Promise<void> {
+    await this.client.call('CANCEL_RESEARCH', [null, null, runId], `/notebook/${notebookId}`);
+  }
+
   /** Start web research, poll until sources are found (or timeout), optionally import. */
   async discover(
     notebookId: string,

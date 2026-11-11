@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = <<~TEXT
     Google ships no public API for the consumer NotebookLM. This gem does not
     own a browser: it talks to the local notebooklm-mcp server that does, and
-    gives you its 57 operations as documented Ruby methods, generated from the
+    gives you its 59 operations as documented Ruby methods, generated from the
     server's OpenAPI specification. No runtime dependencies.
   TEXT
 

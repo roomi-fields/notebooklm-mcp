@@ -186,7 +186,7 @@ class ApiTest < Minitest::Test
   end
 
   def test_every_operation_of_the_specification_is_callable
-    assert_equal 57, NotebookLM::Operations::OPERATION_IDS.size
+    assert_equal 59, NotebookLM::Operations::OPERATION_IDS.size
     NotebookLM::Operations::OPERATION_IDS.each do |id|
       assert_respond_to NotebookLM::Client.new, id
     end

@@ -40,6 +40,7 @@ export const RPC_IDS = {
   GET_CONVERSATIONS: 'hPTbtc',
   GET_CONVERSATION_TURNS: 'khqZz',
   DELETE_CHAT_HISTORY: 'J7Gthc',
+  CANCEL_GENERATION: 'XgrPMd', // CancelGeneration — stops the active chat turn; idempotent
   GET_SUMMARY: 'VfAZjd',
   GET_SOURCE_GUIDE: 'tr032e',
 
@@ -48,6 +49,7 @@ export const RPC_IDS = {
   START_DEEP_RESEARCH: 'QA9ei',
   POLL_RESEARCH: 'e3bVqc',
   IMPORT_RESEARCH: 'LBwxtb',
+  CANCEL_RESEARCH: 'Zbrupe', // CancelDiscoverSourcesJob — fire-and-forget; server keys on run id alone
 
   // Studio content (audio / video overview share one create+poll)
   CREATE_STUDIO: 'R7cb6c',

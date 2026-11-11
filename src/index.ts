@@ -756,6 +756,26 @@ class NotebookLMMCPServer {
             );
             break;
 
+          case 'cancel_answer':
+            result = await this.toolHandlers.handleCancelAnswer(
+              args as {
+                notebook_url?: string;
+                notebook_id?: string;
+                conversation_id?: string;
+              }
+            );
+            break;
+
+          case 'cancel_research':
+            result = await this.toolHandlers.handleCancelResearch(
+              args as {
+                notebook_url?: string;
+                notebook_id?: string;
+                run_id?: string;
+              }
+            );
+            break;
+
           case 'retry_content':
             result = await this.toolHandlers.handleRetryContent(
               args as {

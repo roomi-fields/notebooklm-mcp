@@ -6,7 +6,7 @@
 
 An [n8n](https://n8n.io/) community node for **Gemini Notebook** (formerly
 NotebookLM): citation-backed answers, passage retrieval, Studio generation —
-**all 57 operations**, generated from the server's OpenAPI specification.
+**all 59 operations**, generated from the server's OpenAPI specification.
 
 ## Installation
 
@@ -36,7 +36,7 @@ npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth   # once
 
 ## Operations
 
-Seven resources, 57 operations, named exactly as the REST API and the MCP tools
+Seven resources, 59 operations, named exactly as the REST API and the MCP tools
 name them:
 
 | Resource       | Operations | Examples                                                                      |
@@ -68,7 +68,7 @@ means to reason over the evidence itself, ask for the evidence.
 - [Using it from n8n](https://notebooklm.roomi-fields.com/notebooklm-n8n) — the
   workflows, including the webhook-to-answer pattern
 - [REST API reference](https://notebooklm.roomi-fields.com/notebooklm-rest-api)
-  — the same 57 operations
+  — the same 59 operations
 - [Server documentation](https://notebooklm.roomi-fields.com/)
 
 ## License

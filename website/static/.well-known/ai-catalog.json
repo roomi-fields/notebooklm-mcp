@@ -20,7 +20,7 @@
       "type": "application/utcp-manual+json",
       "url": "https://notebooklm.roomi-fields.com/utcp.json",
       "displayName": "NotebookLM UTCP manual",
-      "description": "Universal Tool Calling Protocol manual for the Gemini Notebook (NotebookLM) REST API: 57 named tools a client calls natively, with no protocol server in between.",
+      "description": "Universal Tool Calling Protocol manual for the Gemini Notebook (NotebookLM) REST API: 59 named tools a client calls natively, with no protocol server in between.",
       "version": "4.8.0",
       "tags": ["notebooklm", "gemini-notebook", "utcp", "rest-api", "research", "citations"]
     },

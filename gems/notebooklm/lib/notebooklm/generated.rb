@@ -791,6 +791,26 @@ module NotebookLM
     field :deleted, 'deleted'
   end
 
+  # The `CancelAnswerData` shape.
+  class CancelAnswerData < Model
+    # @return [String]
+    field :notebook_id, 'notebookId'
+    # @return [String]
+    field :conversation_id, 'conversationId'
+    # @return [Boolean]
+    field :cancelled, 'cancelled'
+  end
+
+  # The `CancelResearchData` shape.
+  class CancelResearchData < Model
+    # @return [String]
+    field :notebook_id, 'notebookId'
+    # @return [String]
+    field :run_id, 'runId'
+    # @return [Boolean]
+    field :cancelled, 'cancelled'
+  end
+
   # The `GetShareStatusData` shape.
   class GetShareStatusData < Model
     # @return [Boolean]
@@ -1130,7 +1150,7 @@ module NotebookLM
   # and the documentation of the API stay separate things.
   module Operations
     # Every operation id, in specification order. The server exposes
-    # 57 of them.
+    # 59 of them.
     OPERATION_IDS = %w[
       get_server_info
       get_health
@@ -1169,6 +1189,8 @@ module NotebookLM
       check_source_freshness
       get_chat_history
       delete_chat_history
+      cancel_answer
+      cancel_research
       get_share_status
       share_notebook
       retry_content
@@ -1779,6 +1801,46 @@ module NotebookLM
       query['conversation_id'] = conversation_id unless conversation_id.nil?
       payload = call('delete_chat_history', :delete, "/notebooks/#{id}/chat", query: query)
       DeleteChatHistoryData.new(payload)
+    end
+
+    # Stop an in-flight answer
+    #
+    # The web UI's "Stop" on a streaming answer. RPC-backed and
+    # fire-and-forget: the server does not confirm, so `cancelled: true` means
+    # the stop was sent, not that a turn was necessarily running. Defaults to
+    # the most recent conversation.
+    #
+    # `POST /notebooks/{id}/chat/cancel`
+    #
+    # @param id [String]
+    # @param conversation_id [String, nil]
+    # @return [CancelAnswerData]
+    # @raise [NotebookLM::Refused] when the server declines the request
+    def cancel_answer(id:, conversation_id: nil)
+      query = {}
+      query['conversation_id'] = conversation_id unless conversation_id.nil?
+      payload = call('cancel_answer', :post, "/notebooks/#{id}/chat/cancel", query: query)
+      CancelAnswerData.new(payload)
+    end
+
+    # Cancel an in-flight research run
+    #
+    # Cancels a Fast Research run. RPC-backed and fire-and-forget: the server
+    # keys on the run id alone and does not validate it, so `cancelled: true`
+    # means the cancel was sent; confirm with research_sources. `run_id`
+    # defaults to the notebook's current research task.
+    #
+    # `POST /notebooks/{id}/research/cancel`
+    #
+    # @param id [String]
+    # @param run_id [String, nil]
+    # @return [CancelResearchData]
+    # @raise [NotebookLM::Refused] when the server declines the request
+    def cancel_research(id:, run_id: nil)
+      query = {}
+      query['run_id'] = run_id unless run_id.nil?
+      payload = call('cancel_research', :post, "/notebooks/#{id}/research/cancel", query: query)
+      CancelResearchData.new(payload)
     end
 
     # Read a notebook's sharing status

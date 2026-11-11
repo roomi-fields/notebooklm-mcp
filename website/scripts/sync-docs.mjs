@@ -105,7 +105,7 @@ const FRONTMATTER = {
   '03-API.md': {
     title: 'REST API reference — 56 endpoints',
     description:
-      'HTTP REST API reference for NotebookLM, 57 endpoints: /ask, /content, /notebooks, /sources, /labels, /share, /health, /setup-auth. Request and response schemas, ready for n8n / Zapier / Make / curl.',
+      'HTTP REST API reference for NotebookLM, 59 endpoints: /ask, /content, /notebooks, /sources, /labels, /share, /health, /setup-auth. Request and response schemas, ready for n8n / Zapier / Make / curl.',
     keywords: [
       'gemini notebook',
       'notebooklm rest api',

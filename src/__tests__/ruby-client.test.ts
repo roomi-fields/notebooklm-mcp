@@ -113,7 +113,7 @@ describe('the generated surface', () => {
   const methods = [...generated.matchAll(/^    def (\w+)/gm)].map((m) => m[1]);
 
   it('covers every operation in the specification', () => {
-    expect(operations.length).toBe(57);
+    expect(operations.length).toBe(59);
     expect([...methods].sort()).toEqual([...operations].sort());
   });
 

@@ -63,7 +63,7 @@ describe('the generated node', () => {
   const routes = [...source.matchAll(/^  '([a-z]+):([a-z_]+)': \{$/gm)];
 
   it('covers every operation in the specification', () => {
-    expect(operations.length).toBe(57);
+    expect(operations.length).toBe(59);
     expect([...routes.map((m) => m[2])].sort()).toEqual([...operations].sort());
   });
 

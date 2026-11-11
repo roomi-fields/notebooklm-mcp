@@ -1872,6 +1872,49 @@ User: "Yes" → call remove_notebook`,
       },
     },
     {
+      name: 'cancel_answer',
+      description:
+        'Stop a notebook’s in-flight answer — the UI’s “Stop” on a streaming reply. RPC-backed. ' +
+        'Fire-and-forget: the server does not confirm, so `cancelled: true` means the stop was ' +
+        'sent, not that a turn was running. Defaults to the most recent conversation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          notebook_url: { type: 'string', description: 'NotebookLM notebook URL.' },
+          notebook_id: {
+            type: 'string',
+            description: 'Notebook UUID (alternative to notebook_url).',
+          },
+          conversation_id: {
+            type: 'string',
+            description: 'A specific conversation. Defaults to the most recent one.',
+          },
+        },
+      },
+    },
+    {
+      name: 'cancel_research',
+      description:
+        'Cancel an in-flight Fast Research run for a notebook. RPC-backed. Fire-and-forget: the ' +
+        'server does not validate the run id, so `cancelled: true` means the cancel was sent; ' +
+        'confirm with research_sources. `run_id` defaults to the notebook’s current research task.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          notebook_url: { type: 'string', description: 'NotebookLM notebook URL.' },
+          notebook_id: {
+            type: 'string',
+            description: 'Notebook UUID (alternative to notebook_url).',
+          },
+          run_id: {
+            type: 'string',
+            description:
+              'The research task id (as research_sources returns). Defaults to the current task.',
+          },
+        },
+      },
+    },
+    {
       name: 'retry_content',
       description:
         'Retry a Studio generation that failed, keeping the same content id. RPC-backed. ' +
@@ -4841,6 +4884,73 @@ export class ToolHandlers {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] delete_chat_history failed: ${msg}`);
+      return { success: false, error: msg };
+    }
+  }
+
+  /**
+   * Cancel the in-flight answer for a conversation (RPC-only extension) — the
+   * web UI's "Stop" on a streaming answer. `conversation_id` defaults to the
+   * notebook's most recent conversation. Fire-and-forget: the server replies
+   * empty and does not confirm, so `cancelled: true` means the cancel was sent,
+   * not that a turn was necessarily running; confirm by reading the chat.
+   */
+  async handleCancelAnswer(args: {
+    notebook_url?: string;
+    notebook_id?: string;
+    conversation_id?: string;
+  }): Promise<
+    ToolResult<{ notebookId: string; conversationId: string | null; cancelled: boolean }>
+  > {
+    log.info(`🔧 [TOOL] cancel_answer called`);
+    try {
+      const notebookId = this.resolveNotebookId(args.notebook_url, args.notebook_id);
+      if (!notebookId) {
+        return { success: false, error: 'No notebook specified (notebook_url or notebook_id)' };
+      }
+      const chat = new ChatRpc(await this.getRpcClient());
+      const conversationId = args.conversation_id || (await chat.getLastConversationId(notebookId));
+      if (!conversationId) {
+        return { success: true, data: { notebookId, conversationId: null, cancelled: false } };
+      }
+      await chat.cancelGeneration(notebookId, conversationId);
+      log.success(`  ✅ (RPC) cancel sent for conversation ${conversationId}`);
+      return { success: true, data: { notebookId, conversationId, cancelled: true } };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] cancel_answer failed: ${msg}`);
+      return { success: false, error: msg };
+    }
+  }
+
+  /**
+   * Cancel an in-flight research run (RPC-only extension). `run_id` defaults to
+   * the notebook's current research task. Fire-and-forget: the server keys on
+   * the run id alone and does not validate it, so `cancelled: true` means the
+   * cancel was sent; confirm with a fresh `research_sources` status.
+   */
+  async handleCancelResearch(args: {
+    notebook_url?: string;
+    notebook_id?: string;
+    run_id?: string;
+  }): Promise<ToolResult<{ notebookId: string; runId: string | null; cancelled: boolean }>> {
+    log.info(`🔧 [TOOL] cancel_research called`);
+    try {
+      const notebookId = this.resolveNotebookId(args.notebook_url, args.notebook_id);
+      if (!notebookId) {
+        return { success: false, error: 'No notebook specified (notebook_url or notebook_id)' };
+      }
+      const research = new ResearchRpc(await this.getRpcClient());
+      const runId = args.run_id || (await research.poll(notebookId)).taskId;
+      if (!runId) {
+        return { success: true, data: { notebookId, runId: null, cancelled: false } };
+      }
+      await research.cancel(notebookId, runId);
+      log.success(`  ✅ (RPC) cancel sent for research ${runId}`);
+      return { success: true, data: { notebookId, runId, cancelled: true } };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] cancel_research failed: ${msg}`);
       return { success: false, error: msg };
     }
   }

@@ -65,19 +65,18 @@ because the appended site name made every one of them 71 to 117 characters.
 
 ### Then — new capabilities, highest value first
 
-| Capability                                        | RPC id                         | Notes                                                                                         |
-| ------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
-| Cancel a running answer or research               | `XgrPMd`, `Zbrupe`             | For research, cancel with the **report id**, not the task id — the task id is a silent no-op. |
-| Copy a notebook, sources, or artifacts            | `te3DCe`, `R27wvc`, `mKDdke`   | No MCP server exposes these.                                                                  |
-| Independent conversations per notebook            | —                              | The most repeated user request on the competitor's tracker.                                   |
-| Suggested follow-ups, prompts, report formats     | `OcvKNc`, `otmP3b`, `ciyUvf`   | Three trivial calls.                                                                          |
-| Async URL ingestion; append text to a source      | `X1snv`, `QsNTEd`              | ~0.65 s vs ~2 s per source.                                                                   |
-| Chat configuration: goal, persona, length         | `s0tc2d` variant               |                                                                                               |
-| Read and set the account output language          | `ZwVcOc`, `hT54vc`             | Account-global — warn the caller.                                                             |
-| Notebook collections                              | label ids with discriminator 3 |                                                                                               |
-| Synchronous source discovery (~10 results)        | `Es3dTe`                       |                                                                                               |
-| Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                                   |
-| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 51 with no filter.     |
+| Capability                                        | RPC id                         | Notes                                                                                     |
+| ------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
+| Copy a notebook, sources, or artifacts            | `te3DCe`, `R27wvc`, `mKDdke`   | No MCP server exposes these.                                                              |
+| Independent conversations per notebook            | —                              | The most repeated user request on the competitor's tracker.                               |
+| Suggested follow-ups, prompts, report formats     | `OcvKNc`, `otmP3b`, `ciyUvf`   | Three trivial calls.                                                                      |
+| Async URL ingestion; append text to a source      | `X1snv`, `QsNTEd`              | ~0.65 s vs ~2 s per source.                                                               |
+| Chat configuration: goal, persona, length         | `s0tc2d` variant               |                                                                                           |
+| Read and set the account output language          | `ZwVcOc`, `hT54vc`             | Account-global — warn the caller.                                                         |
+| Notebook collections                              | label ids with discriminator 3 |                                                                                           |
+| Synchronous source discovery (~10 results)        | `Es3dTe`                       |                                                                                           |
+| Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                               |
+| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 53 with no filter. |
 
 ### Source file upload over RPC — delete our most fragile DOM flow
 
@@ -220,6 +219,18 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 ---
 
 ## Recently Implemented
+
+### Unreleased - Stop a running answer or research
+
+`cancel_answer` (`POST /notebooks/:id/chat/cancel`) stops the active chat turn —
+the UI's "Stop" — and `cancel_research` (`POST /notebooks/:id/research/cancel`)
+cancels a Fast Research run. Both default to the notebook's latest conversation /
+current task, so a second connection can abort a batch still blocking the first.
+Single RPCs (`CancelGeneration`, `CancelDiscoverSourcesJob`), fire-and-forget:
+the server replies empty and does not confirm, so `cancelled` means the stop was
+sent. For Fast Research the task id we return is the right cancel id; the
+report-id caveat is Deep-only, which we do not expose. No MCP server exposes
+these. Two new operations across the four generated clients.
 
 ### Unreleased - The live compute-meter quota (`get_usage`)
 
