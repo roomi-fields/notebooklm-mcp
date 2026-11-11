@@ -294,25 +294,17 @@ jobs:
         working-directory: nodes/n8n-nodes-gemini-notebook
         run: npm install && npm run build
 
-      # npm's CLI prefers OIDC and falls back to a token only when no trusted
-      # publisher exists for the package. The first publish of 4.7.0 went out
-      # on the Automation token in `NPM_TOKEN` — an Automation token bypasses
-      # 2FA by design, which is why it works unattended and why npm is phasing
-      # that property out.
-      #
-      # The clean end state, whenever it is convenient: configure a trusted
-      # publisher on npmjs.com for this workflow file with `npm publish`
-      # allowed, then delete both `NPM_TOKEN` and `NPM_TOK2` and revoke them.
-      # OIDC takes over and this variable goes inert — it is read only when the
-      # secret exists. Until then releases keep working with no manual step.
-      #
-      # Not `NPM_TOK2`: that token is stage-only, so a publish with it lands in
-      # the staging area and waits for an interactive approval no runner can
-      # give.
+      # Trusted publishing OIDC, same as the main package: the runner proves its
+      # identity to npm with a short-lived token (id-token: write, granted at the
+      # workflow level), so there is nothing to store or rotate. A trusted
+      # publisher is configured on npmjs.com for `n8n-nodes-gemini-notebook`
+      # against this workflow file; 4.9.0 was the first publish to go out this
+      # way, after the expired `NPM_TOKEN` 404'd on 4.8.0 and 4.9.0's push run.
+      # The stale `NPM_TOKEN` / `NPM_TOK2` secrets are now read by nothing and
+      # can be deleted and revoked whenever convenient — releases no longer
+      # depend on them.
       - name: Publish
         working-directory: nodes/n8n-nodes-gemini-notebook
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
 
   # Publish server.json to the official MCP Registry. Separate job so a registry
