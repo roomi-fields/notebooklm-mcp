@@ -1,6 +1,6 @@
 ---
-title: 'NotebookLM in n8n, Zapier and Make: there is no connector'
-description: 'None of the three has a NotebookLM integration, and Zapier says so on its own page. The workaround is a local HTTP endpoint your workflow calls like any other API.'
+title: 'NotebookLM in n8n, Zapier and Make: a node and a workaround'
+description: 'n8n now has a community node for Gemini Notebook; Zapier and Make still ship nothing, and Zapier says so on its own page. For those two, a Webhooks or HTTP step calls your own endpoint like any other API.'
 slug: notebooklm-n8n-zapier-make
 authors: [romain]
 tags: [notebooklm, n8n, zapier, automation]
@@ -14,13 +14,15 @@ keywords:
   - gemini notebook
 ---
 
-Zapier's NotebookLM page says the integration has not been built. Make has no
-module. n8n has no node. Every walkthrough you find does something adjacent —
-saving files to Drive, which you then add to a notebook by hand.
+Zapier's NotebookLM page says the integration has not been built, and Make has
+no module either. n8n is now the exception: there is a community node for
+Gemini Notebook — the one we publish — so there you get native operations
+instead of a workaround.
 
-That is the honest state. What follows is the workaround that actually
-automates the part people want: asking a question and getting a
-citation-backed answer into the workflow.
+For Zapier and Make the honest state is unchanged, and the fix predates the
+node: a local HTTP endpoint your workflow calls like any other API, to automate
+the part people want — asking a question and getting a citation-backed answer
+into the workflow. This post covers both paths.
 
 {/* truncate */}
 
@@ -29,25 +31,32 @@ citation-backed answer into the workflow.
 > applies to both — the two names are used interchangeably here because that
 > is how people still search for it.
 
-## Why is there no connector?
+## Why do the big platforms still ship nothing?
 
-Because a connector needs an API with a key, and the consumer NotebookLM has
-neither. Google's documented API is the enterprise one, behind a Cloud project
-and an administrator. A connector built on it would serve the subset of users
-who could already script it.
+Because a connector needs an API with a key, and the consumer Gemini Notebook
+has neither. Google's documented API is the enterprise one, behind a Cloud
+project and an administrator — a connector built on it would serve only the
+users who could already script it.
 
-## What does the workaround look like?
+Our server supplies the missing API: it holds your Google session and exposes
+the operations over plain HTTP with a token. For n8n we went one step further
+and packaged those operations as a community node, so there you install it and
+pick an operation. Zapier and Make get the HTTP route below.
 
-Run a small HTTP server on a machine your workflow can reach. It holds your
-Google session and exposes the operations as ordinary endpoints. Your workflow
-then uses the same HTTP node it would use for any other service.
+## What do the two paths look like?
 
-In n8n that is one HTTP Request node: POST the question, read the answer and
-its citations out of the response, pass them to the next step. In Make and
-Zapier it is their generic webhook or HTTP action.
+**n8n** — install the community node and choose an operation; the question, the
+answer and its citations are fields, not JSON you parse by hand. The worked
+flow is in [the n8n guide](/notebooklm-n8n).
 
-The answer arrives as data, so it can go to a sheet, a Slack message, a
-database row or a document, like anything else in the workflow.
+**Zapier and Make** — run the server on a machine the workflow can reach, then
+use their generic webhook or HTTP action: POST the question, read the answer
+and its citations out of the response, pass them to the next step. The
+[Zapier recipe](/notebooklm-zapier-webhooks) walks through one request field by
+field.
+
+Either way the answer arrives as data, so it can go to a sheet, a Slack
+message, a database row or a document, like anything else in the workflow.
 
 ## Where does the server have to run?
 
