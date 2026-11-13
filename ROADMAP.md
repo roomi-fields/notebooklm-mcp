@@ -228,7 +228,7 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 ## Recently Implemented
 
-### Unreleased - MCP over streamable HTTP (`POST /mcp`)
+### v4.10.0 - MCP over streamable HTTP (`POST /mcp`)
 
 Asked for in issue #42: in Docker, giving an AI in another container access to our MCP was
 hacky because we spoke **stdio only**, so any client that cannot spawn our local process —

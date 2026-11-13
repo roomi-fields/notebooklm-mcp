@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.10.0] - 2026-11-13
+
+### MCP over streamable HTTP
+
+The server now speaks MCP over HTTP, not only stdio. A client that cannot spawn
+our local binary — an AI in another container, a hosted agent, a workflow runner
+— reaches the same tools at `POST /mcp`, the streamable-HTTP transport every
+remote MCP consumer speaks (requested in #42):
+
+```json
+{ "mcpServers": { "notebooklm": { "type": "http", "url": "http://localhost:3000/mcp" } } }
+```
+
+It is stateless and sits behind the same host, origin and token guards as the
+REST API: set `NOTEBOOKLM_API_KEY` and the client sends `Authorization: Bearer`
+(or `X-API-Key`); leave it unset on a trusted container network and it works
+without one. Both transports build from one `createMcpServer` factory, so a tool
+behaves identically on either. `/mcp` is the protocol itself, not a REST
+operation, so it stays out of the OpenAPI spec and out of the generated Rust,
+Ruby and n8n clients — the operation count is unchanged.
+
+### Security
+
+Raised the `hono` / `@hono/node-server` overrides past freshly published moderate
+advisories (reverse-proxy path bypass, middleware and CSRF bypasses). Both are
+transitive through the MCP SDK; we run our own Express, not the SDK's hono
+server, so they were not reachable here — the overrides were simply pinned at
+the now-vulnerable floor.
+
 ## [4.9.0] - 2026-11-11
 
 ### Stop a running answer or research
