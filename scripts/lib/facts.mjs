@@ -16,11 +16,17 @@ export const read = (p) => readFileSync(join(ROOT, p), 'utf-8');
 
 const routeLine = /^app\.(get|post|put|delete|patch)\('([^']+)'/gm;
 
+// The MCP transport mounted on the HTTP server (streamable HTTP, issue #42).
+// It is the Model Context Protocol itself, not a REST API operation: it is not
+// described in the OpenAPI spec and not mirrored to the generated Rust/Ruby/n8n
+// clients, so it does not count as a documented endpoint.
+const TRANSPORT_ROUTES = new Set(['POST /mcp', 'GET /mcp', 'DELETE /mcp']);
+
 export function routes() {
   const found = [];
   const src = read('src/http-wrapper.ts');
   for (const m of src.matchAll(routeLine)) found.push(`${m[1].toUpperCase()} ${m[2]}`);
-  return [...new Set(found)].sort();
+  return [...new Set(found)].filter((r) => !TRANSPORT_ROUTES.has(r)).sort();
 }
 
 export function toolNames() {

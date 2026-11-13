@@ -26,10 +26,14 @@ function defined(): string[] {
   return [...new Set([...body.matchAll(/^ {6}name: '([a-z_]+)',$/gm)].map((m) => m[1]))];
 }
 
-/** Tool names answered by the dispatch switch. */
+/**
+ * Tool names answered by the dispatch switch. The switch lives in
+ * `mcp-server.ts` (the factory shared by the stdio and HTTP /mcp transports);
+ * as a free function rather than a class method, its cases sit at 8 spaces.
+ */
 function dispatched(): string[] {
-  const body = read('index.ts');
-  return [...new Set([...body.matchAll(/^ {10}case '([a-z_]+)':$/gm)].map((m) => m[1]))];
+  const body = read('mcp-server.ts');
+  return [...new Set([...body.matchAll(/^ {8}case '([a-z_]+)':$/gm)].map((m) => m[1]))];
 }
 
 describe('MCP tool wiring', () => {

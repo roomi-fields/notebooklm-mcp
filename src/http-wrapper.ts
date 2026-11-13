@@ -15,7 +15,10 @@ import { fileURLToPath } from 'url';
 import { AuthManager } from './auth/auth-manager.js';
 import { SessionManager } from './session/session-manager.js';
 import { NotebookLibrary } from './library/notebook-library.js';
-import { ToolHandlers } from './tools/index.js';
+import { ToolHandlers, buildToolDefinitions } from './tools/index.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { createMcpServer } from './mcp-server.js';
 import { AutoDiscovery } from './auto-discovery/auto-discovery.js';
 import { StartupManager } from './startup/startup-manager.js';
 import { isNotebookHost } from './utils/notebook-domain.js';
@@ -82,6 +85,67 @@ const sessionManager = new SessionManager(authManager);
 const library = new NotebookLibrary(sessionManager);
 const toolHandlers = new ToolHandlers(sessionManager, authManager, library);
 
+// Built once, as the stdio server does: the definitions carry library-derived
+// descriptions that are fixed at startup.
+const mcpToolDefinitions = buildToolDefinitions(library) as Tool[];
+
+// MCP over streamable HTTP — the transport remote MCP clients speak (issue #42).
+// A container, hosted agent or workflow runner that cannot spawn our stdio
+// binary reaches the exact same tools here, at POST /mcp. It is stateless: a
+// fresh MCP server per request over the shared managers, so there is no
+// per-connection state to lose — tool state lives in the SessionManager, keyed
+// by the session_id argument, exactly as it does over stdio. The route sits
+// behind the same host, origin and token guards as every other one.
+app.post('/mcp', async (req: Request, res: Response) => {
+  const reqId = req.requestId.substring(0, 8);
+  try {
+    const server = createMcpServer({
+      toolHandlers,
+      library,
+      toolDefinitions: mcpToolDefinitions,
+      version: SERVER_VERSION,
+    });
+    // Stateless, and answer POSTs with a single JSON body rather than opening
+    // an SSE stream: there is no session to stream server-initiated messages
+    // over, and a plain JSON reply is what a stateless request/response client
+    // expects back.
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+      enableJsonResponse: true,
+    });
+    res.on('close', () => {
+      void transport.close();
+      void server.close();
+    });
+    await server.connect(transport);
+    await transport.handleRequest(req, res, req.body);
+  } catch (error) {
+    log.error(`[${reqId}] /mcp - ${error instanceof Error ? error.message : String(error)}`);
+    if (!res.headersSent) {
+      res.status(500).json({
+        jsonrpc: '2.0',
+        error: { code: -32603, message: 'Internal server error' },
+        id: null,
+      });
+    }
+  }
+});
+
+// Streamable HTTP uses GET for the server→client SSE stream and DELETE to end a
+// session. Stateless mode has neither, so say method-not-allowed plainly rather
+// than let a client hang waiting for a stream that never opens.
+const mcpMethodNotAllowed = (_req: Request, res: Response) =>
+  res.status(405).json({
+    jsonrpc: '2.0',
+    error: {
+      code: -32000,
+      message: 'Method not allowed: this MCP endpoint is stateless, use POST.',
+    },
+    id: null,
+  });
+app.get('/mcp', mcpMethodNotAllowed);
+app.delete('/mcp', mcpMethodNotAllowed);
+
 // Root endpoint - API info
 app.get('/', (_req: Request, res: Response) => {
   res.json({
@@ -93,6 +157,7 @@ app.get('/', (_req: Request, res: Response) => {
     version: SERVER_VERSION,
     endpoints: {
       health: 'GET /health',
+      mcp: 'POST /mcp',
       ask: 'POST /ask',
       batch_to_vault: 'POST /batch-to-vault',
       setup_auth: 'POST /setup-auth',

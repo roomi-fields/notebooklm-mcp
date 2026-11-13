@@ -105,22 +105,6 @@ fallback. Protocol map collected in session memory (`project_source_upload_rpc`)
 truth is notebooklm-py `_web/sources/upload.py`, `_web/params/sources.py`,
 `_web/sources/_upload_decode.py`, `rpc/_identifiers.py`.
 
-### Reach — a remote MCP transport we do not have
-
-Found while assessing `VoidenHQ/voiden` (1 785 stars, Apache-2.0, an offline git-native
-API client that is also an MCP client). Its MCP client speaks **streamable HTTP only**
-(`StreamableHTTPClientTransport`), and so does every other remote MCP consumer: hosted
-agent platforms, web-based connectors, workflow runners that call an MCP server over the
-network. Our server speaks **stdio only** — `src/index.ts` and `src/stdio-http-proxy.ts`
-both sit on a stdio transport, while our HTTP surface is the REST API, not MCP. So any
-client that cannot spawn a local process cannot use us at all, whatever the directory
-listings say.
-
-| Item                                                     | Notes                                                                                                                                                                                                   |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| MCP over streamable HTTP, mounted on the existing server | One route on the wrapper, reusing the token, the host guard and the origin check that 4.0.0–4.4.0 put there. The tool definitions and the dispatch switch already exist; only the transport is missing. |
-| Say which transports we speak, where we are listed       | Directories and our own docs imply a network-reachable server. Today that is only true of the REST API.                                                                                                 |
-
 ### Zapier public integration — directory presence, gated on real demand
 
 Search Console shows people looking for "zapier notebooklm" (position 18, but only ~3
@@ -243,6 +227,29 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 ---
 
 ## Recently Implemented
+
+### Unreleased - MCP over streamable HTTP (`POST /mcp`)
+
+Asked for in issue #42: in Docker, giving an AI in another container access to our MCP was
+hacky because we spoke **stdio only**, so any client that cannot spawn our local process —
+hosted agent platforms, web connectors, workflow runners — could not reach us at all.
+
+The HTTP wrapper now mounts the MCP server on `POST /mcp` over the SDK's
+`StreamableHTTPServerTransport`, stateless (a fresh server per request over the shared
+managers; tool state stays in the SessionManager keyed by `session_id`, as over stdio). It
+sits behind the same host/origin/token guards as every other route, so with a key set the
+client sends `Authorization: Bearer`/`X-API-Key`, and with none set (a trusted container
+network) it just works:
+
+```json
+{ "mcpServers": { "notebooklm": { "type": "http", "url": "http://localhost:3000/mcp" } } }
+```
+
+Both transports build their server from one `createMcpServer` factory (`src/mcp-server.ts`),
+so a tool behaves identically on either. `/mcp` is the protocol itself, not a REST
+operation: it is kept out of the OpenAPI spec and the endpoint census, and not mirrored to
+the Rust/Ruby/n8n clients. `GET`/`DELETE /mcp` answer method-not-allowed (nothing to stream
+or end when stateless).
 
 ### Unreleased - Stop a running answer or research
 

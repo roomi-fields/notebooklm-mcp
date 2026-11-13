@@ -311,6 +311,27 @@ some stdio MCP clients (e.g. Claude Desktop) cap tool-call duration and cut off
 the up-to-10-minute interactive login before you can finish signing in (see
 [issue #27](https://github.com/roomi-fields/notebooklm-mcp/issues/27)).
 
+### Option 2b — MCP over HTTP (containers, remote clients)
+
+Clients that cannot spawn a local process — an AI in **another Docker container**, a hosted
+agent, a workflow runner — reach the **same MCP tools** over streamable HTTP. Start the HTTP
+server (Option 1) and point the client at `/mcp`:
+
+```json
+{
+  "mcpServers": {
+    "notebooklm": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp"
+    }
+  }
+}
+```
+
+Stateless, and behind the same auth as the REST API: set `NOTEBOOKLM_API_KEY` and the client
+sends `Authorization: Bearer <key>`; leave it unset on a trusted container network and it
+works without one ([issue #42](https://github.com/roomi-fields/notebooklm-mcp/issues/42)).
+
 ### Option 3 — Docker (NAS, server, headless)
 
 ```bash
