@@ -1,6 +1,6 @@
 [package]
 name = "notebooklm"
-version = "4.9.0"
+version = "4.10.0"
 edition = "2021"
 # Verified by building with it, not asserted: 1.82 and 1.85 both fail on the
 # internationalisation crates the HTTP client pulls in, which require 1.88.

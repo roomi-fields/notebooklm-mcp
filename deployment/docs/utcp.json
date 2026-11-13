@@ -1,6 +1,6 @@
 {
   "utcp_version": "1.0.0",
-  "manual_version": "4.9.0",
+  "manual_version": "4.10.0",
   "tools": [
     {
       "name": "get_server_info",
