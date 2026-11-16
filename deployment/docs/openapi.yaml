@@ -832,6 +832,119 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/CancelResearchResponse' }
 
+  /notebooks/{id}/copy:
+    post:
+      operationId: copy_notebook
+      tags: [Notebooks]
+      summary: Copy a whole notebook into a new one
+      description: |
+        RPC-backed. Copies the notebook's sources and Studio artifacts into a
+        new notebook and returns its id, URL and sources. Not idempotent: a
+        failed call is never retried automatically — a lost reply could
+        otherwise become a second copy — so list your notebooks before trying
+        again.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Title of the copy. Defaults to "Copy of <source title>".
+      responses:
+        '200':
+          description: 'The new notebook'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CopyNotebookResponse' }
+
+  /notebooks/{id}/sources/copy:
+    post:
+      operationId: copy_sources
+      tags: [Sources]
+      summary: Copy sources into another notebook
+      description: |
+        RPC-backed. Copies the named sources into an existing notebook and maps
+        each original id to the id of its copy; the copies may still be
+        processing when the reply arrives. The target must be named — there is
+        no default. Not idempotent: never retried automatically.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_ids]
+              properties:
+                source_ids:
+                  type: array
+                  items: { type: string }
+                  description: Ids of the sources to copy, as list_sources returns them.
+                target_notebook_id:
+                  type: string
+                  description: UUID of the notebook to copy into. Required unless target_notebook_url is given.
+                target_notebook_url:
+                  type: string
+                  description: URL of the notebook to copy into (alternative to target_notebook_id).
+      responses:
+        '200':
+          description: 'What was copied'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CopyItemsResponse' }
+
+  /notebooks/{id}/content/copy:
+    post:
+      operationId: copy_content
+      tags: [Content]
+      summary: Copy Studio artifacts into another notebook
+      description: |
+        RPC-backed. Copies Studio artifacts (audio, video, reports, quizzes,
+        slide decks…) into an existing notebook and maps each original id to
+        the id of its copy. The target must be named — there is no default.
+        Not idempotent: never retried automatically.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_ids]
+              properties:
+                content_ids:
+                  type: array
+                  items: { type: string }
+                  description: Ids of the Studio artifacts to copy, as list_content returns them.
+                target_notebook_id:
+                  type: string
+                  description: UUID of the notebook to copy into. Required unless target_notebook_url is given.
+                target_notebook_url:
+                  type: string
+                  description: URL of the notebook to copy into (alternative to target_notebook_id).
+      responses:
+        '200':
+          description: 'What was copied'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CopyItemsResponse' }
+
   /notebooks/{id}/share:
     get:
       operationId: get_share_status
@@ -2254,6 +2367,56 @@ components:
               type: string
             cancelled:
               type: boolean
+
+    CopyNotebookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+            url:
+              type: string
+            sourceNotebookId:
+              type: string
+            sources:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+
+    CopyItemsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            notebookId:
+              type: string
+            targetNotebookId:
+              type: string
+            copied:
+              type: array
+              items:
+                type: object
+                properties:
+                  originalId:
+                    type: string
+                  newId:
+                    type: string
+                  title:
+                    type: string
 
     GetShareStatusResponse:
       type: object

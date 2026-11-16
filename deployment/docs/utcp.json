@@ -2929,6 +2929,270 @@
       }
     },
     {
+      "name": "copy_notebook",
+      "description": "Copy a whole notebook into a new one",
+      "tags": [
+        "Notebooks"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "Title of the copy. Defaults to \"Copy of <source title>\"."
+              }
+            }
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "sourceNotebookId": {
+                "type": "string"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "tool_call_template": {
+        "name": "copy_notebook",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/{id}/copy",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "copy_sources",
+      "description": "Copy sources into another notebook",
+      "tags": [
+        "Sources"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "source_ids"
+            ],
+            "properties": {
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Ids of the sources to copy, as list_sources returns them."
+              },
+              "target_notebook_id": {
+                "type": "string",
+                "description": "UUID of the notebook to copy into. Required unless target_notebook_url is given."
+              },
+              "target_notebook_url": {
+                "type": "string",
+                "description": "URL of the notebook to copy into (alternative to target_notebook_id)."
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "targetNotebookId": {
+                "type": "string"
+              },
+              "copied": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "originalId": {
+                      "type": "string"
+                    },
+                    "newId": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "tool_call_template": {
+        "name": "copy_sources",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/{id}/sources/copy",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
+      "name": "copy_content",
+      "description": "Copy Studio artifacts into another notebook",
+      "tags": [
+        "Content"
+      ],
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "content_ids"
+            ],
+            "properties": {
+              "content_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Ids of the Studio artifacts to copy, as list_content returns them."
+              },
+              "target_notebook_id": {
+                "type": "string",
+                "description": "UUID of the notebook to copy into. Required unless target_notebook_url is given."
+              },
+              "target_notebook_url": {
+                "type": "string",
+                "description": "URL of the notebook to copy into (alternative to target_notebook_id)."
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "notebookId": {
+                "type": "string"
+              },
+              "targetNotebookId": {
+                "type": "string"
+              },
+              "copied": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "originalId": {
+                      "type": "string"
+                    },
+                    "newId": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "tool_call_template": {
+        "name": "copy_content",
+        "call_template_type": "http",
+        "http_method": "POST",
+        "url": "http://localhost:3000/notebooks/{id}/content/copy",
+        "content_type": "application/json",
+        "auth": {
+          "auth_type": "api_key",
+          "api_key": "${NOTEBOOKLM_API_KEY}",
+          "var_name": "X-API-Key",
+          "location": "header"
+        },
+        "body_field": "body"
+      }
+    },
+    {
       "name": "get_share_status",
       "description": "Read a notebook's sharing status",
       "tags": [

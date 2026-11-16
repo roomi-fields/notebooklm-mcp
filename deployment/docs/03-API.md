@@ -1,7 +1,7 @@
-# NotebookLM REST API reference — 59 HTTP endpoints
+# NotebookLM REST API reference — 62 HTTP endpoints
 
-> **Coverage.** All 59 endpoints the server exposes are documented below, and
-> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 59 —
+> **Coverage.** All 62 endpoints the server exposes are documented below, and
+> the [OpenAPI 3.1 spec](pathname:///openapi.yaml) carries the same 62 —
 > both checked against the routes declared in the code.
 
 > Complete reference for the NotebookLM HTTP REST API. Citation-backed Q&A,
@@ -27,7 +27,7 @@ Or for network access: `http://<SERVER-IP>:3000`
 
 ---
 
-## Available Endpoints (59 total)
+## Available Endpoints (62 total)
 
 ### Authentication
 
@@ -2985,6 +2985,95 @@ curl -X POST http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0ef
 ```
 
 Fire-and-forget: the server keys the cancel on the run id alone (the notebook is routing only) and does not validate it, so an unknown id is a silent no-op and `cancelled: true` means the cancel was sent. A cancelled run turns to a failed state within a few seconds; confirm with `POST /content/research`. With no active task it answers `runId: null` and `cancelled: false`.
+
+---
+
+### `POST /notebooks/:id/copy`
+
+Copy a whole notebook — its sources and its Studio artifacts — into a new notebook. Useful to fork a reference notebook before experimenting, or to hand a colleague a copy without sharing the original.
+
+**Body:**
+
+| Field   | Type   | Required | Description                                      |
+| ------- | ------ | -------- | ------------------------------------------------ |
+| `title` | string | No       | Title of the copy; defaults to `Copy of <title>` |
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0efd/copy \
+  -H 'Content-Type: application/json' -d '{"title": "Thesis — sandbox"}'
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "b8c1d2e3-...",
+    "title": "Thesis — sandbox",
+    "url": "https://notebooklm.google.com/notebook/b8c1d2e3-...",
+    "sources": [{ "id": "f00dbabe-...", "title": "Chapter 1.pdf" }],
+    "sourceNotebookId": "74912e55-..."
+  }
+}
+```
+
+Not idempotent: a failed call is **never retried automatically**, because a reply lost after the server made the copy would otherwise turn into a second copy. List your notebooks before trying again.
+
+---
+
+### `POST /notebooks/:id/sources/copy`
+
+Copy some sources of a notebook into another, existing notebook. The target must be named — there is no default, so a copy never lands somewhere you did not choose.
+
+**Body:**
+
+| Field                 | Type     | Required | Description                                      |
+| --------------------- | -------- | -------- | ------------------------------------------------ |
+| `source_ids`          | string[] | Yes      | Ids of the sources to copy (from `list_sources`) |
+| `target_notebook_id`  | string   | Yes\*    | The notebook to copy into                        |
+| `target_notebook_url` | string   | Yes\*    | Alternative to `target_notebook_id`              |
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0efd/sources/copy \
+  -H 'Content-Type: application/json' \
+  -d '{"source_ids": ["f00dbabe-..."], "target_notebook_id": "b8c1d2e3-..."}'
+```
+
+**Success Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "notebookId": "74912e55-...",
+    "targetNotebookId": "b8c1d2e3-...",
+    "copied": [{ "originalId": "f00dbabe-...", "newId": "c0ffee00-...", "title": "Chapter 1.pdf" }]
+  }
+}
+```
+
+The copies may still be processing when the reply arrives. Not idempotent — never retried automatically.
+
+---
+
+### `POST /notebooks/:id/content/copy`
+
+Copy Studio artifacts — audio and video overviews, reports, quizzes, flashcards, slide decks — into another, existing notebook. Same body and reply as the source copy, with `content_ids` (from `list_content`) in place of `source_ids`.
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0efd/content/copy \
+  -H 'Content-Type: application/json' \
+  -d '{"content_ids": ["a1b2c3d4-..."], "target_notebook_id": "b8c1d2e3-..."}'
+```
+
+Not idempotent — never retried automatically. A reply that lists no copies means either the ids are not in the source notebook or the reply could not be read: check the target before trying again.
 
 ---
 

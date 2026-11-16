@@ -100,7 +100,7 @@ describe('the generated surface', () => {
   const blockingCalls = [...blocking.matchAll(/pub fn (\w+)\(/g)].map((m) => m[1]);
 
   it('covers every operation in the specification', () => {
-    expect(operations.length).toBe(59);
+    expect(operations.length).toBe(62);
     expect([...asyncCalls].sort()).toEqual([...operations].sort());
   });
 

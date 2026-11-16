@@ -1008,6 +1008,65 @@ app.post('/notebooks/:id/research/cancel', async (req: Request, res: Response) =
   }
 });
 
+// Copy a whole notebook (sources + Studio artifacts) into a new one — RPC
+// extension. Not idempotent: the client never retries it automatically.
+app.post('/notebooks/:id/copy', async (req: Request, res: Response) => {
+  try {
+    const title = typeof req.body?.title === 'string' ? req.body.title : undefined;
+    res.json(await toolHandlers.handleCopyNotebook({ notebook_id: req.params.id, title }));
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
+/** The copy target, from the body: an id, or a notebook URL. */
+function copyTarget(body: Record<string, unknown> | undefined) {
+  return {
+    target_notebook_id:
+      typeof body?.target_notebook_id === 'string' ? body.target_notebook_id : undefined,
+    target_notebook_url:
+      typeof body?.target_notebook_url === 'string' ? body.target_notebook_url : undefined,
+  };
+}
+
+// Copy some sources into another notebook — RPC extension. Not idempotent.
+app.post('/notebooks/:id/sources/copy', async (req: Request, res: Response) => {
+  try {
+    const source_ids = Array.isArray(req.body?.source_ids) ? req.body.source_ids : undefined;
+    res.json(
+      await toolHandlers.handleCopySources({
+        notebook_id: req.params.id,
+        source_ids,
+        ...copyTarget(req.body),
+      })
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
+// Copy Studio artifacts into another notebook — RPC extension. Not idempotent.
+app.post('/notebooks/:id/content/copy', async (req: Request, res: Response) => {
+  try {
+    const content_ids = Array.isArray(req.body?.content_ids) ? req.body.content_ids : undefined;
+    res.json(
+      await toolHandlers.handleCopyContent({
+        notebook_id: req.params.id,
+        content_ids,
+        ...copyTarget(req.body),
+      })
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
 // List a notebook's sources with their IDs — RPC extension.
 app.get('/notebooks/:id/sources', async (req: Request, res: Response) => {
   try {

@@ -402,6 +402,38 @@ const ROUTES: Record<string, Route> = {
     query: [{ name: 'runId', wire: 'run_id', kind: 'string', required: false }],
     enveloped: true,
   },
+  'notebook:copy_notebook': {
+    method: 'POST',
+    path: '/notebooks/{id}/copy',
+    pathParams: [{ name: 'id', wire: 'id', kind: 'string', required: true }],
+    body: [{ name: 'title', wire: 'title', kind: 'string', required: false }],
+    query: [],
+    enveloped: true,
+  },
+  'source:copy_sources': {
+    method: 'POST',
+    path: '/notebooks/{id}/sources/copy',
+    pathParams: [{ name: 'id', wire: 'id', kind: 'string', required: true }],
+    body: [
+      { name: 'sourceIdsStringRequired', wire: 'source_ids', kind: 'list', required: true },
+      { name: 'targetNotebookId', wire: 'target_notebook_id', kind: 'string', required: false },
+      { name: 'targetNotebookUrl', wire: 'target_notebook_url', kind: 'string', required: false },
+    ],
+    query: [],
+    enveloped: true,
+  },
+  'content:copy_content': {
+    method: 'POST',
+    path: '/notebooks/{id}/content/copy',
+    pathParams: [{ name: 'id', wire: 'id', kind: 'string', required: true }],
+    body: [
+      { name: 'contentIds', wire: 'content_ids', kind: 'list', required: true },
+      { name: 'targetNotebookId', wire: 'target_notebook_id', kind: 'string', required: false },
+      { name: 'targetNotebookUrl', wire: 'target_notebook_url', kind: 'string', required: false },
+    ],
+    query: [],
+    enveloped: true,
+  },
   'notebook:get_share_status': {
     method: 'GET',
     path: '/notebooks/{id}/share',
@@ -877,6 +909,13 @@ export class NotebookLm implements INodeType {
               "Cancels a Fast Research run. RPC-backed and fire-and-forget: the server keys on the run id alone and does not validate it, so `cancelled: true` means the cancel was sent; confirm with research_sources. `run_id` defaults to the notebook's current research task.",
           },
           {
+            name: 'Copy Notebook',
+            value: 'copy_notebook',
+            action: 'Copy a whole notebook into a new one',
+            description:
+              "RPC-backed. Copies the notebook's sources and Studio artifacts into a new notebook and returns its id, URL and sources. Not idempotent: a failed call is never retried automatically — a lost reply could otherwise become a second copy — so list your notebooks before trying again.",
+          },
+          {
             name: 'Get Share Status',
             value: 'get_share_status',
             action: "Read a notebook's sharing status",
@@ -990,6 +1029,13 @@ export class NotebookLm implements INodeType {
             description:
               'RPC-backed (no browser). Checks every source unless `source_id` narrows it. `stale: null` means the server did not answer for that source — not that it is current.',
           },
+          {
+            name: 'Copy Sources',
+            value: 'copy_sources',
+            action: 'Copy sources into another notebook',
+            description:
+              'RPC-backed. Copies the named sources into an existing notebook and maps each original id to the id of its copy; the copies may still be processing when the reply arrives. The target must be named — there is no default. Not idempotent: never retried automatically.',
+          },
         ],
       },
       {
@@ -1006,6 +1052,13 @@ export class NotebookLm implements INodeType {
             action: 'Delete a generated Studio artifact',
             description:
               'RPC-backed (no browser). Irreversible. Note-backed mind maps are not covered — they live in the notes system, not the Studio library.',
+          },
+          {
+            name: 'Copy Content',
+            value: 'copy_content',
+            action: 'Copy Studio artifacts into another notebook',
+            description:
+              'RPC-backed. Copies Studio artifacts (audio, video, reports, quizzes, slide decks…) into an existing notebook and maps each original id to the id of its copy. The target must be named — there is no default. Not idempotent: never retried automatically.',
           },
           {
             name: 'Retry Content',
@@ -1218,7 +1271,7 @@ export class NotebookLm implements INodeType {
         required: true,
         displayOptions: {
           show: {
-            resource: ['notebook', 'session', 'source'],
+            resource: ['notebook', 'session', 'source', 'content'],
             operation: [
               'add_notebook',
               'get_notebook',
@@ -1239,6 +1292,9 @@ export class NotebookLm implements INodeType {
               'delete_chat_history',
               'cancel_answer',
               'cancel_research',
+              'copy_notebook',
+              'copy_sources',
+              'copy_content',
               'get_share_status',
               'share_notebook',
               'list_labels',
@@ -1389,10 +1445,11 @@ export class NotebookLm implements INodeType {
         name: 'title',
         type: 'string',
         default: '',
+        description: 'Title of the copy. Defaults to "Copy of <source title>".',
         displayOptions: {
           show: {
-            resource: ['source', 'content'],
-            operation: ['add_source', 'export_artifact', 'generate_mind_map'],
+            resource: ['source', 'notebook', 'content'],
+            operation: ['add_source', 'copy_notebook', 'export_artifact', 'generate_mind_map'],
           },
         },
       },
@@ -1571,6 +1628,62 @@ export class NotebookLm implements INodeType {
           show: {
             resource: ['notebook'],
             operation: ['cancel_research'],
+          },
+        },
+      },
+      {
+        displayName: 'Source Ids',
+        name: 'sourceIdsStringRequired',
+        type: 'string',
+        default: '',
+        required: true,
+        description: 'Ids of the sources to copy, as list_sources returns them.. Comma-separated',
+        displayOptions: {
+          show: {
+            resource: ['source'],
+            operation: ['copy_sources'],
+          },
+        },
+      },
+      {
+        displayName: 'Target Notebook ID',
+        name: 'targetNotebookId',
+        type: 'string',
+        default: '',
+        description:
+          'UUID of the notebook to copy into. Required unless target_notebook_url is given.',
+        displayOptions: {
+          show: {
+            resource: ['source', 'content'],
+            operation: ['copy_sources', 'copy_content'],
+          },
+        },
+      },
+      {
+        displayName: 'Target Notebook URL',
+        name: 'targetNotebookUrl',
+        type: 'string',
+        default: '',
+        description: 'URL of the notebook to copy into (alternative to target_notebook_id).',
+        displayOptions: {
+          show: {
+            resource: ['source', 'content'],
+            operation: ['copy_sources', 'copy_content'],
+          },
+        },
+      },
+      {
+        displayName: 'Content Ids',
+        name: 'contentIds',
+        type: 'string',
+        default: '',
+        required: true,
+        description:
+          'Ids of the Studio artifacts to copy, as list_content returns them.. Comma-separated',
+        displayOptions: {
+          show: {
+            resource: ['content'],
+            operation: ['copy_content'],
           },
         },
       },

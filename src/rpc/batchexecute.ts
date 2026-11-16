@@ -109,6 +109,13 @@ const STATUS_ADVICE: Record<number, string> = {
  * envelope for the id, a rotated id carries none at all. Conflating them told
  * users to go hunting for a replacement id that was never the problem.
  */
+/**
+ * The request was turned away before the server acted on it (HTTP 401/403, or
+ * a redirect to the Google sign-in page). Nothing was written, so this is the
+ * one failure a non-idempotent call may safely retry after re-bootstrapping.
+ */
+export class RpcUnauthorizedError extends RpcError {}
+
 export class RpcStatusError extends RpcError {
   constructor(
     rpcName: RpcName,
@@ -238,7 +245,12 @@ export class BatchExecuteClient {
    * @param params  the RPC params array (JSON-encoded into f.req)
    * @param sourcePath  `source-path` query param (e.g. `/notebook/{id}`)
    */
-  async call(name: RpcName, params: unknown, sourcePath = '/'): Promise<unknown> {
+  async call(
+    name: RpcName,
+    params: unknown,
+    sourcePath = '/',
+    opts: { idempotent?: boolean } = {}
+  ): Promise<unknown> {
     await this.bootstrap();
     try {
       return await this.callOnce(name, params, sourcePath);
@@ -249,6 +261,20 @@ export class BatchExecuteClient {
       // exhausted quota just costs a round trip. UNAUTHENTICATED is the one
       // exception — that is exactly the stale-token case the retry exists for.
       if (err instanceof RpcStatusError && err.status !== 16) throw err;
+      // A write that is not idempotent (a copy) must not be replayed after a
+      // failure that may have happened *after* the server committed it — a lost
+      // response would become a duplicate. Only a sign-in bounce proves nothing
+      // was written.
+      const provenUnwritten =
+        err instanceof RpcUnauthorizedError || (err instanceof RpcStatusError && err.status === 16);
+      if (opts.idempotent === false && !provenUnwritten) {
+        throw new RpcError(
+          `RPC "${name}" failed and may already have been applied (${(err as Error).message}). ` +
+            'Not retried automatically: check the target before trying again.',
+          name,
+          err
+        );
+      }
       log.warning(
         `  ↻ RPC "${name}" failed (${(err as Error).message}); re-bootstrapping and retrying once...`
       );
@@ -375,7 +401,7 @@ export class BatchExecuteClient {
 
     const text = await res.text();
     if (res.status === 401 || res.status === 403 || /accounts\.google\.com/.test(res.url)) {
-      throw new RpcError(`RPC "${name}" unauthorized (HTTP ${res.status})`, name);
+      throw new RpcUnauthorizedError(`RPC "${name}" unauthorized (HTTP ${res.status})`, name);
     }
     if (!res.ok) {
       throw new RpcError(`RPC "${name}" HTTP ${res.status}: ${text.slice(0, 200)}`, name);

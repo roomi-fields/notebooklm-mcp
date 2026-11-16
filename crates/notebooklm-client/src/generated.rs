@@ -1117,6 +1117,116 @@ pub struct CancelResearchQuery {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[non_exhaustive]
+pub struct CopyNotebookData {
+    #[serde(default)]
+    pub id: String,
+    #[serde(default)]
+    pub title: String,
+    #[serde(default)]
+    pub url: String,
+    #[serde(rename = "sourceNotebookId")]
+    #[serde(default)]
+    pub source_notebook_id: String,
+    #[serde(default)]
+    pub sources: Vec<CopyNotebookDataSourcesItem>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CopyNotebookDataSourcesItem {
+    #[serde(default)]
+    pub id: String,
+    #[serde(default)]
+    pub title: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct CopyNotebookRequest {
+    /// Title of the copy. Defaults to "Copy of <source title>".
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CopySourcesData {
+    #[serde(rename = "notebookId")]
+    #[serde(default)]
+    pub notebook_id: String,
+    #[serde(rename = "targetNotebookId")]
+    #[serde(default)]
+    pub target_notebook_id: String,
+    #[serde(default)]
+    pub copied: Vec<CopySourcesDataCopiedItem>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CopySourcesDataCopiedItem {
+    #[serde(rename = "originalId")]
+    #[serde(default)]
+    pub original_id: String,
+    #[serde(rename = "newId")]
+    #[serde(default)]
+    pub new_id: String,
+    #[serde(default)]
+    pub title: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct CopySourcesRequest {
+    /// Ids of the sources to copy, as list_sources returns them.
+    #[serde(default)]
+    pub source_ids: Vec<String>,
+    /// UUID of the notebook to copy into. Required unless target_notebook_url is given.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_notebook_id: Option<String>,
+    /// URL of the notebook to copy into (alternative to target_notebook_id).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_notebook_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CopyContentData {
+    #[serde(rename = "notebookId")]
+    #[serde(default)]
+    pub notebook_id: String,
+    #[serde(rename = "targetNotebookId")]
+    #[serde(default)]
+    pub target_notebook_id: String,
+    #[serde(default)]
+    pub copied: Vec<CopyContentDataCopiedItem>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct CopyContentDataCopiedItem {
+    #[serde(rename = "originalId")]
+    #[serde(default)]
+    pub original_id: String,
+    #[serde(rename = "newId")]
+    #[serde(default)]
+    pub new_id: String,
+    #[serde(default)]
+    pub title: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct CopyContentRequest {
+    /// Ids of the Studio artifacts to copy, as list_content returns them.
+    #[serde(default)]
+    pub content_ids: Vec<String>,
+    /// UUID of the notebook to copy into. Required unless target_notebook_url is given.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_notebook_id: Option<String>,
+    /// URL of the notebook to copy into (alternative to target_notebook_id).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target_notebook_url: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct GetShareStatusData {
     #[serde(rename = "isPublic")]
     #[serde(default)]
@@ -2325,6 +2435,76 @@ impl Client {
             &format!("/notebooks/{id}/research/cancel"),
             None::<&()>,
             Some(query),
+        )
+        .await
+    }
+
+    /// Copy a whole notebook into a new one
+    ///
+    /// RPC-backed. Copies the notebook's sources and Studio artifacts into a
+    /// new notebook and returns its id, URL and sources. Not idempotent: a
+    /// failed call is never retried automatically — a lost reply could
+    /// otherwise become a second copy — so list your notebooks before trying
+    /// again.
+    ///
+    /// `POST /notebooks/{id}/copy`
+    pub async fn copy_notebook(
+        &self,
+        id: &str,
+        body: &CopyNotebookRequest,
+    ) -> Result<CopyNotebookData> {
+        self.send_json(
+            "copy_notebook",
+            reqwest::Method::POST,
+            &format!("/notebooks/{id}/copy"),
+            Some(body),
+            None::<&()>,
+        )
+        .await
+    }
+
+    /// Copy sources into another notebook
+    ///
+    /// RPC-backed. Copies the named sources into an existing notebook and maps
+    /// each original id to the id of its copy; the copies may still be
+    /// processing when the reply arrives. The target must be named — there is
+    /// no default. Not idempotent: never retried automatically.
+    ///
+    /// `POST /notebooks/{id}/sources/copy`
+    pub async fn copy_sources(
+        &self,
+        id: &str,
+        body: &CopySourcesRequest,
+    ) -> Result<CopySourcesData> {
+        self.send_json(
+            "copy_sources",
+            reqwest::Method::POST,
+            &format!("/notebooks/{id}/sources/copy"),
+            Some(body),
+            None::<&()>,
+        )
+        .await
+    }
+
+    /// Copy Studio artifacts into another notebook
+    ///
+    /// RPC-backed. Copies Studio artifacts (audio, video, reports, quizzes,
+    /// slide decks…) into an existing notebook and maps each original id to
+    /// the id of its copy. The target must be named — there is no default.
+    /// Not idempotent: never retried automatically.
+    ///
+    /// `POST /notebooks/{id}/content/copy`
+    pub async fn copy_content(
+        &self,
+        id: &str,
+        body: &CopyContentRequest,
+    ) -> Result<CopyContentData> {
+        self.send_json(
+            "copy_content",
+            reqwest::Method::POST,
+            &format!("/notebooks/{id}/content/copy"),
+            Some(body),
+            None::<&()>,
         )
         .await
     }

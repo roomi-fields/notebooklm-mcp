@@ -22,6 +22,7 @@ export const RPC_IDS = {
   CREATE_NOTEBOOK: 'CCqFvf',
   RENAME_NOTEBOOK: 's0tc2d',
   DELETE_NOTEBOOK: 'WWINqb',
+  COPY_NOTEBOOK: 'te3DCe', // CopyProject — copies sources + Studio artifacts into a new notebook
 
   // Sources
   ADD_SOURCE: 'izAoDd', // URL / text / Drive (legacy)
@@ -32,6 +33,7 @@ export const RPC_IDS = {
   SYNC_DRIVE_SOURCE: 'FLmJqe',
   DELETE_SOURCE: 'tGMBJ',
   RENAME_SOURCE: 'b7Wfje',
+  COPY_SOURCES: 'R27wvc', // CopySourcesAsync — the sync twin Z8UXi is dead; never use it
   // Registered by a lazily loaded module, so it never appears in the homepage
   // bundle a drift scraper reads — a rotation here surfaces as a failing call.
   SEARCH_PASSAGES: 'ASU5Oe',
@@ -57,6 +59,7 @@ export const RPC_IDS = {
   DELETE_STUDIO: 'V5N4be',
   RETRY_ARTIFACT: 'Rytqqe',
   RENAME_ARTIFACT: 'rc3d8d',
+  COPY_ARTIFACTS: 'mKDdke', // CopyArtifactsAsync — the sync twin zVGIdd is a no-op stub
   GET_INTERACTIVE_HTML: 'v9rmvd', // quiz / flashcard HTML
   REVISE_SLIDE_DECK: 'KmcKPe',
 

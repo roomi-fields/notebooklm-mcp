@@ -77,6 +77,7 @@ import { SharingRpc, type ShareStatus } from '../rpc/sharing-rpc.js';
 import { ChatRpc, type ChatTurn } from '../rpc/chat-rpc.js';
 import { SearchRpc, type RelevantPassage } from '../rpc/search-rpc.js';
 import { UsageRpc, type UsageSummary } from '../rpc/usage-rpc.js';
+import { CopyRpc, type CopiedItem, type CopiedNotebook } from '../rpc/copy-rpc.js';
 import {
   MindMapRpc,
   LabelsRpc,
@@ -1912,6 +1913,89 @@ User: "Yes" → call remove_notebook`,
               'The research task id (as research_sources returns). Defaults to the current task.',
           },
         },
+      },
+    },
+    {
+      name: 'copy_notebook',
+      description:
+        'Copy a whole notebook — its sources and Studio artifacts — into a new notebook. ' +
+        'RPC-backed. Returns the new notebook id, URL and its sources. Not idempotent: a ' +
+        'failure is never retried automatically, so check the notebook list before retrying.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          notebook_url: { type: 'string', description: 'NotebookLM notebook URL (the source).' },
+          notebook_id: {
+            type: 'string',
+            description: 'Notebook UUID (alternative to notebook_url).',
+          },
+          title: {
+            type: 'string',
+            description: 'Title of the copy. Defaults to "Copy of <source title>".',
+          },
+        },
+      },
+    },
+    {
+      name: 'copy_sources',
+      description:
+        'Copy some of a notebook’s sources into another existing notebook. RPC-backed. ' +
+        'Returns, for each source, its original id and the id of the copy. The target must be ' +
+        'named explicitly. Not idempotent: a failure is never retried automatically.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          notebook_url: { type: 'string', description: 'NotebookLM notebook URL (the source).' },
+          notebook_id: {
+            type: 'string',
+            description: 'Notebook UUID (alternative to notebook_url).',
+          },
+          source_ids: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Ids of the sources to copy (from list_sources).',
+          },
+          target_notebook_id: {
+            type: 'string',
+            description: 'UUID of the notebook to copy into. Required (or target_notebook_url).',
+          },
+          target_notebook_url: {
+            type: 'string',
+            description: 'URL of the notebook to copy into (alternative to target_notebook_id).',
+          },
+        },
+        required: ['source_ids'],
+      },
+    },
+    {
+      name: 'copy_content',
+      description:
+        'Copy Studio artifacts (audio, video, reports, quizzes, slide decks…) into another ' +
+        'existing notebook. RPC-backed. Returns, for each artifact, its original id and the id ' +
+        'of the copy. Not idempotent: a failure is never retried automatically.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          notebook_url: { type: 'string', description: 'NotebookLM notebook URL (the source).' },
+          notebook_id: {
+            type: 'string',
+            description: 'Notebook UUID (alternative to notebook_url).',
+          },
+          content_ids: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Ids of the Studio artifacts to copy (from list_content).',
+          },
+          target_notebook_id: {
+            type: 'string',
+            description: 'UUID of the notebook to copy into. Required (or target_notebook_url).',
+          },
+          target_notebook_url: {
+            type: 'string',
+            description: 'URL of the notebook to copy into (alternative to target_notebook_id).',
+          },
+        },
+        required: ['content_ids'],
       },
     },
     {
@@ -4951,6 +5035,147 @@ export class ToolHandlers {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       log.error(`❌ [TOOL] cancel_research failed: ${msg}`);
+      return { success: false, error: msg };
+    }
+  }
+
+  /**
+   * The notebook a copy lands in. Deliberately no fallback to the active
+   * notebook: a copy written somewhere the caller did not name is a mess to
+   * find and undo.
+   */
+  private resolveTargetNotebookId(target_notebook_url?: string, target_notebook_id?: string) {
+    if (target_notebook_id) return target_notebook_id;
+    return target_notebook_url ? this.notebookIdFromUrl(target_notebook_url) : null;
+  }
+
+  /**
+   * Copy a whole notebook — its sources and Studio artifacts — into a new one
+   * (RPC-only). `title` defaults to "Copy of <source title>". Not idempotent:
+   * a failed call is never retried automatically, so check `list_notebooks_from_nblm`
+   * before trying again.
+   */
+  async handleCopyNotebook(args: {
+    notebook_url?: string;
+    notebook_id?: string;
+    title?: string;
+  }): Promise<ToolResult<CopiedNotebook & { sourceNotebookId: string }>> {
+    log.info(`🔧 [TOOL] copy_notebook called`);
+    try {
+      const notebookId = this.resolveNotebookId(args.notebook_url, args.notebook_id);
+      if (!notebookId) {
+        return { success: false, error: 'No notebook specified (notebook_url or notebook_id)' };
+      }
+      const client = await this.getRpcClient();
+      let title = args.title?.trim();
+      if (!title) {
+        const source = (await new NotebookRpc(client).listNotebooks()).find(
+          (nb) => nb.id === notebookId
+        );
+        title = source?.name ? `Copy of ${source.name}` : 'Notebook copy';
+      }
+      const copy = await new CopyRpc(client).copyNotebook(notebookId, title);
+      log.success(`  ✅ (RPC) notebook ${notebookId} copied to ${copy.id}`);
+      return { success: true, data: { ...copy, sourceNotebookId: notebookId } };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] copy_notebook failed: ${msg}`);
+      return { success: false, error: msg };
+    }
+  }
+
+  /**
+   * Copy some of a notebook's sources into another notebook (RPC-only). The
+   * reply maps each original id to its new one; the copies may still be
+   * processing on arrival. Not idempotent — never retried automatically.
+   */
+  async handleCopySources(args: {
+    notebook_url?: string;
+    notebook_id?: string;
+    source_ids?: string[];
+    target_notebook_url?: string;
+    target_notebook_id?: string;
+  }): Promise<ToolResult<{ notebookId: string; targetNotebookId: string; copied: CopiedItem[] }>> {
+    log.info(`🔧 [TOOL] copy_sources called`);
+    return this.copyItems('copy_sources', args, args.source_ids, 'source_ids', (rpc, nb, ids, t) =>
+      rpc.copySources(nb, ids, t)
+    );
+  }
+
+  /**
+   * Copy Studio artifacts (audio, video, reports, quizzes…) into another
+   * notebook (RPC-only). Ids come from `list_content`. Not idempotent — never
+   * retried automatically.
+   */
+  async handleCopyContent(args: {
+    notebook_url?: string;
+    notebook_id?: string;
+    content_ids?: string[];
+    target_notebook_url?: string;
+    target_notebook_id?: string;
+  }): Promise<ToolResult<{ notebookId: string; targetNotebookId: string; copied: CopiedItem[] }>> {
+    log.info(`🔧 [TOOL] copy_content called`);
+    return this.copyItems(
+      'copy_content',
+      args,
+      args.content_ids,
+      'content_ids',
+      (rpc, nb, ids, t) => rpc.copyArtifacts(nb, ids, t)
+    );
+  }
+
+  /** Shared body of copy_sources / copy_content: resolve both ends, copy, report. */
+  private async copyItems(
+    tool: string,
+    args: {
+      notebook_url?: string;
+      notebook_id?: string;
+      target_notebook_url?: string;
+      target_notebook_id?: string;
+    },
+    ids: string[] | undefined,
+    idsField: string,
+    copy: (rpc: CopyRpc, notebookId: string, ids: string[], target: string) => Promise<CopiedItem[]>
+  ): Promise<ToolResult<{ notebookId: string; targetNotebookId: string; copied: CopiedItem[] }>> {
+    try {
+      const notebookId = this.resolveNotebookId(args.notebook_url, args.notebook_id);
+      if (!notebookId) {
+        return { success: false, error: 'No notebook specified (notebook_url or notebook_id)' };
+      }
+      const targetNotebookId = this.resolveTargetNotebookId(
+        args.target_notebook_url,
+        args.target_notebook_id
+      );
+      if (!targetNotebookId) {
+        return {
+          success: false,
+          error: 'No target notebook specified (target_notebook_id or target_notebook_url)',
+        };
+      }
+      const wanted = Array.isArray(ids) ? ids.filter((id) => typeof id === 'string' && id) : [];
+      if (wanted.length === 0) {
+        return { success: false, error: `${idsField} must be a non-empty array of ids` };
+      }
+      const copied = await copy(
+        new CopyRpc(await this.getRpcClient()),
+        notebookId,
+        wanted,
+        targetNotebookId
+      );
+      if (copied.length === 0) {
+        return {
+          success: false,
+          error:
+            `${tool}: the reply listed no copies. Either the ids are not in notebook ` +
+            `${notebookId} (see list_sources / list_content), or the copies were made and the ` +
+            `reply could not be read — check the target notebook before trying again.`,
+        };
+      }
+      log.success(`  ✅ (RPC) ${copied.length} item(s) copied to ${targetNotebookId}`);
+      return { success: true, data: { notebookId, targetNotebookId, copied } };
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      log.error(`❌ [TOOL] ${tool} failed: ${msg}`);
       return { success: false, error: msg };
     }
   }

@@ -67,7 +67,6 @@ because the appended site name made every one of them 71 to 117 characters.
 
 | Capability                                        | RPC id                         | Notes                                                                                     |
 | ------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
-| Copy a notebook, sources, or artifacts            | `te3DCe`, `R27wvc`, `mKDdke`   | No MCP server exposes these.                                                              |
 | Independent conversations per notebook            | —                              | The most repeated user request on the competitor's tracker.                               |
 | Suggested follow-ups, prompts, report formats     | `OcvKNc`, `otmP3b`, `ciyUvf`   | Three trivial calls.                                                                      |
 | Async URL ingestion; append text to a source      | `X1snv`, `QsNTEd`              | ~0.65 s vs ~2 s per source.                                                               |
@@ -76,7 +75,7 @@ because the appended site name made every one of them 71 to 117 characters.
 | Notebook collections                              | label ids with discriminator 3 |                                                                                           |
 | Synchronous source discovery (~10 results)        | `Es3dTe`                       |                                                                                           |
 | Remove from "recently viewed"                     | `fejl7e`                       | Sometimes answers `[13]`; treat as success.                                               |
-| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 53 with no filter. |
+| Tool groups, to cut the context an agent pays for | —                              | Competitor exposes 53 tools and lets callers disable groups. We expose 56 with no filter. |
 
 ### Source file upload over RPC — delete our most fragile DOM flow
 
@@ -227,6 +226,25 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 ---
 
 ## Recently Implemented
+
+### Unreleased - Copy a notebook, its sources, or its Studio artifacts
+
+Three RPCs no other MCP server exposes. `copy_notebook` (`POST /notebooks/:id/copy`,
+`CopyProject` / `te3DCe`) forks a whole notebook — sources and Studio artifacts — into a new
+one, titled "Copy of <title>" unless told otherwise. `copy_sources`
+(`POST /notebooks/:id/sources/copy`, `CopySourcesAsync` / `R27wvc`) and `copy_content`
+(`POST /notebooks/:id/content/copy`, `CopyArtifactsAsync` / `mKDdke`) copy chosen items into
+an existing notebook and map each original id to its copy. The target is never defaulted: a
+copy only lands in a notebook the caller named. Shapes and reply offsets read from
+`teng-lin/notebooklm-py` (its recorded replies, `tests/fixtures/rpc_golden/COPY_*.json`);
+their sync twins (`Z8UXi`, `zVGIdd`) are dead or no-op stubs and are not used.
+
+A copy is not idempotent, and our client used to replay any failed call once after
+re-bootstrapping — a reply lost after the server made the copy would have become a second
+copy. Calls can now declare `idempotent: false`: they are retried only after a sign-in bounce
+(HTTP 401/403 or `UNAUTHENTICATED`), which proves nothing was written; any other failure
+surfaces as "may already have been applied — check the target". Needs a live check of all
+three on a real account before the release notes call it verified.
 
 ### v4.10.0 - MCP over streamable HTTP (`POST /mcp`)
 

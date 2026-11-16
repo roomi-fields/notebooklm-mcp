@@ -668,6 +668,36 @@ export function registerMcpHandlers(server: Server, deps: McpServerDeps): void {
           );
           break;
 
+        case 'copy_notebook':
+          result = await deps.toolHandlers.handleCopyNotebook(
+            args as { notebook_url?: string; notebook_id?: string; title?: string }
+          );
+          break;
+
+        case 'copy_sources':
+          result = await deps.toolHandlers.handleCopySources(
+            args as {
+              notebook_url?: string;
+              notebook_id?: string;
+              source_ids?: string[];
+              target_notebook_url?: string;
+              target_notebook_id?: string;
+            }
+          );
+          break;
+
+        case 'copy_content':
+          result = await deps.toolHandlers.handleCopyContent(
+            args as {
+              notebook_url?: string;
+              notebook_id?: string;
+              content_ids?: string[];
+              target_notebook_url?: string;
+              target_notebook_id?: string;
+            }
+          );
+          break;
+
         case 'retry_content':
           result = await deps.toolHandlers.handleRetryContent(
             args as {

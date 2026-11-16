@@ -811,6 +811,68 @@ module NotebookLM
     field :cancelled, 'cancelled'
   end
 
+  # The `CopyNotebookData` shape.
+  class CopyNotebookData < Model
+    # @return [String]
+    field :id, 'id'
+    # @return [String]
+    field :title, 'title'
+    # @return [String]
+    field :url, 'url'
+    # @return [String]
+    field :source_notebook_id, 'sourceNotebookId'
+    # @return [Array<CopyNotebookDataSourcesItem>]
+    field :sources, 'sources', type: 'CopyNotebookDataSourcesItem', array: true
+  end
+
+  # The `CopyNotebookDataSourcesItem` shape.
+  class CopyNotebookDataSourcesItem < Model
+    # @return [String]
+    field :id, 'id'
+    # @return [String]
+    field :title, 'title'
+  end
+
+  # The `CopySourcesData` shape.
+  class CopySourcesData < Model
+    # @return [String]
+    field :notebook_id, 'notebookId'
+    # @return [String]
+    field :target_notebook_id, 'targetNotebookId'
+    # @return [Array<CopySourcesDataCopiedItem>]
+    field :copied, 'copied', type: 'CopySourcesDataCopiedItem', array: true
+  end
+
+  # The `CopySourcesDataCopiedItem` shape.
+  class CopySourcesDataCopiedItem < Model
+    # @return [String]
+    field :original_id, 'originalId'
+    # @return [String]
+    field :new_id, 'newId'
+    # @return [String]
+    field :title, 'title'
+  end
+
+  # The `CopyContentData` shape.
+  class CopyContentData < Model
+    # @return [String]
+    field :notebook_id, 'notebookId'
+    # @return [String]
+    field :target_notebook_id, 'targetNotebookId'
+    # @return [Array<CopyContentDataCopiedItem>]
+    field :copied, 'copied', type: 'CopyContentDataCopiedItem', array: true
+  end
+
+  # The `CopyContentDataCopiedItem` shape.
+  class CopyContentDataCopiedItem < Model
+    # @return [String]
+    field :original_id, 'originalId'
+    # @return [String]
+    field :new_id, 'newId'
+    # @return [String]
+    field :title, 'title'
+  end
+
   # The `GetShareStatusData` shape.
   class GetShareStatusData < Model
     # @return [Boolean]
@@ -1150,7 +1212,7 @@ module NotebookLM
   # and the documentation of the API stay separate things.
   module Operations
     # Every operation id, in specification order. The server exposes
-    # 59 of them.
+    # 62 of them.
     OPERATION_IDS = %w[
       get_server_info
       get_health
@@ -1191,6 +1253,9 @@ module NotebookLM
       delete_chat_history
       cancel_answer
       cancel_research
+      copy_notebook
+      copy_sources
+      copy_content
       get_share_status
       share_notebook
       retry_content
@@ -1841,6 +1906,75 @@ module NotebookLM
       query['run_id'] = run_id unless run_id.nil?
       payload = call('cancel_research', :post, "/notebooks/#{id}/research/cancel", query: query)
       CancelResearchData.new(payload)
+    end
+
+    # Copy a whole notebook into a new one
+    #
+    # RPC-backed. Copies the notebook's sources and Studio artifacts into a
+    # new notebook and returns its id, URL and sources. Not idempotent: a
+    # failed call is never retried automatically — a lost reply could
+    # otherwise become a second copy — so list your notebooks before trying
+    # again.
+    #
+    # `POST /notebooks/{id}/copy`
+    #
+    # @param id [String]
+    # @param title [String, nil] Title of the copy. Defaults to "Copy of <source title>".
+    # @return [CopyNotebookData]
+    # @raise [NotebookLM::Refused] when the server declines the request
+    def copy_notebook(id:, title: nil)
+      body = {}
+      body['title'] = title unless title.nil?
+      payload = call('copy_notebook', :post, "/notebooks/#{id}/copy", body: body)
+      CopyNotebookData.new(payload)
+    end
+
+    # Copy sources into another notebook
+    #
+    # RPC-backed. Copies the named sources into an existing notebook and maps
+    # each original id to the id of its copy; the copies may still be
+    # processing when the reply arrives. The target must be named — there is
+    # no default. Not idempotent: never retried automatically.
+    #
+    # `POST /notebooks/{id}/sources/copy`
+    #
+    # @param id [String]
+    # @param source_ids [Array<String>] Ids of the sources to copy, as list_sources returns them.
+    # @param target_notebook_id [String, nil] UUID of the notebook to copy into. Required unless target_notebook_url is given.
+    # @param target_notebook_url [String, nil] URL of the notebook to copy into (alternative to target_notebook_id).
+    # @return [CopySourcesData]
+    # @raise [NotebookLM::Refused] when the server declines the request
+    def copy_sources(id:, source_ids:, target_notebook_id: nil, target_notebook_url: nil)
+      body = {}
+      body['source_ids'] = source_ids
+      body['target_notebook_id'] = target_notebook_id unless target_notebook_id.nil?
+      body['target_notebook_url'] = target_notebook_url unless target_notebook_url.nil?
+      payload = call('copy_sources', :post, "/notebooks/#{id}/sources/copy", body: body)
+      CopySourcesData.new(payload)
+    end
+
+    # Copy Studio artifacts into another notebook
+    #
+    # RPC-backed. Copies Studio artifacts (audio, video, reports, quizzes,
+    # slide decks…) into an existing notebook and maps each original id to
+    # the id of its copy. The target must be named — there is no default.
+    # Not idempotent: never retried automatically.
+    #
+    # `POST /notebooks/{id}/content/copy`
+    #
+    # @param id [String]
+    # @param content_ids [Array<String>] Ids of the Studio artifacts to copy, as list_content returns them.
+    # @param target_notebook_id [String, nil] UUID of the notebook to copy into. Required unless target_notebook_url is given.
+    # @param target_notebook_url [String, nil] URL of the notebook to copy into (alternative to target_notebook_id).
+    # @return [CopyContentData]
+    # @raise [NotebookLM::Refused] when the server declines the request
+    def copy_content(id:, content_ids:, target_notebook_id: nil, target_notebook_url: nil)
+      body = {}
+      body['content_ids'] = content_ids
+      body['target_notebook_id'] = target_notebook_id unless target_notebook_id.nil?
+      body['target_notebook_url'] = target_notebook_url unless target_notebook_url.nil?
+      payload = call('copy_content', :post, "/notebooks/#{id}/content/copy", body: body)
+      CopyContentData.new(payload)
     end
 
     # Read a notebook's sharing status

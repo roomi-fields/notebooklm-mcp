@@ -28,6 +28,7 @@ export const LEGACY_TO_CANONICAL: Record<string, string> = {
   ask_question: 'notebook_ask',
   create_notebook: 'notebook_create',
   delete_notebooks_from_nblm: 'notebook_delete',
+  copy_notebook: 'notebook_copy',
   list_notebooks_from_nblm: 'notebook_list',
   // session_* — chat sessions
   list_sessions: 'session_list',
@@ -38,11 +39,13 @@ export const LEGACY_TO_CANONICAL: Record<string, string> = {
   delete_source: 'source_delete',
   list_sources: 'source_list',
   read_source: 'source_read',
+  copy_sources: 'source_copy',
   // content_* — generated Studio content
   generate_content: 'content_generate',
   list_content: 'content_list',
   download_content: 'content_download',
   delete_content: 'content_delete',
+  copy_content: 'content_copy',
   // note_* — Studio notes
   create_note: 'note_create',
   save_chat_to_note: 'note_save_chat',

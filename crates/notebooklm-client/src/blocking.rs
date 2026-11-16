@@ -286,6 +286,21 @@ impl Client {
         self.runtime.block_on(self.inner.cancel_research(id, query))
     }
 
+    /// See [`crate::Client::copy_notebook`].
+    pub fn copy_notebook(&self, id: &str, body: &CopyNotebookRequest) -> Result<CopyNotebookData> {
+        self.runtime.block_on(self.inner.copy_notebook(id, body))
+    }
+
+    /// See [`crate::Client::copy_sources`].
+    pub fn copy_sources(&self, id: &str, body: &CopySourcesRequest) -> Result<CopySourcesData> {
+        self.runtime.block_on(self.inner.copy_sources(id, body))
+    }
+
+    /// See [`crate::Client::copy_content`].
+    pub fn copy_content(&self, id: &str, body: &CopyContentRequest) -> Result<CopyContentData> {
+        self.runtime.block_on(self.inner.copy_content(id, body))
+    }
+
     /// See [`crate::Client::get_share_status`].
     pub fn get_share_status(&self, id: &str) -> Result<GetShareStatusData> {
         self.runtime.block_on(self.inner.get_share_status(id))
