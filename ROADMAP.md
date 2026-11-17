@@ -231,7 +231,7 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 Three RPCs no other MCP server exposes. `copy_notebook` (`POST /notebooks/:id/copy`,
 `CopyProject` / `te3DCe`) forks a whole notebook — sources and Studio artifacts — into a new
-one, titled "Copy of <title>" unless told otherwise. `copy_sources`
+one, titled `Copy of <title>` unless told otherwise. `copy_sources`
 (`POST /notebooks/:id/sources/copy`, `CopySourcesAsync` / `R27wvc`) and `copy_content`
 (`POST /notebooks/:id/content/copy`, `CopyArtifactsAsync` / `mKDdke`) copy chosen items into
 an existing notebook and map each original id to its copy. The target is never defaulted: a

@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Three new tools, which no other MCP server exposes:
 
 - `copy_notebook` (`POST /notebooks/:id/copy`) duplicates a whole notebook —
-  sources and Studio content — into a new one, titled "Copy of <title>" unless
+  sources and Studio content — into a new one, titled `Copy of <title>` unless
   you name it.
 - `copy_sources` (`POST /notebooks/:id/sources/copy`) copies chosen sources into
   another notebook you already have.
