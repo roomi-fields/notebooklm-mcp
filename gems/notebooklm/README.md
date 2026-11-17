@@ -41,7 +41,7 @@ server's REST API as documented methods rather than hashes you have to guess at.
 
 ```ruby
 # Gemfile
-gem 'notebooklm', '~> 4.10'
+gem 'notebooklm', '~> 4.11'
 ```
 
 or `gem install notebooklm`.
