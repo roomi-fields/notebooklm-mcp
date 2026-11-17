@@ -1118,7 +1118,9 @@ User: "Yes" → call remove_notebook`,
       description:
         'Add a source (document, URL, text, YouTube video) to the current NotebookLM notebook.\n\n' +
         'Supported source types:\n' +
-        '- file: Upload a local file (PDF, DOCX, TXT, etc.)\n' +
+        '- file: Upload a local file (PDF, DOCX, TXT, etc.). Audio (MP3, M4A…) is transcribed and ' +
+        'images (JPG, PNG…) are read, so a voice memo or a photo of a whiteboard becomes a ' +
+        'queryable source.\n' +
         '- url: Add a web page URL\n' +
         '- text: Paste text content directly\n' +
         '- youtube: Add a YouTube video URL\n' +
@@ -1919,8 +1921,11 @@ User: "Yes" → call remove_notebook`,
       name: 'copy_notebook',
       description:
         'Copy a whole notebook — its sources and Studio artifacts — into a new notebook. ' +
-        'RPC-backed. Returns the new notebook id, URL and its sources. Not idempotent: a ' +
-        'failure is never retried automatically, so check the notebook list before retrying.',
+        'RPC-backed. Returns the new notebook id and URL. The sources are copied in the ' +
+        'background and may not be listed in the reply yet — call list_sources a few seconds ' +
+        'later. Only a notebook you own can be copied (not one shared with you or public). Not ' +
+        'idempotent: a failure is never retried automatically, so check the notebook list ' +
+        'before retrying.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -1941,7 +1946,8 @@ User: "Yes" → call remove_notebook`,
       description:
         'Copy some of a notebook’s sources into another existing notebook. RPC-backed. ' +
         'Returns, for each source, its original id and the id of the copy. The target must be ' +
-        'named explicitly. Not idempotent: a failure is never retried automatically.',
+        'named explicitly. Only from a notebook you own (not one shared with you or public). ' +
+        'Not idempotent: a failure is never retried automatically.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -1972,7 +1978,8 @@ User: "Yes" → call remove_notebook`,
       description:
         'Copy Studio artifacts (audio, video, reports, quizzes, slide decks…) into another ' +
         'existing notebook. RPC-backed. Returns, for each artifact, its original id and the id ' +
-        'of the copy. Not idempotent: a failure is never retried automatically.',
+        'of the copy. Only from a notebook you own (not one shared with you or public). Not ' +
+        'idempotent: a failure is never retried automatically.',
       inputSchema: {
         type: 'object',
         properties: {

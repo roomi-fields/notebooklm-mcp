@@ -2442,7 +2442,10 @@ impl Client {
     /// Copy a whole notebook into a new one
     ///
     /// RPC-backed. Copies the notebook's sources and Studio artifacts into a
-    /// new notebook and returns its id, URL and sources. Not idempotent: a
+    /// new notebook and returns its id and URL. The sources finish copying in
+    /// the background, so the returned list is often empty — list the new
+    /// notebook's sources a few seconds later. Only a notebook you own can be
+    /// copied, not one shared with you or public. Not idempotent: a
     /// failed call is never retried automatically — a lost reply could
     /// otherwise become a second copy — so list your notebooks before trying
     /// again.

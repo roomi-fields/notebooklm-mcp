@@ -127,7 +127,7 @@ Flashcards and quizzes are generated via `generate_study_aid`; mind maps via `ge
 
 ### Source Management
 
-- **Add sources**: Files (PDF, TXT, DOCX), URLs, Text, YouTube videos, Google Drive
+- **Add sources**: Files (PDF, TXT, DOCX, audio, images), URLs, Text, YouTube videos, Google Drive
 - **List sources**: Every source with its ID and title (`source_list`)
 - **Rename a source** (`rename_source`): fix a title in place, by id or by name
 - **Check freshness** (`check_source_freshness`): which URL / Drive sources have drifted from what they point at — the whole notebook in one call. An unanswered source is reported as unknown, never as current

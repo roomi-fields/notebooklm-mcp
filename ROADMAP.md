@@ -227,6 +227,22 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 ## Recently Implemented
 
+### Unreleased - Audio and image sources, and two copy corrections from the live check
+
+Audio and image files were already accepted by `add_source` (type `file`) but never said so.
+Checked live on 2026-11-17: an MP3 is transcribed (`read_source` returns the transcript), and a
+JPG of a whiteboard is read — `read_source` returns only the image URL, but a question answers
+from the text in the picture. The tool description and README now say it, timed with the
+"Gemini Notebook" mobile recorder and camera launch.
+
+The live check of the three copy tools found two things the recorded replies did not show.
+`copy_notebook` returns before its sources are copied, so its `sources` list is usually empty —
+documented, with "list the sources a few seconds later". And a notebook the account does not own
+(shared with it, or public) cannot be copied from: sources get `PERMISSION_DENIED`, and artifacts
+come back in a second reply slot, `[null, [[id, null, [null, []]]]]`, which we read as "nothing
+copied" with a vague message. That slot is now parsed, and the error says the notebook is not
+yours and that nothing was copied.
+
 ### v4.11.0 - Copy a notebook, its sources, or its Studio artifacts
 
 Three RPCs no other MCP server exposes. `copy_notebook` (`POST /notebooks/:id/copy`,
@@ -243,8 +259,8 @@ A copy is not idempotent, and our client used to replay any failed call once aft
 re-bootstrapping — a reply lost after the server made the copy would have become a second
 copy. Calls can now declare `idempotent: false`: they are retried only after a sign-in bounce
 (HTTP 401/403 or `UNAUTHENTICATED`), which proves nothing was written; any other failure
-surfaces as "may already have been applied — check the target". Released without a live
-check on a real account (the changelog says so); still to be exercised.
+surfaces as "may already have been applied — check the target". Exercised live after the
+release (2026-11-17): all three copy, with two corrections listed under Unreleased.
 
 ### v4.10.0 - MCP over streamable HTTP (`POST /mcp`)
 

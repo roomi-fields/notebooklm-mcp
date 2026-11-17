@@ -37,7 +37,11 @@ export interface CopiedNotebook {
   id: string;
   title: string;
   url: string;
-  /** The sources the new notebook starts with (new ids). */
+  /**
+   * The sources the reply already lists (new ids). Often empty: the copy
+   * finishes in the background, and live the sources appeared on
+   * `list_sources` a few seconds after an empty list here (2026-11-17).
+   */
   sources: Array<{ id: string; title: string }>;
 }
 
@@ -88,7 +92,22 @@ export function parseCopiedSources(result: unknown): CopiedItem[] {
 /**
  * `CopyArtifactsAsync` reply: `[[ [originalId, [newId, title, type, …]], … ]]` —
  * the artifact ids are bare strings, unlike the source ids.
+ *
+ * Items NotebookLM refuses come back in a second slot instead, with no copy:
+ * `[null, [[originalId, null, [null, []]], …]]`. Seen live (2026-11-17) for
+ * every artifact of a notebook the account does not own — one shared with it,
+ * or public — whose sources the same account gets PERMISSION_DENIED copying.
  */
+export function parseDeclinedArtifacts(result: unknown): string[] {
+  const rows = Array.isArray(result) && Array.isArray(result[1]) ? (result[1] as unknown[]) : [];
+  const out: string[] = [];
+  for (const row of rows) {
+    if (Array.isArray(row) && typeof row[0] === 'string' && row[1] == null) out.push(row[0]);
+  }
+  return out;
+}
+
+/** The copied pairs of a `CopyArtifactsAsync` reply (see above). */
 export function parseCopiedArtifacts(result: unknown): CopiedItem[] {
   const pairs = Array.isArray(result) && Array.isArray(result[0]) ? (result[0] as unknown[]) : [];
   const out: CopiedItem[] = [];
@@ -144,6 +163,15 @@ export class CopyRpc {
       `/notebook/${notebookId}`,
       { idempotent: false }
     );
-    return parseCopiedArtifacts(result);
+    const copied = parseCopiedArtifacts(result);
+    const declined = parseDeclinedArtifacts(result);
+    if (copied.length === 0 && declined.length > 0) {
+      throw new Error(
+        `NotebookLM declined to copy ${declined.join(', ')}. It does this when notebook ` +
+          `${notebookId} is not yours (shared with you, or public): only a notebook you own can ` +
+          `be copied from. Nothing was copied.`
+      );
+    }
+    return copied;
   }
 }

@@ -17,6 +17,7 @@ import {
   parseCopiedArtifacts,
   parseCopiedNotebook,
   parseCopiedSources,
+  parseDeclinedArtifacts,
 } from '../rpc/copy-rpc.js';
 
 const SRC_NB = '11111111-2222-3333-4444-555555555555';
@@ -86,6 +87,13 @@ describe('copy replies', () => {
     ]);
   });
 
+  it('reads the refused artifacts from the second slot (live reply, 2026-11-17)', () => {
+    const reply = [null, [['ART_1', null, [null, []]]]];
+    expect(parseCopiedArtifacts(reply)).toEqual([]);
+    expect(parseDeclinedArtifacts(reply)).toEqual(['ART_1']);
+    expect(parseDeclinedArtifacts([[['ART_1', ['ART_2', 't']]]])).toEqual([]);
+  });
+
   it('reads an empty or unexpected reply as no copies, not a crash', () => {
     expect(parseCopiedSources(null)).toEqual([]);
     expect(parseCopiedArtifacts([[]])).toEqual([]);
@@ -111,6 +119,13 @@ describe('copy requests', () => {
     expect(calls[0].params).toEqual([null, null, [['S1'], ['S2']], DST_NB]);
     expect(calls[0].path).toBe(`/notebook/${SRC_NB}`);
     expect(calls[0].opts).toEqual({ idempotent: false });
+  });
+
+  it('says plainly that nothing was copied when every artifact is refused', async () => {
+    const { copy } = copyReturning([null, [['A1', null, [null, []]]]]);
+    await expect(copy.copyArtifacts(SRC_NB, ['A1'], DST_NB)).rejects.toThrow(
+      /declined to copy A1[\s\S]*not yours[\s\S]*Nothing was copied/
+    );
   });
 
   it('copies artifacts with [context, [id…], target] — bare ids, not wrapped', async () => {

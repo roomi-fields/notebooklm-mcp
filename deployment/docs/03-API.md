@@ -2992,6 +2992,8 @@ Fire-and-forget: the server keys the cancel on the run id alone (the notebook is
 
 Copy a whole notebook — its sources and its Studio artifacts — into a new notebook. Useful to fork a reference notebook before experimenting, or to hand a colleague a copy without sharing the original.
 
+Only a notebook you own can be copied — not one shared with you, nor a public one. The same holds for the two routes below.
+
 **Body:**
 
 | Field   | Type   | Required | Description                                      |
@@ -3014,11 +3016,13 @@ curl -X POST http://localhost:3000/notebooks/74912e55-34a4-4027-bdcc-8e89badd0ef
     "id": "b8c1d2e3-...",
     "title": "Thesis — sandbox",
     "url": "https://notebooklm.google.com/notebook/b8c1d2e3-...",
-    "sources": [{ "id": "f00dbabe-...", "title": "Chapter 1.pdf" }],
+    "sources": [],
     "sourceNotebookId": "74912e55-..."
   }
 }
 ```
+
+`sources` is often empty: the copy finishes in the background, and the sources show up on `GET /notebooks/:id/sources` a few seconds later.
 
 Not idempotent: a failed call is **never retried automatically**, because a reply lost after the server made the copy would otherwise turn into a second copy. List your notebooks before trying again.
 
