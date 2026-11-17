@@ -382,6 +382,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 <!-- releases:start — generated from CHANGELOG.md by scripts/sync-facts.mjs; do not edit by hand -->
 
+- **v4.11.1** (2026-11-17) — Copying, checked on a live account · Audio and image sources
 - **v4.11.0** (2026-11-17) — Copy a notebook, its sources, or its Studio content
 - **v4.10.0** (2026-11-13) — MCP over streamable HTTP
 - **v4.9.0** (2026-11-11) — Stop a running answer or research
@@ -391,7 +392,6 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 - **v4.5.0** (2026-10-30) — Search the sources without paying for an answer
 - **v4.4.0** (2026-10-24) — Two security fixes, both reported by Umar Ahmed (ghostnshells)
 - **v4.3.0** (2026-10-22) — Eight tools for calls the server already knew how to make · Two things the backlog had wrong
-- **v4.2.0** (2026-10-18) — Security — the session store is no longer reachable through a file path
 
 <!-- releases:end -->
 

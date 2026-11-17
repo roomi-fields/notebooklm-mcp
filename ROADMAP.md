@@ -227,7 +227,7 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 ## Recently Implemented
 
-### Unreleased - Audio and image sources, and two copy corrections from the live check
+### v4.11.1 - Audio and image sources, and two copy corrections from the live check
 
 Audio and image files were already accepted by `add_source` (type `file`) but never said so.
 Checked live on 2026-11-17: an MP3 is transcribed (`read_source` returns the transcript), and a
@@ -260,7 +260,7 @@ re-bootstrapping — a reply lost after the server made the copy would have beco
 copy. Calls can now declare `idempotent: false`: they are retried only after a sign-in bounce
 (HTTP 401/403 or `UNAUTHENTICATED`), which proves nothing was written; any other failure
 surfaces as "may already have been applied — check the target". Exercised live after the
-release (2026-11-17): all three copy, with two corrections listed under Unreleased.
+release (2026-11-17): all three copy, with two corrections shipped in v4.11.1.
 
 ### v4.10.0 - MCP over streamable HTTP (`POST /mcp`)
 

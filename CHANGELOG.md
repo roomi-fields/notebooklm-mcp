@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.11.1] - 2026-11-17
+
+### Copying, checked on a live account
+
+The three copy tools from 4.11.0 were exercised against a real account after the
+release. All three copy correctly from a notebook you own. Two things the
+recorded replies had not shown:
+
+- `copy_notebook` returns before the sources are copied, so the `sources` list
+  in its reply is usually empty. They appear a few seconds later — call
+  `list_sources` on the new notebook. The tool description and API reference
+  now say so.
+- A notebook you do not own — one shared with you, or a public one — cannot be
+  copied from. Sources were already refused with a clear message; Studio content
+  came back as an unexplained "the reply listed no copies". NotebookLM actually
+  reports those items as declined, and the error now says the notebook is not
+  yours and that nothing was copied.
+
+### Audio and image sources
+
+`add_source` with a file already accepted audio and images; it now says so.
+Checked live: an MP3 is transcribed and its transcript can be read and
+questioned, and a photo of a whiteboard is read — a question answers from the
+text in the picture (reading that source returns only the image link). With the
+"Gemini Notebook" mobile recorder and camera, a voice memo or a photo becomes a
+source you can also feed through this server.
+
 ## [4.11.0] - 2026-11-17
 
 ### Copy a notebook, its sources, or its Studio content
