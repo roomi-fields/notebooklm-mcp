@@ -227,7 +227,7 @@ Verified dead or no-op upstream — knowing this is worth as much as the rest.
 
 ## Recently Implemented
 
-### Unreleased - Copy a notebook, its sources, or its Studio artifacts
+### v4.11.0 - Copy a notebook, its sources, or its Studio artifacts
 
 Three RPCs no other MCP server exposes. `copy_notebook` (`POST /notebooks/:id/copy`,
 `CopyProject` / `te3DCe`) forks a whole notebook — sources and Studio artifacts — into a new
@@ -243,8 +243,8 @@ A copy is not idempotent, and our client used to replay any failed call once aft
 re-bootstrapping — a reply lost after the server made the copy would have become a second
 copy. Calls can now declare `idempotent: false`: they are retried only after a sign-in bounce
 (HTTP 401/403 or `UNAUTHENTICATED`), which proves nothing was written; any other failure
-surfaces as "may already have been applied — check the target". Needs a live check of all
-three on a real account before the release notes call it verified.
+surfaces as "may already have been applied — check the target". Released without a live
+check on a real account (the changelog says so); still to be exercised.
 
 ### v4.10.0 - MCP over streamable HTTP (`POST /mcp`)
 

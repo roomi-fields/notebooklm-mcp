@@ -382,6 +382,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 <!-- releases:start — generated from CHANGELOG.md by scripts/sync-facts.mjs; do not edit by hand -->
 
+- **v4.11.0** (2026-11-17) — Copy a notebook, its sources, or its Studio content
 - **v4.10.0** (2026-11-13) — MCP over streamable HTTP
 - **v4.9.0** (2026-11-11) — Stop a running answer or research
 - **v4.8.0** (2026-11-09) — The live compute-meter quota, read with one call
@@ -391,7 +392,6 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 - **v4.4.0** (2026-10-24) — Two security fixes, both reported by Umar Ahmed (ghostnshells)
 - **v4.3.0** (2026-10-22) — Eight tools for calls the server already knew how to make · Two things the backlog had wrong
 - **v4.2.0** (2026-10-18) — Security — the session store is no longer reachable through a file path
-- **v4.1.0** (2026-10-18) — Changed — Node 22 is the floor, and the last four advisories left with it
 
 <!-- releases:end -->
 

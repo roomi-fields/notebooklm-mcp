@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.11.0] - 2026-11-17
+
+### Copy a notebook, its sources, or its Studio content
+
+Three new tools, which no other MCP server exposes:
+
+- `copy_notebook` (`POST /notebooks/:id/copy`) duplicates a whole notebook —
+  sources and Studio content — into a new one, titled "Copy of <title>" unless
+  you name it.
+- `copy_sources` (`POST /notebooks/:id/sources/copy`) copies chosen sources into
+  another notebook you already have.
+- `copy_content` (`POST /notebooks/:id/content/copy`) does the same for Studio
+  content (audio, video, reports, quizzes…).
+
+Each reply maps every original id to its copy. The target notebook is never
+defaulted to the active one: a copy only lands where the caller said.
+
+A copy is not idempotent, so a failed copy is no longer replayed blindly. The
+client used to retry any failed call once; for a copy, a reply lost after the
+server made it would have become a second copy. A copy is now retried only after
+a sign-in bounce (HTTP 401/403 or `UNAUTHENTICATED`), which proves nothing was
+written; any other failure says the copy may already have been applied and asks
+you to check the target.
+
+Request shapes and reply offsets come from `teng-lin/notebooklm-py`'s recorded
+replies. These three calls have not yet been exercised against a live account
+from this project — report anything unexpected.
+
+Three new operations, regenerated into the Rust, Ruby, n8n and UTCP clients —
+sixty-two operations now.
+
 ## [4.10.0] - 2026-11-13
 
 ### MCP over streamable HTTP
