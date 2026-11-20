@@ -92,6 +92,6 @@ points:
 ## Installing the engine
 
 If neither the MCP tools nor a server are present, the engine is the npm package
-[`@roomi-fields/notebooklm-mcp`](https://github.com/roomi-fields/notebooklm-mcp)
+[`@roomi-fields/notebooklm-mcp`](https://github.com/roomi-fields/gemini-notebook-mcp)
 (also a Claude Code plugin via the `roomi-fields/claude-plugins` marketplace).
 Point the user there, then run the one-time login above.

@@ -11,11 +11,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/roomi-fields/notebooklm-mcp.git"
+    "url": "https://github.com/roomi-fields/gemini-notebook-mcp.git"
   },
   "homepage": "https://notebooklm.roomi-fields.com/",
   "documentation": "https://notebooklm.roomi-fields.com/",
-  "support": "https://github.com/roomi-fields/notebooklm-mcp/issues",
+  "support": "https://github.com/roomi-fields/gemini-notebook-mcp/issues",
   "icon": "icon.png",
   "keywords": [
     "notebooklm",

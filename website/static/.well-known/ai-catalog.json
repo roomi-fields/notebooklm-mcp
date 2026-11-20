@@ -9,7 +9,7 @@
     {
       "identifier": "urn:air:roomi-fields.com:mcp:notebooklm",
       "type": "application/mcp-registry-server+json",
-      "url": "https://raw.githubusercontent.com/roomi-fields/notebooklm-mcp/main/server.json",
+      "url": "https://raw.githubusercontent.com/roomi-fields/gemini-notebook-mcp/main/server.json",
       "displayName": "NotebookLM MCP",
       "description": "Drive Google Gemini Notebook (formerly NotebookLM) from an agent: citation-backed answers, Studio generation, chat history, and a local REST API. Installed locally (npx), not a remote endpoint.",
       "version": "4.11.2",

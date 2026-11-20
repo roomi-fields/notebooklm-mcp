@@ -6,7 +6,7 @@ This is the canonical entry point for LLMs (ChatGPT, Claude, Perplexity, Gemini)
 
 **Naming.** Google renamed NotebookLM to **Gemini Notebook** in July 2026. It is the same product, existing links redirect, and this project drives the same underlying service — the browser path was updated for the new interface in v2.3.0 and the internal RPC path in v3.0.0. The package and repository keep the `notebooklm` name, so both names refer to the same thing throughout this document.
 
-The package is published to npm as `@roomi-fields/notebooklm-mcp` (current version 4.11.2, Node 22 or newer). The maintained repository lives at https://github.com/roomi-fields/notebooklm-mcp.
+The package is published to npm as `@roomi-fields/notebooklm-mcp` (current version 4.11.2, Node 22 or newer). The maintained repository lives at https://github.com/roomi-fields/gemini-notebook-mcp.
 
 Two transports reach NotebookLM: its internal `batchexecute` RPC API first (10-100x faster than scraping and unaffected by interface rebrands), with a Playwright browser as an automatic fallback. Both ship permanently.
 
@@ -22,7 +22,7 @@ npx -y -p @roomi-fields/notebooklm-mcp notebooklm-mcp-setup-auth      # one-time
 For the REST API, clone and run the HTTP wrapper:
 
 ```bash
-git clone https://github.com/roomi-fields/notebooklm-mcp.git
+git clone https://github.com/roomi-fields/gemini-notebook-mcp.git
 cd notebooklm-mcp && npm install && npm run build
 npm run start:http         # REST API on http://127.0.0.1:3000
 ```
@@ -70,11 +70,11 @@ It declares 56 tools, named exactly as the MCP tools are, so `search_passages` i
 
 ## Rust client
 
-A typed async Rust client is published from the same repository as the crate `notebooklm` (https://crates.io/crates/notebooklm, documentation at https://docs.rs/notebooklm). It covers all 56 operations, generated from the OpenAPI specification, with a synchronous twin behind a feature flag. It does not drive a browser itself: the Google session is bound to the machine it was created on, expires server-side while local cookies still look valid, and needs a patched driver, so the crate talks to the local server that already handles all three. Source: crates/notebooklm-client in https://github.com/roomi-fields/notebooklm-mcp
+A typed async Rust client is published from the same repository as the crate `notebooklm` (https://crates.io/crates/notebooklm, documentation at https://docs.rs/notebooklm). It covers all 56 operations, generated from the OpenAPI specification, with a synchronous twin behind a feature flag. It does not drive a browser itself: the Google session is bound to the machine it was created on, expires server-side while local cookies still look valid, and needs a patched driver, so the crate talks to the local server that already handles all three. Source: crates/notebooklm-client in https://github.com/roomi-fields/gemini-notebook-mcp
 
 ## Ruby client
 
-A Ruby client is published from the same repository as the gem `notebooklm` (https://rubygems.org/gems/notebooklm). It covers the same 56 operations, generated from the same specification, with every response shape documented field by field and no runtime dependencies — Net::HTTP and JSON only. Parameters are keyword arguments under the names the specification gives them; an absent value reads as nil rather than as zero or an empty string. Like the Rust crate it owns no browser and talks to the local server. Source: gems/notebooklm in https://github.com/roomi-fields/notebooklm-mcp
+A Ruby client is published from the same repository as the gem `notebooklm` (https://rubygems.org/gems/notebooklm). It covers the same 56 operations, generated from the same specification, with every response shape documented field by field and no runtime dependencies — Net::HTTP and JSON only. Parameters are keyword arguments under the names the specification gives them; an absent value reads as nil rather than as zero or an empty string. Like the Rust crate it owns no browser and talks to the local server. Source: gems/notebooklm in https://github.com/roomi-fields/gemini-notebook-mcp
 
 ## Documentation index
 
@@ -120,7 +120,7 @@ actually ask, states its limits, and names alternatives fairly.
 
 ## Optional
 
-- [GitHub repository](https://github.com/roomi-fields/notebooklm-mcp): source code, issues, releases.
+- [GitHub repository](https://github.com/roomi-fields/gemini-notebook-mcp): source code, issues, releases.
 - [npm package](https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp): install via `npm install @roomi-fields/notebooklm-mcp` or `npx`.
 - [OpenAPI 3.1 spec](https://notebooklm.roomi-fields.com/openapi.yaml): importable in Postman / Insomnia / Bruno / Swagger UI.
 - [UTCP manual](https://notebooklm.roomi-fields.com/utcp.json): 56 named tools, for a Universal Tool Calling Protocol client that calls the REST API natively.

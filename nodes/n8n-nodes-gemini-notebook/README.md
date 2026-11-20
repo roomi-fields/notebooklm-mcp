@@ -1,7 +1,7 @@
 # n8n-nodes-gemini-notebook
 
 [![npm version](https://img.shields.io/npm/v/n8n-nodes-gemini-notebook.svg)](https://www.npmjs.com/package/n8n-nodes-gemini-notebook)
-[![CI](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml)
+[![CI](https://github.com/roomi-fields/gemini-notebook-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/gemini-notebook-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 An [n8n](https://n8n.io/) community node for **Gemini Notebook** (formerly
@@ -73,12 +73,12 @@ means to reason over the evidence itself, ask for the evidence.
 
 ## License
 
-MIT. See [LICENSE](https://github.com/roomi-fields/notebooklm-mcp/blob/main/LICENSE).
+MIT. See [LICENSE](https://github.com/roomi-fields/gemini-notebook-mcp/blob/main/LICENSE).
 
 ### Contribution
 
 Issues and pull requests go to
-[roomi-fields/notebooklm-mcp](https://github.com/roomi-fields/notebooklm-mcp),
+[roomi-fields/gemini-notebook-mcp](https://github.com/roomi-fields/gemini-notebook-mcp),
 which holds the server and this node together. The node is generated: change
 `deployment/docs/openapi.yaml` and run `npm run n8n:sync`, never
 `nodes/NotebookLm/NotebookLm.node.ts` by hand.

@@ -17,4 +17,4 @@ This plugin automates Google NotebookLM on your behalf.
 - **Local data:** answers and downloaded artifacts are written to your local
   machine.
 
-**Contact:** https://github.com/roomi-fields/notebooklm-mcp/issues
+**Contact:** https://github.com/roomi-fields/gemini-notebook-mcp/issues

@@ -21,11 +21,11 @@ Gem::Specification.new do |spec|
   spec.homepage = 'https://notebooklm.roomi-fields.com/'
   spec.metadata = {
     'homepage_uri' => spec.homepage,
-    'source_code_uri' => 'https://github.com/roomi-fields/notebooklm-mcp/tree/main/gems/notebooklm',
-    'changelog_uri' => 'https://github.com/roomi-fields/notebooklm-mcp/blob/main/CHANGELOG.md',
+    'source_code_uri' => 'https://github.com/roomi-fields/gemini-notebook-mcp/tree/main/gems/notebooklm',
+    'changelog_uri' => 'https://github.com/roomi-fields/gemini-notebook-mcp/blob/main/CHANGELOG.md',
     'documentation_uri' => 'https://notebooklm.roomi-fields.com/',
-    'wiki_uri' => 'https://github.com/roomi-fields/notebooklm-mcp',
-    'bug_tracker_uri' => 'https://github.com/roomi-fields/notebooklm-mcp/issues',
+    'wiki_uri' => 'https://github.com/roomi-fields/gemini-notebook-mcp',
+    'bug_tracker_uri' => 'https://github.com/roomi-fields/gemini-notebook-mcp/issues',
     'rubygems_mfa_required' => 'true'
   }
 

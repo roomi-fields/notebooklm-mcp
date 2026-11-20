@@ -62,7 +62,7 @@ The rest:
 **And one thing he got right that we did not, until recently:** his HTTP mode
 bound `127.0.0.1` by default. Ours bound every interface with no credentials
 until 4.0.0, which was a real vulnerability
-([GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/notebooklm-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)).
+([GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/gemini-notebook-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)).
 It is fixed, and exposing the API now requires `NOTEBOOKLM_API_KEY` — see
 [Securing the HTTP API](./15-SECURITY.md). You should know that history before
 trusting this project with a port.

@@ -175,7 +175,7 @@ Latest: **v1.5.8 (2026-04-19)** — 2026 NotebookLM UI selectors, doctor scripts
 
 Found an error in the documentation? An unclear section?
 
-**Open an issue:** [GitHub Issues](https://github.com/roomi-fields/notebooklm-mcp/issues)
+**Open an issue:** [GitHub Issues](https://github.com/roomi-fields/gemini-notebook-mcp/issues)
 
 Or directly propose a PR to improve the documentation!
 

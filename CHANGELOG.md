@@ -551,7 +551,7 @@ unnecessary.
 ### Security — the HTTP API is no longer open to the network or to any web page
 
 Reported privately on 2026-10-16 through the disclosure channel opened two
-weeks earlier ([GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/notebooklm-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)),
+weeks earlier ([GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/gemini-notebook-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)),
 found with [MCP Guard](https://github.com/dshoneys/mcp_guard).
 
 Up to and including 3.2.0 the HTTP wrapper bound `0.0.0.0`, answered every
@@ -1309,7 +1309,7 @@ and a regression test now asserts every advertised name matches the pattern.
   pre-baseline count from `addSource()` and waiting for the dialog to settle
   before verification fixes the false-negative. (Reported by
   [@assistantthatskywalker](https://github.com/assistantthatskywalker) in
-  [#14](https://github.com/roomi-fields/notebooklm-mcp/issues/14).)
+  [#14](https://github.com/roomi-fields/gemini-notebook-mcp/issues/14).)
 - **Answer wait timeout 2 min → 5 min** in `waitForLatestAnswer` — long
   NotebookLM answers with many citations regularly exceed 2 minutes and were
   timing out as false negatives. (Cherry-picked from

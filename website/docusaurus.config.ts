@@ -48,7 +48,7 @@ const config: Config = {
   baseUrl: '/',
 
   organizationName: 'roomi-fields',
-  projectName: 'notebooklm-mcp',
+  projectName: 'gemini-notebook-mcp',
   deploymentBranch: 'gh-pages',
   trailingSlash: false,
 
@@ -107,7 +107,7 @@ const config: Config = {
             operatingSystem: 'Windows, macOS, Linux',
             url: `${SITE_URL}/`,
             downloadUrl: 'https://www.npmjs.com/package/@roomi-fields/notebooklm-mcp',
-            codeRepository: 'https://github.com/roomi-fields/notebooklm-mcp',
+            codeRepository: 'https://github.com/roomi-fields/gemini-notebook-mcp',
             publisher: { '@id': 'https://roomi-fields.com/#organization' },
             author: {
               '@type': 'Person',
@@ -132,7 +132,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           routeBasePath: '/',
-          editUrl: 'https://github.com/roomi-fields/notebooklm-mcp/tree/main/website/',
+          editUrl: 'https://github.com/roomi-fields/gemini-notebook-mcp/tree/main/website/',
           // A visible, per-page date read from git. An engine ranking two
           // sources on freshness has nothing to go on without one.
           showLastUpdateTime: true,
@@ -214,7 +214,7 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://github.com/roomi-fields/notebooklm-mcp',
+          href: 'https://github.com/roomi-fields/gemini-notebook-mcp',
           label: 'GitHub',
           position: 'right',
         },
@@ -251,7 +251,7 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/roomi-fields/notebooklm-mcp',
+              href: 'https://github.com/roomi-fields/gemini-notebook-mcp',
             },
             {
               label: 'npm',
@@ -259,7 +259,7 @@ const config: Config = {
             },
             {
               label: 'Issues',
-              href: 'https://github.com/roomi-fields/notebooklm-mcp/issues',
+              href: 'https://github.com/roomi-fields/gemini-notebook-mcp/issues',
             },
           ],
         },

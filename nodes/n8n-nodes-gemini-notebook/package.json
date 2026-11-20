@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/roomi-fields/notebooklm-mcp.git",
+    "url": "git+https://github.com/roomi-fields/gemini-notebook-mcp.git",
     "directory": "nodes/n8n-nodes-gemini-notebook"
   },
   "main": "index.js",

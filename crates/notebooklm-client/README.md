@@ -2,7 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/notebooklm.svg)](https://crates.io/crates/notebooklm)
 [![docs.rs](https://img.shields.io/docsrs/notebooklm)](https://docs.rs/notebooklm)
-[![CI](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml)
+[![CI](https://github.com/roomi-fields/gemini-notebook-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/gemini-notebook-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A Rust client for **Gemini Notebook** (formerly NotebookLM): citation-backed
@@ -128,12 +128,12 @@ Raising it is a minor-version change.
 
 ## License
 
-MIT. See [LICENSE](https://github.com/roomi-fields/notebooklm-mcp/blob/main/LICENSE).
+MIT. See [LICENSE](https://github.com/roomi-fields/gemini-notebook-mcp/blob/main/LICENSE).
 
 ### Contribution
 
 Issues and pull requests go to
-[roomi-fields/notebooklm-mcp](https://github.com/roomi-fields/notebooklm-mcp),
+[roomi-fields/gemini-notebook-mcp](https://github.com/roomi-fields/gemini-notebook-mcp),
 which holds the server and this crate together. The typed surface is generated:
 change `deployment/docs/openapi.yaml` and run `npm run rust:sync`, never
 `src/generated.rs` by hand.

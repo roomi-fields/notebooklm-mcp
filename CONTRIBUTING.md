@@ -277,9 +277,9 @@ By contributing, you agree that your contributions will be licensed under the [M
 
 ## Questions?
 
-- Open a [GitHub Discussion](https://github.com/roomi-fields/notebooklm-mcp/discussions)
+- Open a [GitHub Discussion](https://github.com/roomi-fields/gemini-notebook-mcp/discussions)
 - Consult the [documentation](./deployment/docs/)
-- Read [existing issues](https://github.com/roomi-fields/notebooklm-mcp/issues)
+- Read [existing issues](https://github.com/roomi-fields/gemini-notebook-mcp/issues)
 
 ---
 

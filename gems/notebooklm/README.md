@@ -1,7 +1,7 @@
 # notebooklm
 
 [![Gem Version](https://img.shields.io/gem/v/notebooklm.svg)](https://rubygems.org/gems/notebooklm)
-[![CI](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/notebooklm-mcp/actions/workflows/ci.yml)
+[![CI](https://github.com/roomi-fields/gemini-notebook-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/roomi-fields/gemini-notebook-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A Ruby client for **Gemini Notebook** (formerly NotebookLM): citation-backed
@@ -144,12 +144,12 @@ Ruby **3.1** or later.
 
 ## License
 
-MIT. See [LICENSE](https://github.com/roomi-fields/notebooklm-mcp/blob/main/LICENSE).
+MIT. See [LICENSE](https://github.com/roomi-fields/gemini-notebook-mcp/blob/main/LICENSE).
 
 ### Contribution
 
 Issues and pull requests go to
-[roomi-fields/notebooklm-mcp](https://github.com/roomi-fields/notebooklm-mcp),
+[roomi-fields/gemini-notebook-mcp](https://github.com/roomi-fields/gemini-notebook-mcp),
 which holds the server and this gem together. The surface is generated: change
 `deployment/docs/openapi.yaml` and run `npm run ruby:sync`, never
 `lib/notebooklm/generated.rb` by hand.

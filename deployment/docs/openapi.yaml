@@ -15,7 +15,7 @@ info:
     url: https://opensource.org/licenses/MIT
   contact:
     name: Romain Peyrichou
-    url: https://github.com/roomi-fields/notebooklm-mcp
+    url: https://github.com/roomi-fields/gemini-notebook-mcp
 
 servers:
   - url: http://localhost:3000

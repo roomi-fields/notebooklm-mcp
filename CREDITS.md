@@ -225,8 +225,8 @@ See [LICENSE](./LICENSE) for complete details.
 
 ## Contact & Contributions
 
-- **Issues:** [GitHub Issues](https://github.com/roomi-fields/notebooklm-mcp/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/roomi-fields/notebooklm-mcp/discussions)
+- **Issues:** [GitHub Issues](https://github.com/roomi-fields/gemini-notebook-mcp/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/roomi-fields/gemini-notebook-mcp/discussions)
 - **Contributions:** See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ---

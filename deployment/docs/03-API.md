@@ -9,7 +9,7 @@
 >
 > **OpenAPI 3.1 spec:** [openapi.yaml](pathname:///openapi.yaml) (importable in
 > Postman, Insomnia, Bruno, Swagger UI). Source in the repo at
-> [`deployment/docs/openapi.yaml`](https://github.com/roomi-fields/notebooklm-mcp/blob/main/deployment/docs/openapi.yaml).
+> [`deployment/docs/openapi.yaml`](https://github.com/roomi-fields/gemini-notebook-mcp/blob/main/deployment/docs/openapi.yaml).
 >
 > **Companion guides:** [REST batch pattern (1 000 questions overnight)](/batch-1000-questions) ·
 > [n8n integration](/notebooklm-n8n) · [Multi-account rotation](/notebooklm-multi-account) ·

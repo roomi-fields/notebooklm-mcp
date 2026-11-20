@@ -128,8 +128,8 @@ private until a fix ships.
 
 Past advisories:
 
-- [GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/notebooklm-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)
+- [GHSA-p69m-c5rf-g2c3](https://github.com/roomi-fields/gemini-notebook-mcp/security/advisories/GHSA-p69m-c5rf-g2c3)
   — ≤ 3.2.0 bound `0.0.0.0`, sent `Access-Control-Allow-Origin: *`, and required
   no credentials, so any page the user visited could drive the API. Fixed in 4.0.0.
-- [CVE-2026-61647](https://github.com/roomi-fields/notebooklm-mcp/security/advisories/GHSA-jjhp-8crj-mppq)
+- [CVE-2026-61647](https://github.com/roomi-fields/gemini-notebook-mcp/security/advisories/GHSA-jjhp-8crj-mppq)
   — path traversal in the vault batch writer (affected 1.6.0 – 2.0.2). Fixed in 2.0.3.

@@ -8,7 +8,7 @@
     "url": "https://github.com/roomi-fields"
   },
   "homepage": "https://notebooklm.roomi-fields.com/",
-  "repository": "https://github.com/roomi-fields/notebooklm-mcp",
+  "repository": "https://github.com/roomi-fields/gemini-notebook-mcp",
   "license": "MIT",
   "keywords": ["notebooklm", "gemini", "citations", "research", "studio", "qa", "rag", "rtfm"],
   "mcpServers": {

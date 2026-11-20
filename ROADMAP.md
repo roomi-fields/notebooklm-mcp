@@ -522,7 +522,7 @@ segments, and refuses the session store whatever the roots allow. See
 
 ## Ideas & Proposals
 
-Have an idea? [Open a discussion](https://github.com/roomi-fields/notebooklm-mcp/discussions) to suggest new features!
+Have an idea? [Open a discussion](https://github.com/roomi-fields/gemini-notebook-mcp/discussions) to suggest new features!
 
 ---
 
