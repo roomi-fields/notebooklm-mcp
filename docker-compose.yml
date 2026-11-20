@@ -18,7 +18,9 @@ services:
     # Port mapping
     ports:
       - '${HTTP_PORT:-3000}:3000'
-      - '6080:6080' # noVNC web interface for visual auth
+      # noVNC shows the browser signed in to your Google account: loopback only.
+      # From another machine, use an SSH tunnel (ssh -L 6080:localhost:6080 host).
+      - '127.0.0.1:6080:6080' # noVNC web interface for visual auth (password in the logs)
 
     # Persistent data storage
     volumes:

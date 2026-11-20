@@ -337,11 +337,14 @@ works without one ([issue #42](https://github.com/roomi-fields/notebooklm-mcp/is
 ```bash
 # Build and run
 docker build -t notebooklm-mcp .
-docker run -d --name notebooklm-mcp -p 3000:3000 -p 6080:6080 -v notebooklm-data:/data notebooklm-mcp
+export NOTEBOOKLM_API_KEY=$(openssl rand -hex 32)
+docker run -d --name notebooklm-mcp -p 3000:3000 -p 127.0.0.1:6080:6080 \
+  -e NOTEBOOKLM_API_KEY -v notebooklm-data:/data notebooklm-mcp
 
-# Authenticate via noVNC
-# 1. Open http://localhost:6080/vnc.html
-# 2. Run: curl -X POST http://localhost:3000/setup-auth -d '{"show_browser":true}'
+# Authenticate via noVNC (loopback only; from another machine: ssh -L 6080:localhost:6080 host)
+# 1. Open http://localhost:6080/vnc.html, password: docker logs notebooklm-mcp | grep Password
+# 2. Run: curl -X POST http://localhost:3000/setup-auth -H "Authorization: Bearer $NOTEBOOKLM_API_KEY" \
+#      -H 'Content-Type: application/json' -d '{"show_browser":true}'
 # 3. Login to Google in the VNC window
 ```
 

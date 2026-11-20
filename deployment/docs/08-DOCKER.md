@@ -28,8 +28,9 @@ docker run -d \
   --name notebooklm-mcp \
   --restart unless-stopped \
   -p 3000:3000 \
-  -p 6080:6080 \
+  -p 127.0.0.1:6080:6080 \
   -v notebooklm-data:/data \
+  -e NOTEBOOKLM_API_KEY="$(openssl rand -hex 32)" \
   -e HEADLESS=true \
   -e STEALTH_ENABLED=true \
   -e NOTEBOOKLM_UI_LOCALE=fr \
@@ -38,14 +39,20 @@ docker run -d \
 
 ## Ports
 
-| Port | Description                              |
-| ---- | ---------------------------------------- |
-| 3000 | HTTP REST API                            |
-| 6080 | noVNC web interface (for authentication) |
+| Port | Description                                                                             |
+| ---- | --------------------------------------------------------------------------------------- |
+| 3000 | HTTP REST API                                                                           |
+| 6080 | noVNC web interface (for authentication) — password-protected, publish on loopback only |
 
 ## First-Time Authentication via noVNC
 
 Docker includes a **noVNC server** for visual browser access, required for initial Google authentication.
+
+The noVNC console shows the browser that is signed in to your Google account, so it is a credential:
+
+- It asks for a **password**: set `VNC_PASSWORD`, or read the one generated at each start in the logs (`docker logs notebooklm-mcp | grep Password`). VNC only checks the first 8 characters.
+- Publish port 6080 on **loopback only** (`127.0.0.1:6080:6080`, as the shipped `docker-compose.yml` does). From another machine, open an SSH tunnel instead of exposing it: `ssh -L 6080:localhost:6080 user@docker-host`, then browse `http://localhost:6080/vnc.html`.
+- Once you are logged in, you can restart with `ENABLE_VNC=false`: the session is kept in the data volume.
 
 ### Step 1: Open noVNC
 
@@ -65,7 +72,7 @@ curl -X POST http://localhost:3000/setup-auth \
 
 ### Step 3: Login in noVNC
 
-1. The Chromium browser appears in the noVNC window
+1. Click **Connect** and enter the VNC password; the Chromium browser appears in the noVNC window
 2. Complete Google login
 3. Authentication is saved automatically
 4. Browser closes when done
@@ -104,6 +111,7 @@ docker restart notebooklm-mcp
 | `AUTO_LOGIN_ENABLED`   | `false`   | Enable auto-login         |
 | `ENABLE_VNC`           | `true`    | Enable noVNC server       |
 | `NOVNC_PORT`           | `6080`    | noVNC web port            |
+| `VNC_PASSWORD`         | random    | noVNC password (in logs)  |
 
 ### Custom Configuration
 
@@ -176,8 +184,9 @@ docker run -d \
   --name notebooklm-mcp \
   --restart unless-stopped \
   -p 3000:3000 \
-  -p 6080:6080 \
+  -p 127.0.0.1:6080:6080 \
   -v /volume1/docker/notebooklm/data:/data \
+  -e NOTEBOOKLM_API_KEY="$(openssl rand -hex 32)" \
   -e HEADLESS=true \
   -e STEALTH_ENABLED=true \
   -e NOTEBOOKLM_UI_LOCALE=fr \
@@ -186,7 +195,7 @@ docker run -d \
 
 ### Authenticate via noVNC
 
-1. Open `http://nas-ip:6080/vnc.html`
+1. From your computer, open a tunnel to the NAS — `ssh -L 6080:localhost:6080 user@nas` — then open `http://localhost:6080/vnc.html` and enter the VNC password from `docker logs notebooklm-mcp`
 2. Run setup-auth command
 3. Complete Google login in VNC window
 
@@ -231,7 +240,7 @@ If Chromium fails to launch:
 
 ### noVNC not accessible
 
-1. Verify port 6080 is exposed
+1. Verify port 6080 is published (on `127.0.0.1`) and that you are going through an SSH tunnel from another machine
 2. Check firewall rules
 3. Verify container is running: `docker ps`
 
@@ -285,7 +294,7 @@ server {
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
-        # Add authentication here!
+        # The VNC password is not enough on a public host: add authentication here.
     }
 }
 ```
@@ -309,7 +318,7 @@ questions.
 
 ### Security Considerations
 
-1. **Don't expose port 6080 publicly** - noVNC gives browser access
+1. **Don't expose port 6080 beyond loopback** - noVNC gives control of the browser signed in to your Google account; it is password-protected, but use an SSH tunnel to reach it
 2. **Use a reverse proxy with authentication** for production
 3. **Regular backups** of the data volume
 4. **Monitor container health** using the healthcheck endpoint
@@ -320,7 +329,7 @@ questions.
 Docker Container
 ├── Node.js HTTP Server (port 3000)
 ├── Xvfb (:99) - Virtual display
-├── x11vnc - VNC server
+├── x11vnc - VNC server (127.0.0.1, password)
 ├── websockify/noVNC (port 6080) - Web VNC
 └── Chromium browser
 
