@@ -385,6 +385,7 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 
 <!-- releases:start — generated from CHANGELOG.md by scripts/sync-facts.mjs; do not edit by hand -->
 
+- **v4.11.2** (2026-11-20) — Security — the Docker noVNC console needed no password
 - **v4.11.1** (2026-11-17) — Copying, checked on a live account · Audio and image sources
 - **v4.11.0** (2026-11-17) — Copy a notebook, its sources, or its Studio content
 - **v4.10.0** (2026-11-13) — MCP over streamable HTTP
@@ -394,7 +395,6 @@ See [ROADMAP.md](./ROADMAP.md) for planned features and version history.
 - **v4.6.0** (2026-11-06) — Retry a failed generation without losing its id · A UTCP interface, and 56 named operations · and more
 - **v4.5.0** (2026-10-30) — Search the sources without paying for an answer
 - **v4.4.0** (2026-10-24) — Two security fixes, both reported by Umar Ahmed (ghostnshells)
-- **v4.3.0** (2026-10-22) — Eight tools for calls the server already knew how to make · Two things the backlog had wrong
 
 <!-- releases:end -->
 

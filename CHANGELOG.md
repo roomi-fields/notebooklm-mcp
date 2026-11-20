@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [4.11.2] - 2026-11-20
+
+### Security — the Docker noVNC console needed no password
+
+The Docker image runs a noVNC console so you can log in to Google the first
+time. It showed the browser signed in to your Google account, asked for no
+password, and the shipped `docker-compose.yml` published it on every network
+interface. Anyone who could reach port 6080 got that browser — NotebookLM and,
+through the same session, the rest of the Google account — without the API
+token required since 4.0.0. Reported privately by orshih6.
+
+- The console now asks for a password: set `VNC_PASSWORD`, or read the one
+  generated at each start in the container logs. VNC only checks the first
+  8 characters.
+- The VNC server listens inside the container only; the web console is the
+  one way in.
+- `docker-compose.yml` and the docs publish port 6080 on `127.0.0.1`. From
+  another machine, use an SSH tunnel (`ssh -L 6080:localhost:6080 host`).
+- Once logged in, `ENABLE_VNC=false` turns the console off; the session is
+  kept in the data volume.
+
+**If you run the container with port 6080 reachable from a network**, update,
+and consider signing out of other sessions from your Google account's security
+page if the port was reachable by people you do not trust.
+
+The README's Docker quick start also gained the `NOTEBOOKLM_API_KEY` it has
+needed since 4.0.0.
+
 ## [4.11.1] - 2026-11-17
 
 ### Copying, checked on a live account
